@@ -1,0 +1,117 @@
+
+/* ── Garden ── */
+.garden-header { margin-bottom: 1.75rem; }
+.garden-summary { font-size: 1.05rem; font-weight: 600; }
+.gs-num { font-size: 1.6rem; font-weight: 900; color: var(--accent-light); }
+.gs-mature { color: var(--green); font-weight: 500; }
+.garden-note {
+  margin-top: 0.5rem; font-size: 0.85rem; line-height: 1.55;
+  color: var(--text-dim); max-width: 62ch;
+}
+.garden-plot { margin-bottom: 1.75rem; }
+.plot-title {
+  font-size: 0.85rem; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--text-dim); margin-bottom: 0.7rem;
+}
+.garden-bed {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 0.6rem;
+  padding: 1rem 0.9rem 0.9rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.15));
+}
+.garden-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+  padding: 0.7rem 0.4rem 0.55rem; border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.025);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+.garden-cell:hover { transform: translateY(-3px); background: rgba(255,255,255,0.06); }
+.garden-cell.fallow { opacity: 0.32; }
+.gc-plant { font-size: 1.9rem; line-height: 1.1; }
+.gc-label {
+  font-size: 0.68rem; text-align: center; line-height: 1.25;
+  color: var(--text-dim);
+}
+.gc-stage {
+  font-size: 0.6rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.garden-legend {
+  display: flex; flex-wrap: wrap; gap: 0.9rem;
+  padding-top: 1rem; border-top: 1px solid var(--border);
+  font-size: 0.75rem; color: var(--text-muted);
+}
+
+/* ── Daily dividends ── */
+.garden-dividends {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+  padding: 1rem 1.1rem; margin: 1.5rem 0 0.5rem;
+  border: 1px solid var(--border-accent); border-radius: var(--radius);
+  background: var(--bg-card);
+}
+.gd-title { font-weight: 700; font-size: 0.95rem; }
+.gd-rows { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.35rem; }
+.gd-row { font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim); }
+.garden-dividends button:disabled { opacity: 0.45; cursor: default; }
+
+/* ── Watering (spaced review, surfaced as thirsty plants) ── */
+.garden-water {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+  padding: 1rem 1.1rem; margin: 0 0 1.5rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-card);
+}
+.garden-water.due { border-color: var(--border-accent); }
+.gw-list { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.3rem; }
+.garden-cell { position: relative; }
+.garden-cell.due {
+  background: var(--accent-glow);
+  border-bottom-color: var(--accent);
+}
+.gc-due {
+  position: absolute; top: 4px; right: 5px; font-size: 0.7rem;
+  animation: float 2.4s ease-in-out infinite;
+}
+
+/* ── Course plots (collapsible) ── */
+.garden-course {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-card); margin-bottom: 0.75rem; overflow: hidden;
+}
+.garden-course.open { border-color: var(--border-accent); }
+.gc-head {
+  display: flex; align-items: center; gap: 0.7rem; width: 100%;
+  padding: 0.9rem 1.1rem; cursor: pointer; font: inherit; color: var(--text);
+  background: none; border: none; text-align: left;
+  transition: background 0.15s ease;
+}
+.gc-head:hover { background: var(--bg-card-hover); }
+.gc-caret {
+  display: inline-block; font-size: 0.7rem; color: var(--text-dim);
+  transition: transform 0.2s ease;
+}
+.garden-course.open .gc-caret { transform: rotate(90deg); }
+.gc-icon { font-size: 1.15rem; }
+.gc-title { font-weight: 700; font-size: 0.95rem; }
+.gc-stat {
+  margin-left: auto; font-family: var(--mono);
+  font-size: 0.75rem; color: var(--text-dim);
+}
+.gc-duecount {
+  font-family: var(--mono); font-size: 0.72rem;
+  padding: 0.15rem 0.45rem; border-radius: var(--radius-xs);
+  background: var(--accent-glow); color: var(--accent-light);
+}
+/* Slides open rather than snapping — the plot is the reveal. */
+.gc-inner {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s ease;
+}
+.garden-course.open .gc-inner { grid-template-rows: 1fr; }
+.gc-inner > * { overflow: hidden; }
+.garden-course .garden-plot { padding: 0 1.1rem; }
+.garden-course.open .garden-plot { padding-bottom: 1rem; }

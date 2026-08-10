@@ -1,0 +1,144 @@
+# library/ — courses (was: "Courses")
+
+The study half of the app. Courses → Units → Topics → Lesson chunks → Mastery
+exam, plus the Stats modal. This is the **only** branch that touches course
+content.
+
+| File | Role |
+|---|---|
+| `library.js` | All course navigation, lesson rendering, exam logic |
+| `stats.js` | The Stats modal (read-only over everyone's data) |
+| `content/registry.js` | The loader. Turns registered courses into the globals. |
+| `content/build.js` | Publishes those globals. Loads last of the content band. |
+| `content/quotes.js` | The wisdom pool, shared across courses. |
+| `content/<slug>/` | **One folder per course**: its module files + `course.js`. |
+| `content/_template/` | Copy-this-to-start-a-course. Not loaded. |
+
+Stylesheet: `styles/library.css`.
+
+## Exports
+`renderCourseSelect`, `renderUnitSelect`, `selectUnit`, `renderTopicMap`,
+`updateGlobalProgress`, `startTopic`, `getTopic`, `startExam`, `libraryTotals`,
+`resumeAt`, `startNextDueReview`, `showStatsModal`, `renderStats`
+
+`resumeAt(pos)` and `startNextDueReview()` exist because the **lobby** owns the
+Resume and Review tiles but must not know how to walk a course. It hands the
+request over instead.
+
+## Emits
+`chunk:completed`, `topic:completed`, `exam:finished`, `progress:changed`
+
+## Content schema
+See PROJECT.md §4. `renderExplain` still handles both `blocks` (modules 5+) and
+legacy `text` (modules 1–4).
+
+## The five-phase chunk flow — SCHEMA FROZEN
+
+```
+predict → explain → example → apply → recall
+```
+
+`predict` and `recall` are **optional fields on a chunk**. A chunk without them
+runs the original three-phase flow untouched, so every existing module keeps
+working and new content adopts the phases one chunk at a time.
+
+**Freezing this before the remaining modules is the whole point.** Retrofitting
+~60 chunks later would have cost far more than an optional field costs now.
+
+```js
+predict: {
+  question: "...",              // asked BEFORE any instruction
+  options: [4],
+  reveal: "..."                 // optional line shown after they commit
+},
+recall: {
+  prompt: "...",                // free text, no options
+  answer: "...",                // model answer, shown on request
+  points: ["..."]               // optional checklist to self-grade against
+}
+```
+
+`apply` is the existing multiple-choice question. It is still `chunk.quiz` in
+the data — renaming the field would invalidate saved progress for no gain.
+
+`data_m5.js` chunk 1 is the worked example of both.
+
+### The evidence, so a later change doesn't undo it
+- **Predict** exploits the *pretesting effect*: attempting a question before
+  instruction improves later retention **even when the guess is wrong**. The
+  value is in the attempt, so it is **never scored, never recorded in stats,
+  and never counted as a missed chunk** — and the learner is told outright that
+  guessing is the point. Scoring it would turn the strongest thing about the
+  phase into a penalty for not already knowing the material.
+- **Recall** exploits the *generation effect*: producing an answer beats
+  recognising one, which is precisely what multiple choice cannot test. It is
+  self-graded, which is honest about an offline app — nothing here can mark
+  prose, and a generous self-grade costs nothing because it isn't scored either.
+  If the learner writes nothing, the model answer says so: reading an answer you
+  never attempted is just re-reading, one of the weakest techniques in
+  Dunlosky et al.
+
+### Implementation notes
+- `phasesFor(chunk)` builds the phase list from what the chunk actually has.
+  Nothing else should hardcode phase order — the progress bar, the back
+  buttons and the entry phase all derive from it, so a chunk with five phases
+  shows an honest bar instead of one that jumps.
+- `finishChunk(originEl)` is the **single** place a chunk closes out: the
+  completion record, the XP award, the vitals cost and the routing all live
+  there, so the question phase and the recall phase can't drift apart.
+
+## Adding a course
+
+1. `cp -r library/content/_template library/content/<slug>`
+2. Write one `data_m*.js` per module.
+3. Fill in the manifest in `<slug>/course.js` — a `Content.course({...})` call
+   listing units and which module constants each contains.
+4. Add the script tags in `index.html`, between `registry.js` and `build.js`.
+   **Module files before the course file** — the manifest references the
+   `MODULE_N` constants directly.
+
+No branch changes. No edits to any other course. `data.js` is gone; nothing
+has a hardcoded list of modules any more.
+
+**Working on a course in a fresh session costs you that one folder** — not
+`library.js`, not the other courses. That is the whole point of the split.
+
+### Unit and topic ids are global
+Progress, reviews and the Garden are keyed on unit and topic ids, so two
+courses reusing an id would silently share progress. `Content.build()` checks
+and logs a console error naming both offenders — but pick fresh ids rather
+than relying on it. Units 6, 7 and 8 are taken by Intro to CS and are
+historical names kept because saved progress depends on them.
+
+## Learning-design decisions that must not be undone
+Full reasoning in PROJECT.md §5. Short version:
+
+- Exam questions **and** their options are shuffled every attempt. Before this
+  a failed exam could be retried and passed from position memory.
+- Wrong chunk answers re-ask that chunk before the exam, straight to the
+  question — no re-reading.
+- No hard locks. Order is a recommendation badge, not a gate.
+- No points, badges, streaks or leaderboards.
+- **Nothing in the Shop or Arcade may buy progress, hints, retries or exam
+  advantage.** That is the line the whole design rests on.
+
+## Gotchas
+- `renderExamQuestion` needs `const topic = getTopic()`. It was once removed
+  during a refactor while `topic.icon` was still referenced two lines below —
+  ReferenceError, blank exam screen, every exam broken.
+- `startExam` must reset `state.examSubmitted = []` or retries render with
+  answers pre-revealed.
+- Exams grade against `state.examQuestions` (the shuffled copy), never
+  `topic.examQuestions`.
+- Content load order: `registry.js` → per-course modules → that course's
+  `course.js` → `build.js`. A course file references `MODULE_N` constants
+  directly, so its modules must load first.
+- `build.js` is the only file that creates `MODULES`, `UNITS`, `COURSES`,
+  `ALL_TOPICS` and `UNIT_TOPICS`, and it creates them from whatever registered
+  itself. Don't hardcode a course anywhere.
+
+## Not done
+- The five-phase chunk flow (`predict → explain → example → apply → recall`).
+  Freeze the schema with optional `predict`/`recall` fields **before** writing
+  the remaining modules or all of them need retrofitting.
+
