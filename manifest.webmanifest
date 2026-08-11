@@ -1,0 +1,17 @@
+{
+  "name": "CS Dojo",
+  "short_name": "CS Dojo",
+  "description": "An offline, chunk-based CS study app with spaced review, mastery exams and a garden that grows with what you remember.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

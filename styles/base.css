@@ -1,0 +1,894 @@
+/* ============================================
+   Unit6 Dojo — Design System & Styles
+   ============================================ */
+
+:root {
+  --bg-deep: #0a0e1a;
+  --bg-card: #111827;
+  --bg-card-hover: #1a2235;
+  --bg-surface: #151c2e;
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --accent-glow: rgba(99, 102, 241, 0.25);
+  --accent-glow-strong: rgba(99, 102, 241, 0.5);
+  --green: #10b981;
+  --green-glow: rgba(16, 185, 129, 0.2);
+  --red: #ef4444;
+  --red-glow: rgba(239, 68, 68, 0.2);
+  --yellow: #f59e0b;
+  --yellow-glow: rgba(245, 158, 11, 0.2);
+  --cyan: #06b6d4;
+  --cyan-glow: rgba(6, 182, 212, 0.2);
+  --pink: #ec4899;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-muted: #64748b;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(99, 102, 241, 0.3);
+  /* Set by core/theme.js on every theme change. The charge bar used to
+     hardcode an indigo strip and a sky-blue fill, so every theme except
+     Indigo Night left it looking pasted in from another app. */
+  --bg-deep-rgb: 10, 14, 26;
+  --bolt-1: #0ea5e9;
+  --bolt-2: #38bdf8;
+  --bolt-3: #7dd3fc;
+  --bolt-glow: rgba(56, 189, 248, 0.55);
+  --bg-image: none;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg-deep);
+  background-image: var(--bg-image);
+  background-attachment: fixed;
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   Screens & Animations
+   ============================================ */
+.screen { display: none; min-height: 100vh; animation: fadeIn 0.4s ease; }
+.screen.active { display: flex; flex-direction: column; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow-strong); }
+  50%      { box-shadow: 0 0 0 12px transparent; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ============================================
+   Modal Overlay (Profile Setup & Stats)
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  animation: modalIn 0.35s ease;
+  position: relative;
+}
+
+.modal-card-wide {
+  max-width: 520px;
+  text-align: left;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.modal-close:hover {
+  background: var(--bg-card-hover);
+  color: var(--text);
+  border-color: var(--border-accent);
+}
+
+.modal-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.modal-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.modal-desc {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1rem;
+  outline: none;
+  margin-bottom: 1rem;
+  transition: border-color 0.25s ease;
+}
+.modal-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.modal-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   Profile Badge (Top-right)
+   ============================================ */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: var(--font);
+  color: var(--text-dim);
+}
+.profile-badge:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-accent);
+  color: var(--text);
+}
+
+.profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.profile-name-display {
+  font-size: 0.8rem;
+  font-weight: 600;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================
+   Profile Dropdown
+   ============================================ */
+.profile-dropdown {
+  position: fixed;
+  top: 60px;
+  right: 1rem;
+  width: 260px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  z-index: 500;
+  animation: modalIn 0.2s ease;
+  padding: 0.75rem;
+}
+
+.pd-header { padding: 0.25rem 0 0.5rem; }
+.pd-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+.pd-name-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pd-name-input {
+  flex: 1;
+  padding: 0.45rem 0.65rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.pd-name-input:focus { border-color: var(--accent); }
+
+.pd-save-btn {
+  padding: 0.45rem 0.65rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+.pd-save-btn:hover { background: var(--accent-light); }
+
+.pd-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.5rem 0;
+}
+
+.pd-profiles-list {
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.pd-profile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pd-profile-item:hover { background: var(--bg-surface); color: var(--text); }
+.pd-profile-item.active { color: var(--accent-light); font-weight: 600; }
+.pd-profile-item .pd-topics-done {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.pd-action {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-family: var(--font);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pd-action:hover { background: var(--bg-surface); color: var(--text); }
+
+/* ============================================
+   Landing Screen
+   ============================================ */
+.landing-bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, var(--accent-glow) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 80%, rgba(16,185,129,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 30% 25% at 15% 70%, rgba(236,72,153,0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#landing {
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.landing-content {
+  text-align: center;
+  z-index: 1;
+  padding: 2rem;
+  animation: slideUp 0.7s ease;
+}
+
+.logo-glow {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.5;
+  animation: float 4s ease-in-out infinite;
+}
+
+.landing-title {
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.accent {
+  background: linear-gradient(135deg, var(--accent-light), var(--green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.landing-sub {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+  max-width: 480px;
+  margin-inline: auto;
+  line-height: 1.6;
+}
+
+.landing-features {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  transition: all 0.3s ease;
+}
+.feat:hover {
+  border-color: var(--border-accent);
+  background: var(--bg-card-hover);
+  color: var(--text);
+  transform: translateY(-2px);
+}
+.feat-icon { font-size: 1.1rem; }
+
+.landing-hint {
+  margin-top: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   Shared layout utilities
+   Used by settings, garden, shop, games and story.
+   They live here rather than in one branch's sheet
+   because five branches use them.
+   ============================================ */
+.settings-body, .garden-body {
+  max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem;
+}
+.settings-section { margin-bottom: 2.25rem; }
+
+/* The negative top margin exists to tuck a hint under a section title.
+   It used to be unconditional, which pulled the hint UP INTO whatever
+   preceded it — under the Hi-Lo and Crash stake rows it overlapped the
+   input and the Deal button. Now it only applies after a title. */
+.settings-hint {
+  margin: 0.25rem 0 0.9rem; font-size: 0.82rem; color: var(--text-dim);
+  line-height: 1.5;
+}
+.stats-section-title + .settings-hint { margin-top: -0.35rem; }
+
+/* ============================================
+   Buttons
+   ============================================ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 2rem;
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow-strong); }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn-ghost:hover { background: var(--bg-card); color: var(--text); border-color: var(--border-accent); }
+
+.arrow { transition: transform 0.3s ease; }
+.btn-primary:hover .arrow { transform: translateX(4px); }
+
+/* ============================================
+   Top Bar
+   ============================================ */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  /* Was a hardcoded rgba(10,14,26,...) — the Indigo Night --bg-deep
+     baked in as a literal, so every OTHER theme's screens (lesson, exam,
+     settings, ...) wore an indigo-dark strip regardless of what was
+     picked. Broke outright on light themes (dark bar, dark-on-light
+     text everywhere else). Same fix charge-bar/vitals-strip already had:
+     read --bg-deep-rgb instead of a copy of one theme's value. */
+  background: rgba(var(--bg-deep-rgb), 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.progress-ring-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.progress-ring { transform: rotate(-90deg); }
+.progress-ring-bg { fill: none; stroke: var(--border); stroke-width: 3; }
+.progress-ring-fg {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 125.66;
+  stroke-dashoffset: 125.66;
+  transition: stroke-dashoffset 0.6s ease;
+}
+.progress-pct { font-size: 0.75rem; font-weight: 700; color: var(--accent-light); }
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 600px) {
+  .landing-features { flex-direction: column; align-items: center; }
+  .profile-name-display { display: none; }
+  .profile-dropdown { right: 0.5rem; width: calc(100vw - 1rem); max-width: 300px; }
+}
+
+/* ── Multi-block explanations & source citations (modules 5+) ── */
+
+/* ── Lightning charge bar ──
+   Collapsed by default (just the rank chip: insignia + full name, small)
+   so it reads as a status indicator, not a permanent progress bar taking
+   a full row. The track and XP number only reveal on hover or a few
+   seconds after an XP gain — see .charge-expand and core/hud.js's
+   revealBar(). Only ONE name label exists — it used to also repeat as an
+   abbreviation, which read as a duplicate ("GEN General"). Height is
+   fixed explicitly (not padding-derived) so it never grows when the
+   expand panel opens; .vitals-strip's `top` and #app>.screen's
+   padding-top are both keyed off this same height. */
+.charge-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+  height: 2.3rem;
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0 0.9rem;
+  background: rgba(var(--bg-deep-rgb), 0.88);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow 0.3s ease;
+}
+.charge-bar.pulse { box-shadow: 0 0 24px var(--accent-glow-strong); }
+
+.rank-chip {
+  display: flex; align-items: center; gap: 0.35rem;
+  background: none; border: none; padding: 0.15rem 0.3rem; margin: 0 -0.3rem;
+  border-radius: 999px; cursor: pointer; color: inherit; font: inherit;
+}
+.rank-chip:hover, .rank-chip:focus-visible { background: rgba(255, 255, 255, 0.07); }
+.rank-insignia { display: flex; line-height: 0; }
+.rank-insignia svg { display: block; }
+.rank-name {
+  font-size: 0.7rem; font-weight: 600; color: var(--text-dim);
+  white-space: nowrap;
+}
+.hud-nickname {
+  font-size: 0.68rem; font-weight: 500; color: var(--text-muted);
+  white-space: nowrap;
+}
+.hud-nickname:not(:empty)::before { content: "\00b7"; margin-right: 0.35rem; }
+
+/* Collapsed to zero width rather than display:none, so the expand is an
+   animated reveal instead of a layout jump. */
+.charge-expand {
+  display: flex; align-items: center; gap: 0.6rem;
+  max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap;
+  transition: max-width 0.3s ease, opacity 0.2s ease 0.05s;
+}
+.charge-bar:hover .charge-expand,
+.charge-bar:focus-within .charge-expand,
+.charge-bar.show .charge-expand {
+  max-width: 320px; opacity: 1;
+}
+.charge-bolt { font-size: 0.85rem; filter: drop-shadow(0 0 6px var(--bolt-3)); }
+.charge-track {
+  width: 100px; flex: none; height: 7px; border-radius: 999px; overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+}
+.charge-fill {
+  height: 100%; width: 0%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--bolt-1), var(--bolt-2), var(--bolt-3));
+  box-shadow: 0 0 12px var(--bolt-glow);
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.charge-bar.full .charge-fill {
+  background: linear-gradient(90deg, var(--bolt-2), var(--bolt-3), var(--bolt-2));
+  animation: chargeFull 2.4s linear infinite;
+  background-size: 200% 100%;
+}
+@keyframes chargeFull { to { background-position: 200% 0; } }
+.charge-value {
+  font-family: var(--mono); font-size: 0.68rem;
+  color: var(--text-dim); min-width: 52px; text-align: right;
+}
+
+/* ── Streak badge ──
+   Pinned to the far right of the charge bar (margin-left:auto — it's the
+   only item after .charge-expand, so it always lands at the end of the
+   flex row regardless of whether the expand panel is open). */
+/* display:none/flex toggled inline by JS (renderStreak), same pattern as
+   #charge-bar / #vitals-strip — the class only sets what applies once shown. */
+.streak-chip {
+  align-items: center; gap: 0.3rem;
+  margin-left: auto; background: none; border: none;
+  padding: 0.15rem 0.4rem; border-radius: 999px;
+  cursor: pointer; color: inherit; font: inherit;
+}
+.streak-chip:hover, .streak-chip:focus-visible { background: rgba(255, 255, 255, 0.07); }
+.streak-icon { font-size: 0.85rem; filter: drop-shadow(0 0 5px rgba(251, 146, 60, 0.55)); }
+.streak-count {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+  color: var(--text-dim);
+}
+
+.streak-popover {
+  position: fixed; z-index: 65; min-width: 180px;
+  padding: 0.7rem 0.85rem; border-radius: var(--radius-sm);
+  background: var(--bg-card); border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;
+  animation: popIn 0.15s ease;
+}
+.streak-popover strong { color: var(--text); }
+
+.streak-toast-layer {
+  position: fixed; top: 2.5rem; right: 0.7rem; z-index: 71;
+  display: flex; flex-direction: column; gap: 0.4rem; pointer-events: none;
+}
+.streak-toast {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.5rem 0.8rem; border-radius: 999px;
+  background: var(--bg-card); border: 1px solid rgba(251, 146, 60, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  font-size: 0.8rem; font-weight: 700; color: var(--text);
+  transform: translateY(-8px); opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+.streak-toast.in { transform: translateY(0); opacity: 1; }
+
+/* Bar height changed 2.1rem -> 2.3rem overall (shrunk to 1.9rem for the
+   collapse, then grown to 2.3rem to fit a bigger rank-insignia icon);
+   .vitals-strip's `top` tracks the same value, so this keeps the same
+   clearance below THAT, not just the charge bar — vitals-strip sits
+   under it when survival is unlocked. */
+#app > .screen { padding-top: 2.8rem; }
+
+/* Flying bolt */
+.bolt-layer { position: fixed; inset: 0; pointer-events: none; z-index: 70; }
+.flying-bolt {
+  position: fixed; display: flex; align-items: center; gap: 0.25rem;
+  transform: translate(0, 0) scale(1); opacity: 1;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.9s ease-in;
+  will-change: transform, opacity;
+}
+.fb-icon { font-size: 1.3rem; filter: drop-shadow(0 0 10px var(--bolt-3)); }
+
+/* Streak-renewal confetti — a handful of .confetti-piece spans, each with
+   its own --dx/--dy/--rot end state set inline (see hud.js burstConfetti),
+   animated once and removed. Lives in #bolt-layer, not a new overlay. */
+.confetti-piece {
+  position: fixed; width: 6px; height: 10px; border-radius: 1px;
+  transform: translate(0, 0) rotate(0deg); opacity: 1;
+  animation: confettiBurst 0.85s cubic-bezier(0.15, 0.7, 0.3, 1) forwards;
+}
+@keyframes confettiBurst {
+  to { transform: translate(var(--dx), calc(var(--dy) + 90px)) rotate(var(--rot)); opacity: 0; }
+}
+
+/* Money VFX — see core/hud.js's moneyBurst(), fired from games.js's
+   settle(), the one choke point every arcade payout passes through. */
+.coin-piece {
+  position: fixed; font-family: var(--mono); font-weight: 700; font-size: 0.85rem;
+  color: var(--green); text-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  transform: translate(0, 0); opacity: 1;
+  animation: coinBurst 0.7s cubic-bezier(0.15, 0.7, 0.3, 1) forwards;
+}
+@keyframes coinBurst {
+  to { transform: translate(var(--dx), calc(var(--dy) + 40px)); opacity: 0; }
+}
+.vital-wallet.pulse-win { animation: walletPulseWin 0.5s ease; }
+@keyframes walletPulseWin {
+  0%, 100% { box-shadow: none; }
+  35% { box-shadow: 0 0 0 4px var(--green-glow); }
+}
+.vital-wallet.shake { animation: walletShake 0.42s ease; border-color: rgba(239, 68, 68, 0.5); }
+@keyframes walletShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(1px); }
+}
+
+/* Global click ripple — see core/core.js's delegated pointerdown
+   listener. Sized relative to the button rather than overflow:hidden +
+   a fixed size, so it doesn't clip existing hover glows on the buttons
+   it's attached to. */
+.click-ripple {
+  position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px;
+  border-radius: 50%; background: rgba(255, 255, 255, 0.35);
+  pointer-events: none; transform: scale(0); opacity: 0.9;
+  animation: clickRipple 0.5s ease-out forwards;
+}
+@keyframes clickRipple { to { transform: scale(9); opacity: 0; } }
+.fb-amount {
+  font-family: var(--mono); font-size: 0.85rem; font-weight: 700;
+  color: var(--bolt-3); text-shadow: 0 0 10px var(--bolt-glow);
+}
+.charge-award {
+  display: inline-block; margin-top: 0.6rem;
+  font-family: var(--mono); font-size: 0.9rem; color: var(--bolt-3);
+}
+.charge-award .ca-mult { opacity: 0.6; font-size: 0.8rem; }
+.charge-award.full { color: var(--text-muted); }
+
+/* ── Lobby ── */
+#lobby { display: none; }
+#lobby.active { display: flex; align-items: center; justify-content: center; }
+.lobby-inner { width: 100%; max-width: 560px; padding: 2rem 1.25rem; }
+.lobby-brand {
+  font-size: 2.6rem; font-weight: 900; text-align: center; letter-spacing: -0.02em;
+}
+.lobby-welcome {
+  text-align: center; color: var(--text-dim);
+  margin: 0.4rem 0 2rem; font-size: 0.95rem;
+}
+.lobby-actions { display: flex; flex-direction: column; gap: 0.7rem; }
+.lobby-tile {
+  display: flex; align-items: center; gap: 1rem; width: 100%;
+  padding: 1.05rem 1.2rem; cursor: pointer; text-align: left;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-card); color: var(--text); font: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.lobby-tile:hover {
+  background: var(--bg-card-hover); border-color: var(--border-accent);
+  transform: translateY(-2px);
+}
+.lobby-tile.primary { border-color: var(--border-accent); background: var(--accent-glow); }
+.lobby-tile.subtle { opacity: 0.78; }
+.lobby-tile.subtle:hover { opacity: 1; }
+.lt-icon { font-size: 1.45rem; }
+.lt-body { flex: 1; display: flex; flex-direction: column; gap: 0.15rem; }
+.lt-title { font-weight: 700; font-size: 0.98rem; }
+.lt-sub { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Lobby style: "Cards" ──
+   A re-skin of the same six tiles (core/lobby.js applies this class to
+   .lobby-actions from DB.getLobbyStyle()) — NOT a rearrangement. Same
+   list, same order, same content; just more visual weight per tile:
+   elevation, a rounded icon badge, a livelier hover. See PROJECT.md
+   Stage 13 Part 4 — asked for "visual re-skin", explicitly not a
+   structural change, so a grid/sidebar layout was deliberately not built. */
+.lobby-style-cards { gap: 0.9rem; }
+.lobby-style-cards .lobby-tile {
+  border-radius: 20px; padding: 1.2rem 1.3rem; border-color: transparent;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+}
+.lobby-style-cards .lobby-tile:hover {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.26);
+  transform: translateY(-3px) scale(1.008);
+}
+.lobby-style-cards .lobby-tile.primary {
+  box-shadow: 0 4px 18px var(--accent-glow-strong);
+}
+.lobby-style-cards .lt-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
+  background: var(--accent-glow); font-size: 1.35rem;
+}
+.lobby-style-cards .lobby-tile.primary .lt-icon {
+  background: var(--accent); box-shadow: 0 0 16px var(--accent-glow-strong);
+}
+
+/* ── Lobby style: "Star" ──
+   Unlike "Cards" above, this IS a structural rearrangement — explicitly
+   asked for after Cards, so the "re-skin only" constraint documented on
+   Cards is deliberately not carried over here. Same six tiles, same
+   DB.getLobbyStyle() switch, but core/lobby.js additionally computes a
+   --angle per VISIBLE tile (layoutLobbyRadial) because the Resume tile
+   toggles on/off and a pure-CSS nth-child angle would leave a gap at
+   its slot when it's hidden.
+
+   A plain circle-of-nodes layout ("Radial") shipped alongside this and
+   was cut a day later — same arrangement minus the hub and spokes that
+   make Star actually read as a network topology, so it was just a
+   worse Star. One circular style, not two. */
+.lobby-style-star {
+  --lobby-radius: 168px;
+  position: relative; height: 440px; margin-top: 0.5rem;
+}
+.lobby-style-star .lobby-tile {
+  position: absolute; top: 50%; left: 50%; z-index: 2;
+  width: 112px; height: 112px; padding: 0.6rem; margin: 0;
+  border-radius: 50%; flex-direction: column; justify-content: center;
+  gap: 0.2rem; text-align: center;
+  box-shadow: 0 0 0 1px var(--border-accent), 0 0 18px 3px var(--accent-glow);
+  transform: translate(-50%, -50%) rotate(var(--angle, 0deg))
+    translate(var(--lobby-radius)) rotate(calc(-1 * var(--angle, 0deg)));
+}
+.lobby-style-star .lobby-tile:hover, .lobby-style-star .lobby-tile:focus-visible {
+  z-index: 3;
+  box-shadow: 0 0 0 1px var(--border-accent), 0 0 26px 5px var(--accent-glow-strong);
+  transform: translate(-50%, -50%) rotate(var(--angle, 0deg))
+    translate(var(--lobby-radius)) rotate(calc(-1 * var(--angle, 0deg))) scale(1.1);
+}
+.lobby-style-star .lt-sub, .lobby-style-star .arrow { display: none; }
+.lobby-style-star .lt-icon { font-size: 1.6rem; }
+.lobby-style-star .lt-title {
+  font-size: 0.72rem; line-height: 1.2; font-weight: 600;
+}
+.lobby-star-lines, .lobby-hub { display: none; }
+.lobby-style-star .lobby-star-lines {
+  display: block; position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 1;
+}
+.lobby-style-star .lobby-star-lines line {
+  stroke: var(--border-accent); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.55;
+}
+.lobby-style-star .lobby-hub {
+  display: flex; align-items: center; justify-content: center;
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 66px; height: 66px; border-radius: 50%; z-index: 1;
+  background: var(--accent-glow); border: 1px solid var(--border-accent);
+  font-size: 1.6rem; box-shadow: 0 0 24px var(--accent-glow-strong);
+}
+@media (max-width: 420px) {
+  .lobby-style-star { --lobby-radius: 122px; height: 340px; }
+  .lobby-style-star .lobby-tile { width: 92px; height: 92px; }
+  .lobby-style-star .lt-icon { font-size: 1.35rem; }
+  .lobby-style-star .lt-title { font-size: 0.66rem; }
+  .lobby-style-star .lobby-hub { width: 54px; height: 54px; font-size: 1.3rem; }
+}
+
+/* ── Course cards ── */
+.course-card { cursor: pointer; }
+.course-progress {
+  margin-top: 0.9rem; height: 5px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07); overflow: hidden;
+}
+.course-progress-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  transition: width 0.6s ease;
+}
+

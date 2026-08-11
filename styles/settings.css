@@ -1,0 +1,75 @@
+/* ── Theme picker (Settings) ── */
+.theme-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.7rem;
+}
+.theme-swatch {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  padding: 0.6rem; cursor: pointer;
+  border: 2px solid var(--border); border-radius: var(--radius-sm);
+  /* Was rgba(255,255,255,0.02) — a near-invisible white wash on dark
+     themes, and equally near-invisible (white-on-near-white) on a light
+     one. var(--bg-card) is themed either way. */
+  background: var(--bg-card); color: var(--text); font: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.theme-swatch:hover { transform: translateY(-2px); }
+.theme-swatch.active { border-color: var(--sw); }
+.sw-preview {
+  display: flex; align-items: center; justify-content: center;
+  height: 46px; border-radius: var(--radius-xs);
+  background: var(--sw-bg);
+}
+.sw-dot {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--sw); box-shadow: 0 0 12px var(--sw);
+}
+.sw-name { font-size: 0.78rem; text-align: center; }
+
+/* ── Lobby style picker — see styles/base.css's .lobby-style-cards /
+   .lobby-style-radial / .lobby-style-star for what each actually does
+   on the Lobby itself. ── */
+.lobby-style-grid { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+.style-swatch {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  width: 110px; padding: 0.7rem; cursor: pointer;
+  border: 2px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-card); color: var(--text); font: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.style-swatch:hover { transform: translateY(-2px); }
+.style-swatch.active { border-color: var(--border-accent); background: var(--accent-glow); }
+.style-preview { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.spb { height: 10px; border-radius: 3px; background: var(--bg-surface); border: 1px solid var(--border); }
+.spb-card { border-radius: 6px; border-color: transparent; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25); }
+
+/* Dot-ring thumbnail for Radial/Star — dots and (for star) hub + spokes
+   are laid out in JS with the same angle formula core/lobby.js uses on
+   the real tiles, just fixed at 6 stand-ins since this is a thumbnail,
+   not the live tile count. */
+.style-preview-radial { position: relative; width: 44px; height: 44px; margin: 0 auto; }
+.rp-dot {
+  position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  border-radius: 50%; background: var(--text-dim);
+}
+.rp-hub {
+  position: absolute; left: 22px; top: 22px; width: 8px; height: 8px;
+  margin: -4px 0 0 -4px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 6px var(--accent-glow-strong);
+}
+.rp-line {
+  position: absolute; height: 1px; background: var(--border-accent);
+  transform-origin: 0 50%; opacity: 0.7;
+}
+
+/* ── Admin code & legal placeholders ── */
+.admin-row { display: flex; gap: 0.5rem; align-items: center; }
+.admin-input { flex: 1; margin: 0; font-family: var(--mono); }
+.legal-block {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 0.7rem 0.9rem; margin-bottom: 0.6rem;
+}
+.legal-block summary { cursor: pointer; font-size: 0.88rem; font-weight: 600; }
+.legal-block p {
+  margin-top: 0.6rem; font-size: 0.82rem; line-height: 1.55; color: var(--text-dim);
+}

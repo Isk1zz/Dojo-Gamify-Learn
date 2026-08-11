@@ -1,0 +1,79 @@
+/* ============================================
+   STORY — node map. Owned by story/.
+   ============================================ */
+.story-body { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+.story-act { margin-bottom: 2rem; }
+.story-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; }
+.story-node {
+  display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;
+  padding: 0.75rem 0.9rem; min-width: 150px; cursor: pointer; font: inherit;
+  text-align: left; color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.story-node:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--border-accent); }
+.story-node.locked { opacity: 0.35; cursor: default; }
+.story-node.done { border-color: var(--border-accent); }
+.sn-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--text-muted);
+}
+.story-node.open .sn-dot { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow-strong); }
+.story-node.done .sn-dot { background: var(--green); }
+.sn-title { font-size: 0.85rem; font-weight: 600; }
+.sn-meta { font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); }
+.story-link { width: 22px; height: 1px; background: var(--border); }
+
+/* ── Node states ── */
+.story-node.failed { border-color: rgba(245, 158, 11, 0.45); }
+.story-node.failed .sn-dot { background: var(--yellow); box-shadow: 0 0 8px var(--yellow-glow); }
+.story-node.failed .sn-meta { color: var(--yellow); }
+
+/* ── Scene view ── */
+.scene-view {
+  border: 1px solid var(--border-accent); border-radius: var(--radius);
+  background: var(--bg-card); padding: 1.1rem 1.2rem 1.2rem;
+  margin-top: 1.25rem;
+}
+.scene-body { max-width: 62ch; }
+.scene-body p { font-size: 0.92rem; line-height: 1.65; margin-bottom: 0.8rem; }
+.scene-todo { color: var(--text-muted); font-style: italic; }
+.scene-fee {
+  font-size: 0.82rem; color: var(--text-dim);
+  padding: 0.55rem 0.75rem; margin: 0.4rem 0 0.9rem;
+  border-radius: var(--radius-sm); background: rgba(255,255,255,0.03);
+}
+.scene-choices { display: flex; flex-direction: column; gap: 0.55rem; margin-top: 1rem; }
+.scene-choice {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  width: 100%; padding: 0.8rem 1rem; cursor: pointer; font: inherit;
+  text-align: left; color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.scene-choice:hover:not(:disabled) { border-color: var(--border-accent); transform: translateX(3px); }
+.scene-choice.blocked { opacity: 0.45; cursor: default; }
+.sc-label { font-size: 0.9rem; font-weight: 600; }
+.sc-need {
+  font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+  white-space: nowrap;
+}
+.sc-delta { opacity: 0.75; font-size: 0.8rem; }
+
+/* ── Story mode overlay ── */
+.story-modal-card {
+  max-height: 88vh; display: flex; flex-direction: column;
+  width: min(760px, 94vw);
+}
+.sm-count {
+  font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim);
+  margin-left: 0.5rem;
+}
+.story-modal-body {
+  overflow-y: auto; flex: 1; padding-right: 0.35rem; margin-top: 0.25rem;
+}
+.tab-btn.locked { opacity: 0.35; cursor: default; }
+.story-modal-card .story-act { margin-bottom: 1.1rem; }
+.story-modal-card .scene-view { margin-top: 0.5rem; border: none; padding: 0; background: none; }

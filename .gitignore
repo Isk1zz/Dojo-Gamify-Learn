@@ -1,0 +1,12 @@
+# Cheat codes. Never commit these — the deployed site is readable by
+# anyone with the URL, so a code that ships is a code that's public.
+# Copy settings/codes.example.js to settings/codes.js to enable them
+# locally. See docs/CHEATCODES.md.
+settings/codes.js
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
