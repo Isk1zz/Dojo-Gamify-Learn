@@ -1,6 +1,6 @@
 {
-  "name": "CS Dojo",
-  "short_name": "CS Dojo",
+  "name": "Dojo - Gamify & Learn",
+  "short_name": "Dojo",
   "description": "An offline, chunk-based CS study app with spaced review, mastery exams and a garden that grows with what you remember.",
   "start_url": "./index.html",
   "scope": "./",

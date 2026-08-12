@@ -246,9 +246,10 @@ reviews and the Garden are keyed on them. Two courses reusing an id silently sha
 progress. `Content.build()` logs a console error naming both offenders — don't rely
 on it, pick fresh ids.
 
-Taken: units **5, 6, 7, 8** (Intro to CS). Ids 6–8 are historical names kept
-because saved progress depends on them; unit 5 was added later and matches the
-course's own numbering, so it sorts before them rather than after.
+Taken: units **1, 2, 3, 4, 5, 6, 7, 8** (Intro to CS). Ids 6–8 are historical
+names kept because saved progress depends on them; units 1, 2, 3, 4 and 5
+were added later and match the course's own numbering, so they sort before
+the historical ones rather than after.
 
 ---
 

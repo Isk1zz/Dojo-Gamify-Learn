@@ -49,7 +49,13 @@
       const pct = topics.length ? Math.round((done / topics.length) * 100) : 0;
 
       const card = document.createElement("div");
-      card.className = `topic-card course-card${c.available ? "" : " ahead"}`;
+      // The one genuine hard-lock in the app — everything inside an
+      // available course is open (no gate on topic order), but a course
+      // that isn't built yet really can't be entered. Red, with a brief
+      // reason on hover, same treatment as the roadmap's ahead/yellow
+      // explanation below.
+      card.className = `topic-card course-card${c.available ? "" : " ahead restricted"}`;
+      if (!c.available) card.setAttribute("data-explain", "Not open yet — this course is still being built.");
       card.innerHTML = `
         <div class="topic-num">${c.icon}</div>
         <div class="topic-title">${c.title}</div>
@@ -66,9 +72,13 @@
       `;
       if (c.available) {
         card.addEventListener("click", () => {
-          state.currentCourse = c.id;
-          renderUnitSelect();
-          showScreen("unit-select");
+          const enter = () => {
+            state.currentCourse = c.id;
+            renderUnitSelect();
+            showScreen("unit-select");
+          };
+          if (DB.hasSignedContract(c.id)) enter();
+          else showContractModal(c, enter);
         });
       }
       grid.appendChild(card);
@@ -78,6 +88,106 @@
     showScreen("course-select");
   }
 
+  // ---- Course contract ----
+  // A funny, in-theme "sign here" gimmick — an old-school drawable
+  // signature pad, shown once the first time a course is entered. Not
+  // a real personal-data form: nothing here is validated, required, or
+  // sent anywhere. See data/db.js's v9 migration note and
+  // DB.signContract for where the drawing actually goes (a downsized
+  // dataURL in the profile, same place everything else already lives).
+  function showContractModal(course, onSigned) {
+    const overlay = document.getElementById("contract-modal");
+    if (!overlay) { onSigned(); return; }
+    overlay.style.display = "flex";
+    overlay.innerHTML = `
+      <div class="modal-card contract-card">
+        <div class="modal-close" id="contract-close">✕</div>
+        <div class="contract-seal">📜</div>
+        <h2 class="modal-title">Trainee Enrollment Contract</h2>
+        <p class="contract-subtitle">${course.icon} ${course.title}</p>
+        <div class="contract-body">
+          <p>By signing below, you (the <strong>Trainee</strong>) solemnly swear to:</p>
+          <ul class="contract-terms">
+            <li>Read the material before guessing on the quiz</li>
+            <li>Accept that 80% is mastery, not 79.9%</li>
+            <li>Never blame the app for a fact you skimmed past</li>
+            <li>Take a water break at least once per streak</li>
+          </ul>
+          <p class="contract-fineprint">Legally binding in absolutely no jurisdiction. The Dojo will remember anyway.</p>
+        </div>
+        <div class="contract-pad-wrap">
+          <canvas id="contract-canvas" class="contract-canvas" width="440" height="140"></canvas>
+          <div class="contract-pad-line">Sign here ✍️</div>
+        </div>
+        <div class="chunk-actions">
+          <button id="contract-clear" class="btn-ghost">Clear</button>
+          <button id="contract-sign" class="btn-primary" disabled>Sign &amp; Enter</button>
+        </div>
+      </div>`;
+
+    overlay.querySelector("#contract-close").addEventListener("click", () => { overlay.style.display = "none"; });
+
+    const canvas = document.getElementById("contract-canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue("--text").trim() || "#fff";
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    let drawing = false, hasInk = false;
+
+    // Canvas backing size vs. CSS size can differ (devicePixelRatio,
+    // responsive width) — scale pointer coordinates into canvas space
+    // rather than assuming a 1:1 pixel match.
+    function posFromEvent(e) {
+      const rect = canvas.getBoundingClientRect();
+      const point = e.touches ? e.touches[0] : e;
+      return {
+        x: (point.clientX - rect.left) * (canvas.width / rect.width),
+        y: (point.clientY - rect.top) * (canvas.height / rect.height)
+      };
+    }
+    function start(e) {
+      e.preventDefault();
+      drawing = true;
+      const p = posFromEvent(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    }
+    function move(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      const p = posFromEvent(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      if (!hasInk) {
+        hasInk = true;
+        document.getElementById("contract-sign").disabled = false;
+      }
+    }
+    function end() { drawing = false; }
+
+    canvas.addEventListener("mousedown", start);
+    canvas.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", end);
+    canvas.addEventListener("touchstart", start, { passive: false });
+    canvas.addEventListener("touchmove", move, { passive: false });
+    canvas.addEventListener("touchend", end);
+
+    document.getElementById("contract-clear").addEventListener("click", () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasInk = false;
+      document.getElementById("contract-sign").disabled = true;
+    });
+
+    document.getElementById("contract-sign").addEventListener("click", () => {
+      // Downsized JPEG, not a full-resolution PNG — this is a doodle,
+      // not a document, and it lives in localStorage next to everything
+      // else in the profile.
+      DB.signContract(course.id, canvas.toDataURL("image/jpeg", 0.7));
+      overlay.style.display = "none";
+      onSigned();
+    });
+  }
+
   function renderUnitSelect() {
     const body = document.getElementById("unit-select-body");
     body.innerHTML = "";
@@ -85,18 +195,56 @@
     const course = COURSES.find(c => c.id === state.currentCourse);
     const unitsToShow = course ? UNITS.filter(u => course.units.includes(u.id)) : UNITS;
 
+    // Same List/Map toggle as the topic screen, same reason it's
+    // session-only — see renderTopicMap.
+    if (!state.unitMapView) state.unitMapView = "map";
+    const toggle = document.createElement("div");
+    toggle.className = "topic-view-toggle";
+    toggle.innerHTML = `
+      <button class="tvt-btn${state.unitMapView === "map" ? " active" : ""}" data-view="map">\u{1F5FA}\u{FE0F} Map</button>
+      <button class="tvt-btn${state.unitMapView === "list" ? " active" : ""}" data-view="list">\u{1F4CB} List</button>`;
+    toggle.querySelectorAll(".tvt-btn").forEach(b => {
+      b.addEventListener("click", () => {
+        state.unitMapView = b.getAttribute("data-view");
+        renderUnitSelect();
+      });
+    });
+    body.appendChild(toggle);
+
+    // Entry point for the custom deck builder — right after entering a
+    // course, alongside the unit picker rather than buried inside a
+    // single topic's roadmap bubble.
+    const deckBtn = document.createElement("button");
+    deckBtn.className = "deck-builder-entry";
+    deckBtn.type = "button";
+    deckBtn.innerHTML = `\u{1F5C2}️ Build a Custom Deck`;
+    deckBtn.addEventListener("click", openDeckBuilder);
+    body.appendChild(deckBtn);
+
+    if (state.unitMapView === "map") {
+      renderUnitRoadmap(unitsToShow, body, completedTopics);
+      updateProfileBadge();
+      return;
+    }
+
     const grid = document.createElement("div");
     grid.className = "topic-grid";
 
-    unitsToShow.forEach(u => {
+    unitsToShow.forEach((u, i) => {
       const topics = UNIT_TOPICS[u.id];
       const done = topics.filter(t => completedTopics.has(t.id)).length;
       const pct = topics.length > 0 ? Math.round((done / topics.length) * 100) : 0;
+      // Locked — see PROJECT.md §5's "No hard locks" reversal note.
+      // Same prereq rule renderUnitRoadmap uses: the immediately
+      // preceding unit must be fully mastered.
+      const prereqDone = i === 0 || UNIT_TOPICS[unitsToShow[i - 1].id].every(t => completedTopics.has(t.id));
+      const isAhead = pct < 100 && !prereqDone;
 
       const card = document.createElement("div");
-      card.className = "topic-card";
+      card.className = `topic-card${isAhead ? " ahead" : ""}`;
+      if (isAhead) card.setAttribute("data-explain", `Locked — finish &ldquo;${unitsToShow[i - 1].title}&rdquo; first.`);
       card.innerHTML = `
-        <div class="topic-num">${u.icon}</div>
+        <div class="topic-num">${isAhead ? "\u{1F512}" : u.icon}</div>
         <div class="topic-title">${u.title} — ${u.subtitle}</div>
         <div class="topic-desc">${topics.length} topics across ${u.modules.length} module${u.modules.length !== 1 ? "s" : ""}.</div>
         <div class="topic-meta">
@@ -104,14 +252,118 @@
           <span>·</span>
           <span>${pct}% complete</span>
           ${pct === 100 ? '<span class="topic-badge mastered">✓ Mastered</span>' : ""}
+          ${isAhead ? '<span class="topic-badge ahead-badge">\u{1F512} Locked</span>' : ""}
         </div>
       `;
-      card.addEventListener("click", () => selectUnit(u.id));
+      if (isAhead) {
+        card.style.cursor = "not-allowed";
+      } else {
+        card.addEventListener("click", () => selectUnit(u.id));
+      }
       grid.appendChild(card);
     });
 
     body.appendChild(grid);
     updateProfileBadge();
+  }
+
+  // ---- Unit roadmap (bubble-node map view, one level up from renderRoadmap) ----
+  // Same winding-spine idea as the topic roadmap, one level up: each
+  // UNIT is a bubble, its TOPICS are the satellite dots orbiting it
+  // (instead of a topic's chunks). This is what "connect units and
+  // topics to the same map" meant — the unit screen was still the old
+  // grid while topics got the roadmap treatment, so the two levels
+  // didn't read as one continuous thing. Reuses the exact same CSS
+  // classes as renderRoadmap (.roadmap-wrap/-node/-bubble/...) since
+  // nothing about them is actually topic-specific.
+  function renderUnitRoadmap(unitsToShow, body, completedTopics) {
+    const wrap = document.createElement("div");
+    wrap.className = "roadmap-wrap";
+    body.appendChild(wrap);
+
+    const points = [];
+    // Starts at 60, not right at the wrap's own top edge — the first
+    // bubble's cluster-ring (116px, centered on the point) pokes about
+    // 58px above its own center, so anything shorter than that lets
+    // the ring visually overlap whatever sits directly above the
+    // roadmap (the "Build a Custom Deck" entry, in unit-select's case).
+    let y = 60;
+    unitsToShow.forEach((u, i) => {
+      const xPct = 50 + ROADMAP_AMP * Math.sin(i * 1.15);
+      points.push({ u, i, x: xPct, y });
+      y += ROADMAP_ROW;
+    });
+    wrap.style.height = `${y}px`;
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "roadmap-spine");
+    svg.setAttribute("viewBox", `0 0 100 ${y}`);
+    svg.setAttribute("preserveAspectRatio", "none");
+    let d = `M${points[0].x},${points[0].y} `;
+    for (let i = 1; i < points.length; i++) {
+      const p0 = points[i - 1], p1 = points[i];
+      const midY = (p0.y + p1.y) / 2;
+      d += `C${p0.x},${midY} ${p1.x},${midY} ${p1.x},${p1.y} `;
+    }
+    svg.innerHTML = `<path d="${d}" fill="none" vector-effect="non-scaling-stroke"/>`;
+    wrap.appendChild(svg);
+
+    points.forEach(({ u, i, x, y }) => {
+      const topics = UNIT_TOPICS[u.id];
+      const done = topics.filter(t => completedTopics.has(t.id)).length;
+      const isCompleted = topics.length > 0 && done === topics.length;
+      const prereqDone = i === 0 || (() => {
+        const prevTopics = UNIT_TOPICS[unitsToShow[i - 1].id];
+        return prevTopics.every(t => completedTopics.has(t.id));
+      })();
+      const isCurrent = prereqDone && !isCompleted;
+      const isAhead = !prereqDone && !isCompleted;
+      // Locked — see PROJECT.md §5's "No hard locks" reversal note.
+      const explain = isAhead
+        ? `Locked — finish &ldquo;${unitsToShow[i - 1].title}&rdquo; first.`
+        : "";
+
+      const node = document.createElement("div");
+      node.className = `roadmap-node${isCompleted ? " completed" : ""}${isCurrent ? " current" : ""}${isAhead ? " ahead" : ""}`;
+      node.style.left = `${x}%`;
+      node.style.top = `${y}px`;
+      node.innerHTML = `
+        <div class="roadmap-cluster-ring"></div>
+        <button class="roadmap-bubble" title="${u.title}"${explain ? ` data-explain="${explain}"` : ""}>
+          <span class="roadmap-bubble-inner">${isCompleted ? "✓" : isAhead ? "\u{1F512}" : u.icon}</span>
+        </button>
+        <div class="roadmap-label">${u.title}</div>
+      `;
+
+      // Topic satellites — one dot per topic, same ring math as a
+      // topic's chunk dots. Clicking one jumps straight into that
+      // topic (via selectUnit, which is the only thing that can
+      // legally populate state.currentTopics first). Locked along
+      // with the unit itself — a topic inside a locked unit isn't
+      // independently reachable.
+      const n = topics.length;
+      for (let t = 0; t < n; t++) {
+        const angle = (-90 + t * (360 / n)) * Math.PI / 180;
+        const dx = 44 * Math.cos(angle), dy = 44 * Math.sin(angle);
+        const dot = document.createElement("button");
+        dot.className = `roadmap-chunk-dot${completedTopics.has(topics[t].id) ? " done" : ""}${isAhead ? " locked" : ""}`;
+        dot.style.transform = `translate(-50%, -50%) translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+        dot.title = isAhead ? `${topics[t].title} — locked` : topics[t].title;
+        if (!isAhead) {
+          dot.addEventListener("click", e => {
+            e.stopPropagation();
+            selectUnit(u.id);
+            startTopic(t);
+          });
+        }
+        node.appendChild(dot);
+      }
+
+      if (!isAhead) {
+        node.querySelector(".roadmap-bubble").addEventListener("click", () => selectUnit(u.id));
+      }
+      wrap.appendChild(node);
+    });
   }
 
   function selectUnit(unitId) {
@@ -127,6 +379,25 @@
     const body = document.getElementById("topic-map-body");
     document.getElementById("topic-map-unit-label").textContent = `${unit.title} · ${unit.subtitle}`;
     body.innerHTML = "";
+
+    // Two views over the same unit, same topics, same nav — List is the
+    // original grid-by-module, Map is the bubble-node roadmap
+    // (renderRoadmap below). A session-only toggle, not persisted: this
+    // is a "how do I want to look at it right now" choice, not a
+    // profile setting like theme or lobby style.
+    if (!state.topicMapView) state.topicMapView = "map";
+    const toggle = document.createElement("div");
+    toggle.className = "topic-view-toggle";
+    toggle.innerHTML = `
+      <button class="tvt-btn${state.topicMapView === "map" ? " active" : ""}" data-view="map">\u{1F5FA}\u{FE0F} Map</button>
+      <button class="tvt-btn${state.topicMapView === "list" ? " active" : ""}" data-view="list">\u{1F4CB} List</button>`;
+    toggle.querySelectorAll(".tvt-btn").forEach(b => {
+      b.addEventListener("click", () => {
+        state.topicMapView = b.getAttribute("data-view");
+        renderTopicMap();
+      });
+    });
+    body.appendChild(toggle);
 
     const completedTopics = DB.getCompletedTopics();
     const dueIds = DB.getDueTopicIds();
@@ -160,6 +431,13 @@
           dueGrid.appendChild(chip);
         });
       }
+    }
+
+    if (state.topicMapView === "map") {
+      renderRoadmap(unit, body, completedTopics, dueIds);
+      updateGlobalProgress();
+      updateProfileBadge();
+      return;
     }
 
     unit.modules.forEach((mod) => {
@@ -203,8 +481,10 @@
 
         const card = document.createElement("div");
         card.className = `topic-card${isCompleted ? " completed" : ""}${isCurrent ? " current" : ""}${isDue ? " due" : ""}${isAhead ? " ahead" : ""}`;
+        if (isAhead) card.setAttribute("data-explain", `Locked — finish &ldquo;${state.currentTopics[flatIdx - 1].title}&rdquo; first.`);
         card.innerHTML = `
-          <div class="topic-num">${isCompleted ? "✓" : flatIdx + 1}</div>
+          ${isAhead ? "" : `<button class="topic-cards-btn" title="Flashcards for this topic">\u{1F5C2}\u{FE0F}</button>`}
+          <div class="topic-num">${isCompleted ? "✓" : isAhead ? "\u{1F512}" : flatIdx + 1}</div>
           <div class="topic-title">${topic.icon} ${topic.title}</div>
           <div class="topic-desc">${topic.desc}</div>
           <div class="topic-meta">
@@ -214,11 +494,19 @@
             ${isDue ? '<span class="topic-badge due-badge">🔁 Due now</span>'
               : isCompleted ? `<span class="topic-badge mastered">✓ Review in ${dueIn}d</span>` : ""}
             ${isRecommended ? '<span class="topic-badge recommended">→ Recommended next</span>' : ""}
-            ${isAhead ? '<span class="topic-badge ahead-badge">⤴ Jumping ahead</span>' : ""}
+            ${isAhead ? '<span class="topic-badge ahead-badge">\u{1F512} Locked</span>' : ""}
           </div>
         `;
 
-        card.addEventListener("click", () => startTopic(flatIdx));
+        if (isAhead) {
+          card.style.cursor = "not-allowed";
+        } else {
+          card.addEventListener("click", () => startTopic(flatIdx));
+          card.querySelector(".topic-cards-btn").addEventListener("click", e => {
+            e.stopPropagation();
+            startFlashcardReview(topic);
+          });
+        }
         grid.appendChild(card);
         globalIdx++;
       });
@@ -226,6 +514,136 @@
 
     updateGlobalProgress();
     updateProfileBadge();
+  }
+
+  // ---- Roadmap (bubble-node map view) ----
+  // Same topics, same nav, same completion/due state as the list above —
+  // just laid out as a winding path of topic bubbles instead of a
+  // module-grouped grid, with each topic's chunks as small satellite
+  // dots orbiting it (same hub-and-spoke idea as the Star lobby layout
+  // in core/lobby.js — computed in JS for the same reason: variable
+  // content per topic, not a fixed CSS nth-child pattern).
+  const ROADMAP_ROW = 158;      // vertical spacing between topic bubbles
+  const ROADMAP_DIVIDER = 78;   // extra vertical space for a module label
+  const ROADMAP_AMP = 30;       // how far bubbles swing left/right, in %
+
+  function renderRoadmap(unit, body, completedTopics, dueIds) {
+    const topics = state.currentTopics;
+
+    // Where each module's label sits: the flatIdx of its first topic.
+    const moduleAt = {};
+    let running = 0;
+    unit.modules.forEach(mod => { moduleAt[running] = mod; running += mod.topics.length; });
+
+    const wrap = document.createElement("div");
+    wrap.className = "roadmap-wrap";
+    body.appendChild(wrap);
+
+    // Pass 1: positions. y accumulates a row per topic plus a divider
+    // whenever a module starts; x swings in a sine wave so consecutive
+    // bubbles never sit directly above one another.
+    const points = [];
+    // See renderUnitRoadmap's identical comment — the cluster-ring pokes
+    // above the point it's centered on, so the wrap needs real headroom.
+    let y = 60;
+    topics.forEach((topic, i) => {
+      if (moduleAt[i]) y += ROADMAP_DIVIDER;
+      const xPct = 50 + ROADMAP_AMP * Math.sin(i * 1.15);
+      points.push({ topic, i, x: xPct, y });
+      y += ROADMAP_ROW;
+    });
+    wrap.style.height = `${y}px`;
+
+    // Connecting spine: one smooth path through every bubble center,
+    // each segment an S-curve (control points at the shared vertical
+    // midpoint) so it reads as a winding trail, not a zigzag of straight
+    // lines.
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "roadmap-spine");
+    svg.setAttribute("viewBox", `0 0 100 ${y}`);
+    svg.setAttribute("preserveAspectRatio", "none");
+    let d = `M${points[0].x},${points[0].y} `;
+    for (let i = 1; i < points.length; i++) {
+      const p0 = points[i - 1], p1 = points[i];
+      const midY = (p0.y + p1.y) / 2;
+      d += `C${p0.x},${midY} ${p1.x},${midY} ${p1.x},${p1.y} `;
+    }
+    svg.innerHTML = `<path d="${d}" fill="none" vector-effect="non-scaling-stroke"/>`;
+    wrap.appendChild(svg);
+
+    const completedChunks = DB.getCompletedChunks();
+
+    points.forEach(({ topic, i, x, y }) => {
+      const mod = moduleAt[i];
+      if (mod) {
+        const modDone = mod.topics.filter(t => completedTopics.has(t.id)).length;
+        const label = document.createElement("div");
+        label.className = "roadmap-module-label";
+        label.style.top = `${y - ROADMAP_DIVIDER + 6}px`;
+        label.innerHTML = `<span class="module-icon">${mod.icon}</span> ${mod.title}
+          <span class="roadmap-module-count">${modDone}/${mod.topics.length}</span>`;
+        wrap.appendChild(label);
+      }
+
+      const isCompleted = completedTopics.has(topic.id);
+      const isDue = dueIds.includes(topic.id);
+      const prereqDone = i === 0 || completedTopics.has(topics[i - 1].id);
+      const isCurrent = prereqDone && !isCompleted;
+      const isAhead = !prereqDone && !isCompleted;
+      // Locked, not just "further down the list" — see PROJECT.md §5's
+      // "No hard locks" section for the reversal note and why this
+      // exists now. The reason is still shown on hover; it's just a
+      // reason for the lock now; it used to excuse the ABSENCE of one.
+      const explain = isAhead
+        ? `Locked — finish &ldquo;${topics[i - 1].title}&rdquo; first.`
+        : "";
+
+      const node = document.createElement("div");
+      node.className = `roadmap-node${isCompleted ? " completed" : ""}${isCurrent ? " current" : ""}${isDue ? " due" : ""}${isAhead ? " ahead" : ""}`;
+      node.style.left = `${x}%`;
+      node.style.top = `${y}px`;
+      node.innerHTML = `
+        <div class="roadmap-cluster-ring"></div>
+        <button class="roadmap-bubble" title="${topic.title}"${explain ? ` data-explain="${explain}"` : ""}>
+          <span class="roadmap-bubble-inner">${isCompleted ? "✓" : isAhead ? "\u{1F512}" : topic.icon}</span>
+        </button>
+        ${isAhead ? "" : `<button class="roadmap-cards-btn" title="Flashcards for this topic">\u{1F5C2}\u{FE0F}</button>`}
+        <div class="roadmap-label">${topic.title}</div>
+      `;
+
+      // Chunk satellites — one dot per chunk, evenly spaced in a ring
+      // around the bubble. Same angle formula as the Star lobby hub.
+      // Locked past the furthest chunk actually reached (or every dot,
+      // if the whole topic is locked) — see the note above.
+      const done = completedChunks[topic.id] || new Set();
+      const n = topic.chunks.length;
+      let maxReached = 0;
+      for (let c = 0; c < n; c++) if (done.has(c)) maxReached = Math.max(maxReached, c + 1);
+      maxReached = Math.min(maxReached, n - 1);
+
+      for (let c = 0; c < n; c++) {
+        const angle = (-90 + c * (360 / n)) * Math.PI / 180;
+        const dx = 44 * Math.cos(angle), dy = 44 * Math.sin(angle);
+        const chunkLocked = isAhead || c > maxReached;
+        const dot = document.createElement("button");
+        dot.className = `roadmap-chunk-dot${done.has(c) ? " done" : ""}${chunkLocked ? " locked" : ""}`;
+        dot.style.transform = `translate(-50%, -50%) translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+        dot.title = chunkLocked ? `Chunk ${c + 1} — locked` : `Chunk ${c + 1}`;
+        if (!chunkLocked) {
+          dot.addEventListener("click", e => { e.stopPropagation(); startTopic(i, c); });
+        }
+        node.appendChild(dot);
+      }
+
+      if (!isAhead) {
+        node.querySelector(".roadmap-bubble").addEventListener("click", () => startTopic(i));
+        node.querySelector(".roadmap-cards-btn").addEventListener("click", e => {
+          e.stopPropagation();
+          startFlashcardReview(topic);
+        });
+      }
+      wrap.appendChild(node);
+    });
   }
 
   function updateGlobalProgress() {
@@ -245,6 +663,9 @@
     state.missedChunks = [];
     state.inRetry = false;
     state.topicCharge = 0;
+    // Resets on every fresh walk through a topic, including a redo
+    // after exhausting the one exam retry — see showExamResults.
+    state.examAttempts = 0;
     state.currentTopicIdx = flatIdx;
     const topic = state.currentTopics[flatIdx];
     // completedChunks has been recorded since the first version and was
@@ -598,7 +1019,13 @@
     }
 
     const isLastChunk = state.currentChunk >= topic.chunks.length - 1;
-    const nextBtnText = isLastChunk ? "Take Mastery Exam 🏆" : "Next Chunk →";
+    // A chunk with a recall phase isn't done at the quiz — the button
+    // below actually hands off to Recall next (see the click handler),
+    // so it must not promise the exam directly, even on the last chunk.
+    // Recall's own final button (renderRecall) is the one that
+    // genuinely says "Take the Mastery Exam".
+    const goesToRecallNext = chunk.recall && !state.inRetry;
+    const nextBtnText = goesToRecallNext ? "Continue →" : (isLastChunk ? "Take Mastery Exam 🏆" : "Next Chunk →");
 
     body.innerHTML = `
       <div class="chunk-section">
@@ -683,13 +1110,8 @@
     const isLastChunk = state.currentChunk >= topic.chunks.length - 1;
 
     DB.markChunkComplete(topic.id, state.currentChunk);
-    // A completed chunk is what counts as a "day" for the streak —
-    // once per real day, no matter how many chunks. See DB.touchStreak.
-    // `changed` is only true on the first qualifying action of a real
-    // day, which is the one moment worth animating.
-    const streak = DB.touchStreak();
-    if (Dojo.renderStreak) Dojo.renderStreak();
-    if (streak && streak.changed && Dojo.celebrateStreak) Dojo.celebrateStreak(streak.count);
+    // Streak used to touch here, per chunk — moved to showExamResults
+    // (only on an actual topic pass), see the comment there for why.
     // Studying costs a little upkeep. It never gates anything —
     // low vitals shut the Arcade and Story, never the Library.
     if (Dojo.LifeShop) Dojo.LifeShop.cost("chunk");
@@ -722,6 +1144,11 @@
 
   function startExam() {
     const topic = getTopic();
+    // One retry after a fail, then the topic has to be redone — see
+    // showExamResults. Counts real exam starts, not button clicks, so
+    // it survives however this got called (finishChunk, btn-retry, a
+    // missed-questions retry that falls through to the exam).
+    state.examAttempts = (state.examAttempts || 0) + 1;
     // Fresh shuffle on every attempt, including retries.
     state.examQuestions = shuffled(topic.examQuestions).map(shuffleQuestion);
     state.examIndex = 0;
@@ -832,15 +1259,34 @@
     DB.scheduleReview(topic.id, Math.max(0, Math.min(5, Math.round(pct / 20))));
     if (passed) {
       DB.markTopicComplete(topic.id);
+      // A completed TOPIC is what counts as a "day" for the streak now
+      // — moved off finishChunk, which fired once per chunk and let a
+      // single sitting through one topic register as several days'
+      // worth of streak progress. `changed` is only true on the first
+      // qualifying action of a real day, the one moment worth animating.
+      const streak = DB.touchStreak();
+      if (Dojo.renderStreak) Dojo.renderStreak();
+      if (streak && streak.changed && Dojo.celebrateStreak) Dojo.celebrateStreak(streak.count);
     }
     const nextIn = DB.daysUntilDue(topic.id);
+    // One retry after a fail (attempt 2), then the exam stops being
+    // directly retriable — the topic has to be walked again first.
+    // Blocked practice underperforming isn't the concern here (that's
+    // the "no hard locks" fight, a different one); this is closer to
+    // "score below 80% twice in a row" being a signal that re-reading
+    // the exam questions in a loop isn't the fix, going back through
+    // the material is.
+    state.examMustRedoTopic = !passed && state.examAttempts >= 2;
 
-    document.getElementById("result-icon").textContent = passed ? "🎉" : "📚";
+    document.getElementById("btn-to-topics").textContent = "Back to Topics";
+    document.getElementById("result-icon").textContent = passed ? "🎉" : (state.examMustRedoTopic ? "🔁" : "📚");
     document.getElementById("result-title").textContent = passed ? "Topic Mastered!" : "Not Quite Yet";
-    document.getElementById("btn-retry").textContent = "Retry Exam";
+    document.getElementById("btn-retry").textContent = state.examMustRedoTopic ? "Redo Topic" : "Retry Exam";
     document.getElementById("result-desc").textContent = passed
       ? `You scored ${correct}/${total} on "${topic.title}". It'll come back for review in ${nextIn} day${nextIn === 1 ? "" : "s"} — that's when it does the most good.`
-      : `You scored ${correct}/${total}, and 80% masters the topic. Rather than re-reading, go straight back to the questions you missed — that's what actually moves the needle.`;
+      : state.examMustRedoTopic
+        ? `You scored ${correct}/${total} — that's two attempts under 80%. Rather than a third try at the same exam, go back through "${topic.title}" from the start.`
+        : `You scored ${correct}/${total}, and 80% masters the topic. Rather than re-reading, go straight back to the questions you missed — that's what actually moves the needle.`;
     const scoreEl = document.getElementById("result-score");
     scoreEl.textContent = `${pct}%`;
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
@@ -885,6 +1331,240 @@
     showScreen("exam-result");
   }
 
+  // ---- Custom flashcard deck builder ----
+  // A learner-curated deck spanning any chunks across any units in the
+  // current course, as opposed to buildFlashDeck's whole-topic auto
+  // deck below. Cards are still built from each chunk's existing quiz
+  // (no separate flashcard content to author, same as the single-topic
+  // flow) but ordering and the DB write-back differ — see
+  // buildCustomDeck / finishCustomDeck.
+  function chunkKey(topicId, idx) { return `${topicId}::${idx}`; }
+
+  // Worst-known-first: a chunk answered wrong last time surfaces before
+  // one never attempted, which surfaces before one answered right last
+  // time. There's no chunk-level SM-2 (only topics get an interval —
+  // see data/db.js), so this reuses the one per-chunk signal that
+  // already exists: DB.getChunkResult's last-mini-quiz-attempt boolean.
+  function chunkWeakness(topicId, chunkIdx) {
+    const result = DB.getChunkResult(topicId, chunkIdx);
+    if (result === false) return 0;
+    if (result === undefined) return 1;
+    return 2;
+  }
+
+  function initDeckBuilderState(course) {
+    // Defaults to chunks already completed — reviewing material never
+    // studied yet isn't a review. The picker still lets a learner add
+    // or remove anything, this is just the starting selection.
+    const completed = DB.getCompletedChunks();
+    const chunks = new Set();
+    course.units.forEach(uid => {
+      (UNIT_TOPICS[uid] || []).forEach(t => {
+        const done = completed[t.id];
+        if (done) done.forEach(idx => chunks.add(chunkKey(t.id, idx)));
+      });
+    });
+    state.deckBuilder = { courseId: course.id, unitIds: new Set(course.units), chunks };
+  }
+
+  function openDeckBuilder() {
+    const course = COURSES.find(c => c.id === state.currentCourse);
+    if (!course) return;
+    if (!state.deckBuilder || state.deckBuilder.courseId !== course.id) initDeckBuilderState(course);
+    renderDeckBuilder();
+    showScreen("deck-builder");
+  }
+
+  function renderDeckBuilder() {
+    const body = document.getElementById("deck-builder-body");
+    const course = COURSES.find(c => c.id === state.currentCourse);
+    if (!body || !course) return;
+    if (!state.deckBuilder || state.deckBuilder.courseId !== course.id) initDeckBuilderState(course);
+    const picker = state.deckBuilder;
+    const completed = DB.getCompletedChunks();
+    const completedTopics = DB.getCompletedTopics();
+    body.innerHTML = "";
+
+    const intro = document.createElement("p");
+    intro.className = "deck-builder-intro";
+    intro.textContent = "Pick units and chunks to build a review deck. Weakest cards come up first — Anki-style.";
+    body.appendChild(intro);
+
+    // Same prereq rule as renderUnitSelect's list view and
+    // renderUnitRoadmap — a locked unit can't supply cards, so it
+    // can't be selected here either. Content already reached stays
+    // pickable even if the unit ahead of it is locked (nothing about
+    // building a review deck should un-complete anything).
+    const unitLocked = {};
+    course.units.forEach((uid, i) => {
+      unitLocked[uid] = i > 0 && !UNIT_TOPICS[course.units[i - 1]].every(t => completedTopics.has(t.id));
+      if (unitLocked[uid]) picker.unitIds.delete(uid);
+    });
+
+    const unitRow = document.createElement("div");
+    unitRow.className = "deck-unit-row";
+    course.units.forEach(uid => {
+      const u = UNITS.find(x => x.id === uid);
+      if (!u) return;
+      const locked = unitLocked[uid];
+      const pill = document.createElement("button");
+      pill.type = "button";
+      pill.className = `deck-unit-pill${picker.unitIds.has(uid) ? " active" : ""}${locked ? " locked" : ""}`;
+      pill.textContent = locked ? `\u{1F512} ${u.title}` : `${u.icon} ${u.title}`;
+      if (locked) {
+        pill.disabled = true;
+        pill.title = "Locked — finish the previous unit first.";
+      } else {
+        pill.addEventListener("click", () => {
+          if (picker.unitIds.has(uid)) picker.unitIds.delete(uid); else picker.unitIds.add(uid);
+          renderDeckBuilder();
+        });
+      }
+      unitRow.appendChild(pill);
+    });
+    body.appendChild(unitRow);
+
+    const list = document.createElement("div");
+    list.className = "deck-topic-list";
+    let totalSelected = 0;
+
+    course.units.filter(uid => picker.unitIds.has(uid)).forEach(uid => {
+      const topics = UNIT_TOPICS[uid] || [];
+      topics.forEach((t, ti) => {
+        const quizChunks = t.chunks.filter(c => c.quiz).length;
+        if (!quizChunks) return;
+
+        // Within-unit prereq — same rule renderRoadmap uses for a
+        // topic's own "ahead" state. A locked topic contributes no
+        // chunk toggles; any stale selection in one is dropped rather
+        // than silently building a deck from it.
+        const topicLocked = ti > 0 && !completedTopics.has(topics[ti - 1].id);
+        if (topicLocked) {
+          t.chunks.forEach((c, idx) => picker.chunks.delete(chunkKey(t.id, idx)));
+          const lockedSection = document.createElement("div");
+          lockedSection.className = "deck-topic-section locked";
+          lockedSection.innerHTML = `
+            <div class="deck-topic-header">
+              <span class="deck-topic-title">\u{1F512} ${t.title}</span>
+              <span class="deck-topic-count">Locked</span>
+            </div>`;
+          list.appendChild(lockedSection);
+          return;
+        }
+
+        const section = document.createElement("div");
+        section.className = "deck-topic-section";
+        const selectedInTopic = t.chunks.filter((c, idx) => c.quiz && picker.chunks.has(chunkKey(t.id, idx))).length;
+
+        const header = document.createElement("div");
+        header.className = "deck-topic-header";
+        header.innerHTML = `
+          <span class="deck-topic-title">${t.title}</span>
+          <span class="deck-topic-count">${selectedInTopic}/${quizChunks}</span>
+          <button class="deck-topic-toggle-all" type="button">${selectedInTopic === quizChunks ? "Clear" : "All"}</button>
+        `;
+        header.querySelector(".deck-topic-toggle-all").addEventListener("click", () => {
+          const allSelected = selectedInTopic === quizChunks;
+          t.chunks.forEach((c, idx) => {
+            if (!c.quiz) return;
+            const key = chunkKey(t.id, idx);
+            if (allSelected) picker.chunks.delete(key); else picker.chunks.add(key);
+          });
+          renderDeckBuilder();
+        });
+        section.appendChild(header);
+
+        const chunkRow = document.createElement("div");
+        chunkRow.className = "deck-chunk-row";
+        t.chunks.forEach((c, idx) => {
+          if (!c.quiz) return;
+          const key = chunkKey(t.id, idx);
+          const selected = picker.chunks.has(key);
+          if (selected) totalSelected++;
+          const isDone = completed[t.id] && completed[t.id].has(idx);
+          const result = DB.getChunkResult(t.id, idx);
+          const stateClass = result === false ? "weak" : result === true ? "known" : "new";
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.className = `deck-chunk-chip ${stateClass}${selected ? " selected" : ""}`;
+          chip.title = c.title;
+          chip.innerHTML = `
+            <span class="dcc-dot"></span>
+            <span class="dcc-title">${c.title}</span>
+            ${!isDone ? '<span class="dcc-new-badge">new</span>' : ""}
+          `;
+          chip.addEventListener("click", () => {
+            if (picker.chunks.has(key)) picker.chunks.delete(key); else picker.chunks.add(key);
+            renderDeckBuilder();
+          });
+          chunkRow.appendChild(chip);
+        });
+        section.appendChild(chunkRow);
+        list.appendChild(section);
+      });
+    });
+    body.appendChild(list);
+
+    const footer = document.createElement("div");
+    footer.className = "deck-builder-footer";
+    footer.innerHTML = `<button id="btn-start-custom-deck" class="btn-primary"${totalSelected === 0 ? " disabled" : ""}>Start Review (${totalSelected} card${totalSelected === 1 ? "" : "s"})</button>`;
+    body.appendChild(footer);
+
+    const startBtn = document.getElementById("btn-start-custom-deck");
+    if (startBtn && totalSelected > 0) {
+      startBtn.addEventListener("click", () => {
+        const refs = [];
+        course.units.filter(uid => picker.unitIds.has(uid)).forEach(uid => {
+          (UNIT_TOPICS[uid] || []).forEach(t => {
+            t.chunks.forEach((c, idx) => {
+              if (c.quiz && picker.chunks.has(chunkKey(t.id, idx))) refs.push({ topic: t, chunkIdx: idx });
+            });
+          });
+        });
+        startCustomDeckReview(refs);
+      });
+    }
+  }
+
+  function buildCustomDeck(refs) {
+    const cards = refs
+      .map(({ topic, chunkIdx }) => {
+        const c = topic.chunks[chunkIdx];
+        if (!c || !c.quiz) return null;
+        return {
+          q: c.quiz.question,
+          a: c.quiz.options[c.quiz.correct],
+          explanation: c.quiz.explanation,
+          topicId: topic.id,
+          topicTitle: topic.title,
+          chunkIdx
+        };
+      })
+      .filter(Boolean);
+    // Sort by weakness; ties keep selection order so re-running the
+    // same deck doesn't visibly reshuffle cards that didn't change.
+    return cards
+      .map((card, i) => ({ card, i, w: chunkWeakness(card.topicId, card.chunkIdx) }))
+      .sort((a, b) => a.w - b.w || a.i - b.i)
+      .map(x => x.card);
+  }
+
+  function startCustomDeckReview(refs) {
+    state.flashCustom = true;
+    state.flashCustomRefs = refs;
+    state.flashTopic = null;
+    state.flashDeck = buildCustomDeck(refs);
+    state.flashIndex = 0;
+    state.flashFlipped = false;
+    state.flashResults = [];
+    state.flashTimings = [];
+    state.flashCardShownAt = Date.now();
+    const title = document.getElementById("flashcard-title");
+    if (title) title.textContent = "\u{1F5C2}️ Custom Deck";
+    renderFlashcard();
+    showScreen("flashcards");
+  }
+
   // ---- Flashcard review ----
   // What watering a due plant launches (see garden/GARDEN.md) instead of
   // replaying the whole topic. One card per chunk, built from that
@@ -894,16 +1574,23 @@
   // scale showExamResults() uses, so a review advances the interval
   // exactly like retaking the exam used to.
   function buildFlashDeck(topic) {
-    return topic.chunks
-      .filter(c => c.quiz)
-      .map(c => ({
+    const cards = [];
+    topic.chunks.forEach((c, idx) => {
+      if (!c.quiz) return;
+      cards.push({
         q: c.quiz.question,
         a: c.quiz.options[c.quiz.correct],
-        explanation: c.quiz.explanation
-      }));
+        explanation: c.quiz.explanation,
+        topicId: topic.id,
+        topicTitle: topic.title,
+        chunkIdx: idx
+      });
+    });
+    return cards;
   }
 
   function startFlashcardReview(topic) {
+    state.flashCustom = false;
     state.flashTopic = topic;
     state.flashDeck = buildFlashDeck(topic);
     state.flashIndex = 0;
@@ -911,6 +1598,8 @@
     state.flashResults = [];
     state.flashTimings = [];
     state.flashCardShownAt = Date.now();
+    const title = document.getElementById("flashcard-title");
+    if (title) title.textContent = "\u{1F4A7} Review";
     renderFlashcard();
     showScreen("flashcards");
   }
@@ -923,7 +1612,7 @@
     if (counter) counter.textContent = `${state.flashIndex + 1}/${deck.length}`;
 
     body.innerHTML = `
-      <div class="flashcard-topic">${state.flashTopic.title}</div>
+      <div class="flashcard-topic">${card.topicTitle}</div>
       <div class="flashcard ${state.flashFlipped ? "flipped" : ""}">
         <div class="flashcard-face flashcard-front">${card.q}</div>
         <div class="flashcard-face flashcard-back">
@@ -975,8 +1664,10 @@
   const REVIEW_XP_BASE = 5;
 
   function finishFlashcards() {
+    if (state.flashCustom) return finishCustomDeck();
     const topic = state.flashTopic;
     state.lastReviewMode = "flashcards";
+    document.getElementById("btn-to-topics").textContent = "Back to Topics";
     const total = state.flashResults.length;
     const known = state.flashResults.filter(Boolean).length;
     const pct = total ? Math.round((known / total) * 100) : 0;
@@ -1030,6 +1721,53 @@
     showScreen("exam-result");
   }
 
+  // A custom deck can span many topics, so there's no single topic id
+  // to hand DB.scheduleReview's SM-2 interval to. What it CAN honestly
+  // update is the one per-chunk signal that exists — see
+  // DB.getChunkResult — which is also exactly what feeds the next
+  // deck's worst-known-first ordering. No markTopicComplete either:
+  // a custom deck reviews chunks, it doesn't complete topics.
+  function finishCustomDeck() {
+    state.lastReviewMode = "custom-flashcards";
+    document.getElementById("btn-to-topics").textContent = "Back to Deck Builder";
+    const deck = state.flashDeck;
+    const total = state.flashResults.length;
+    const known = state.flashResults.filter(Boolean).length;
+    const pct = total ? Math.round((known / total) * 100) : 0;
+    const passed = pct >= 80;
+    const rushed = state.flashTimings.filter(ms => ms < MIN_CARD_MS).length;
+    const genuineKnown = state.flashResults.filter((knew, i) => knew && state.flashTimings[i] >= MIN_CARD_MS).length;
+
+    deck.forEach((card, i) => {
+      DB.recordQuizAnswer(card.topicId, card.chunkIdx, state.flashResults[i]);
+    });
+    Bus.emit("review:finished", { custom: true, known, total, passed });
+
+    document.getElementById("result-icon").textContent = passed ? "\u{1F5C2}️" : "\u{1F4DD}";
+    document.getElementById("result-title").textContent = passed ? "Deck Cleared!" : "Good Rep";
+    document.getElementById("btn-retry").textContent = "Review Again";
+    document.getElementById("result-desc").textContent = `You knew ${known}/${total} on this custom deck.`
+      + (rushed ? ` ${rushed} card${rushed === 1 ? "" : "s"} answered too fast to count toward XP.` : "");
+    const scoreEl = document.getElementById("result-score");
+    scoreEl.textContent = `${pct}%`;
+    scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
+
+    const bonus = Math.round(REVIEW_XP_BASE * (genuineKnown / total));
+    const bonusEl = document.getElementById("result-charge");
+    if (bonusEl) {
+      if (bonus > 0) {
+        const granted = awardCharge(bonus, scoreEl);
+        bonusEl.innerHTML = `<span class="charge-award">⭐ +${granted} XP</span>`;
+      } else {
+        bonusEl.innerHTML = "";
+      }
+    }
+    const wisdomEl = document.getElementById("result-wisdom");
+    if (wisdomEl) wisdomEl.innerHTML = "";
+
+    showScreen("exam-result");
+  }
+
 
   // ---- Branch-owned navigation ----
   // These never leave the Library, so they are wired here and not in
@@ -1040,14 +1778,24 @@
   };
   on("btn-back-courses", renderCourseSelect);
   on("btn-back-units",  () => { showScreen("unit-select"); renderUnitSelect(); });
+  on("btn-back-deckbuilder", () => { showScreen("unit-select"); renderUnitSelect(); });
   on("btn-back-topics", () => { showScreen("topic-map"); renderTopicMap(); });
   on("btn-back-topics2",() => { showScreen("topic-map"); renderTopicMap(); });
-  on("btn-to-topics",   () => { showScreen("topic-map"); renderTopicMap(); });
-  on("btn-back-flashcards", () => { showScreen("topic-map"); renderTopicMap(); });
-  // The result screen is shared with flashcard review, so retry has to
-  // relaunch whichever flow actually produced this result.
+  // The result screen (and the "back" out of it) is shared across three
+  // flows now — a single-topic review, an exam, and a custom deck —
+  // each needing a different "where does this actually lead" answer.
+  on("btn-to-topics", () => {
+    if (state.lastReviewMode === "custom-flashcards") openDeckBuilder();
+    else { showScreen("topic-map"); renderTopicMap(); }
+  });
+  on("btn-back-flashcards", () => {
+    if (state.flashCustom) openDeckBuilder();
+    else { showScreen("topic-map"); renderTopicMap(); }
+  });
   on("btn-retry", () => {
-    if (state.lastReviewMode === "flashcards" && state.flashTopic) startFlashcardReview(state.flashTopic);
+    if (state.lastReviewMode === "custom-flashcards" && state.flashCustomRefs) startCustomDeckReview(state.flashCustomRefs);
+    else if (state.lastReviewMode === "flashcards" && state.flashTopic) startFlashcardReview(state.flashTopic);
+    else if (state.lastReviewMode === "exam" && state.examMustRedoTopic) startTopic(state.currentTopicIdx, 0);
     else startExam();
   });
 
@@ -1077,5 +1825,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, libraryTotals, resumeAt, startNextDueReview });
+  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, libraryTotals, resumeAt, startNextDueReview, openDeckBuilder, renderDeckBuilder });
 })();

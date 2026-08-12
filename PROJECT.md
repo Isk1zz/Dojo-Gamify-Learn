@@ -166,11 +166,33 @@ Every topic is reachable. Order is a `→ Recommended next` badge and a
 (interleaving beats it) and removed learner autonomy — the motivational need that
 actually predicts engagement.
 
+> **Reversed by explicit request.** Topics, units and individual chunks
+> not yet reached now render locked (🔒, red ring, non-clickable) — see
+> `library.js`'s `renderRoadmap` / `renderUnitRoadmap` / the list-view
+> topic and unit cards. The objection above still stands, unweakened —
+> blocked practice really did underperform open order in the literature
+> this was originally built against. Flagged at build time, same as the
+> streak reversal below; the call to keep it isn't this file's to make
+> unilaterally, but it's written down here so it isn't quietly lost.
+> `startNextDueReview()` and `resumeAt()` are deliberately exempt — a
+> due review or a saved position is continuing progress already made,
+> not a new forward jump, so neither is gated by this.
+
 ### What was deliberately NOT added
 - **No points, badges, or leaderboards.** Meta-analyses find small and unstable
   motivational effects; Hanus & Fox (2015) found badges and leaderboards *reduced*
   motivation. Researchers call the shallow version "racing stripes on a bicycle."
 - **No AI features** — they'd break the offline/no-build property.
+
+> **Badges were on this list too, and no longer are.** Added back by explicit
+> request (2026-08-12), alongside a real user profile screen showing stats and
+> awards. The objection stands — this is the same Hanus & Fox finding the
+> streak reversal already overrides, not new evidence against it — and the
+> call to keep it isn't this file's to make unilaterally, same as every other
+> reversal here. Not yet built as of this note; when it is, badges should earn
+> the same restraint the rest of the app has: real accomplishments (topics
+> mastered, streaks held, exams passed clean), not participation trophies for
+> opening the app.
 
 > **Streaks were on this list too, and no longer are.** Added back by explicit
 > request with 2 freezes/week (`DB.touchStreak`, `data/DATA.md`). The
@@ -178,6 +200,14 @@ actually predicts engagement.
 > spacing is for — and freezes are the standard mitigation, not a rebuttal
 > of it. Flagged at build time; the decision to keep it is not this file's
 > to make unilaterally, but it's written down here so it isn't quietly lost.
+>
+> **What counts as a "day" moved too.** `DB.touchStreak()` originally fired
+> in `finishChunk` — every completed chunk touched the streak, so one
+> sitting through a multi-topic study session could register as several
+> days' worth of progress on a single calendar day. Moved by explicit
+> request to `showExamResults`, gated on `passed` — a streak day now
+> requires actually mastering a topic (exam ≥80%), not just working
+> through one chunk of it.
 
 The lightning charge (§6) is a progress visualisation with a cap, not a scoring system.
 Keep it that way.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CS Dojo — Master Computer Science Interactively</title>
+  <title>Dojo - Gamify &amp; Learn</title>
   <meta name="description" content="An interactive, chunk-based CS learning experience — with quizzes and mastery exams, organized by unit." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <!-- One stylesheet per branch. base.css is the design system and the
@@ -13,7 +13,7 @@
   <meta name="theme-color" content="#0a0e1a" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="CS Dojo" />
+  <meta name="apple-mobile-web-app-title" content="Dojo" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
@@ -65,11 +65,15 @@
     <!-- Story mode lives in an overlay so the acts aren't spread across
          the Arcade tab, and so a scene can redraw without a screen change. -->
     <div id="story-modal" class="modal-overlay" style="display:none;"></div>
+    <!-- Shown once per course, the first time it's entered — a drawn
+         signature, never a real personal-data form. See
+         library/library.js's showContractModal. -->
+    <div id="contract-modal" class="modal-overlay" style="display:none;"></div>
     <!-- ====== Profile Setup Modal (first launch) ====== -->
     <div id="profile-modal" class="modal-overlay" style="display:none;">
       <div class="modal-card">
         <div class="modal-icon">👤</div>
-        <h2 class="modal-title">Welcome to <span class="accent">CS Dojo</span></h2>
+        <h2 class="modal-title">Welcome to <span class="accent">Dojo - Gamify &amp; Learn</span></h2>
         <p class="modal-desc">Enter your name to create a profile. Your progress and stats will be saved locally.</p>
         <input id="profile-name-input" class="modal-input" type="text" placeholder="Your name..." maxlength="30" autocomplete="off" />
         <button id="btn-profile-save" class="btn-primary" style="width:100%;justify-content:center;">Start Learning <span class="arrow">→</span></button>
@@ -248,6 +252,18 @@
       <div class="topic-map-body" id="unit-select-body"></div>
     </section>
 
+    <!-- ====== Custom Flashcard Deck Builder ======
+         Reuses the single-topic flashcard screen below to actually run
+         the review — this screen only picks which chunks go in the
+         deck. See library/library.js's renderDeckBuilder(). -->
+    <section id="deck-builder" class="screen">
+      <div class="topbar">
+        <button id="btn-back-deckbuilder" class="btn-ghost">&larr; Unit</button>
+        <h2 class="topbar-title">&#128194; Custom <span class="accent">Deck</span></h2>
+      </div>
+      <div class="deck-builder-body" id="deck-builder-body"></div>
+    </section>
+
     <!-- ====== Topic Map ====== -->
     <section id="topic-map" class="screen">
       <div class="topbar">
@@ -317,7 +333,7 @@
     <section id="flashcards" class="screen">
       <div class="topbar">
         <button id="btn-back-flashcards" class="btn-ghost">← Topics</button>
-        <h2 class="topbar-title">💧 Review</h2>
+        <h2 class="topbar-title" id="flashcard-title">💧 Review</h2>
         <span id="flashcard-counter" class="chunk-counter"></span>
       </div>
       <div class="flashcard-body" id="flashcard-body"></div>
@@ -356,6 +372,10 @@
   <script src="library/content/intro-cs/data_m4.js"></script>
   <script src="library/content/intro-cs/data_m5.js"></script>
   <script src="library/content/intro-cs/data_m6.js"></script>
+  <script src="library/content/intro-cs/data_m7.js"></script>
+  <script src="library/content/intro-cs/data_m8.js"></script>
+  <script src="library/content/intro-cs/data_m9.js"></script>
+  <script src="library/content/intro-cs/data_m10.js"></script>
   <script src="library/content/intro-cs/course.js"></script>
 
   <script src="library/content/build.js"></script>

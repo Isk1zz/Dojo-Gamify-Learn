@@ -280,10 +280,27 @@
   // (shelter + all three vitals) still lives in renderLifeTab's
   // .vitals-detail / .sw-meta. Function name/id kept for continuity even
   // though this is now just the wallet strip under the charge bar.
+  // Screens where the Library owns the task at hand — a running balance
+  // has nothing to do with any of them, and sitting in the corner while
+  // you're mid-lesson is exactly the "distracting" complaint this was
+  // built to fix. Explicit request: keep it in Arcade and Garden (where
+  // the balance IS part of the decision you're making), hide it
+  // everywhere else the Library is in control of the screen.
+  const WALLET_HIDDEN_SCREENS = new Set([
+    "course-select", "unit-select", "topic-map", "deck-builder",
+    "lesson", "exam", "exam-result", "flashcards"
+  ]);
+
   function renderVitals() {
     const strip = document.getElementById("vitals-strip");
     if (!strip) return;
     if (!DB.getActiveProfile() || !survivalOn()) { strip.style.display = "none"; return; }
+    // Router.current() only tracks screens reached through Router.go —
+    // lesson/exam/flashcards/deck-builder are shown via a direct
+    // showScreen() call inside library.js and never register there, so
+    // the active .screen element is the only thing that's always right.
+    const activeEl = document.querySelector(".screen.active");
+    if (activeEl && WALLET_HIDDEN_SCREENS.has(activeEl.id)) { strip.style.display = "none"; return; }
     strip.style.display = "flex";
     strip.innerHTML = `<span class="vital-wallet"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`;
   }

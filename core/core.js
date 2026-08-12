@@ -122,6 +122,13 @@ const Bus = (() => {
     document.getElementById(id).classList.add("active");
     window.scrollTo(0, 0);
     if (Dojo.closeDropdown) Dojo.closeDropdown();   // profiles branch may not be loaded
+    // The one choke point every screen transition passes through,
+    // Router.go included (it calls this at the end) — library.js's
+    // internal lesson/exam/flashcards/deck-builder screens bypass
+    // Router entirely, so this is the only place that reliably fires
+    // on every switch. Lets the wallet strip hide itself on screens
+    // where a running balance is just noise — see shop/life.js.
+    if (Dojo.renderVitals) Dojo.renderVitals();
   }
 
 // ---- Router ----

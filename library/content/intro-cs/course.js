@@ -7,8 +7,8 @@
 // Unit ids are global across all courses — see content/registry.js.
 // Ids 6, 7 and 8 are historical (they were literally units 6-8 of a
 // module) and are kept because saved progress is keyed on them.
-// Unit 5 was written later but numbered to match the real course, so
-// the ids are not in build order and that is deliberate.
+// Units 2 and 5 were written later but numbered to match the real
+// course, so the ids are not in build order and that is deliberate.
 //
 // ---- Why this file guards its module references ----
 // A course file names MODULE_N constants directly, so a module whose
@@ -31,6 +31,10 @@
   const m4 = typeof MODULE_4 === "undefined" ? null : MODULE_4;
   const m5 = typeof MODULE_5 === "undefined" ? null : MODULE_5;
   const m6 = typeof MODULE_6 === "undefined" ? null : MODULE_6;
+  const m7 = typeof MODULE_7 === "undefined" ? null : MODULE_7;
+  const m8 = typeof MODULE_8 === "undefined" ? null : MODULE_8;
+  const m9 = typeof MODULE_9 === "undefined" ? null : MODULE_9;
+  const m10 = typeof MODULE_10 === "undefined" ? null : MODULE_10;
 
   // Loud, not silent — the same rule registry.js applies to id collisions.
   function mod(n, m) {
@@ -44,6 +48,43 @@
   }
 
   const units = [
+    {
+      // Same reason units 2-4 sort where they do — numbered to match
+      // the real course, built after 5-8.
+      id: 1,
+      title: "Unit 1",
+      subtitle: "Computer Fundamentals",
+      icon: "\u{1F9EE}",
+      modules: mod(10, m10)
+    },
+    {
+      // Added after 5-8 were already built, numbered 2 to match the real
+      // course. Listed first for the same reason unit 5 is: the map
+      // should read in course order, not build order.
+      id: 2,
+      title: "Unit 2",
+      subtitle: "Number Systems & Data Representation",
+      icon: "\u{1F522}",
+      modules: mod(7, m7)
+    },
+    {
+      // Same reason unit 2 sorts where it does \u2014 numbered to match the
+      // real course, built after 5-8.
+      id: 3,
+      title: "Unit 3",
+      subtitle: "Boolean Algebra & Logic Gates",
+      icon: "\u{1F500}",
+      modules: mod(8, m8)
+    },
+    {
+      // Same reason units 2-3 sort where they do — numbered to match
+      // the real course, built after 5-8.
+      id: 4,
+      title: "Unit 4",
+      subtitle: "Operating Systems",
+      icon: "\u{1F5A5}️",
+      modules: mod(9, m9)
+    },
     {
       // Added after 6-8 were already built, and numbered 5 to match the
       // course's own numbering rather than the order it was written in.

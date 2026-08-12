@@ -12,7 +12,7 @@
 
 const DB = (() => {
   const STORAGE_KEY = "unit6-dojo-db";
-  const DB_VERSION = 8;
+  const DB_VERSION = 9;
 
   // Tickets are now the ONLY arcade limiter: 7 per 6 hours, ceiling 7.
   // Energy was removed in v6 — it and tickets were two rate limits doing
@@ -68,6 +68,13 @@ const DB = (() => {
         shelterTier: "street"   // street | hostel | apartment | car
       },
       lastPosition: null,    // { unitId, topicId, chunkIdx } — resume point
+
+      // ---- v9: course contracts ----
+      // A funny, in-theme "sign here" gimmick shown once per course, the
+      // first time it's entered — a drawn signature (canvas dataURL,
+      // downsized before storage), never a real personal-data form. See
+      // library/library.js's showContractModal.
+      courseContracts: {}, // { courseId: { signature, signedAt } }
 
       // ---- v7: streak ----
       // A deliberate reversal of PROJECT.md §5's "no streaks" decision —
@@ -200,6 +207,16 @@ const DB = (() => {
     if (db.version < 8) {
       for (const p of Object.values(db.profiles || {})) {
         if (!p.lobbyStyle) p.lobbyStyle = "classic";
+      }
+    }
+    // v8 -> v9: course contracts. An existing profile has presumably
+    // already "entered" whatever courses it has progress in, so back-
+    // filling a signature for those would be dishonest — it starts
+    // empty and the modal fires the next time an unsigned course is
+    // opened, same as any other course, old profile or new.
+    if (db.version < 9) {
+      for (const p of Object.values(db.profiles || {})) {
+        if (!p.courseContracts) p.courseContracts = {};
       }
     }
     db.version = DB_VERSION;
@@ -396,6 +413,16 @@ const DB = (() => {
     if (pct > ts.bestScore) ts.bestScore = pct;
     if (passed) ts.completedAt = new Date().toISOString();
     save(db);
+  }
+
+  // Last-attempt correctness for one chunk's mini-quiz, or undefined if
+  // it's never been answered. The only per-chunk signal the app keeps
+  // (no chunk-level SM-2 — see PROJECT.md), so it's what the custom
+  // flashcard deck builder sorts "worst known first" by.
+  function getChunkResult(topicId, chunkIdx) {
+    const p = getActiveProfile();
+    const ts = p && p.stats.topicStats[topicId];
+    return ts ? ts.chunkResults[chunkIdx] : undefined;
   }
 
   // ---- Stats retrieval ----
@@ -650,6 +677,23 @@ const DB = (() => {
     const p = db.profiles[db.activeProfileId];
     if (!p) return;
     p.lastPosition = null;
+    save(db);
+  }
+
+  // ---- Course contracts ----
+  // A drawn signature, not a real personal-data form — see the v9
+  // migration note above for why. One per course, per profile.
+  function hasSignedContract(courseId) {
+    const p = getActiveProfile();
+    return !!(p && p.courseContracts && p.courseContracts[courseId]);
+  }
+
+  function signContract(courseId, signatureDataUrl) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    if (!p.courseContracts) p.courseContracts = {};
+    p.courseContracts[courseId] = { signature: signatureDataUrl, signedAt: new Date().toISOString() };
     save(db);
   }
 
@@ -956,6 +1000,7 @@ const DB = (() => {
     getStreak,
     touchStreak,
     recordQuizAnswer,
+    getChunkResult,
     recordExamResult,
     getStats,
     scheduleReview,
@@ -1002,6 +1047,8 @@ const DB = (() => {
     setPosition,
     getPosition,
     clearPosition,
+    hasSignedContract,
+    signContract,
     resumeChunkFor,
     exportData,
     importData

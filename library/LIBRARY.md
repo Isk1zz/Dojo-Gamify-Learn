@@ -31,6 +31,59 @@ request over instead.
 `chunk:completed`, `topic:completed`, `exam:finished`, `review:finished`,
 `progress:changed`
 
+## Topic map: List vs. Map
+`renderTopicMap()` draws one of two views over the same topics, same
+completion/due state, same navigation — a session-only toggle
+(`state.topicMapView`, not persisted to a profile, unlike theme or lobby
+style: this is "how do I want to look at it right now").
+
+- **List** — the original module-grouped card grid.
+- **Map** — `renderRoadmap()`. Topics as bubbles along a winding path
+  (sine-wave x offset per topic index, so consecutive bubbles never
+  stack), one SVG spine connecting them, module boundaries as small
+  labels along the path. Each bubble's chunks are small satellite dots
+  orbiting it — same hub-and-spoke angle math as the Star lobby layout
+  in `core/lobby.js`, computed in JS per topic because chunk count
+  varies (a fixed CSS pattern can't do that). Clicking an unlocked chunk
+  dot jumps straight into that chunk (`startTopic(idx, chunkIdx)`);
+  clicking an unlocked bubble opens the topic at its resume point, same
+  as a List card. Locked ones do neither — see below.
+
+Both views also carry a **Flashcards** button per topic (🗂️, its own
+click target, `stopPropagation`'d off the bubble/card underneath) —
+`startFlashcardReview(topic)` on demand, for any *unlocked* topic, not
+gated on it being due or even completed. Previously the only way to
+reach a flashcard deck was `startNextDueReview()` from a due Garden
+plant. The button doesn't render at all on a locked topic — a deck
+built from content you haven't reached would just be spoilers.
+
+### Roadmap detail: cluster ring, hover glow, and locking
+Each topic bubble sits inside a faint dashed `.roadmap-cluster-ring` —
+without it there was nothing telling the eye where one topic's
+chunk-dot cluster ends and the next begins, since the spine runs
+straight through both. Colour-coded the same as the bubble
+(green = completed, accent = current), plain border otherwise.
+
+Hovering a bubble adds a colour-coded glow **on top of**, not instead
+of, the current topic's permanent accent ring:
+- **Green** — open and yours to study now.
+- **Red**, plus a brief `data-explain` tooltip naming what to finish
+  first (pure CSS, from an attribute, no separate element to keep in
+  sync) — genuinely locked. This is a real gate now, not a suggestion —
+  see PROJECT.md §5's "No hard locks" section for the reversal and why
+  it's flagged there rather than quietly changed. A locked bubble shows
+  🔒 instead of its icon, drops its click handler and its Flashcards
+  button entirely, and every one of its chunk dots locks with it.
+  `renderUnitRoadmap` and the list-view topic/unit cards
+  (`.topic-card.ahead`) all use the identical red-glow-plus-tooltip
+  treatment, including `renderCourseSelect()`'s unavailable-course
+  cards (`.course-card.restricted`), which had it first.
+
+Within an unlocked topic, chunks past the furthest one actually reached
+lock the same way (red, `.roadmap-chunk-dot.locked`) — jumping to
+chunk 3 before finishing chunk 1 is exactly the kind of skip this
+reversal closes off, not just skipping whole topics.
+
 ## Flashcard review (watering)
 `startNextDueReview()` no longer replays the whole topic (explain + example +
 quiz per chunk, then the exam). It launches a **flashcard deck** instead —

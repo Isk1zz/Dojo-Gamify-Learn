@@ -5,6 +5,7 @@ Type these into **Settings → Codes** and press Apply.
 | Code | Effect |
 |---|---|
 | `admin613` | Marks every topic in every course complete |
+| `unlockalltopics` | Marks every topic AND every chunk complete — for testing the custom flashcard deck builder, which needs chunk-level completion, not just topic-level |
 | `parnasa100` | +$100 to the wallet |
 | `agrala` | Refills arcade tickets to full (7) |
 | `capmyrank` | Jumps XP to the top of the ladder — Nobel Laureate, every reward unlocked |

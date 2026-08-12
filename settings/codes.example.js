@@ -26,6 +26,23 @@ window.DOJO_CODES = (DB, Dojo) => ({
     Dojo.Bus.emit("progress:changed", { reason: "admin" });
     return `Unlocked. ${n} topics marked complete.`;
   },
+  // Like admin613, but for testing the custom flashcard deck builder —
+  // that also needs completedChunks populated (admin613 only ever
+  // touched completedTopics), since the picker's default selection and
+  // its known/weak/new chip indicators both read chunk-level state, not
+  // topic-level. Every unit/topic lock in the app is prereq-based off
+  // completedTopics, so this also fully opens the roadmap and unit
+  // list, same as admin613 does.
+  unlockalltopics: () => {
+    const topics = (typeof ALL_TOPICS !== "undefined" ? ALL_TOPICS : []);
+    const n = DB.unlockAllTopics(topics.map(t => t.id));
+    let chunks = 0;
+    topics.forEach(t => {
+      t.chunks.forEach((c, idx) => { DB.markChunkComplete(t.id, idx); chunks++; });
+    });
+    Dojo.Bus.emit("progress:changed", { reason: "admin" });
+    return `Unlocked. ${n} topics and ${chunks} chunks marked complete — every unit, topic and chunk is now reachable.`;
+  },
   agrala: () => {
     const n = DB.refillTickets();
     Dojo.Bus.emit("tickets:changed", { tickets: n });

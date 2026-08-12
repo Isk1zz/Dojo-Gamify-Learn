@@ -201,6 +201,159 @@
 }
 .topic-badge.mastered { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: var(--green); }
 
+/* ── List/Map toggle ── */
+.topic-view-toggle { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+.tvt-btn {
+  padding: 0.45rem 0.9rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim);
+  font: inherit; font-size: 0.82rem; font-weight: 600;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.tvt-btn:hover { border-color: var(--border-accent); color: var(--text); }
+.tvt-btn.active { border-color: var(--border-accent); background: var(--accent-glow); color: var(--text); }
+
+/* Flashcards entry point on a list-view topic card — top-right corner,
+   independent click target from the card itself (stopPropagation). */
+.topic-cards-btn {
+  position: absolute; top: 0.7rem; right: 0.7rem; z-index: 2;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  cursor: pointer; font-size: 0.9rem; padding: 0;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.topic-cards-btn:hover { border-color: var(--border-accent); transform: scale(1.08); }
+
+/* ============================================
+   Roadmap (bubble-node map view)
+   ============================================ */
+.roadmap-wrap { position: relative; max-width: 460px; margin: 0 auto; width: 100%; }
+
+.roadmap-spine { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.roadmap-spine path {
+  stroke: var(--border-accent); stroke-width: 3; stroke-linecap: round;
+  stroke-dasharray: 2 10; opacity: 0.5;
+}
+
+.roadmap-module-label {
+  position: absolute; left: 0; right: 0; text-align: center;
+  font-size: 0.82rem; font-weight: 700; color: var(--text-dim);
+  letter-spacing: 0.2px;
+}
+.roadmap-module-count {
+  font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-left: 0.4rem;
+}
+
+.roadmap-node { position: absolute; width: 0; height: 0; z-index: 2; }
+
+/* The boundary a topic and its chunk-dots share — without this the eye
+   has nothing telling it where one topic's cluster ends and the next
+   starts, especially with the spine running right through both. Sized
+   to just clear the chunk-dot ring (44px radius + the dot itself). */
+.roadmap-cluster-ring {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%);
+  width: 116px; height: 116px; border-radius: 50%;
+  border: 1px dashed var(--border); opacity: 0.35; pointer-events: none; z-index: 0;
+}
+.roadmap-node.completed .roadmap-cluster-ring { border-color: var(--green); opacity: 0.4; }
+.roadmap-node.current .roadmap-cluster-ring { border-color: var(--accent); opacity: 0.5; }
+
+.roadmap-bubble {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%);
+  width: 64px; height: 64px; border-radius: 50%; padding: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-card); border: 2px solid var(--border);
+  font-size: 1.6rem; color: var(--text); cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.roadmap-bubble:hover { transform: translate(-50%, -50%) scale(1.08); border-color: var(--border-accent); }
+.roadmap-node.completed .roadmap-bubble {
+  border-color: var(--green); background: var(--green); color: #fff; box-shadow: 0 0 8px var(--green-glow);
+}
+.roadmap-node.current .roadmap-bubble {
+  border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); animation: pulse 2s ease infinite;
+}
+.roadmap-node.due .roadmap-bubble { border-color: rgba(56,189,248,0.7); box-shadow: 0 0 14px rgba(56,189,248,0.35); }
+/* Locked — see PROJECT.md §5's "No hard locks" section for the reversal
+   note. Not reachable yet, genuinely: no scale-up hover (nothing is
+   about to happen on click), red border instead of the neutral default,
+   dimmer than an open bubble so it reads as further away, not just
+   "less important". */
+.roadmap-node.ahead .roadmap-bubble {
+  opacity: 0.55; cursor: not-allowed; border-color: rgba(239,68,68,0.55);
+}
+.roadmap-node.ahead .roadmap-bubble:hover { opacity: 0.85; transform: translate(-50%, -50%); }
+
+/* Hover glow rings, colour-coded by what pointing at this bubble means:
+   green = open and yours to study now, red = locked (see the
+   data-explain tooltip below for why, and .course-card.restricted for
+   the same treatment one screen up, on an unavailable course). Layered
+   on top of the "current" bubble's permanent accent ring, not a
+   replacement for it — a soft outer bloom vs. that ring's tight solid
+   one, so both read at once. */
+.roadmap-node:not(.ahead):not(.restricted) .roadmap-bubble:hover {
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.4), 0 0 22px rgba(16,185,129,0.5);
+}
+.roadmap-node.ahead .roadmap-bubble:hover,
+.roadmap-node.restricted .roadmap-bubble:hover {
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.4), 0 0 22px rgba(239,68,68,0.5);
+}
+
+/* Brief reason a locked bubble is locked — pure CSS, from the
+   data-explain attribute set in library.js, so there's no separate
+   tooltip element to keep in sync. */
+.roadmap-bubble[data-explain]::after {
+  content: attr(data-explain);
+  /* Below the bubble, not above — the first topic in a unit sits right
+     under the topbar, and an above-positioned tooltip ran behind it. */
+  position: absolute; top: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%);
+  width: 170px; padding: 0.55rem 0.65rem; border-radius: 8px;
+  background: var(--bg-surface); border: 1px solid rgba(239,68,68,0.4); color: var(--text-dim);
+  font-size: 0.7rem; font-weight: 500; line-height: 1.35; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 10;
+}
+.roadmap-bubble[data-explain]:hover::after { opacity: 1; }
+
+.roadmap-cards-btn {
+  position: absolute; left: 0; top: 0; transform: translate(20px, 20px);
+  width: 26px; height: 26px; border-radius: 50%; padding: 0; z-index: 3;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  font-size: 0.8rem; cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.roadmap-cards-btn:hover { border-color: var(--border-accent); }
+
+.roadmap-label {
+  /* Below the cluster ring's own edge (58px radius), not inside it —
+     it used to start at 40px, so the dashed ring cut straight through
+     the text ("eaten by the circles"). */
+  position: absolute; left: 0; top: 0; transform: translate(-50%, 64px);
+  width: 130px; text-align: center; pointer-events: none; z-index: 1;
+  font-size: 0.76rem; font-weight: 600; color: var(--text-dim); line-height: 1.25;
+  text-shadow: 0 0 4px var(--bg-deep), 0 0 8px var(--bg-deep);
+}
+
+.roadmap-chunk-dot {
+  position: absolute; left: 0; top: 0; z-index: 1; padding: 0;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--bg-surface); border: 1.5px solid var(--border);
+  cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease;
+}
+.roadmap-chunk-dot.done { background: var(--green); border-color: var(--green); }
+.roadmap-chunk-dot.locked {
+  cursor: not-allowed; opacity: 0.5; border-color: rgba(239,68,68,0.5);
+}
+.roadmap-chunk-dot:hover { border-color: var(--border-accent); }
+
+@media (max-width: 480px) {
+  .roadmap-bubble { width: 54px; height: 54px; font-size: 1.35rem; }
+  .roadmap-label { width: 108px; transform: translate(-50%, 56px); font-size: 0.7rem; }
+  .roadmap-cards-btn { transform: translate(16px, 16px); }
+  .roadmap-cluster-ring { width: 100px; height: 100px; }
+}
+
 /* ============================================
    Lesson
    ============================================ */
@@ -287,6 +440,35 @@
 .quiz-opt.correct .quiz-letter  { background: var(--green); color: #fff; }
 .quiz-opt.wrong .quiz-letter    { background: var(--red); color: #fff; }
 
+/* The Predict phase (renderPredict) uses its own class names —
+   .quiz-option/.qo-letter/.qo-text, not .quiz-opt/.quiz-letter — and
+   these were never actually styled, so every predict question in the
+   app rendered as an unstyled native <button> (light background, no
+   theme colours) instead of matching the real quiz. Predict only
+   appeared on one chunk in the whole app before Units 2-3 put it on
+   every topic's first chunk, which is why it went unnoticed this long.
+   Same visual treatment as .quiz-opt, plus the <button>-specific
+   resets a <div>-based .quiz-opt never needed (font, text-align, full
+   width — buttons don't default to block level the way a div does). */
+.quiz-option {
+  display: flex; align-items: center; gap: 0.75rem; width: 100%;
+  padding: 0.85rem 1rem; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.25s ease;
+  font: inherit; font-size: 0.9rem; color: var(--text-dim); text-align: left;
+}
+.quiz-option:hover { background: var(--bg-card-hover); border-color: var(--border-accent); color: var(--text); }
+.quiz-option.selected { border-color: var(--accent); background: rgba(99,102,241,0.08); color: var(--text); }
+
+.qo-letter {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 6px;
+  background: var(--bg-surface); font-weight: 700; font-size: 0.8rem;
+  flex-shrink: 0; transition: all 0.25s ease;
+}
+.quiz-option.selected .qo-letter { background: var(--accent); color: #fff; }
+.qo-text { flex: 1; }
+
 .quiz-feedback {
   padding: 1rem 1.25rem; border-radius: var(--radius-sm);
   font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;
@@ -318,10 +500,18 @@
 .result-icon { font-size: 4rem; margin-bottom: 1rem; }
 .result-card h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
 .result-card > p { color: var(--text-dim); font-size: 1rem; margin-bottom: 1.5rem; max-width: 420px; margin-inline: auto; line-height: 1.6; }
-.result-score { font-size: 3rem; font-weight: 900; margin-bottom: 2rem; font-family: var(--mono); }
+.result-score { font-size: 3rem; font-weight: 900; margin-bottom: 0.75rem; font-family: var(--mono); }
 .result-score.pass { color: var(--green); }
 .result-score.fail { color: var(--red); }
-.result-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+/* The XP badge and any wisdom quote sit between the score and the
+   buttons — both are conditionally empty, so the gap has to come from
+   the containers themselves rather than the badge's own margin, or an
+   empty result-charge/result-wisdom collapses to zero height and the
+   score's margin alone isn't enough to keep "+N XP" clear of the
+   buttons below it. */
+#result-charge:not(:empty) { margin-bottom: 1.25rem; }
+#result-wisdom:not(:empty) { margin-bottom: 1.5rem; }
+.result-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
 
 /* ============================================
    Flashcard review — what watering a due plant launches.
@@ -463,8 +653,58 @@
 
 /* ── Topic card states ── */
 .topic-card.due { border-color: rgba(56,189,248,0.5); }
-.topic-card.ahead { opacity: 0.62; }
-.topic-card.ahead:hover { opacity: 1; }
+/* Locked, not just "further down the list" — see PROJECT.md §5.
+   overflow:visible overrides .topic-card's overflow:hidden (there for
+   the ::before hover gradient), which would otherwise clip the
+   ::after tooltip below — same fix as .course-card.restricted. */
+.topic-card.ahead {
+  opacity: 0.55; cursor: not-allowed; border-color: rgba(239,68,68,0.4);
+  position: relative; overflow: visible;
+}
+.topic-card.ahead:hover { opacity: 0.75; transform: none; box-shadow: none; }
+.topic-card.ahead::before { display: none; }
+.topic-card.ahead[data-explain]::after {
+  content: attr(data-explain);
+  position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  width: 200px; padding: 0.55rem 0.65rem; border-radius: 8px;
+  background: var(--bg-surface); border: 1px solid rgba(239,68,68,0.4); color: var(--text-dim);
+  font-size: 0.72rem; font-weight: 500; line-height: 1.35; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 10;
+}
+.topic-card.ahead[data-explain]:hover::after { opacity: 1; }
+.topic-badge.ahead-badge { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+
+/* An open, clickable course — a cool, inviting glow distinct from the
+   generic accent hover every other .topic-card gets, so "you can
+   actually enter this one" reads at a glance next to a restricted card. */
+.course-card:not(.restricted):hover {
+  border-color: rgba(6,182,212,0.55);
+  box-shadow: 0 0 0 3px rgba(6,182,212,0.25), 0 0 22px rgba(16,185,129,0.35);
+}
+
+/* The one genuine hard-lock in the app (an unavailable course) — same
+   red-glow-with-a-reason treatment as the roadmap's ahead/yellow
+   explanation, see styles/library.css's .roadmap-bubble[data-explain]. */
+.course-card.restricted {
+  cursor: not-allowed; position: relative;
+  overflow: visible; /* .topic-card's overflow:hidden would clip the tooltip below */
+}
+.course-card.restricted:hover {
+  border-color: rgba(239,68,68,0.5);
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.35), 0 0 22px rgba(239,68,68,0.4);
+}
+.course-card.restricted[data-explain]::after {
+  content: attr(data-explain);
+  /* Below the card, not above — above can run behind the fixed topbar
+     when the card sits near the top of the grid (reported: text was
+     showing "beyond scope of vision"). */
+  position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  width: 190px; padding: 0.55rem 0.65rem; border-radius: 8px;
+  background: var(--bg-surface); border: 1px solid rgba(239,68,68,0.4); color: var(--text-dim);
+  font-size: 0.72rem; font-weight: 500; line-height: 1.35; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 10;
+}
+.course-card.restricted[data-explain]:hover::after { opacity: 1; }
 .topic-badge.due-badge { background: var(--accent-glow); color: var(--accent-light); }
 .topic-badge.recommended { background: rgba(167,139,250,0.18); color: #c4b5fd; }
 .topic-badge.ahead-badge { background: rgba(255,255,255,0.06); opacity: 0.7; }
@@ -532,4 +772,120 @@
 .rm-nudge {
   margin-top: 0.9rem; font-size: 0.82rem; line-height: 1.55;
   color: var(--yellow); opacity: 0.85;
+}
+
+/* ── Custom flashcard deck builder ── */
+.deck-builder-entry {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  width: 100%; margin-bottom: 1.25rem; padding: 0.7rem 1rem;
+  border-radius: var(--radius-sm); cursor: pointer;
+  border: 1px dashed var(--border-accent); background: var(--bg-card); color: var(--text-dim);
+  font: inherit; font-size: 0.85rem; font-weight: 600;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.deck-builder-entry:hover { border-color: var(--accent); color: var(--text); background: var(--accent-glow); }
+
+.deck-builder-body { padding: 1.5rem; max-width: 900px; margin: 0 auto; }
+.deck-builder-intro { font-size: 0.88rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 1.1rem; }
+
+.deck-unit-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.deck-unit-pill {
+  padding: 0.5rem 1rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted);
+  font: inherit; font-size: 0.82rem; font-weight: 600;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+  opacity: 0.55;
+}
+.deck-unit-pill:hover { border-color: var(--border-accent); color: var(--text); }
+.deck-unit-pill.active { border-color: var(--accent); background: var(--accent-glow); color: var(--text); opacity: 1; }
+.deck-unit-pill.locked {
+  opacity: 0.4; cursor: not-allowed; border-color: rgba(239,68,68,0.35); color: var(--text-muted);
+}
+.deck-unit-pill.locked:hover { border-color: rgba(239,68,68,0.35); color: var(--text-muted); }
+
+.deck-topic-section.locked { opacity: 0.5; }
+.deck-topic-section.locked .deck-topic-header { margin-bottom: 0; }
+.deck-topic-section.locked .deck-topic-count { color: rgba(239,68,68,0.7); }
+
+.deck-topic-list { display: flex; flex-direction: column; gap: 1.1rem; }
+.deck-topic-section {
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1rem;
+  background: var(--bg-card);
+}
+.deck-topic-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+.deck-topic-title { font-size: 0.92rem; font-weight: 700; flex: 1; }
+.deck-topic-count { font-size: 0.75rem; color: var(--text-muted); }
+.deck-topic-toggle-all {
+  padding: 0.3rem 0.7rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-dim);
+  font: inherit; font-size: 0.72rem; font-weight: 600;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.deck-topic-toggle-all:hover { border-color: var(--border-accent); color: var(--text); }
+
+.deck-chunk-row { display: flex; flex-direction: column; gap: 0.45rem; }
+.deck-chunk-chip {
+  display: flex; align-items: center; gap: 0.6rem; width: 100%;
+  padding: 0.55rem 0.75rem; border-radius: var(--radius-sm); cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-muted);
+  font: inherit; font-size: 0.82rem; text-align: left;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+  opacity: 0.6;
+}
+.deck-chunk-chip:hover { border-color: var(--border-accent); color: var(--text); }
+.deck-chunk-chip.selected { opacity: 1; border-color: var(--accent); background: var(--accent-glow); color: var(--text); }
+.dcc-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  background: var(--text-muted);
+}
+/* Worst-known-first signal, made visible at selection time too — a red
+   dot is exactly the chunk this deck exists to resurface. */
+.deck-chunk-chip.weak .dcc-dot { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.deck-chunk-chip.known .dcc-dot { background: var(--green); }
+.deck-chunk-chip.new .dcc-dot { background: var(--text-muted); }
+.dcc-title { flex: 1; }
+.dcc-new-badge {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 0.15rem 0.45rem; border-radius: 999px;
+  background: rgba(56,189,248,0.15); color: #7dd3fc;
+  flex-shrink: 0;
+}
+
+.deck-builder-footer { margin-top: 1.75rem; display: flex; justify-content: center; }
+#btn-start-custom-deck:disabled {
+  opacity: 0.4; cursor: not-allowed; box-shadow: none;
+}
+
+@media (max-width: 600px) {
+  .deck-builder-body { padding: 1rem; }
+  .deck-topic-header { flex-wrap: wrap; }
+}
+
+/* ── Course contract modal ── */
+.contract-card {
+  max-width: 480px; text-align: center;
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-surface) 100%);
+}
+.contract-seal { font-size: 2.5rem; margin-bottom: 0.5rem; }
+.contract-subtitle { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1.25rem; font-weight: 600; }
+.contract-body { text-align: left; font-size: 0.85rem; line-height: 1.6; color: var(--text-dim); margin-bottom: 1.25rem; }
+.contract-body > p { margin-bottom: 0.5rem; }
+.contract-terms { margin: 0 0 0.75rem 1.1rem; }
+.contract-terms li { margin-bottom: 0.3rem; }
+.contract-fineprint { font-size: 0.72rem; font-style: italic; color: var(--text-muted); }
+
+.contract-pad-wrap {
+  position: relative; margin-bottom: 1.25rem;
+  border: 1px dashed var(--border-accent); border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.03); overflow: hidden;
+}
+.contract-canvas { display: block; width: 100%; height: 140px; touch-action: none; cursor: crosshair; }
+.contract-pad-line {
+  position: absolute; bottom: 10px; left: 0; right: 0; text-align: center;
+  font-size: 0.75rem; color: var(--text-muted); pointer-events: none;
+  opacity: 0.5;
+}
+
+@media (max-width: 500px) {
+  .contract-card { padding: 1.5rem; }
 }
