@@ -12,6 +12,11 @@ const MODULE_1 = {
       chunks: [
         {
           title: "Definition & Purpose of Networks",
+          glossary: [
+            { term: "Computer network", definition: "A group of interconnected devices that can share data and resources." },
+            { term: "Node", definition: "Any device on a network — a computer, phone, or server." },
+            { term: "Protocol", definition: "A set of rules governing how data is transmitted across a network." }
+          ],
           explain: {
             text: `A computer network is a group of interconnected devices that can share data and resources. Networks allow file sharing, communication (email, messaging), sharing hardware (like printers), and centralized data management.<br><br>Networks are made up of <strong>nodes</strong> (devices like computers, phones, servers), <strong>links</strong> (connections like cables or WiFi), and <strong>protocols</strong> (rules for how data is transmitted). The primary goal is to facilitate seamless communication and resource sharing.`,
             analogy: "Like a postal system connecting different houses to deliver letters and packages."
@@ -38,6 +43,10 @@ const MODULE_1 = {
         },
         {
           title: "History of Networks",
+          glossary: [
+            { term: "ARPANET", definition: "The first computer network, created by the US Department of Defense in 1969." },
+            { term: "Packet switching", definition: "Breaking data into small blocks (packets) and sending them independently across a network." }
+          ],
           explain: {
             text: `The history of networking began with <strong>ARPANET</strong> (1969, created by the US Department of Defense). The very first message was sent from a computer at UCLA to one at Stanford Research Institute. The user tried to send the word "LOGIN", but the system crashed after sending just "LO".<br><br>A key innovation was <strong>packet switching</strong>, which breaks data into small blocks (packets) and sends them independently across the network. From ARPANET, networking evolved through the adoption of the TCP/IP protocol in 1983, and later the invention of the World Wide Web in 1991 by Tim Berners-Lee, leading to the modern internet.`,
             analogy: "Like the evolution from the telegraph to modern high-speed digital communication."
@@ -59,6 +68,11 @@ const MODULE_1 = {
         },
         {
           title: "Distributed Processing",
+          glossary: [
+            { term: "Distributed processing", definition: "Dividing work across multiple interconnected computers instead of one central machine." },
+            { term: "Client-server model", definition: "A model where centralized servers provide resources to requesting client devices." },
+            { term: "Peer-to-peer (P2P)", definition: "A model where devices communicate directly without a central server." }
+          ],
           explain: {
             text: `Instead of relying on one massive central computer to do everything, modern systems use <strong>distributed processing</strong>. This means work is divided and distributed across multiple interconnected computers on a network.<br><br>The main benefits are <strong>reliability</strong> (if one computer fails, others continue the work), scalability (easy to add more computers), cost-effectiveness, and faster processing. Common models include the <strong>client-server</strong> model (where centralized servers provide resources to clients) and the <strong>peer-to-peer</strong> model (where devices communicate directly without a central server).`,
             analogy: "Like a team of specialists working on different parts of a project simultaneously, rather than one person doing everything sequentially."
@@ -129,6 +143,10 @@ const MODULE_1 = {
       chunks: [
         {
           title: "PAN & LAN",
+          glossary: [
+            { term: "PAN (Personal Area Network)", definition: "A tiny-range network (~10m) connecting personal devices, like Bluetooth headphones to a phone." },
+            { term: "LAN (Local Area Network)", definition: "A network covering a building or campus, like an office or home WiFi network." }
+          ],
           explain: {
             text: `A <strong>PAN (Personal Area Network)</strong> has a tiny range (typically around 10 meters) and connects personal devices around an individual. Examples include connecting Bluetooth headphones to a phone or a smartwatch to a laptop.<br><br>A <strong>LAN (Local Area Network)</strong> covers a building or campus. Examples include an office network, a school computer lab, or your home WiFi. LANs typically offer high speed and low latency, and often use technologies like Ethernet or WiFi to connect devices.`,
             analogy: "PAN is like the space on your desk; LAN is like the entire building."
@@ -149,6 +167,10 @@ const MODULE_1 = {
         },
         {
           title: "MAN & WAN",
+          glossary: [
+            { term: "MAN (Metropolitan Area Network)", definition: "A network covering a city or large campus, like city-wide public WiFi." },
+            { term: "WAN (Wide Area Network)", definition: "A network covering large geographical areas — the Internet is the largest example." }
+          ],
           explain: {
             text: `A <strong>MAN (Metropolitan Area Network)</strong> covers a city or large campus. Examples include city-wide public WiFi, a cable TV network, or a large university network spanning multiple buildings.<br><br>A <strong>WAN (Wide Area Network)</strong> covers large geographical areas such as countries or the entire globe. The Internet is the largest example of a WAN. WANs use leased telecommunication lines, satellite links, and undersea cables, and typically have higher latency compared to LANs.`,
             analogy: "If LAN is a building, a MAN is the whole city, and a WAN is the entire world connecting cities together."
@@ -169,6 +191,10 @@ const MODULE_1 = {
         },
         {
           title: "Network Prerequisites",
+          glossary: [
+            { term: "Communication medium", definition: "The wired (Ethernet, fiber) or wireless (WiFi, Bluetooth) channel that carries network data." },
+            { term: "Network device", definition: "Hardware like routers and switches that directs network traffic." }
+          ],
           explain: {
             text: `For any network to function, several key components are required. First, a <strong>communication medium</strong> is needed to carry the data (wired like Ethernet and fiber optic, or wireless like WiFi and Bluetooth).<br><br>Second, you need <strong>network protocols</strong>, which are standard rules for communication (like TCP/IP or HTTP). Third, <strong>network devices</strong> like routers and switches direct the traffic. Finally, <strong>network software</strong> (operating systems and drivers) manages the connections. Standards like <code>IEEE 802.11</code> (WiFi) ensure devices from different manufacturers can interoperate.`,
             analogy: "Like a road system: you need roads (medium), traffic rules (protocols), intersections/traffic lights (devices), and drivers who know the rules (software)."
@@ -241,6 +267,10 @@ const MODULE_1 = {
       chunks: [
         {
           title: "Bus & Ring Topology",
+          glossary: [
+            { term: "Bus topology", definition: "All devices connected to a single central cable — cheap, but one break takes down the whole network." },
+            { term: "Ring topology", definition: "Each device connects to exactly two others in a circle; data travels one direction via a token." }
+          ],
           explain: {
             text: `In a <strong>bus topology</strong>, all devices are connected to a single central cable (the backbone). Data travels in both directions. It is simple and cheap to install, but it has a single point of failure: if the main cable breaks, the entire network goes down.<br><br>In a <strong>ring topology</strong>, each device connects to exactly two others, forming a circle. Data travels in one direction (unidirectional) using a token system; only the device holding the token can send data. It is predictable, but if one node or cable fails, the ring breaks, halting the network (unless it uses a dual-ring architecture).`,
             analogy: "Bus is like a single highway with many driveways connecting to it. Ring is like passing a baton in a circle of people."
@@ -266,6 +296,10 @@ const MODULE_1 = {
         },
         {
           title: "Star & Tree Topology",
+          glossary: [
+            { term: "Star topology", definition: "All devices connect to a central hub or switch — the most common modern LAN layout." },
+            { term: "Tree topology", definition: "A hierarchical combination of multiple star topologies, with a root node branching downward." }
+          ],
           explain: {
             text: `A <strong>star topology</strong> connects all devices to a central hub or switch. This is the most common setup for modern LANs. It is easy to add or remove devices, and if one cable fails, only that device is affected. However, the central switch represents a single point of failure for the whole network.<br><br>A <strong>tree topology</strong> is a hierarchical combination of multiple star topologies. It features a root node at the top with branches extending downward. It is highly scalable and used in large corporate or campus networks, though it can become complex to manage.`,
             analogy: "Star is like the spokes of a bicycle wheel connecting to a central hub. Tree is like an organizational chart with a CEO at the top branching down."
@@ -287,6 +321,10 @@ const MODULE_1 = {
         },
         {
           title: "Mesh & Hybrid Topology",
+          glossary: [
+            { term: "Mesh topology", definition: "Every device connects directly to every other device — maximum redundancy, but expensive to wire." },
+            { term: "Hybrid topology", definition: "A network combining two or more different topologies, e.g. a tree-star hybrid." }
+          ],
           explain: {
             text: `In a <strong>full mesh topology</strong>, every device connects directly to every other device. This provides maximum redundancy and extreme reliability; if one link fails, data can simply take another path. However, it is very expensive and complex to wire. A partial mesh connects only some critical devices.<br><br>A <strong>hybrid topology</strong> combines two or more different topologies (e.g., a tree-star hybrid). Because pure topologies rarely fit large-scale needs perfectly, most real-world enterprise networks are hybrids, blending the strengths of different layouts.`,
             analogy: "Mesh is like a city grid where every house has a direct private road to every other house. Hybrid is combining highways, grids, and roundabouts."
@@ -343,6 +381,10 @@ const MODULE_1 = {
       chunks: [
         {
           title: "Simplex & Half-Duplex",
+          glossary: [
+            { term: "Simplex", definition: "Data flows in one direction only, like a keyboard sending input to a computer." },
+            { term: "Half-duplex", definition: "Data flows both directions, but not simultaneously — like a walkie-talkie." }
+          ],
           explain: {
             text: `<strong>Simplex</strong> mode means data flows in ONE direction only. It is a permanent one-way street. Examples include a keyboard sending data to a computer, or a traditional TV broadcast where the station sends signals to your television.<br><br><strong>Half-duplex</strong> mode allows data to flow in BOTH directions, but NOT simultaneously. Like a single-lane bridge, traffic must wait for one side to finish before the other can start. Examples include walkie-talkies (you must press a button to talk and release to listen) and older WiFi standards.`,
             analogy: "Simplex is a one-way street. Half-duplex is a single-lane bridge where cars take turns crossing."
@@ -363,6 +405,9 @@ const MODULE_1 = {
         },
         {
           title: "Full-Duplex Communication",
+          glossary: [
+            { term: "Full-duplex", definition: "Data flows in both directions simultaneously, using two separate channels — e.g. a phone call." }
+          ],
           explain: {
             text: `In <strong>full-duplex</strong> mode, data flows in BOTH directions SIMULTANEOUSLY. This is achieved by having two separate communication channels (one for sending and one for receiving).<br><br>Most modern networks use full-duplex communication because it essentially doubles the effective bandwidth compared to half-duplex. Examples include telephone calls, modern Ethernet connections, and video conferencing applications where both parties can speak and hear each other at the exact same time without waiting.`,
             analogy: "Full-duplex is like a standard two-lane highway where cars can travel in both directions at the same time without waiting."
@@ -384,6 +429,11 @@ const MODULE_1 = {
         },
         {
           title: "Network Devices",
+          glossary: [
+            { term: "Hub", definition: "A \"dumb\" device that broadcasts incoming data to all its ports — largely obsolete." },
+            { term: "Switch", definition: "A \"smart\" hub that learns which device is on which port and sends data only to the intended recipient." },
+            { term: "Router", definition: "A device that connects different networks together and routes data using IP addresses." }
+          ],
           explain: {
             text: `A <strong>Hub</strong> is a "dumb" device that simply broadcasts incoming data out to ALL its ports. It is wasteful and largely obsolete. A <strong>Switch</strong> is a "smart" hub; it learns which specific device is connected to which port and sends data ONLY to the intended recipient, making it the backbone of modern LANs.<br><br>A <strong>Router</strong> connects different networks together (e.g., your home LAN to the global WAN/Internet) and makes decisions on the best path for data using IP addresses. A <strong>Bridge</strong> connects two local network segments to reduce traffic. An <strong>Access Point (AP)</strong> allows wireless devices to connect to a wired network.`,
             analogy: "A hub is like a person shouting a message in a crowded room. A switch is like handing a letter directly to the person. A router is like the post office sorting mail for different cities."

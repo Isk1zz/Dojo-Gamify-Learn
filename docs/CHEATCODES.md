@@ -1,75 +1,57 @@
-# Cheat codes
+# Admin access
 
-Type these into **Settings → Codes** and press Apply.
+## The secret profile name
 
-| Code | Effect |
-|---|---|
-| `admin613` | Marks every topic in every course complete |
-| `unlockalltopics` | Marks every topic AND every chunk complete — for testing the custom flashcard deck builder, which needs chunk-level completion, not just topic-level |
-| `parnasa100` | +$100 to the wallet |
-| `agrala` | Refills arcade tickets to full (7) |
-| `capmyrank` | Jumps XP to the top of the ladder — Nobel Laureate, every reward unlocked |
-| `nullmyrank` | Resets XP to 0, back to Lab Intern |
+Create a profile named **`adminaccount`** (case-insensitive) in the welcome
+modal, and it starts already fully stocked: every course, unit, topic and
+chunk unlocked (flashcards included), tickets refilled, wallet set to
+exactly $50,000.
+
+This works on the **deployed site**, not just locally — see below for why
+that matters and why it isn't a settings-panel toggle instead.
+
+Implementation: `data/db.js`'s `createProfile` checks the name against
+`SECRET_ADMIN_NAME` and, on a match, calls `applyAdminStart` once, at
+creation. It doesn't keep re-applying on every load — spend the money,
+play normally, it behaves like any other profile from then on.
 
 ---
 
-## Where they live — and why they aren't deployed
+## Why not a typed-in "code" (and the history of this file)
 
-Codes live in **`settings/codes.js`**, which is **in `.gitignore`**. It is never
-committed, never pushed and never served.
+Earlier versions of this app had a `settings/codes.js` cheat-code system:
+type a string into Settings → Codes, press Apply. `codes.js` was
+deliberately `.gitignore`d — GitHub Pages serves the **built site** to
+anyone with the URL, and devtools reads any shipped JS in seconds, so a
+code that ships is a code the public can use. Not shipping it was the
+only real way to keep it secret.
+
+That worked for local testing, but it meant the Codes UI **never
+appeared on the deployed site at all** — there was no way to reach
+`adminaccount` (or any code) outside a local clone. By explicit request
+(2026-08-12), the one code that actually needed to work in production
+moved to the secret-profile-name mechanism above instead: a name typed
+into the welcome modal isn't gated by what got committed, so it ships
+fine without needing a visible "enter code" input anywhere.
+
+`settings/codes.js` / `codes.example.js` still exist, now empty, for
+anything that genuinely should only ever work locally (never on the
+deployed site) in the future:
 
 ```
 settings/codes.example.js   committed — the template
 settings/codes.js           gitignored — your working copy
 ```
 
-To enable them on a fresh clone:
-
 ```bash
 cp settings/codes.example.js settings/codes.js
 ```
 
-Without that file, `window.DOJO_CODES` is undefined, `settings.js` hides the
-Codes section entirely, and **none of the code strings exist in the shipped
-JavaScript**. The `<script>` tag 404s harmlessly.
-
-### Why this rather than a private repo
-A private repo hides the **source**. GitHub Pages still serves the **built
-site** to anyone with the URL, and devtools reads `settings.js` in about four
-seconds. Making the repo private does nothing for a secret that ships inside
-the page.
-
-The only way to keep a code secret is not to ship it. That's what this does.
-
-Adding a code is one entry in `codes.js` (plus the same entry in
-`codes.example.js`, so a fresh clone still has something to copy). **Don't
-scatter codes into the branches they affect** — a cheat hidden in `games/` is a
-cheat nobody remembers is there.
-
-## What they deliberately don't do
-
-- **`admin613` doesn't touch reviews, stats or the wallet.** A cheated profile
-  still looks obviously cheated in Stats, and the Garden still shows nothing
-  growing, because growth comes from review intervals rather than completions.
-- **`admin613` still doesn't grant XP.** Completing topics through the code
-  doesn't pay, so a cheated profile's rank stays honest unless you also use a
-  rank code deliberately.
-- **The rank codes are the documented exception.** `capmyrank` and
-  `nullmyrank` exist because rank now gates every theme, so there was no way
-  to see the late-ladder rewards — or to check what a new profile sees —
-  without grinding to 5,000 XP or wiping the profile.
-
-  They set XP directly rather than adding it, and they set *lifetime* XP, so
-  the ladder, the bar and theme ownership all agree afterwards. `nullmyrank`
-  re-applies the theme, because a reward earned at a rank you no longer hold
-  must not stay equipped — `applyTheme` resolves that and falls back to Indigo.
-
-  Pair them: `capmyrank` to review every reward, `nullmyrank` to get back to a
-  believable starting state.
-
-If you add a code that breaks one of these rules, write down here *why*, so
-future-you knows it was a decision rather than a slip.
+Without that file, `window.DOJO_CODES` is undefined and `settings.js`
+hides the Codes section entirely.
 
 ## Before shipping
 
-Delete or gate the `CODES` object. There is no other place to check.
+If `settings/codes.js` ever holds something again, delete it or gate it
+before a release. There is no other place to check. The secret profile
+name above is *meant* to ship — it isn't subject to this rule.

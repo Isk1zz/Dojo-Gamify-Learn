@@ -47,6 +47,10 @@ const MODULE_7 = {
       chunks: [
         {
           title: "What a Positional Number System Is",
+          glossary: [
+            { term: "Positional number system", definition: "A number system where a digit's value depends on its position, not just the digit itself." },
+            { term: "Base (radix)", definition: "The number of unique digits a number system uses — 10 for decimal, 2 for binary." }
+          ],
           predict: {
             question: "The decimal number 214 and the binary number 214 — are these the same number?",
             options: [
@@ -98,6 +102,11 @@ const MODULE_7 = {
 
         {
           title: "Binary, Octal, and Hexadecimal",
+          glossary: [
+            { term: "Binary", definition: "Base-2 number system, using only the digits 0 and 1." },
+            { term: "Octal", definition: "Base-8 number system, using digits 0-7." },
+            { term: "Hexadecimal", definition: "Base-16 number system, using digits 0-9 and A-F." }
+          ],
           explain: {
             blocks: [
               { text: `Binary (base 2) uses only 0 and 1, which is why it's the native language of digital hardware — a transistor is naturally either off or on, and nothing beyond two states is needed. Octal (base 8) and hexadecimal (base 16) exist purely for human convenience: neither is any closer to how a computer works than the other, they're just more compact ways of writing binary down.` },
@@ -144,6 +153,9 @@ const MODULE_7 = {
 
         {
           title: "Converting Between Bases",
+          glossary: [
+            { term: "Base conversion", definition: "Rewriting the same numeric value in a different base." }
+          ],
           explain: {
             blocks: [
               { text: `Converting a number FROM decimal INTO another base repeatedly divides by the target base, keeping each remainder; converting the other way — from any base INTO decimal — sums each digit times its positional weight, exactly as in the formula from the first chunk of this topic.` },
@@ -236,6 +248,9 @@ const MODULE_7 = {
       chunks: [
         {
           title: "Decimal to Octal and Hexadecimal, Directly",
+          glossary: [
+            { term: "Repeated division method", definition: "Converting decimal to another base by repeatedly dividing by the target base and reading the remainders in reverse." }
+          ],
           predict: {
             question: "Converting decimal 100 to octal and to hexadecimal — will the two answers be related in any way, or are they unrelated numbers?",
             options: [
@@ -292,6 +307,9 @@ const MODULE_7 = {
 
         {
           title: "Binary, Octal and Hexadecimal, Interchangeably",
+          glossary: [
+            { term: "Bit grouping", definition: "Converting between binary and octal/hex by grouping binary digits into sets of 3 (octal) or 4 (hex)." }
+          ],
           explain: {
             blocks: [
               { text: `The first topic showed that grouping bits converts binary to octal or hex without arithmetic. This chunk practices every direction between the three at once: binary to octal, octal to binary, binary to hex, hex to binary, and octal to hex by treating binary as the shared middle step.` },
@@ -338,6 +356,9 @@ const MODULE_7 = {
 
         {
           title: "Converting the Fractional Part",
+          glossary: [
+            { term: "Fractional conversion", definition: "Converting the part of a number after the point by repeatedly multiplying by the target base." }
+          ],
           explain: {
             blocks: [
               { text: `Every conversion so far has assumed a whole number. A fractional decimal like 0.625 converts to another base with a different procedure entirely: repeatedly MULTIPLY the fraction by the target base and keep the integer part that falls out each time, rather than dividing and keeping remainders.` },
@@ -430,6 +451,9 @@ const MODULE_7 = {
       chunks: [
         {
           title: "Binary-Coded Decimal (BCD)",
+          glossary: [
+            { term: "BCD (Binary-Coded Decimal)", definition: "A code representing each decimal digit with its own 4-bit binary pattern." }
+          ],
           predict: {
             question: "The decimal number 47 is stored as BCD. Is the stored bit pattern the same as storing 47 as plain (unsigned) binary?",
             options: [
@@ -486,6 +510,9 @@ const MODULE_7 = {
 
         {
           title: "Gray Code",
+          glossary: [
+            { term: "Gray code", definition: "A binary sequence where consecutive values differ by only one bit." }
+          ],
           explain: {
             blocks: [
               { text: `Gray code is a binary encoding where consecutive values differ by exactly ONE bit, unlike ordinary binary where incrementing can flip several bits at once. Counting 3 to 4 in ordinary binary flips three bits (011 → 100); in Gray code, every single step — including 3 to 4 — flips exactly one.` },
@@ -532,6 +559,9 @@ const MODULE_7 = {
 
         {
           title: "EBCDIC",
+          glossary: [
+            { term: "EBCDIC", definition: "An 8-bit character encoding developed by IBM, mainly used on mainframe systems." }
+          ],
           explain: {
             blocks: [
               { text: `EBCDIC (Extended Binary Coded Decimal Interchange Code) is an 8-bit character encoding IBM introduced for mainframe computers, built as a direct extension of BCD's digit-encoding idea to cover letters and symbols too, not just the digits 0–9.` },
@@ -634,6 +664,10 @@ const MODULE_7 = {
       chunks: [
         {
           title: "ASCII and Character Encoding",
+          glossary: [
+            { term: "ASCII", definition: "A 7-bit character encoding standard mapping numbers to English letters, digits, and symbols." },
+            { term: "Character encoding", definition: "A system that maps characters to numeric codes a computer can store." }
+          ],
           predict: {
             question: "A password field logs its length as 'number of characters,' regardless of whether those characters are letters, digits, or emoji. Does plain ASCII support all of those equally?",
             options: [
@@ -690,6 +724,9 @@ const MODULE_7 = {
 
         {
           title: "Unicode",
+          glossary: [
+            { term: "Unicode", definition: "A character encoding standard covering virtually every writing system in the world, unlike ASCII's limited set." }
+          ],
           explain: {
             blocks: [
               { text: `Unicode assigns a unique number — a code point — to every character in every writing system a computer might need: Latin letters, Cyrillic, Chinese characters, emoji, mathematical symbols, all of it. Where ASCII tops out at 128 characters, Unicode currently defines well over 100,000.` },
@@ -736,6 +773,9 @@ const MODULE_7 = {
 
         {
           title: "Choosing an Encoding in Practice",
+          glossary: [
+            { term: "Mojibake", definition: "Garbled text that results from decoding data with the wrong character encoding." }
+          ],
           explain: {
             blocks: [
               { text: `None of ASCII, Unicode, or a language-specific extended set is universally "correct" — the right choice depends on what the text actually needs to represent, and getting it wrong is one of the most common real-world sources of corrupted text, often called "mojibake."` },

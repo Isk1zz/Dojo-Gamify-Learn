@@ -50,8 +50,13 @@
   on("btn-lobby-stats",    () => Dojo.showStatsModal());
 
   ["btn-back-lobby", "btn-back-lobby2", "btn-back-lobby3",
-   "btn-back-lobby4", "btn-back-lobby5", "btn-back-lobby6"]
+   "btn-back-lobby4", "btn-back-lobby6"]
     .forEach(id => on(id, () => Dojo.showLobby()));
+  // Arcade's back button is the one exception — mid-game it should step
+  // back to the game list, not skip straight past Arcade to the Lobby
+  // the way every other screen's back button does. See games/games.js's
+  // backFromArcade.
+  on("btn-back-lobby5", () => (Dojo.backFromArcade ? Dojo.backFromArcade() : Dojo.showLobby()));
 
   // Resume: jump straight back into the exact chunk they left.
   // Lives here rather than in library/ because the lobby owns the tile.
@@ -86,8 +91,10 @@
   Dojo.renderCharge();
   if (Dojo.renderStreak) Dojo.renderStreak();
   Dojo.updateProfileBadge();
-  // No boot-time decay tick any more — a "day" is a resolved story scene
-  // now, not a calendar day the app happened to be open. See
-  // shop/life.js's storyDayTick(), called from story.js's resolveChoice.
+  // No boot-time decay tick. A "day" used to mean a resolved story
+  // scene (shop/life.js's storyDayTick, called by story.js) — with
+  // Story removed nothing advances it, so vitals now hold steady
+  // rather than decaying. See shop/LIFE notes and BACKLOG.md: the
+  // life-sim's own removal is a separate, larger call.
   if (Dojo.renderVitals) Dojo.renderVitals();
 })();

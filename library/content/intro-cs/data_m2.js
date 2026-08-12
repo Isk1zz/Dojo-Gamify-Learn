@@ -12,6 +12,10 @@ const MODULE_2 = {
       chunks: [
         {
           title: `What is the Internet?`,
+          glossary: [
+            { term: "Internet", definition: "A global network of networks connecting billions of devices — the infrastructure, not a specific service." },
+            { term: "World Wide Web", definition: "A service (linked documents accessed via HTTP) that runs on top of the internet, not the internet itself." }
+          ],
           explain: {
             text: `The Internet is a global network of networks. It connects billions of devices worldwide.<br><br>It is <strong>NOT</strong> the same as the World Wide Web (the web runs ON the internet). The internet is the infrastructure (like roads), while the web is a service that uses it (like cars). Other services include email, FTP, and streaming.<br><br>No single entity owns or controls the internet; it is a collaborative global effort.`,
             analogy: `The internet is like the highway system — the Web, email, and streaming are different types of vehicles using those highways.`
@@ -29,6 +33,10 @@ const MODULE_2 = {
         },
         {
           title: `Packets & Routing`,
+          glossary: [
+            { term: "Packet", definition: "A small chunk of data carrying a source IP, destination IP, sequence number, and payload." },
+            { term: "Packet switching", definition: "Packets can take different routes to the same destination and are reassembled on arrival." }
+          ],
           explain: {
             text: `Data is broken into small chunks called <strong>packets</strong> before being sent over the network. Each packet contains a source IP, destination IP, sequence number, and the actual data payload.<br><br>Packets can take <strong>different routes</strong> to reach the same destination, a process called <code>packet switching</code>. Routers read the destination IPs and forward the packets along the best path.<br><br>At the destination, packets are reassembled in the correct order using their sequence numbers.`,
             analogy: `Like cutting a book into pages and mailing each page separately — they might take different postal routes but are reassembled at the destination.`
@@ -46,6 +54,11 @@ const MODULE_2 = {
         },
         {
           title: `TCP/IP — The Rules of the Internet`,
+          glossary: [
+            { term: "TCP", definition: "Transmission Control Protocol — ensures reliable, ordered, error-checked delivery of data." },
+            { term: "IP", definition: "Internet Protocol — handles addressing and routing of packets." },
+            { term: "UDP", definition: "A lighter, faster alternative to TCP with no delivery guarantee — used for streaming and gaming." }
+          ],
           explain: {
             text: `<code>TCP/IP</code> is the foundational protocol suite of the internet.<br><br><strong>TCP</strong> (Transmission Control Protocol) ensures reliable delivery, handles ordering, and performs error checking. <strong>IP</strong> (Internet Protocol) handles addressing and routing.<br><br>Together they form the 4-layer model: Application (HTTP, SMTP), Transport (TCP, UDP), Internet (IP), and Network Access (Ethernet, WiFi). <strong>UDP</strong> is a lighter alternative to TCP — it is faster but offers no delivery guarantee, making it ideal for streaming and gaming.`,
             analogy: `TCP is like a certified mail service that requires a signature upon delivery, ensuring you get everything in order. UDP is like throwing flyers out of a car window — fast but no guarantees everyone gets one.`
@@ -78,6 +91,10 @@ const MODULE_2 = {
       chunks: [
         {
           title: `What is an ISP?`,
+          glossary: [
+            { term: "ISP", definition: "Internet Service Provider — a company that provides access to the internet." },
+            { term: "Tier 1 ISP", definition: "A backbone provider owning massive global infrastructure, like intercontinental cables." }
+          ],
           explain: {
             text: `An <strong>ISP</strong> (Internet Service Provider) is a company that provides access to the internet. ISPs operate at different levels.<br><br><strong>Tier 1</strong> ISPs are backbone providers that own massive global infrastructure (e.g., AT&T, NTT). <strong>Tier 2</strong> are regional providers that buy transit from Tier 1. <strong>Tier 3</strong> are local ISPs that buy from Tier 2 and sell to consumers.<br><br>ISPs provide internet access, email services, DNS resolution, and sometimes web hosting.`,
             analogy: `Like the electricity grid — power plants (Tier 1) → regional distributors (Tier 2) → your local utility company (Tier 3) → your home.`
@@ -95,6 +112,10 @@ const MODULE_2 = {
         },
         {
           title: `Types of Internet Connections`,
+          glossary: [
+            { term: "DSL", definition: "Internet delivered over existing phone lines, 1-100 Mbps." },
+            { term: "Fiber optic", definition: "Internet delivered as light pulses through glass fibers — the fastest, most reliable option." }
+          ],
           explain: {
             text: `There are several ways ISPs deliver internet to your home.<br><br><strong>DSL</strong> uses existing phone lines (1-100 Mbps). <strong>Cable</strong> uses coaxial TV cables and is faster but shares bandwidth with neighbors. <strong>Fiber Optic</strong> uses light pulses through glass fibers — it's the fastest and most reliable (up to 10 Gbps).<br><br><strong>Satellite</strong> beams signals from space (high latency, good for rural areas). <strong>Cellular</strong> connections like 4G LTE and 5G provide mobile access.`,
             analogy: `DSL is a dirt road, Cable is a multi-lane highway (but gets jammed in rush hour), and Fiber Optic is a high-speed bullet train.`
@@ -127,6 +148,9 @@ const MODULE_2 = {
       chunks: [
         {
           title: `What is an IP Address?`,
+          glossary: [
+            { term: "IP address", definition: "A unique numerical label assigned to every device on a network, for identification and location." }
+          ],
           explain: {
             text: `An <strong>IP (Internet Protocol) address</strong> is a unique numerical label assigned to every device connected to a computer network.<br><br>It serves two primary purposes: <strong>identification</strong> (who the device is) and <strong>location</strong> (where the device is on the network).<br><br>Without IP addresses, routers wouldn't know where to send data packets. Every device that connects to the internet has at least one IP address.`,
             analogy: `Like a mailing address for your house — without it, the postal service can't deliver your mail.`
@@ -144,6 +168,10 @@ const MODULE_2 = {
         },
         {
           title: `IPv4 vs IPv6`,
+          glossary: [
+            { term: "IPv4", definition: "A 32-bit IP address format (e.g. 192.168.1.1), supporting ~4.3 billion addresses." },
+            { term: "IPv6", definition: "A 128-bit IP address format, introduced to solve IPv4 address exhaustion." }
+          ],
           explain: {
             text: `<strong>IPv4</strong> uses 32-bit addresses, written as 4 groups of numbers from 0-255 (e.g., <code>192.168.1.1</code>). It supports about 4.3 billion addresses, which we have run out of!<br><br><strong>IPv6</strong> was introduced to solve this. It uses 128-bit addresses, written as 8 groups of hexadecimal numbers (e.g., <code>2001:0db8:85a3::8a2e:0370:7334</code>). IPv6 supports a practically infinite number of addresses (340 undecillion).<br><br>Both systems coexist today in what is called a "dual-stack" environment.`,
             analogy: `IPv4 is like old 7-digit phone numbers. IPv6 is like adding area codes and country codes because we ran out of 7-digit numbers.`
@@ -161,6 +189,10 @@ const MODULE_2 = {
         },
         {
           title: `Public vs Private & Static vs Dynamic`,
+          glossary: [
+            { term: "NAT", definition: "Network Address Translation — lets multiple private IPs share one public IP." },
+            { term: "DHCP", definition: "Dynamic Host Configuration Protocol — automatically assigns dynamic (changing) IP addresses to devices." }
+          ],
           explain: {
             text: `A <strong>Public IP</strong> is visible to the entire internet, assigned by your ISP. Your home router has one public IP. A <strong>Private IP</strong> is used within a local network (e.g., <code>192.168.1.5</code>) and is not routable on the internet.<br><br>NAT (Network Address Translation) allows multiple private IPs to share one public IP. A <strong>Static IP</strong> is permanently assigned and never changes, commonly used for servers. A <strong>Dynamic IP</strong> changes periodically and is assigned by DHCP (Dynamic Host Configuration Protocol), typical for home users.`,
             analogy: `Public IP is your apartment building's street address. Private IP is your apartment number. The front desk (NAT) routes mail between the outside and your apartment.`
@@ -193,6 +225,9 @@ const MODULE_2 = {
       chunks: [
         {
           title: `What is DNS?`,
+          glossary: [
+            { term: "DNS", definition: "Domain Name System — translates human-friendly domain names into IP addresses." }
+          ],
           explain: {
             text: `<strong>DNS (Domain Name System)</strong> translates human-friendly domain names into IP addresses. Computers use IP addresses to communicate, but humans prefer memorable names like <code>google.com</code>.<br><br>DNS is a highly distributed system — no single server holds all the answers. Instead, millions of servers cooperate worldwide.<br><br>It was invented in 1983 by Paul Mockapetris to replace the old method of manually sharing a giant text file called <code>hosts.txt</code>.`,
             analogy: `Like a phone's contact list — you tap a friend's name instead of dialing their 10-digit number.`
@@ -210,6 +245,10 @@ const MODULE_2 = {
         },
         {
           title: `The DNS Lookup Process`,
+          glossary: [
+            { term: "Recursive resolver", definition: "The DNS server that does the legwork of a lookup on behalf of your browser." },
+            { term: "Authoritative nameserver", definition: "The final DNS server that holds the actual records for a specific domain." }
+          ],
           explain: {
             text: `There are 4 main types of DNS servers involved in a lookup:<br><br>1) <strong>Recursive Resolver</strong>: The middleman that does the legwork for your browser.<br>2) <strong>Root Nameserver</strong>: Points the resolver to the correct TLD server. There are 13 root server addresses.<br>3) <strong>TLD Nameserver</strong>: Handles Top-Level Domains (like .com, .org).<br>4) <strong>Authoritative Nameserver</strong>: The final source of truth that holds the actual DNS records for the specific domain.`,
             analogy: `Resolver is a librarian. Root is the library directory. TLD is the section (e.g. History). Authoritative is the specific book holding the answer.`
@@ -227,6 +266,11 @@ const MODULE_2 = {
         },
         {
           title: `DNS Record Types`,
+          glossary: [
+            { term: "A record", definition: "A DNS record mapping a domain to an IPv4 address." },
+            { term: "MX record", definition: "A DNS record directing email to a domain's mail server." },
+            { term: "CNAME record", definition: "A DNS record mapping an alias domain to a canonical domain." }
+          ],
           explain: {
             text: `DNS holds different types of records.<br><br><strong>A record</strong>: Maps a domain to an IPv4 address. <strong>AAAA record</strong>: Maps to an IPv6 address.<br><strong>CNAME record</strong>: Maps an alias domain to a canonical domain (e.g., www.example.com to example.com).<br><strong>MX record</strong>: Directs email to a mail server.<br><strong>TXT record</strong>: Holds arbitrary text, often used for verifying domain ownership and email security (SPF/DKIM). <strong>NS record</strong>: Specifies the authoritative nameservers for a domain.`,
             analogy: `A Record = direct phone number. CNAME = forwarding number. MX = mailing address for physical packages.`
@@ -244,6 +288,10 @@ const MODULE_2 = {
         },
         {
           title: `DNS Caching & Security`,
+          glossary: [
+            { term: "TTL (Time to Live)", definition: "How long a DNS record stays cached before it expires and must be re-fetched." },
+            { term: "DNSSEC", definition: "Adds cryptographic signatures to DNS records to prevent tampering/spoofing." }
+          ],
           explain: {
             text: `<strong>Caching</strong> saves DNS answers locally (in the browser, OS, or resolver) to speed up future lookups. The <strong>TTL (Time to Live)</strong> dictates how long a record stays in cache before expiring.<br><br>DNS security threats include <strong>cache poisoning</strong> (spoofing), where an attacker injects fake records into a resolver to redirect traffic to malicious sites.<br><br><strong>DNSSEC</strong> adds cryptographic signatures to prevent tampering. <strong>DNS over HTTPS (DoH)</strong> encrypts DNS queries to protect user privacy.`,
             analogy: `Caching is like writing down a phone number on a sticky note. TTL is how long you keep the sticky note before calling directory assistance again to verify it hasn't changed.`
@@ -276,6 +324,9 @@ const MODULE_2 = {
       chunks: [
         {
           title: `WWW vs The Internet`,
+          glossary: [
+            { term: "Tim Berners-Lee", definition: "Invented the World Wide Web in 1989 at CERN." }
+          ],
           explain: {
             text: `The <strong>World Wide Web (WWW)</strong> was invented by Tim Berners-Lee in 1989 at CERN.<br><br>The web is a system of interlinked documents and resources. The internet is the physical infrastructure (cables, routers). The web is an <strong>application</strong> that runs on top of the internet, primarily using the HTTP protocol. A web page is typically a document written in HTML.<br><br>Other internet services that are <em>not</em> the web include email (SMTP), file transfer (FTP), and online gaming.`,
             analogy: `Internet = the physical road network. Web = the shops, houses, and buildings built alongside those roads.`
@@ -293,6 +344,11 @@ const MODULE_2 = {
         },
         {
           title: `HTTP, HTTPS & URLs`,
+          glossary: [
+            { term: "HTTP", definition: "HyperText Transfer Protocol — the request-response protocol for transferring web pages." },
+            { term: "HTTPS", definition: "HTTP encrypted with TLS/SSL, preventing eavesdropping and tampering." },
+            { term: "URL", definition: "Uniform Resource Locator — a web address made of protocol, domain, path, and query string." }
+          ],
           explain: {
             text: `<strong>HTTP (HyperText Transfer Protocol)</strong> is the protocol for transferring web pages. It uses a request-response model: your browser sends a request, and the server replies.<br><br><strong>HTTPS</strong> is HTTP Secure, encrypted using TLS/SSL. It prevents eavesdropping and tampering (indicated by the lock icon).<br><br>A <strong>URL (Uniform Resource Locator)</strong> is a web address. It consists of: protocol (<code>https://</code>), domain (<code>www.example.com</code>), path (<code>/page</code>), query string (<code>?key=value</code>), and fragment (<code>#section</code>).`,
             analogy: `HTTP is sending a postcard (anyone can read it). HTTPS is sending a sealed, tamper-proof envelope.`
@@ -325,6 +381,10 @@ const MODULE_2 = {
       chunks: [
         {
           title: `How Web Browsers Work`,
+          glossary: [
+            { term: "DOM (Document Object Model)", definition: "A tree-like representation of an HTML document that the browser builds and renders." },
+            { term: "Rendering engine", definition: "The browser component that translates HTML/CSS into the visible page (e.g. Blink, Gecko, WebKit)." }
+          ],
           explain: {
             text: `A <strong>web browser</strong> retrieves, interprets, and displays web pages. The process starts when you enter a URL. The browser resolves the domain via DNS, then sends an HTTP request.<br><br>When the server responds with HTML, the browser parses it to build a <strong>DOM tree</strong>. CSS is applied to create a render tree, JavaScript executes to add interactivity, and finally, the page is "painted" onto your screen.<br><br>Major browsers (Chrome, Firefox, Safari) use different rendering engines (Blink, Gecko, WebKit).`,
             analogy: `The server gives the browser a blueprint (HTML), paint (CSS), and machinery (JS). The browser is the construction crew that builds the house on your screen.`
@@ -342,6 +402,11 @@ const MODULE_2 = {
         },
         {
           title: `How Search Engines Work`,
+          glossary: [
+            { term: "Crawling", definition: "Automated bots following links to discover web pages." },
+            { term: "Indexing", definition: "Storing analyzed page content in a searchable database." },
+            { term: "SEO", definition: "Search Engine Optimization — modifying a website to rank higher in search results." }
+          ],
           explain: {
             text: `Search engines help find content through three main processes.<br><br>1) <strong>Crawling</strong>: Automated bots (spiders/crawlers) follow links to discover web pages.<br>2) <strong>Indexing</strong>: The crawler analyzes the content (text, images, keywords) and stores it in a massive database called the index.<br>3) <strong>Ranking</strong>: When a user searches, algorithms (like PageRank) quickly sort indexed pages by relevance to return the best results.<br><br><strong>SEO</strong> (Search Engine Optimization) is the practice of modifying a website to rank higher.`,
             analogy: `Crawling = exploring a massive library. Indexing = creating a detailed card catalog. Ranking = the librarian handing you the best book for your question.`

@@ -50,6 +50,9 @@ const MODULE_9 = {
       chunks: [
         {
           title: "What an Operating System Is, and Why It's Needed",
+          glossary: [
+            { term: "Operating system", definition: "System software that provides the interface between a user (and applications) and the computer's hardware." }
+          ],
           predict: {
             question: "A computer's hardware can execute machine instructions directly. Could an application (like a web browser) just talk straight to the hardware, skipping the operating system entirely?",
             options: [
@@ -106,6 +109,10 @@ const MODULE_9 = {
 
         {
           title: "Process and Memory Management",
+          glossary: [
+            { term: "Process management", definition: "Deciding which waiting program gets the CPU next, and for how long (job scheduling)." },
+            { term: "Memory management", definition: "Allocating RAM to programs on load and reclaiming it when they finish." }
+          ],
           explain: {
             blocks: [
               { text: `Process (CPU) management decides which of several waiting programs gets the processor next, and for how long — called job scheduling. Memory management decides which programs are loaded into RAM at any moment, allocating space when a program starts and reclaiming it when the program finishes.` },
@@ -152,6 +159,10 @@ const MODULE_9 = {
 
         {
           title: "File System and Device Management",
+          glossary: [
+            { term: "File system management", definition: "Coordinating storing and retrieving data on disk, so a file can be accessed by name without knowing its physical location." },
+            { term: "Device driver", definition: "Software that translates between a specific peripheral's protocol and the OS's generic I/O interface." }
+          ],
           explain: {
             blocks: [
               { text: `File system (disk) management coordinates storing and retrieving data on a hard disk or other storage device, so a user or program can request a file by name without knowing which physical disk sectors actually hold it. Device (I/O) management handles the peripherals connected to a computer — keyboard, mouse, printer — through supporting software called device drivers.` },
@@ -259,6 +270,9 @@ const MODULE_9 = {
       chunks: [
         {
           title: "Batch Processing Systems",
+          glossary: [
+            { term: "Batch processing", definition: "Running jobs with negligible user interaction, strictly in the order submitted (first in, first out)." }
+          ],
           predict: {
             question: "In a batch processing system, jobs are processed with negligible user interaction, one after another. If Job 3 in the queue has an error and needs user input to fix, what happens while everyone waits?",
             options: [
@@ -315,6 +329,10 @@ const MODULE_9 = {
 
         {
           title: "Multiprogramming and Time-Sharing",
+          glossary: [
+            { term: "Multiprogramming", definition: "Holding several programs in memory at once, switching the CPU between them to minimize idle time." },
+            { term: "Time-sharing", definition: "Dividing CPU switching into short time slices cycled through each waiting program, giving each user the illusion of continuous service." }
+          ],
           explain: {
             blocks: [
               { text: `Multiprogramming (also called multitasking) holds more than one program in main memory at once and switches the processor between them, minimizing the amount of time the processor sits idle. Time-sharing is the technique that makes this feel simultaneous to multiple users: the processor divides its attention into short "time slices," cycling through each waiting program before returning to the first.` },
@@ -361,6 +379,9 @@ const MODULE_9 = {
 
         {
           title: "Multi-User Systems",
+          glossary: [
+            { term: "Multi-user operating system", definition: "An OS supporting multiple terminals connected to one central computer, typically sharing a single CPU." }
+          ],
           explain: {
             blocks: [
               { text: `A multi-user operating system supports multiple "terminals" — separate input/output stations — all connected to one central computer, which typically has just one central processing unit doing all the actual computation. This lets many people use the same physical computer at once, each through their own terminal.` },
@@ -468,6 +489,9 @@ const MODULE_9 = {
       chunks: [
         {
           title: "Multiprocessing Systems",
+          glossary: [
+            { term: "Multiprocessing", definition: "Using two or more physical processors sharing common memory, genuinely executing instructions simultaneously." }
+          ],
           predict: {
             question: "Multiprogramming runs several programs on ONE processor by switching between them. Multiprocessing sounds similar — is it the same thing?",
             options: [
@@ -524,6 +548,9 @@ const MODULE_9 = {
 
         {
           title: "Real-Time Systems",
+          glossary: [
+            { term: "Real-time system", definition: "A system where response time is critical — a correct answer that arrives after its deadline still counts as a failure." }
+          ],
           explain: {
             blocks: [
               { text: `A real-time system is one where response time is critical — the system must accept data and process it immediately, generating output fast enough to actually affect the ongoing activity it's responding to. A response that arrives correctly but too late is treated as a failure, not just a slow success.` },
@@ -570,6 +597,10 @@ const MODULE_9 = {
 
         {
           title: "Parallel and Distributed Systems",
+          glossary: [
+            { term: "Parallel processing", definition: "Splitting one large task into pieces that run simultaneously across tightly coupled processors to finish it faster." },
+            { term: "Distributed system", definition: "Independent computers connected by a network, each with its own memory, coordinating by message passing." }
+          ],
           explain: {
             blocks: [
               { text: `Parallel processing splits ONE large task into smaller pieces that run simultaneously across multiple processors, often within the same machine, aiming to finish that single task faster than one processor could alone. Distributed systems instead spread work across multiple independent computers connected by a network, each with its own memory, coordinating over that network rather than sharing memory directly.` },
@@ -677,6 +708,9 @@ const MODULE_9 = {
       chunks: [
         {
           title: "What Makes Mobile OS Different",
+          glossary: [
+            { term: "Mobile operating system", definition: "An OS providing the same core services as a desktop OS, under battery, touch, and connectivity constraints a desktop rarely faces." }
+          ],
           predict: {
             question: "A desktop OS and a mobile OS both manage memory, processes, and files. Given how similar their core jobs sound, is mobile OS design basically identical to desktop OS design, just on a smaller screen?",
             options: [
@@ -733,6 +767,10 @@ const MODULE_9 = {
 
         {
           title: "Mobile OS Architecture: Android and iOS",
+          glossary: [
+            { term: "Android", definition: "An open-source, Linux-based mobile OS licensed to many manufacturers, trading consistency for flexibility." },
+            { term: "iOS", definition: "Apple's proprietary mobile OS, built exclusively for Apple hardware, trading openness for tight integration." }
+          ],
           explain: {
             blocks: [
               { text: `The two dominant mobile operating systems, Android and iOS, take structurally different approaches to the same core problem. Android is built on a modified Linux kernel and is largely open-source, licensed to many different phone manufacturers, who each customize it. iOS is proprietary, built by Apple specifically for Apple's own hardware, and is not licensed to other manufacturers at all.` },
@@ -779,6 +817,9 @@ const MODULE_9 = {
 
         {
           title: "Mobile OS Constraints in Practice",
+          glossary: [
+            { term: "Intermittent connectivity", definition: "A mobile device's network connection moves between WiFi, cellular, and no signal, unlike a desktop's typically stable connection." }
+          ],
           explain: {
             blocks: [
               { text: `Beyond battery and touch, mobile operating systems are shaped by constraints that rarely apply to a desktop at all: intermittent, variable-quality network connectivity (a phone moves between WiFi, cellular, and no signal constantly, while a desktop's connection is usually stable), and a much smaller, fixed amount of local storage a user can't easily upgrade themselves.` },

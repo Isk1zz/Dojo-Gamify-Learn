@@ -100,10 +100,19 @@
       profiles.forEach(p => {
         const item = document.createElement("div");
         item.className = `pd-profile-item${p.id === profile?.id ? " active" : ""}`;
-        item.innerHTML = `
-          <span>${p.name}</span>
-          <span class="pd-topics-done">${p.topicsCompleted}/${ALL_TOPICS.length}</span>
-        `;
+        // textContent, NOT innerHTML — a profile name is the one string in
+        // this app that is fully user-authored, and it used to be
+        // interpolated into markup here. A name like
+        // `<img src=x onerror=...>` executed on every dropdown open, and
+        // rode along inside exported/imported profile files. Every other
+        // name rendered in the app (hud, lobby, badge) already used
+        // textContent; this was the one that didn't.
+        const nameEl = document.createElement("span");
+        nameEl.textContent = p.name;
+        const countEl = document.createElement("span");
+        countEl.className = "pd-topics-done";
+        countEl.textContent = `${p.topicsCompleted}/${ALL_TOPICS.length}`;
+        item.append(nameEl, countEl);
         item.addEventListener("click", () => {
           DB.setActiveProfile(p.id);
           // Theme, wallet, garden and owned items are all per-profile.

@@ -6,18 +6,18 @@
 //
 // ---- How the ladder was sized ----
 //
-// The ceiling is 5,000 XP at Nobel Laureate, and the 18 rungs below it are
-// spread so the gaps widen smoothly (60, 90, 110 ... 460, 490).
+// The ceiling is 10,000 XP at Nobel Laureate — every rung's threshold
+// doubled from the original ladder by explicit request (the grind felt
+// too quick; ranks were landing faster than the studying that earned
+// them). The GAPS still widen the same way relative to each other
+// (120, 180, 220 ... 920, 980 now), just scaled up.
 //
 //   15 min  ~= 5 chunks
 //   1 chunk  = 5-7 XP, so ~30 XP on a normal day
 //
-// At that pace: Lead Investigator around day 107, Program Director around
-// day 120, Nobel Laureate around day 167. A 5,000 ceiling is a LONGER ladder
-// than the original 120-day brief — finishing it in 120 days needs ~42
-// XP/day, closer to 20 minutes than 15. That is a fine trade (running out
-// of ladder is worse than having some left), but it is a trade, so it is
-// written down here rather than left as a surprise.
+// At that pace: Lead Investigator around day 213, Program Director
+// around day 241, Nobel Laureate around day 333 — about double the
+// original day-counts, which is the point of doubling the thresholds.
 //
 // Gaps widen deliberately: early ranks land fast enough to feel like
 // something is happening, late ones slowly enough that Nobel Laureate
@@ -30,7 +30,7 @@
 // Rank hands out FEATURES as well as themes. A brand-new profile should
 // not be juggling hunger, rent and a story on day one — that is three
 // systems before anyone has finished a chunk. They arrive at Senior Lab
-// Manager (1110 XP, a few weeks of normal use), by which point the
+// Manager (2220 XP, a few weeks of normal use), by which point the
 // Library is a habit and the sim is a reward rather than a chore.
 //
 // Pure data, like everything else here: hasFeature takes the xp, it
@@ -43,26 +43,26 @@
 // ================================================
 
 const RANKS = [
-  { n: 1,  xp: 0,    name: "Lab Intern",               abbr: "INT",  reward: null },
-  { n: 2,  xp: 60,   name: "Research Assistant I",     abbr: "RA1",  reward: null },
-  { n: 3,  xp: 150,  name: "Research Assistant II",    abbr: "RA2",  reward: null },
-  { n: 4,  xp: 260,  name: "Lab Technician",           abbr: "TCH",  reward: { theme: "sakura" } },
-  { n: 5,  xp: 390,  name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
-  { n: 6,  xp: 540,  name: "Research Coordinator",     abbr: "CRD",  reward: null },
-  { n: 7,  xp: 710,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
-  { n: 8,  xp: 900,  name: "Lab Manager",              abbr: "MGR",  reward: null },
-  { n: 9,  xp: 1110, name: "Senior Lab Manager",       abbr: "SLM",  reward: null },
-  { n: 10, xp: 1340, name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
-  { n: 11, xp: 1590, name: "Director of Operations",   abbr: "DOP",  reward: null },
-  { n: 12, xp: 1860, name: "Master Technician",        abbr: "MTC",  reward: null },
-  { n: 13, xp: 2150, name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
-  { n: 14, xp: 2470, name: "Postdoctoral Researcher",  abbr: "PDR",  reward: null },
-  { n: 15, xp: 2820, name: "Project Lead",             abbr: "PL",   reward: null },
-  { n: 16, xp: 3200, name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
-  { n: 17, xp: 3610, name: "Program Director",         abbr: "PD",   reward: null },
-  { n: 18, xp: 4050, name: "Senior Program Director",  abbr: "SPD",  reward: null },
-  { n: 19, xp: 4510, name: "Vice President of R&D",    abbr: "VP",   reward: { theme: "fuji" } },
-  { n: 20, xp: 5000, name: "Nobel Laureate",           abbr: "NL",   reward: { theme: "kirigami" } }
+  { n: 1,  xp: 0,     name: "Lab Intern",               abbr: "INT",  reward: null },
+  { n: 2,  xp: 120,   name: "Research Assistant I",     abbr: "RA1",  reward: null },
+  { n: 3,  xp: 300,   name: "Research Assistant II",    abbr: "RA2",  reward: null },
+  { n: 4,  xp: 520,   name: "Lab Technician",           abbr: "TCH",  reward: { theme: "sakura" } },
+  { n: 5,  xp: 780,   name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
+  { n: 6,  xp: 1080,  name: "Research Coordinator",     abbr: "CRD",  reward: null },
+  { n: 7,  xp: 1420,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
+  { n: 8,  xp: 1800,  name: "Lab Manager",              abbr: "MGR",  reward: null },
+  { n: 9,  xp: 2220,  name: "Senior Lab Manager",       abbr: "SLM",  reward: null },
+  { n: 10, xp: 2680,  name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
+  { n: 11, xp: 3180,  name: "Director of Operations",   abbr: "DOP",  reward: null },
+  { n: 12, xp: 3720,  name: "Master Technician",        abbr: "MTC",  reward: null },
+  { n: 13, xp: 4300,  name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
+  { n: 14, xp: 4940,  name: "Postdoctoral Researcher",  abbr: "PDR",  reward: null },
+  { n: 15, xp: 5640,  name: "Project Lead",             abbr: "PL",   reward: null },
+  { n: 16, xp: 6400,  name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
+  { n: 17, xp: 7220,  name: "Program Director",         abbr: "PD",   reward: null },
+  { n: 18, xp: 8100,  name: "Senior Program Director",  abbr: "SPD",  reward: null },
+  { n: 19, xp: 9020,  name: "Vice President of R&D",    abbr: "VP",   reward: { theme: "fuji" } },
+  { n: 20, xp: 10000, name: "Nobel Laureate",           abbr: "NL",   reward: { theme: "kirigami" } }
 ];
 
 const FEATURES = {
@@ -71,7 +71,7 @@ const FEATURES = {
 };
 // Senior Lab Manager, not Senior Research Coordinator. SSG already hands
 // out Sumi Ink, and two rewards landing on one rung means the smaller one
-// goes unnoticed — you only read the rank-up once. MSG (1110 XP) was one
+// goes unnoticed — you only read the rank-up once. MSG (2220 XP) was one
 // of the deliberate blanks, so the survival sim fills an empty rung
 // instead of crowding a full one.
 

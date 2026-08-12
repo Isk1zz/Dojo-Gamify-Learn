@@ -125,7 +125,10 @@
         </div>
       </div>`;
 
-    overlay.querySelector("#contract-close").addEventListener("click", () => { overlay.style.display = "none"; });
+    // Wired after closeContract exists (defined below with the canvas
+    // listeners it has to clean up) — function declarations hoist, so
+    // this reads in DOM order without a forward-reference problem.
+    overlay.querySelector("#contract-close").addEventListener("click", () => closeContract());
 
     const canvas = document.getElementById("contract-canvas");
     const ctx = canvas.getContext("2d");
@@ -167,10 +170,20 @@
 
     canvas.addEventListener("mousedown", start);
     canvas.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", end);
     canvas.addEventListener("touchstart", start, { passive: false });
     canvas.addEventListener("touchmove", move, { passive: false });
     canvas.addEventListener("touchend", end);
+    // On WINDOW, not the canvas, so releasing the button outside the pad
+    // still ends the stroke. That also means it outlives the modal's
+    // markup — the canvas listeners die with the element when the
+    // overlay is rewritten, this one would not. Every course entry
+    // would leave another copy behind, so it is removed explicitly on
+    // both ways out (close and sign) via closeContract below.
+    window.addEventListener("mouseup", end);
+    function closeContract() {
+      window.removeEventListener("mouseup", end);
+      overlay.style.display = "none";
+    }
 
     document.getElementById("contract-clear").addEventListener("click", () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -183,7 +196,7 @@
       // not a document, and it lives in localStorage next to everything
       // else in the profile.
       DB.signContract(course.id, canvas.toDataURL("image/jpeg", 0.7));
-      overlay.style.display = "none";
+      closeContract();
       onSigned();
     });
   }
@@ -242,7 +255,7 @@
 
       const card = document.createElement("div");
       card.className = `topic-card${isAhead ? " ahead" : ""}`;
-      if (isAhead) card.setAttribute("data-explain", `Locked — finish &ldquo;${unitsToShow[i - 1].title}&rdquo; first.`);
+      if (isAhead) card.setAttribute("data-explain", `Locked — finish “${unitsToShow[i - 1].title}” first.`);
       card.innerHTML = `
         <div class="topic-num">${isAhead ? "\u{1F512}" : u.icon}</div>
         <div class="topic-title">${u.title} — ${u.subtitle}</div>
@@ -320,7 +333,7 @@
       const isAhead = !prereqDone && !isCompleted;
       // Locked — see PROJECT.md §5's "No hard locks" reversal note.
       const explain = isAhead
-        ? `Locked — finish &ldquo;${unitsToShow[i - 1].title}&rdquo; first.`
+        ? `Locked — finish “${unitsToShow[i - 1].title}” first.`
         : "";
 
       const node = document.createElement("div");
@@ -481,7 +494,7 @@
 
         const card = document.createElement("div");
         card.className = `topic-card${isCompleted ? " completed" : ""}${isCurrent ? " current" : ""}${isDue ? " due" : ""}${isAhead ? " ahead" : ""}`;
-        if (isAhead) card.setAttribute("data-explain", `Locked — finish &ldquo;${state.currentTopics[flatIdx - 1].title}&rdquo; first.`);
+        if (isAhead) card.setAttribute("data-explain", `Locked — finish “${state.currentTopics[flatIdx - 1].title}” first.`);
         card.innerHTML = `
           ${isAhead ? "" : `<button class="topic-cards-btn" title="Flashcards for this topic">\u{1F5C2}\u{FE0F}</button>`}
           <div class="topic-num">${isCompleted ? "✓" : isAhead ? "\u{1F512}" : flatIdx + 1}</div>
@@ -595,7 +608,7 @@
       // exists now. The reason is still shown on hover; it's just a
       // reason for the lock now; it used to excuse the ABSENCE of one.
       const explain = isAhead
-        ? `Locked — finish &ldquo;${topics[i - 1].title}&rdquo; first.`
+        ? `Locked — finish “${topics[i - 1].title}” first.`
         : "";
 
       const node = document.createElement("div");
@@ -1340,6 +1353,15 @@
   // buildCustomDeck / finishCustomDeck.
   function chunkKey(topicId, idx) { return `${topicId}::${idx}`; }
 
+  // Whether a chunk has the source material a given deck mode needs.
+  // "quiz" decks pull the existing chunk.quiz (question/options/
+  // correct); "glossary" decks pull chunk.glossary, an optional
+  // [{term, definition}] array with no separate content to author
+  // beyond that — minimalistic by design (no explanation, no MCQ).
+  function chunkHasSource(c, mode) {
+    return mode === "glossary" ? !!(c.glossary && c.glossary.length) : !!c.quiz;
+  }
+
   // Worst-known-first: a chunk answered wrong last time surfaces before
   // one never attempted, which surfaces before one answered right last
   // time. There's no chunk-level SM-2 (only topics get an interval —
@@ -1364,7 +1386,7 @@
         if (done) done.forEach(idx => chunks.add(chunkKey(t.id, idx)));
       });
     });
-    state.deckBuilder = { courseId: course.id, unitIds: new Set(course.units), chunks };
+    state.deckBuilder = { courseId: course.id, unitIds: new Set(course.units), chunks, mode: "quiz" };
   }
 
   function openDeckBuilder() {
@@ -1389,6 +1411,26 @@
     intro.className = "deck-builder-intro";
     intro.textContent = "Pick units and chunks to build a review deck. Weakest cards come up first — Anki-style.";
     body.appendChild(intro);
+
+    if (!picker.mode) picker.mode = "quiz";
+    const modeToggle = document.createElement("div");
+    modeToggle.className = "topic-view-toggle";
+    modeToggle.innerHTML = `
+      <button class="tvt-btn${picker.mode === "quiz" ? " active" : ""}" data-mode="quiz">❓ Quiz cards</button>
+      <button class="tvt-btn${picker.mode === "glossary" ? " active" : ""}" data-mode="glossary">\u{1F4D6} Definitions</button>`;
+    modeToggle.querySelectorAll(".tvt-btn").forEach(b => {
+      b.addEventListener("click", () => {
+        picker.mode = b.getAttribute("data-mode");
+        renderDeckBuilder();
+      });
+    });
+    body.appendChild(modeToggle);
+    if (picker.mode === "glossary") {
+      const note = document.createElement("p");
+      note.className = "deck-builder-intro";
+      note.textContent = "Term on the front, a short definition on the back — no options, no explanation. Minimalistic, for quick recall drilling.";
+      body.appendChild(note);
+    }
 
     // Same prereq rule as renderUnitSelect's list view and
     // renderUnitRoadmap — a locked unit can't supply cards, so it
@@ -1428,11 +1470,17 @@
     list.className = "deck-topic-list";
     let totalSelected = 0;
 
+    const mode = picker.mode;
+    // A term count per chunk, so "Start Review" shows the real card
+    // total in glossary mode (one chunk can hold several terms) rather
+    // than counting chunks and quietly under-reporting.
+    const cardsIn = c => mode === "glossary" ? (c.glossary ? c.glossary.length : 0) : (c.quiz ? 1 : 0);
+
     course.units.filter(uid => picker.unitIds.has(uid)).forEach(uid => {
       const topics = UNIT_TOPICS[uid] || [];
       topics.forEach((t, ti) => {
-        const quizChunks = t.chunks.filter(c => c.quiz).length;
-        if (!quizChunks) return;
+        const sourceChunks = t.chunks.filter(c => chunkHasSource(c, mode)).length;
+        if (!sourceChunks) return;
 
         // Within-unit prereq — same rule renderRoadmap uses for a
         // topic's own "ahead" state. A locked topic contributes no
@@ -1454,19 +1502,19 @@
 
         const section = document.createElement("div");
         section.className = "deck-topic-section";
-        const selectedInTopic = t.chunks.filter((c, idx) => c.quiz && picker.chunks.has(chunkKey(t.id, idx))).length;
+        const selectedInTopic = t.chunks.filter((c, idx) => chunkHasSource(c, mode) && picker.chunks.has(chunkKey(t.id, idx))).length;
 
         const header = document.createElement("div");
         header.className = "deck-topic-header";
         header.innerHTML = `
           <span class="deck-topic-title">${t.title}</span>
-          <span class="deck-topic-count">${selectedInTopic}/${quizChunks}</span>
-          <button class="deck-topic-toggle-all" type="button">${selectedInTopic === quizChunks ? "Clear" : "All"}</button>
+          <span class="deck-topic-count">${selectedInTopic}/${sourceChunks}</span>
+          <button class="deck-topic-toggle-all" type="button">${selectedInTopic === sourceChunks ? "Clear" : "All"}</button>
         `;
         header.querySelector(".deck-topic-toggle-all").addEventListener("click", () => {
-          const allSelected = selectedInTopic === quizChunks;
+          const allSelected = selectedInTopic === sourceChunks;
           t.chunks.forEach((c, idx) => {
-            if (!c.quiz) return;
+            if (!chunkHasSource(c, mode)) return;
             const key = chunkKey(t.id, idx);
             if (allSelected) picker.chunks.delete(key); else picker.chunks.add(key);
           });
@@ -1477,10 +1525,10 @@
         const chunkRow = document.createElement("div");
         chunkRow.className = "deck-chunk-row";
         t.chunks.forEach((c, idx) => {
-          if (!c.quiz) return;
+          if (!chunkHasSource(c, mode)) return;
           const key = chunkKey(t.id, idx);
           const selected = picker.chunks.has(key);
-          if (selected) totalSelected++;
+          if (selected) totalSelected += cardsIn(c);
           const isDone = completed[t.id] && completed[t.id].has(idx);
           const result = DB.getChunkResult(t.id, idx);
           const stateClass = result === false ? "weak" : result === true ? "known" : "new";
@@ -1491,7 +1539,7 @@
           chip.innerHTML = `
             <span class="dcc-dot"></span>
             <span class="dcc-title">${c.title}</span>
-            ${!isDone ? '<span class="dcc-new-badge">new</span>' : ""}
+            ${mode === "glossary" ? `<span class="dcc-new-badge">${c.glossary.length} term${c.glossary.length === 1 ? "" : "s"}</span>` : !isDone ? '<span class="dcc-new-badge">new</span>' : ""}
           `;
           chip.addEventListener("click", () => {
             if (picker.chunks.has(key)) picker.chunks.delete(key); else picker.chunks.add(key);
@@ -1505,6 +1553,15 @@
     });
     body.appendChild(list);
 
+    if (!list.children.length) {
+      const empty = document.createElement("p");
+      empty.className = "deck-builder-intro";
+      empty.textContent = mode === "glossary"
+        ? "No definitions written for the selected units yet."
+        : "No quiz-backed chunks in the selected units.";
+      body.appendChild(empty);
+    }
+
     const footer = document.createElement("div");
     footer.className = "deck-builder-footer";
     footer.innerHTML = `<button id="btn-start-custom-deck" class="btn-primary"${totalSelected === 0 ? " disabled" : ""}>Start Review (${totalSelected} card${totalSelected === 1 ? "" : "s"})</button>`;
@@ -1517,30 +1574,58 @@
         course.units.filter(uid => picker.unitIds.has(uid)).forEach(uid => {
           (UNIT_TOPICS[uid] || []).forEach(t => {
             t.chunks.forEach((c, idx) => {
-              if (c.quiz && picker.chunks.has(chunkKey(t.id, idx))) refs.push({ topic: t, chunkIdx: idx });
+              if (chunkHasSource(c, mode) && picker.chunks.has(chunkKey(t.id, idx))) refs.push({ topic: t, chunkIdx: idx });
             });
           });
         });
-        startCustomDeckReview(refs);
+        startCustomDeckReview(refs, mode);
       });
     }
   }
 
-  function buildCustomDeck(refs) {
-    const cards = refs
-      .map(({ topic, chunkIdx }) => {
+  function buildCustomDeck(refs, mode) {
+    let cards;
+    if (mode === "glossary") {
+      // One card PER TERM, not per chunk — a chunk can define several
+      // terms, and each is its own minimalistic front/back card with
+      // no explanation. The self-report ("knew it"/"didn't") still
+      // writes back to the CHUNK's result (DB.recordQuizAnswer takes a
+      // chunk index, not a term index — there's no finer-grained slot
+      // in the schema), so the last term graded from a multi-term
+      // chunk is what that chunk's weakness reflects afterward. Same
+      // last-attempt-wins simplification the quiz-card deck already
+      // has, just visible across more cards per chunk here.
+      cards = [];
+      refs.forEach(({ topic, chunkIdx }) => {
         const c = topic.chunks[chunkIdx];
-        if (!c || !c.quiz) return null;
-        return {
-          q: c.quiz.question,
-          a: c.quiz.options[c.quiz.correct],
-          explanation: c.quiz.explanation,
-          topicId: topic.id,
-          topicTitle: topic.title,
-          chunkIdx
-        };
-      })
-      .filter(Boolean);
+        if (!c || !c.glossary) return;
+        c.glossary.forEach(g => {
+          cards.push({
+            q: g.term,
+            a: g.definition,
+            explanation: null,
+            topicId: topic.id,
+            topicTitle: topic.title,
+            chunkIdx
+          });
+        });
+      });
+    } else {
+      cards = refs
+        .map(({ topic, chunkIdx }) => {
+          const c = topic.chunks[chunkIdx];
+          if (!c || !c.quiz) return null;
+          return {
+            q: c.quiz.question,
+            a: c.quiz.options[c.quiz.correct],
+            explanation: c.quiz.explanation,
+            topicId: topic.id,
+            topicTitle: topic.title,
+            chunkIdx
+          };
+        })
+        .filter(Boolean);
+    }
     // Sort by weakness; ties keep selection order so re-running the
     // same deck doesn't visibly reshuffle cards that didn't change.
     return cards
@@ -1549,18 +1634,19 @@
       .map(x => x.card);
   }
 
-  function startCustomDeckReview(refs) {
+  function startCustomDeckReview(refs, mode) {
     state.flashCustom = true;
     state.flashCustomRefs = refs;
+    state.flashCustomMode = mode;
     state.flashTopic = null;
-    state.flashDeck = buildCustomDeck(refs);
+    state.flashDeck = buildCustomDeck(refs, mode);
     state.flashIndex = 0;
     state.flashFlipped = false;
     state.flashResults = [];
     state.flashTimings = [];
     state.flashCardShownAt = Date.now();
     const title = document.getElementById("flashcard-title");
-    if (title) title.textContent = "\u{1F5C2}️ Custom Deck";
+    if (title) title.textContent = mode === "glossary" ? "\u{1F4D6} Definitions" : "\u{1F5C2}️ Custom Deck";
     renderFlashcard();
     showScreen("flashcards");
   }
@@ -1793,7 +1879,7 @@
     else { showScreen("topic-map"); renderTopicMap(); }
   });
   on("btn-retry", () => {
-    if (state.lastReviewMode === "custom-flashcards" && state.flashCustomRefs) startCustomDeckReview(state.flashCustomRefs);
+    if (state.lastReviewMode === "custom-flashcards" && state.flashCustomRefs) startCustomDeckReview(state.flashCustomRefs, state.flashCustomMode);
     else if (state.lastReviewMode === "flashcards" && state.flashTopic) startFlashcardReview(state.flashTopic);
     else if (state.lastReviewMode === "exam" && state.examMustRedoTopic) startTopic(state.currentTopicIdx, 0);
     else startExam();

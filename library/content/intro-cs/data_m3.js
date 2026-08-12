@@ -12,6 +12,9 @@ const MODULE_3 = {
       chunks: [
         {
           title: "Why Security Matters",
+          glossary: [
+            { term: "Computer security", definition: "Protecting hardware, software, data, and network resources from unauthorized access, misuse, or destruction." }
+          ],
           explain: {
             text: `In today's digital world, data is one of the most valuable assets. Security breaches can lead to: financial loss, identity theft, reputation damage, legal consequences.<br><br>The need for security arises because: networks are open and connected (anyone can potentially reach anyone), attacks are automated and constant, human error is the #1 vulnerability.<br><br>Computer security aims to protect: hardware, software, data, and network resources from unauthorized access, misuse, or destruction.`,
             analogy: `Like locking your house — you wouldn't leave your front door open just because your neighborhood seems safe.`
@@ -29,6 +32,11 @@ const MODULE_3 = {
         },
         {
           title: "The CIA Triad",
+          glossary: [
+            { term: "Confidentiality", definition: "Ensuring data is accessible only to authorized users." },
+            { term: "Integrity", definition: "Ensuring data is not altered or tampered with without authorization." },
+            { term: "Availability", definition: "Ensuring systems and data are accessible when needed." }
+          ],
           explain: {
             text: `The three fundamental principles of security. <strong>Confidentiality</strong> — ensuring data is accessible ONLY to authorized users. Methods: encryption, access controls, authentication. Example: only you can read your email.<br><br><strong>Integrity</strong> — ensuring data is NOT altered or tampered with without authorization. Methods: checksums, hashing, digital signatures. Example: a bank transfer amount shouldn't change in transit.<br><br><strong>Availability</strong> — ensuring systems and data are accessible when needed. Threats: DDoS attacks, hardware failure, natural disasters. Methods: redundancy, backups, failover systems.`,
             analogy: `Confidentiality = keeping a diary locked. Integrity = ensuring nobody changes what's written. Availability = being able to read it whenever you want.`
@@ -46,6 +54,11 @@ const MODULE_3 = {
         },
         {
           title: "AAA Framework & Non-Repudiation",
+          glossary: [
+            { term: "Authentication", definition: "Verifying identity — \"who are you?\"" },
+            { term: "Authorization", definition: "Determining permissions — \"what can you do?\"" },
+            { term: "Non-repudiation", definition: "Ensuring someone cannot deny having performed an action, via digital signatures and audit trails." }
+          ],
           explain: {
             text: `AAA stands for:<br><br><strong>Authentication</strong> — verifying identity ("Who are you?"). Methods: passwords, biometrics, 2FA/MFA.<br><br><strong>Authorization</strong> — determining permissions ("What can you do?"). Methods: access control lists, role-based access.<br><br><strong>Accounting</strong> — tracking activity ("What did you do?"). Methods: audit logs, monitoring.<br><br><strong>Non-repudiation</strong> — ensuring someone cannot deny having performed an action. Achieved through digital signatures and audit trails. Example: a sender can't deny sending an email if it's digitally signed.`,
             analogy: ``
@@ -78,6 +91,9 @@ const MODULE_3 = {
       chunks: [
         {
           title: "Viruses",
+          glossary: [
+            { term: "Virus (malware)", definition: "Malicious code that attaches to a legitimate program and requires human action to spread." }
+          ],
           explain: {
             text: `A computer <code>virus</code> is malicious code that attaches itself to a legitimate program or file. Key characteristics:<br><br>1) It REQUIRES human action to spread (opening an infected file, running an infected program).<br>2) It replicates by copying itself into other programs/files.<br>3) It can corrupt data, slow performance, or destroy files.<br><br>Types: boot sector virus (infects boot record), macro virus (infects documents like Word/Excel macros), file infector (attaches to executable files). Named after biological viruses because they spread by attaching to a host.`,
             analogy: `Like a biological virus — it needs a host cell (program) to reproduce and can't spread on its own.`
@@ -95,6 +111,9 @@ const MODULE_3 = {
         },
         {
           title: "Worms",
+          glossary: [
+            { term: "Worm", definition: "Standalone malware that spreads independently across a network, with no host or human action needed." }
+          ],
           explain: {
             text: `A <code>worm</code> is malicious software that can spread INDEPENDENTLY — it does NOT need to attach to a program or require human action.<br><br>Worms exploit network vulnerabilities to replicate themselves across computers. They can spread extremely fast because they're automatic. Effects: consume network bandwidth (causing slowdowns), install backdoors, carry payloads (ransomware, etc).<br><br>Famous worms: Morris Worm (1988, first major internet worm), ILOVEYOU (2000), WannaCry (2017, ransomware worm). Key difference from virus: worms are standalone, viruses need a host.`,
             analogy: ``
@@ -112,6 +131,11 @@ const MODULE_3 = {
         },
         {
           title: "Trojans, Ransomware & Spyware",
+          glossary: [
+            { term: "Trojan horse", definition: "Malware disguised as legitimate software; doesn't replicate, tricks the user into installing it." },
+            { term: "Ransomware", definition: "Malware that encrypts files and demands payment for the decryption key." },
+            { term: "Spyware", definition: "Malware that secretly monitors user activity, like keystrokes or browsing history." }
+          ],
           explain: {
             text: `<strong>Trojan Horse</strong> — malware disguised as legitimate software. Named after the Greek myth. It does NOT replicate itself. The user is tricked into installing it. Once inside, it can: create backdoors, steal data, install other malware. Example: a "free game" that secretly logs your keystrokes.<br><br><strong>Ransomware</strong> — encrypts your files and demands payment (ransom) for the decryption key. Often spread via phishing emails or worms.<br><br><strong>Spyware</strong> — secretly monitors user activity. Can capture: keystrokes (keylogger), screenshots, browsing history, passwords.`,
             analogy: `Trojan = a gift box with a spy inside. Ransomware = a thief who locks your house and sells you the key. Spyware = a hidden camera watching everything you do.`
@@ -144,6 +168,10 @@ const MODULE_3 = {
       chunks: [
         {
           title: "Passive vs Active Attacks",
+          glossary: [
+            { term: "Passive attack", definition: "An attacker observes or monitors data without modifying it — hard to detect." },
+            { term: "Active attack", definition: "An attacker modifies, disrupts, or fabricates data — easier to detect, harder to prevent." }
+          ],
           explain: {
             text: `<strong>Passive attacks</strong> — attacker observes/monitors data without modifying it. Goal: gather information. Hard to detect because nothing is changed. Examples: eavesdropping (sniffing network traffic), traffic analysis.<br><br><strong>Active attacks</strong> — attacker actively modifies, disrupts, or fabricates data. Easier to detect but harder to prevent. Examples: DoS attacks, spoofing, man-in-the-middle, data modification. Think: passive = spying, active = sabotage.`,
             analogy: `Passive = someone reading your mail without opening it (just looking at the envelope). Active = someone opening your mail and changing the contents.`
@@ -161,6 +189,11 @@ const MODULE_3 = {
         },
         {
           title: "Common Attacks: DoS, MitM, Phishing",
+          glossary: [
+            { term: "DoS (Denial of Service)", definition: "Flooding a server with requests so it can't serve legitimate users." },
+            { term: "Man-in-the-Middle (MitM)", definition: "An attacker secretly intercepts communication between two parties who believe they're talking directly." },
+            { term: "Phishing", definition: "Fraudulent communication tricking users into revealing sensitive information." }
+          ],
           explain: {
             text: `<strong>DoS (Denial of Service)</strong> — flooding a server with so many requests it can't serve legitimate users. <strong>DDoS (Distributed DoS)</strong> — same but from thousands of compromised machines (botnet).<br><br><strong>Man-in-the-Middle (MitM)</strong> — attacker secretly intercepts communication between two parties. Both parties think they're talking directly to each other. Attacker can read, modify, or inject messages. HTTPS prevents this.<br><br><strong>Phishing</strong> — fraudulent communication (usually email) that tricks users into revealing sensitive info. Looks like it's from a trusted source. Spear phishing targets specific individuals.`,
             analogy: ``
@@ -193,6 +226,9 @@ const MODULE_3 = {
       chunks: [
         {
           title: "What is a Firewall?",
+          glossary: [
+            { term: "Firewall", definition: "A network security device that monitors and filters traffic based on predefined security rules." }
+          ],
           explain: {
             text: `A <code>firewall</code> is a network security device (hardware or software) that monitors and filters incoming and outgoing network traffic based on predefined security rules.<br><br>It creates a barrier between a trusted internal network and an untrusted external network (like the internet). Think of it as a security guard at a building entrance — it checks everyone's ID and decides who gets in.<br><br>Firewalls operate using rules: ALLOW or DENY traffic based on source IP, destination IP, port number, and protocol.`,
             analogy: `Like a bouncer at a nightclub — checks your ID (IP/port), verifies you're on the list (rules), and lets you in or turns you away.`
@@ -210,6 +246,10 @@ const MODULE_3 = {
         },
         {
           title: "Types of Firewalls",
+          glossary: [
+            { term: "Stateful inspection firewall", definition: "A firewall that tracks the state of active connections, not just individual packet headers." },
+            { term: "Proxy firewall", definition: "A firewall that acts as an intermediary, inspecting actual application-layer content." }
+          ],
           explain: {
             text: `<strong>Packet Filtering Firewall</strong> — examines each packet's header (source/destination IP, port, protocol). Simple and fast but doesn't inspect packet contents.<br><br><strong>Stateful Inspection Firewall</strong> — tracks the state of active connections. Knows if a packet is part of an established connection or a new request. More secure than packet filtering.<br><br><strong>Proxy Firewall (Application Gateway)</strong> — acts as an intermediary. Client connects to proxy, proxy connects to server. Can inspect actual content (application layer). Provides anonymity.<br><br><strong>Next-Generation Firewall (NGFW)</strong> — combines traditional firewall with intrusion prevention, deep packet inspection, and application awareness.`,
             analogy: ``
@@ -227,6 +267,11 @@ const MODULE_3 = {
         },
         {
           title: "Protective Devices & Best Practices",
+          glossary: [
+            { term: "IDS (Intrusion Detection System)", definition: "Monitors traffic for suspicious activity and alerts administrators, without blocking it." },
+            { term: "IPS (Intrusion Prevention System)", definition: "Like an IDS, but can automatically block detected threats." },
+            { term: "VPN", definition: "Virtual Private Network — creates an encrypted tunnel over the internet for secure remote access." }
+          ],
           explain: {
             text: `Beyond firewalls:<br><br><strong>IDS (Intrusion Detection System)</strong> — monitors network traffic for suspicious activity and ALERTS administrators. Does NOT block traffic.<br><br><strong>IPS (Intrusion Prevention System)</strong> — like IDS but can automatically BLOCK detected threats.<br><br><strong>VPN (Virtual Private Network)</strong> — creates an encrypted tunnel over the internet for secure remote access.<br><br><strong>Antivirus/Anti-malware</strong> — scans files and programs for known malware signatures.<br><br>Best practices: keep software updated (patch vulnerabilities), use strong unique passwords + MFA, regular backups, principle of least privilege (give minimum necessary access), security awareness training.`,
             analogy: ``

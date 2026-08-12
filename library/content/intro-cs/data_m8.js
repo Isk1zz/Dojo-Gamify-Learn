@@ -50,6 +50,11 @@ const MODULE_8 = {
       chunks: [
         {
           title: "Commutative, Associative & Identity Laws",
+          glossary: [
+            { term: "Commutative law", definition: "Order doesn't matter: A+B = B+A, and A·B = B·A." },
+            { term: "Associative law", definition: "Grouping doesn't matter: (A+B)+C = A+(B+C), and likewise for ·." },
+            { term: "Identity law", definition: "A+0 = A and A·1 = A — combining with the identity element leaves a value unchanged." }
+          ],
           predict: {
             question: "In ordinary arithmetic, 2+(3×4)=14, but (2+3)×(2+4)=30 — clearly different. Could Boolean algebra have an equivalent pair, A+(B·C) and (A+B)·(A+C), that are ALSO always different — or could they secretly always be equal?",
             options: [
@@ -101,6 +106,9 @@ const MODULE_8 = {
 
         {
           title: "The Distributive Law — Both Forms",
+          glossary: [
+            { term: "Distributive law", definition: "A·(B+C) = A·B + A·C, and — unlike ordinary algebra — also A+(B·C) = (A+B)·(A+C)." }
+          ],
           explain: {
             blocks: [
               { text: `Boolean algebra's first distributive law matches ordinary algebra exactly: A·(B+C) = A·B + A·C — ANDing across a sum distributes normally, the same way 2×(3+4) = 2×3+2×4 in ordinary arithmetic. This is the one distributive form most people already trust instinctively, since it never produces a surprise.` },
@@ -147,6 +155,9 @@ const MODULE_8 = {
 
         {
           title: "Inversion (Complement) Laws",
+          glossary: [
+            { term: "Complement law", definition: "A+A' = 1 and A·A' = 0 — a variable combined with its own inverse always resolves to the constant." }
+          ],
           explain: {
             blocks: [
               { text: `The inversion (complement) laws govern NOT, written A'. The two core laws: A·A'=0 (a value AND its own complement is always false — they can never both be true at once) and A+A'=1 (a value OR its own complement is always true — between them, they cover every case).` },
@@ -234,6 +245,9 @@ const MODULE_8 = {
       chunks: [
         {
           title: "De Morgan's First Theorem",
+          glossary: [
+            { term: "De Morgan's first theorem", definition: "(A·B)' = A' + B' — the complement of an AND equals the OR of the complements." }
+          ],
           predict: {
             question: "Is the complement of 'A AND B' — written (A·B)' — the same as 'complement of A AND complement of B', i.e. A'·B'?",
             options: [
@@ -290,6 +304,9 @@ const MODULE_8 = {
 
         {
           title: "De Morgan's Second Theorem",
+          glossary: [
+            { term: "De Morgan's second theorem", definition: "(A+B)' = A'·B' — the complement of an OR equals the AND of the complements." }
+          ],
           explain: {
             blocks: [
               { text: `De Morgan's second theorem is the mirror image of the first: the complement of an OR is the AND of the complements. (A+B)' = A'·B'. Just as before, the operation flips — OR becomes AND — rather than the complement simply passing through unchanged.` },
@@ -336,6 +353,9 @@ const MODULE_8 = {
 
         {
           title: "Applying Both Theorems to Simplify a Complex Expression",
+          glossary: [
+            { term: "Boolean simplification", definition: "Reducing a Boolean expression to an equivalent but shorter form using algebraic laws." }
+          ],
           explain: {
             blocks: [
               { text: `De Morgan's theorems are most useful chained together on a multi-term expression, not applied once in isolation. This chunk works through simplifying (A·B)' + (A'·B')' completely, applying both theorems and the inversion laws from the previous topic in sequence, one law at a time, exactly the discipline the algebraic equivalence method later in this unit depends on.` },
@@ -423,6 +443,12 @@ const MODULE_8 = {
       chunks: [
         {
           title: "NOT, AND, and OR Gates",
+          glossary: [
+            { term: "Logic gate", definition: "A physical or symbolic device that implements one Boolean operation on its inputs." },
+            { term: "NOT gate", definition: "Outputs the inverse of its single input." },
+            { term: "AND gate", definition: "Outputs 1 only when all inputs are 1." },
+            { term: "OR gate", definition: "Outputs 1 when at least one input is 1." }
+          ],
           predict: {
             question: "An AND gate has two inputs. If you know only ONE of the two inputs, can you predict the output for certain?",
             options: [
@@ -474,6 +500,11 @@ const MODULE_8 = {
 
         {
           title: "NAND and NOR: The Universal Gates",
+          glossary: [
+            { term: "NAND gate", definition: "Outputs 0 only when all inputs are 1; otherwise outputs 1 — the inverse of AND." },
+            { term: "NOR gate", definition: "Outputs 1 only when all inputs are 0; otherwise outputs 0 — the inverse of OR." },
+            { term: "Universal gate", definition: "A gate type (NAND or NOR) that can, alone, be combined to build any other logic gate." }
+          ],
           explain: {
             blocks: [
               { text: `NAND and NOR are AND and OR with an inverter attached to the output: NAND is C=(A·B)', and NOR is C=(A+B)'. Each simply flips every row of its non-negated counterpart's truth table — NAND is 0 only when both inputs are 1 (the opposite of AND's single 1-row), and NOR is 1 only when both inputs are 0 (the opposite of OR's single 0-row).` },
@@ -520,6 +551,9 @@ const MODULE_8 = {
 
         {
           title: "Truth Tables for Combined Gates",
+          glossary: [
+            { term: "Truth table", definition: "A table listing every possible input combination for a Boolean expression alongside its resulting output." }
+          ],
           explain: {
             blocks: [
               { text: `Real circuits chain multiple gates together, and the truth table for the combination is built the same way regardless of how many gates are involved: list every combination of the INPUT variables, then work out each gate's output in order, using each gate's own already-known truth table as a lookup.` },
@@ -602,6 +636,9 @@ const MODULE_8 = {
       chunks: [
         {
           title: "Proving Equivalence with Truth Tables",
+          glossary: [
+            { term: "Boolean equivalence", definition: "Two expressions that produce the same output for every possible input combination." }
+          ],
           predict: {
             question: "Two Boolean expressions, A+A'B and A+B, LOOK different on paper. Could they still always produce identical outputs for every possible A and B?",
             options: [
@@ -658,6 +695,9 @@ const MODULE_8 = {
 
         {
           title: "Proving Equivalence Algebraically",
+          glossary: [
+            { term: "Algebraic proof", definition: "Showing two Boolean expressions are equivalent by transforming one into the other using known laws, rather than checking every input row." }
+          ],
           explain: {
             blocks: [
               { text: `The algebraic method proves equivalence by transforming one expression into the other using only the laws already covered — commutative, associative, distributive, identity, and inversion — rather than checking every row of a truth table. Done correctly, it's faster for complex expressions and it also explains WHY the expressions are equal, not just THAT they are.` },
@@ -704,6 +744,9 @@ const MODULE_8 = {
 
         {
           title: "Canonical Form: The Definitive Test",
+          glossary: [
+            { term: "Canonical form", definition: "A single standard, fully-expanded way of writing a Boolean expression, used to test equivalence definitively." }
+          ],
           explain: {
             blocks: [
               { text: `The canonical (minterm) form is the strictest test of equivalence: convert both expressions to a sum of minterms, and they're equivalent if and only if they list the EXACT same set of minterms — there's no partial credit and no ambiguity, since canonical form is unique for every possible Boolean function.` },

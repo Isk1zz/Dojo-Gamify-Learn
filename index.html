@@ -24,7 +24,6 @@
   <link rel="stylesheet" href="styles/settings.css" />
   <link rel="stylesheet" href="styles/shop.css" />
   <link rel="stylesheet" href="styles/games.css" />
-  <link rel="stylesheet" href="styles/story.css" />
 </head>
 <body>
   <div id="app">
@@ -58,13 +57,11 @@
       </button>
     </div>
     <div id="streak-popover" class="streak-popover" style="display:none;"></div>
+    <div id="wallet-popover" class="streak-popover" style="display:none;"></div>
     <div id="streak-toast-layer" class="streak-toast-layer"></div>
     <div id="vitals-strip" class="vitals-strip" style="display:none;"></div>
     <div id="bolt-layer" class="bolt-layer"></div>
 
-    <!-- Story mode lives in an overlay so the acts aren't spread across
-         the Arcade tab, and so a scene can redraw without a screen change. -->
-    <div id="story-modal" class="modal-overlay" style="display:none;"></div>
     <!-- Shown once per course, the first time it's entered — a drawn
          signature, never a real personal-data form. See
          library/library.js's showContractModal. -->
@@ -173,7 +170,7 @@
             <span class="lt-icon">&#127920;</span>
             <span class="lt-body">
               <span class="lt-title">Arcade</span>
-              <span class="lt-sub" id="lobby-games-sub">Games and the story</span>
+              <span class="lt-sub" id="lobby-games-sub">Games</span>
             </span>
             <span class="arrow">&rarr;</span>
           </button>
@@ -396,8 +393,6 @@
   <script src="games/hilo.js"></script>
   <script src="games/mines.js"></script>
   <script src="games/blackjack.js"></script>
-  <script src="story/scenes.js"></script>
-  <script src="story/story.js"></script>
   <!-- Cheat codes: gitignored and NOT deployed. A 404 here is normal
        and harmless — settings.js hides the Codes section when absent. -->
   <script src="settings/codes.js" onerror="void 0"></script>

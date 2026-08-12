@@ -305,6 +305,31 @@
     strip.innerHTML = `<span class="vital-wallet"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`;
   }
 
+  // Tap the wallet, get a one-line reminder of what it's for — same
+  // toggle/position/outside-click pattern as core/hud.js's streak
+  // popover, reusing its CSS rather than adding a new component.
+  function hideWalletPopover() {
+    const pop = document.getElementById("wallet-popover");
+    if (pop) pop.style.display = "none";
+  }
+  function toggleWalletPopover(chip) {
+    const pop = document.getElementById("wallet-popover");
+    if (!pop || !chip) return;
+    if (pop.style.display === "block") { hideWalletPopover(); return; }
+    pop.innerHTML = `<strong>$${DB.getWallet()}</strong><br>`
+      + `Earned from the Garden's daily dividends and Arcade wins. Spend it in `
+      + `the Life tab (food, water, shelter) and to unlock Arcade games.`;
+    const r = chip.getBoundingClientRect();
+    pop.style.display = "block";
+    pop.style.top = `${r.bottom + 6}px`;
+    pop.style.right = `${window.innerWidth - r.right}px`;
+  }
+  document.addEventListener("click", e => {
+    const chip = e.target.closest && e.target.closest(".vital-wallet");
+    if (chip) { toggleWalletPopover(chip); return; }
+    if (e.target.closest && !e.target.closest("#wallet-popover")) hideWalletPopover();
+  });
+
   function theftBlurb() {
     const rule = THEFT[DB.getVitals().shelterTier] || THEFT.street;
     if (!rule.chance) return "nothing gets taken here";
@@ -321,7 +346,11 @@
     return parts.join(", ");
   }
 
-  // ---- The Life panel (a guest on the Arcade's Story tab) ----
+  // ---- The Life panel (its own Arcade tab) ----
+  // Used to be a guest on the Arcade's Story tab; Story was removed, so
+  // games/games.js registers this as a "Life" tab instead. It has to be
+  // registered from there, not here — life.js loads first and can't see
+  // Arcade.registerTab yet.
   let mountedIn = null;
 
   function renderLifeTab(body) {
@@ -345,10 +374,10 @@
         ${nightReport ? `<div class="vitals-warn theft">\u{1F576} Someone went through your pockets last night \u2014
           $${nightReport.taken} gone (${Math.round(nightReport.share * 100)}% of what you had).
           ${nightReport.tier === "street" ? "Sleeping rough costs more than it looks." : ""}</div>` : ""}
-        ${weak ? `<div class="vitals-warn">\u26A0 ${weak}. The Arcade and Story are shut until you do \u2014 studying never is.</div>` : ""}
+        ${weak ? `<div class="vitals-warn">\u26A0 ${weak}. The Arcade is shut until you do \u2014 studying never is.</div>` : ""}
         <p class="settings-hint" style="margin:0.6rem 0 0;">
-          Vitals fall when you do things \u2014 lessons, exams, arcade rounds, story scenes.
-          A story day is a resolved scene, not the calendar \u2014 time away costs nothing.
+          Vitals fall when you do things \u2014 lessons, exams, arcade rounds.
+          Time away costs nothing; only what you actually do here.
           Food, water and soap go in your bag; shelter and papers apply straight away.
         </p>
       </div>`;

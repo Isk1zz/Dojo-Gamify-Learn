@@ -18,6 +18,11 @@ const MODULE_4 = {
       chunks: [
         {
           title: "The Three Control Structures",
+          glossary: [
+            { term: "Sequence", definition: "Instructions executed one after another, in fixed order." },
+            { term: "Selection", definition: "The program chooses between paths based on a condition (if/else)." },
+            { term: "Iteration", definition: "Code repeats — zero times, a fixed number of times, or until a condition is met." }
+          ],
           explain: {
             text: `Structured programming builds every program out of three control structures: <strong>sequence</strong> (do one instruction, then the next, in fixed order), <strong>selection</strong> (the program chooses between paths based on a condition), and <strong>iteration</strong> (code repeats — zero times, a fixed number of times, or until a condition is met).<br><br>Nothing else is needed. Any algorithm can be expressed using only these three shapes, which is exactly why they became the foundation of readable code.`,
             analogy: "Sequence is following a recipe step by step. Selection is 'if the oven isn't hot yet, wait' — a fork in the road. Iteration is 'stir until smooth' — repeat until a condition is satisfied."
@@ -39,6 +44,9 @@ const MODULE_4 = {
         },
         {
           title: "Single Entry, Single Exit",
+          glossary: [
+            { term: "Single entry, single exit", definition: "A control structure is entered at one point and left at one point, regardless of which internal path was taken." }
+          ],
           explain: {
             text: `Structured programming isn't really about banning jumps — it's about controlling where they go. A <strong>selection</strong> structure (like <code>if/else</code>) still redirects the flow of execution, but both branches always reconverge at a known point afterward. This is called <strong>single entry, single exit</strong>: you enter the structure at one place and leave at one place, no matter which path was taken.<br><br><strong>Branching</strong> (an unrestricted <code>goto</code>) breaks this rule — it can jump anywhere in the program with no guaranteed return, which is how "spaghetti code" happens.`,
             analogy: "A selection structure is like a roundabout — however you go around it, you exit onto the same road. A goto is like teleporting into someone else's house mid-sentence and never coming back to finish yours."
@@ -64,6 +72,10 @@ const MODULE_4 = {
         },
         {
           title: "Dijkstra, goto, and What Actually Won",
+          glossary: [
+            { term: "goto (unrestricted jump)", definition: "A jump that can leap to any labeled line with no guaranteed return, producing \"spaghetti code\"." },
+            { term: "Disciplined jump", definition: "A jump (break, continue, return) that exits to one guaranteed, predictable destination." }
+          ],
           explain: {
             text: `In the late 1960s, Edsger Dijkstra proposed eliminating the unrestricted <code>goto</code> statement, arguing it made programs unnecessarily hard to follow. The debate ran for roughly twenty years, and by the end of the 20th century nearly all computer scientists were convinced structured programming was the better approach.<br><br>But "goto lost" oversimplifies what happened. What actually won was <strong>disciplined</strong> jumping. Modern languages kept controlled jump commands — <code>break</code>, <code>continue</code>, and early <code>return</code> — because they exit a structure to a predictable place. Unrestricted goto lost; goto with a leash survived in every mainstream language.`,
             analogy: "It's not that jumping was banned — it's that jumping without a map was banned. break and return are jumps with a destination already agreed on."
@@ -135,6 +147,10 @@ const MODULE_4 = {
       chunks: [
         {
           title: "Procedural vs. OOP — Where the Data Lives",
+          glossary: [
+            { term: "Procedural programming", definition: "Data and behavior kept separate; any function can reach in and change data directly." },
+            { term: "Object-oriented programming", definition: "Data and behavior bundled into a class, with data typically hidden and reachable only through public methods." }
+          ],
           explain: {
             text: `In <strong>procedural</strong> programming, data and behavior are kept separate. Data sits out in the open — a struct's fields, for example — and any function can reach in and change it directly.<br><br>In <strong>object-oriented</strong> programming, data and behavior are bundled together into a class, and the data is typically hidden (made <code>private</code>). The only way to change it from outside is through the object's own public methods. The real test isn't whether code is written using <code>class</code> syntax — it's whether outside code can still reach in and modify the data directly. If it can, it's procedural code wearing a class costume.`,
             analogy: "Procedural is ingredients left out on a shared counter — anyone can grab them. OOP is a sealed lunchbox — you can't reach in, you have to ask the owner to make you a sandwich."
@@ -160,6 +176,10 @@ const MODULE_4 = {
         },
         {
           title: "Abstraction & Encapsulation",
+          glossary: [
+            { term: "Abstraction", definition: "Showing what something does without showing how it does it." },
+            { term: "Encapsulation", definition: "Hiding an object's internal data behind private access, reachable only through public methods." }
+          ],
           explain: {
             text: `<strong>Abstraction</strong> means showing what something does without showing how it does it. You call <code>car.start()</code> without needing to know how the engine ignites.<br><br><strong>Encapsulation</strong> means hiding an object's internal data behind private access, so it can only be reached through public methods (getters and setters). Note: the data isn't inaccessible — code <em>inside</em> the class can still use it freely. Only <em>external</em> code is blocked without a public method.`,
             analogy: "Abstraction is a steering wheel — you know what turning it does, not how the mechanism works. Encapsulation is a locked hood — you can't reach in and pull a wire from outside."
@@ -186,6 +206,10 @@ const MODULE_4 = {
         },
         {
           title: "Inheritance & Polymorphism",
+          glossary: [
+            { term: "Inheritance", definition: "A child class automatically receives the methods and data of a parent class." },
+            { term: "Polymorphism", definition: "The same method call produces different behavior depending on which object receives it." }
+          ],
           explain: {
             text: `<strong>Inheritance</strong> lets one class (the child) automatically receive the methods and data of another class (the parent), and then add or override behavior. <strong>Polymorphism</strong> means the same method call produces different behavior depending on which object receives it.<br><br>Together, they let you write code once in a parent class and specialize it in children, while still calling the same method name on any of them and getting the right behavior for that specific object.`,
             analogy: "Inheritance: a SportsCar is a Car — it gets everything Car has for free, then adds a turbo. Polymorphism: you say 'start()' to a car, a boat, or a plane — same word, three different behaviors, and the caller doesn't need to know which one it is."
@@ -252,6 +276,9 @@ const MODULE_4 = {
       chunks: [
         {
           title: "Pure Functions",
+          glossary: [
+            { term: "Pure function", definition: "A function that can't modify or be affected by anything outside its own scope; same input always gives same output." }
+          ],
           explain: {
             text: `A <strong>pure function</strong> is sealed in both directions: it cannot modify anything outside its own scope, and it cannot be affected by anything outside its own scope. Given the same input, it always produces the same output — no exceptions, no hidden state.<br><br>This is fundamentally different from a method in OOP that might read or change an object's internal fields, or a procedural function that modifies a global variable.`,
             analogy: "A pure function is a vending machine: put in the same amount of money and press the same button, and you always get the exact same snack. It never remembers your last purchase, and it never restocks itself based on something happening across the room."
@@ -277,6 +304,10 @@ const MODULE_4 = {
         },
         {
           title: "Why Recursion Is Forced, Not Preferred",
+          glossary: [
+            { term: "Recursion", definition: "A function calling itself with a smaller version of the problem until it reaches a stopping point." },
+            { term: "Mutation", definition: "Reassigning a variable's value — forbidden in pure functional code, which is why loops are impossible there." }
+          ],
           explain: {
             text: `Functional programming has no <code>for</code> or <code>while</code> loops — and this isn't a stylistic choice. A loop requires a counter variable that <strong>mutates</strong> (like <code>i++</code>), and mutation is exactly what pure functions forbid. Ban mutation, and a loop becomes structurally impossible.<br><br>Recursion is the only mechanism left for repeating an action: the function calls itself with a smaller version of the problem, passing a fresh value each time, until it reaches a stopping point. Nothing ever gets reassigned — a new value is simply handed down at each call.`,
             analogy: "A loop is refilling the same cup ten times. Recursion is passing ten different cups down a line of people, one at a time, and each person only ever holds their own cup."
@@ -302,6 +333,9 @@ const MODULE_4 = {
         },
         {
           title: "Effects at the Edges",
+          glossary: [
+            { term: "Functional core, imperative shell", definition: "Keeping a program's core logic pure while isolating necessary side effects (printing, saving files) to a thin boundary layer." }
+          ],
           explain: {
             text: `A real question follows from purity: if a function can't touch anything outside itself, how does a program ever print to a screen, save a file, or read user input? Those are all changes to the outside world.<br><br>The answer: <strong>push the effects to the edges</strong>. The core of the program stays pure — all logic, calculations, and decisions. A thin <strong>impure shell</strong> at the boundary handles the actual touching of the world. This is sometimes called "functional core, imperative shell." Purity is a property of the inside of a program, not a requirement for the whole thing.`,
             analogy: "In Unreal Engine Blueprints, pure nodes have no execution wire — they only calculate outputs from inputs. Impure nodes carry the execution pin, and those are the ones that actually change something (spawn, destroy, set a variable). The execution wire is the imperative shell; the pure nodes are the functional core."
@@ -387,6 +421,9 @@ const MODULE_4 = {
       chunks: [
         {
           title: "The Requirement Specification — The Hinge",
+          glossary: [
+            { term: "Requirement specification", definition: "The written answer to \"what is this software supposed to do,\" produced during analysis before anything is built." }
+          ],
           explain: {
             text: `Software engineering's stated objective is to produce a system built in accordance with a <strong>requirement specification</strong> — on time and within budget. That specification is the written answer to "what is this thing supposed to do," produced during analysis, before anything is built.<br><br>Everything downstream is measured against it. Design is the specification translated into structure — not guesswork. Get the specification wrong, and every later phase will execute the wrong thing correctly.`,
             analogy: "The requirement specification is a blueprint for a house. The builders (design and construction) can execute flawlessly, but if the blueprint itself has the plumbing in the wrong room, flawless execution just builds a flawless mistake."
@@ -414,6 +451,9 @@ const MODULE_4 = {
         },
         {
           title: "Constraints, Traceability, and Efficiency",
+          glossary: [
+            { term: "Traceability", definition: "Every component in the finished system can be traced back to a specific requirement." }
+          ],
           explain: {
             text: `Good analysis gathers more than just features — it gathers <strong>constraints</strong>: target hardware, the operating system, the deploying organization, and critically, the <strong>end-user's skill level</strong>. User qualification is a design input, not an afterthought — software built for experts and software built for beginners are genuinely different products.<br><br><strong>Traceability</strong> means every component in the finished system can be traced back to a specific requirement. Combined with predictable task sizing, this ensures nothing gets built that nobody actually asked for — which is where <strong>efficiency</strong> comes from.`,
             analogy: "Traceability is like a receipt for every brick in a building — you can point to any wall and say exactly which requirement justified it. Nothing gets built 'just in case.'"
@@ -440,6 +480,10 @@ const MODULE_4 = {
         },
         {
           title: "Iteration, Waterfall, and Testing the Right Thing",
+          glossary: [
+            { term: "Waterfall model", definition: "A linear development process — all analysis, then all design, then all building — with no cheap way back once building starts." },
+            { term: "Iterative development", definition: "Shipping the highest-priority functions first rather than one long linear pass, so a resource shortage still leaves the most valuable part built." }
+          ],
           explain: {
             text: `Modern development tends to run <strong>iteratively</strong> rather than in one long linear pass — shipping the highest-priority functions first, because team resources are always limited. If a team runs out of time or budget mid-project, what already exists is the part that mattered most.<br><br>The <strong>waterfall model</strong> (Benington, 1956) executes phases linearly: all analysis, then all design, then all building. Its well-known flaw is inflexibility — it has no cheap way to go back once building has started. That flaw shows up precisely when analysis was incomplete. Iterative development is, in a sense, an admission that analysis is never fully finished in a single pass.<br><br>Finally, integration testing checks the finished product directly against the requirements — asking not just "does it run," but <strong>"did we build the right thing."</strong> That question is only answerable because a specification exists to check against.`,
             analogy: "Waterfall is pouring a house's entire foundation before checking if the blueprint was right. Iteration is building one room, checking it against what the family actually needs, and adjusting before pouring the next foundation."
@@ -526,6 +570,9 @@ const MODULE_4 = {
       chunks: [
         {
           title: "Sequencing an Algorithm",
+          glossary: [
+            { term: "Sequencing (algorithm design)", definition: "Writing an algorithm's steps in the fixed order later steps depend on for correct results." }
+          ],
           explain: {
             text: `Before any code is written, an algorithm is a plain, ordered list of steps — a <strong>sequence</strong> — that solves a specific problem. Flowcharting makes this visible: each box is one instruction, connected by arrows showing the fixed order of execution.<br><br>Sequencing matters because later steps depend on values earlier steps produced. Skipping or reordering a step changes the result, which is exactly why algorithm design starts by writing the steps down in plain language before touching a single line of code.`,
             analogy: "A recipe: crack the eggs before you whisk them. Whisking first, when there's nothing in the bowl, is a sequencing error — the steps aren't interchangeable."
@@ -555,6 +602,9 @@ const MODULE_4 = {
         },
         {
           title: "Selection: Handling Different Scenarios",
+          glossary: [
+            { term: "Selection (algorithm design)", definition: "An algorithm branches based on a condition, running a different block for each possible outcome." }
+          ],
           explain: {
             text: `Real problems rarely have just one path. <strong>Selection</strong> (<code>if</code>, <code>else if</code>, <code>else</code>) lets an algorithm branch based on a condition — evaluating something as true or false and choosing which block of code runs.<br><br>In a budget calculator, selection is what distinguishes "you're within budget" from "you've overspent" — the same calculation feeds two entirely different responses depending on the result.`,
             analogy: "A budget app is like a thermostat: it doesn't just report the temperature, it checks a condition (too hot? too cold?) and picks a different action for each case."
@@ -583,6 +633,9 @@ const MODULE_4 = {
         },
         {
           title: "Iteration: Handling an Unknown Number of Inputs",
+          glossary: [
+            { term: "Iteration (algorithm design)", definition: "A loop repeats a step until a condition is met, handling an unknown number of inputs without changing the code." }
+          ],
           explain: {
             text: `A budget has an unknown number of variable expenses — groceries, entertainment, maybe more. Hardcoding one variable per expense would only work if the user always has exactly that many. <strong>Iteration</strong> solves this: a loop repeats the "ask for one more expense" step until the user signals there are no more, so the algorithm works whether there's one variable expense or twenty.<br><br>This is the same iteration you'd meet in structured programming, but here the emphasis is on <em>why</em> a loop is the correct tool: the number of repetitions isn't known in advance.`,
             analogy: "A loop for variable expenses is like a cashier scanning items until you say 'that's everything' — they don't ask in advance how many items you have."
@@ -664,6 +717,11 @@ const MODULE_4 = {
       chunks: [
         {
           title: "Syntax, Runtime, and Logical Errors",
+          glossary: [
+            { term: "Syntax error", definition: "Breaks the language's grammar; the compiler refuses to build the program at all." },
+            { term: "Runtime error", definition: "Occurs while the program runs (e.g. divide by zero) and typically crashes it." },
+            { term: "Logical error", definition: "The code runs without crashing but computes the wrong answer, with no error message." }
+          ],
           explain: {
             text: `<strong>Syntax errors</strong> break the language's grammar — a missing semicolon, an unmatched brace — and the compiler refuses to build the program at all. <strong>Runtime errors</strong> occur while the program is running — dividing by zero, accessing an array out of bounds — and typically crash the program with an error message.<br><br><strong>Logical errors</strong> are the dangerous category: the code is grammatically valid and runs to completion without crashing, but it computes the wrong answer. There is no error message, because as far as the compiler and the operating system are concerned, nothing went wrong.`,
             analogy: "Syntax error: a sentence with the words in impossible order — you can't even read it. Runtime error: a sentence that makes you choke while reading it aloud. Logical error: a sentence that reads perfectly smoothly and is confidently, completely wrong."
@@ -690,6 +748,9 @@ const MODULE_4 = {
         },
         {
           title: "Why Logical Errors Are Hard to Find",
+          glossary: [
+            { term: "Silent failure", definition: "A program producing plausible-looking but incorrect output, with nothing signaling that anything is wrong." }
+          ],
           explain: {
             text: `A logical error hides precisely because the program appears to work. It compiles. It runs without crashing. It produces a number — and a number that looks like a reasonable budget is easy to mistake for a correct one, especially if you don't have an expected answer to compare against.<br><br>Finding one means shifting from "does it run" to "is this specific value right," which requires manually working out what the correct answer should have been, then comparing it to what the program actually produced.`,
             analogy: "A GPS confidently giving you the wrong directions is more dangerous than one that shows an error screen — you have no reason to doubt it until you're already lost."
@@ -717,6 +778,11 @@ const MODULE_4 = {
         },
         {
           title: "Debugging Techniques & Tools",
+          glossary: [
+            { term: "Tracing (dry-running)", definition: "Manually walking through code line by line with real values to find where actual output diverges from expected output." },
+            { term: "Rubber duck debugging", definition: "Explaining code line by line out loud, which often surfaces the exact point where the explanation stops matching the code." },
+            { term: "Breakpoint", definition: "A chosen line where a debugger pauses execution so every variable's current value can be inspected." }
+          ],
           explain: {
             text: `Several techniques target logical errors specifically. <strong>Tracing (dry-running)</strong> means manually walking through the code line by line with real values, calculating what each variable should hold, and comparing that to what the program actually produces. <strong>Print statements</strong> (or <code>std::cout</code> in C++) let you inspect a variable's value at a specific point without stopping the program. A <strong>breakpoint/step-through debugger</strong> pauses execution at a chosen line and lets you inspect every variable's current value directly. <strong>Rubber duck debugging</strong> means explaining the code line by line, out loud, to something (or someone) that can't answer back — the act of articulating each step often surfaces the exact line where your explanation stops matching what the code actually does.`,
             analogy: "Tracing is redoing the math by hand. A debugger is a security camera that lets you pause the tape at any frame. Rubber duck debugging is explaining a magic trick to someone slowly enough that you catch your own sleight of hand."

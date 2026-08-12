@@ -54,6 +54,9 @@ const MODULE_5 = {
           ]
         },
           title: "Learning as Improvement, Not Knowledge",
+          glossary: [
+            { term: "Machine learning", definition: "A program improving its performance at a task through experience, rather than being explicitly programmed with fixed rules." }
+          ],
           explain: {
             blocks: [
               {
@@ -96,6 +99,9 @@ const MODULE_5 = {
         },
         {
           title: "The First Requirement: Feedback",
+          glossary: [
+            { term: "Feedback (in ML)", definition: "A signal telling a learning algorithm how well it's currently doing, so it has something to improve against." }
+          ],
           explain: {
             blocks: [
               {
@@ -138,6 +144,9 @@ const MODULE_5 = {
         },
         {
           title: "The Second Requirement: Knowing What to Change",
+          glossary: [
+            { term: "Parameter", definition: "An internal, adjustable value a learning algorithm tunes in order to improve its performance." }
+          ],
           explain: {
             blocks: [
               {
@@ -237,6 +246,9 @@ const MODULE_5 = {
       chunks: [
         {
           title: "No Intuition Means Exhaustive Search",
+          glossary: [
+            { term: "Search space", definition: "The full range of possible parameter settings a learning algorithm must explore to find a good solution." }
+          ],
           explain: {
             blocks: [
               {
@@ -279,6 +291,9 @@ const MODULE_5 = {
         },
         {
           title: "Telling Improvement From Luck",
+          glossary: [
+            { term: "Validation", definition: "Checking a model's performance on data it wasn't trained on, to confirm improvement is real and not a fluke of the training set." }
+          ],
           explain: {
             blocks: [
               {
@@ -321,6 +336,9 @@ const MODULE_5 = {
         },
         {
           title: "Trial and Error, and Why It Survives",
+          glossary: [
+            { term: "Trial and error (in ML)", definition: "Repeatedly adjusting parameters and checking the result, still the underlying mechanism beneath most modern learning algorithms." }
+          ],
           explain: {
             blocks: [
               {
@@ -425,6 +443,9 @@ const MODULE_5 = {
       chunks: [
         {
           title: "Learning With the Answers Provided",
+          glossary: [
+            { term: "Supervised learning", definition: "Training a model on data that's already labeled with the correct answer." }
+          ],
           explain: {
             blocks: [
               {
@@ -467,6 +488,10 @@ const MODULE_5 = {
         },
         {
           title: "Training, Then Generalising",
+          glossary: [
+            { term: "Training set", definition: "The labeled data a model learns from." },
+            { term: "Generalization", definition: "A model's ability to perform well on new, unseen examples, not just the ones it trained on." }
+          ],
           explain: {
             blocks: [
               {
@@ -509,6 +534,9 @@ const MODULE_5 = {
         },
         {
           title: "Where Supervised Learning Runs Out",
+          glossary: [
+            { term: "Overfitting", definition: "A model that scores well on training data but poorly on new data, because it memorized specifics instead of learning the general pattern." }
+          ],
           explain: {
             blocks: [
               {
@@ -608,6 +636,9 @@ const MODULE_5 = {
       chunks: [
         {
           title: "When There Is No Answer Key",
+          glossary: [
+            { term: "Unsupervised learning", definition: "Finding structure in data that has no labeled correct answer to learn from." }
+          ],
           explain: {
             blocks: [
               {
@@ -650,6 +681,10 @@ const MODULE_5 = {
         },
         {
           title: "Patterns, Associations, and Exceptions",
+          glossary: [
+            { term: "Clustering", definition: "Grouping similar data points together without predefined labels." },
+            { term: "Anomaly detection", definition: "Identifying data points that don't fit the pattern the rest of the data follows." }
+          ],
           explain: {
             blocks: [
               {
@@ -692,6 +727,9 @@ const MODULE_5 = {
         },
         {
           title: "Insight or Coincidence?",
+          glossary: [
+            { term: "Spurious pattern", definition: "A pattern found in data that's a statistical coincidence, not a real underlying relationship." }
+          ],
           explain: {
             blocks: [
               {
@@ -796,6 +834,9 @@ const MODULE_5 = {
       chunks: [
         {
           title: "The Outcome Judges the Sequence",
+          glossary: [
+            { term: "Reinforcement learning", definition: "An agent learns by taking actions in an environment and receiving rewards or penalties for the outcomes." }
+          ],
           explain: {
             blocks: [
               {
@@ -838,6 +879,9 @@ const MODULE_5 = {
         },
         {
           title: "Rewards Are Numbers, Not Verdicts",
+          glossary: [
+            { term: "Reward signal", definition: "The numeric feedback a reinforcement-learning agent receives after an action, guiding what it learns to do more or less of." }
+          ],
           explain: {
             blocks: [
               {
@@ -880,6 +924,9 @@ const MODULE_5 = {
         },
         {
           title: "Exploring Versus Exploiting",
+          glossary: [
+            { term: "Exploration-exploitation tradeoff", definition: "The balance between trying new actions to discover their value (exploring) and repeating the best-known action so far (exploiting)." }
+          ],
           explain: {
             blocks: [
               {
@@ -984,6 +1031,9 @@ const MODULE_5 = {
       chunks: [
         {
           title: "Let the Feedback Decide",
+          glossary: [
+            { term: "Choosing a learning approach", definition: "Matching supervised, unsupervised, or reinforcement learning to the kind of feedback actually available for a problem." }
+          ],
           explain: {
             blocks: [
               {
@@ -1026,6 +1076,10 @@ const MODULE_5 = {
         },
         {
           title: "Terms That Get Confused",
+          glossary: [
+            { term: "Artificial intelligence (AI)", definition: "The broad field of building systems that perform tasks normally requiring human intelligence." },
+            { term: "Deep learning", definition: "A subset of machine learning using multi-layered neural networks." }
+          ],
           explain: {
             blocks: [
               {
@@ -1069,6 +1123,9 @@ const MODULE_5 = {
         },
         {
           title: "What Machine Learning Cannot Do",
+          glossary: [
+            { term: "Limits of machine learning", definition: "ML finds patterns in data it's given — it cannot reason about causes, and it inherits any bias present in its training data." }
+          ],
           explain: {
             blocks: [
               {

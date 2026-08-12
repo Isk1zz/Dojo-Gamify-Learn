@@ -36,6 +36,10 @@ const MODULE_6 = {
       chunks: [
         {
           title: "Data and Information",
+          glossary: [
+            { term: "Data", definition: "Recorded fact with no context yet attached." },
+            { term: "Information", definition: "What data becomes once processed, organized, or placed in a context that makes it meaningful." }
+          ],
           predict: {
             question: "A spreadsheet holds the number 37 in a cell, with no column header and no label. Is that data or information?",
             options: [
@@ -92,6 +96,11 @@ const MODULE_6 = {
 
         {
           title: "Database, DBMS, Database System",
+          glossary: [
+            { term: "Database", definition: "An organized, integrated collection of related data." },
+            { term: "DBMS (Database Management System)", definition: "Software that lets users define, create, maintain, and control access to a database." },
+            { term: "Database system", definition: "The database plus the DBMS together — the whole system, not just the stored data." }
+          ],
           explain: {
             blocks: [
               { text: `Three terms, routinely used as if they were one, and the chapter separates them deliberately.<br><br>A <strong>database</strong> is the collection of data itself. A <strong>DBMS</strong> is the software: a body of interrelated data together with the programs that access it. A <strong>database system</strong> is both of them together — the computerised record-keeping system as a whole.` },
@@ -138,6 +147,10 @@ const MODULE_6 = {
 
         {
           title: "Passive and Active Systems",
+          glossary: [
+            { term: "Passive database", definition: "A database that only stores and retrieves data on explicit request, taking no independent action." },
+            { term: "Active database", definition: "A database that can trigger its own actions automatically in response to defined events or conditions." }
+          ],
           explain: {
             blocks: [
               { text: `The chapter's broad classification of database management systems is not the one most sources reach for. It splits them into <strong>passive</strong> and <strong>active</strong>, and the dividing line is <em>who initiates</em>.` },
@@ -245,6 +258,9 @@ const MODULE_6 = {
       chunks: [
         {
           title: "How File Processing Worked",
+          glossary: [
+            { term: "File processing system", definition: "A collection of files, each managed by its own application program, predating database systems." }
+          ],
           predict: {
             question: "In a file processing system, each application program manages its own files. What do you expect the first problem to be?",
             options: [
@@ -301,6 +317,10 @@ const MODULE_6 = {
 
         {
           title: "Redundancy, Inconsistency, Isolation",
+          glossary: [
+            { term: "Data redundancy", definition: "The same fact stored in more than one place." },
+            { term: "Data isolation", definition: "Related data scattered across separate files that are hard to access together." }
+          ],
           explain: {
             blocks: [
               { text: `The first three of the chapter's seven drawbacks are really one problem seen from three angles: the same fact lives in more than one place, and nothing keeps the copies in step.` },
@@ -347,6 +367,11 @@ const MODULE_6 = {
 
         {
           title: "Concurrency, Security, Integrity, Atomicity",
+          glossary: [
+            { term: "Concurrency control", definition: "Managing simultaneous access to data so multiple users don't corrupt it." },
+            { term: "Data integrity", definition: "Data that satisfies defined correctness rules (constraints) at all times." },
+            { term: "Atomicity", definition: "A transaction either completes entirely or has no effect at all — no partial updates." }
+          ],
           explain: {
             blocks: [
               { text: `The remaining four drawbacks are each a guarantee the system cannot make, and each one is later answered by a named DBMS subsystem.` },
@@ -454,6 +479,10 @@ const MODULE_6 = {
       chunks: [
         {
           title: "Redundancy, Consistency, Integration",
+          glossary: [
+            { term: "Data consistency", definition: "An update to a single stored fact takes effect once, with no lagging duplicate to contradict it." },
+            { term: "Data integration", definition: "Combining an organization's data into one unified database rather than scattered files." }
+          ],
           predict: {
             question: "The chapter says a DBMS controls data redundancy. Does it eliminate it?",
             options: [
@@ -510,6 +539,10 @@ const MODULE_6 = {
 
         {
           title: "Sharing, Security, and Surviving Failure",
+          glossary: [
+            { term: "Data sharing", definition: "Multiple users or applications accessing the same centralized data at once." },
+            { term: "Crash recovery", definition: "A DBMS's ability to restore data to a consistent state after a system failure." }
+          ],
           explain: {
             blocks: [
               { text: `The second group of advantages answers the guarantees file processing could not make. Each has a named home inside the DBMS rather than being scattered through application code.` },
@@ -556,6 +589,9 @@ const MODULE_6 = {
 
         {
           title: "The Bill",
+          glossary: [
+            { term: "DBMS overhead", definition: "The added cost of hardware, software, staff training, and complexity that comes with adopting a database system." }
+          ],
           explain: {
             blocks: [
               { text: `The chapter calls the disadvantages minor, and then lists five things that have sunk real projects. They are worth taking at face value, because every one of them is a cost paid up front against benefits that arrive later.` },
@@ -663,6 +699,11 @@ const MODULE_6 = {
       chunks: [
         {
           title: "Three Levels of Abstraction",
+          glossary: [
+            { term: "Physical level", definition: "The lowest level of data abstraction — describes how data is actually stored, in low-level structures." },
+            { term: "Logical level", definition: "The middle level — describes what data is stored and what relationships exist among it, not how." },
+            { term: "View level", definition: "The highest level — describes only the slice of the database one kind of user needs to see." }
+          ],
           predict: {
             question: "A database hides how data is physically stored. Who is that mainly for?",
             options: [
@@ -719,6 +760,9 @@ const MODULE_6 = {
 
         {
           title: "Data Independence",
+          glossary: [
+            { term: "Data independence", definition: "The ability to change a database's schema at one level without needing to change applications that depend on the level above it." }
+          ],
           explain: {
             blocks: [
               { text: `Data independence is the ability to modify a scheme definition at one level without affecting the scheme definition at the next higher level. There are two kinds, and one is decidedly harder than the other.` },
@@ -765,6 +809,10 @@ const MODULE_6 = {
 
         {
           title: "Instances and Schemas",
+          glossary: [
+            { term: "Database instance", definition: "The actual data stored in a database at one particular moment in time." },
+            { term: "Database schema", definition: "The overall design/structure of a database, which stays stable while the instance (the data) changes constantly." }
+          ],
           explain: {
             blocks: [
               { text: `Databases change over time as information is inserted and deleted. That gives two things worth naming separately, and confusing them is a classic error.<br><br>The collection of information stored in the database <em>at a particular moment</em> is an <strong>instance</strong>. The overall design of the database is the <strong>schema</strong>.` },
@@ -872,6 +920,9 @@ const MODULE_6 = {
       chunks: [
         {
           title: "What a Data Model Is",
+          glossary: [
+            { term: "Data model", definition: "A collection of conceptual tools for describing data, its relationships, its meaning, and consistency constraints." }
+          ],
           predict: {
             question: "Before reading: what do you think a 'data model' specifies?",
             options: [
@@ -928,6 +979,9 @@ const MODULE_6 = {
 
         {
           title: "The Hierarchical Model",
+          glossary: [
+            { term: "Hierarchical model", definition: "An early data model organizing records into a tree, where each child record has exactly one parent." }
+          ],
           explain: {
             blocks: [
               { text: `The hierarchical data model organises data in a <strong>tree</strong>. Each entity has exactly one parent but may have several children, and the single entity at the top is called the <strong>root</strong>.<br><br>The rule that defines everything else: one parent can have many children, but a child is allowed only one parent. Linkages run vertically only — never horizontally or diagonally — so two entities at the same level have no relationship unless they share a parent.` },
@@ -974,6 +1028,9 @@ const MODULE_6 = {
 
         {
           title: "The Network Model",
+          glossary: [
+            { term: "Network model (database)", definition: "An early data model allowing a child record to have multiple parents, represented as a graph rather than a strict tree." }
+          ],
           explain: {
             blocks: [
               { text: `The network data model — also called the <strong>CODASYL data model</strong>, or sometimes the <strong>DBTG data model</strong> — is built on directed graph theory. It replaces the hierarchical tree with a graph, which allows more general connections between nodes.` },
@@ -1081,6 +1138,9 @@ const MODULE_6 = {
       chunks: [
         {
           title: "Codd's Move: Tables Instead of Links",
+          glossary: [
+            { term: "Relational model", definition: "A data model representing data as independent two-dimensional tables, with relationships carried by shared values rather than stored links." }
+          ],
           predict: {
             question: "The relational model removed parent-child links between records. How were relationships then expressed?",
             options: [
@@ -1137,6 +1197,9 @@ const MODULE_6 = {
 
         {
           title: "Codd's Twelve Rules",
+          glossary: [
+            { term: "Codd's twelve rules", definition: "A benchmark E. F. Codd proposed for judging whether a database system is genuinely relational." }
+          ],
           explain: {
             blocks: [
               { text: `Codd set out rules defining an ideal relational database, used as a guideline for designing relational systems. There are thirteen counting Rule 0, and the chapter is explicit that <em>no commercial system completely conforms to all of them</em> — they interpret the relational approach rather than certify it.` },
@@ -1183,6 +1246,9 @@ const MODULE_6 = {
 
         {
           title: "Structure, Integrity, Manipulation",
+          glossary: [
+            { term: "DML (Data Manipulation Language)", definition: "The part of a database language used to query, insert, update, and delete data (e.g. SQL's SELECT/INSERT/UPDATE/DELETE)." }
+          ],
           explain: {
             blocks: [
               { text: `The chapter reduces the relational model to three basic components: <strong>data structure</strong>, <strong>data integrity</strong>, and <strong>data manipulation</strong>. Everything else in the topic hangs off one of these.` },

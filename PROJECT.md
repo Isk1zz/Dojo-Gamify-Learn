@@ -33,8 +33,7 @@ folders**, each owning one feature end to end and each carrying its own `.md`.
 | `library/` | courses, units, topics, lessons, exams, stats, all content | `library/LIBRARY.md` |
 | `garden/` | plants, growth stages, daily dividends | `garden/GARDEN.md` |
 | `shop/` | premium themes (charge) and life goods (money) | `shop/SHOP.md` |
-| `games/` | arcade shell and gating — **games not written** | `games/GAMES.md` |
-| `story/` | node map and unlock logic — **narrative not written** | `story/STORY.md` |
+| `games/` | arcade shell, games, and the Life tab's host screen | `games/GAMES.md` |
 | `settings/` | themes, data, admin code, legal | `settings/SETTINGS.md` |
 | `styles/` | one stylesheet per branch, plus `base.css` | — |
 | `docs/` | `ARCHITECTURE.md` (the contract), `CHANGELOG.md` | — |

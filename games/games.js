@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — ARCADE (games + story)
+// CS Dojo — ARCADE
 // ------------------------------------------------
 // The shell, the gating and the payout seam. Three games are built:
 // crash.js, hilo.js and blackjack.js, each in its own file, each
@@ -17,9 +17,10 @@
 // Never let a game call DB.addMoney() directly for a payout — go
 // through settle(), so every payout is logged in one place.
 //
-// The Arcade screen has two tabs: Games and Story. story/ registers
-// itself here at load via Arcade.registerTab, so it stays a separate
-// folder you can work on alone while sharing one screen and one gate.
+// The Arcade screen supports tabs via Arcade.registerTab, so another
+// branch can share this screen and its gate rather than taking a lobby
+// slot of its own. Story/ used that seam and has since been removed;
+// only the Games tab ships today, so the tab row hides itself.
 //
 // Emits: wallet:changed, arcade:round
 // ================================================
@@ -48,6 +49,14 @@
   // a wrong one. Session-only: this deliberately isn't in db.js,
   // because a stake is a mood, not a setting.
   let lastStake = 5;
+
+  // Whether a game is currently mounted into #arcade-tab-body, as
+  // opposed to the tab/game-list view. Each game's own "✕ Close"
+  // button already returns to the list correctly (api.renderGames) —
+  // this is for the Arcade screen's OWN topbar back button, which used
+  // to always jump straight to the Lobby even mid-game, skipping the
+  // arcade level entirely. See backFromArcade below.
+  let inGame = false;
 
   function rememberStake(n) {
     const s = Math.floor(Number(n) || 0);
@@ -172,12 +181,12 @@
   function registerTab(tab) { if (!tabs.some(t => t.id === tab.id)) tabs.push(tab); }
 
   // ---- Rank-gated tabs ----
-  // story/ still registers itself normally and knows nothing about
-  // this; the host screen decides what it shows. The survival sim and
-  // the story arrive together at Senior Lab Manager, because the story
-  // is about staying alive and there is nothing to stay alive from
-  // until vitals exist. See shop/ranks.js.
-  const TAB_GATE = { story: "survival" };
+  // A registered tab may name a rank feature it needs; the host screen
+  // decides what it shows, the tab itself knows nothing about this.
+  // Empty since Story was removed — kept because registerTab is a
+  // public seam any branch can still use, and a locked tab is the only
+  // sanctioned way to gate one.
+  const TAB_GATE = {};
 
   function tabOpen(t) {
     const need = TAB_GATE[t.id];
@@ -185,9 +194,8 @@
     return !Dojo.Ranks || Dojo.Ranks.hasFeature(need, DB.getXp());
   }
 
-  // A locked tab STAYS ON SCREEN wearing a padlock. Hiding it meant a
-  // player who hadn't earned it had no idea the story existed, and a
-  // reward nobody knows about isn't a reward.
+  // A locked tab STAYS ON SCREEN wearing a padlock, rather than being
+  // hidden — a reward nobody knows about isn't a reward.
 
   function fmtWait(ms) {
     // Round to whole minutes FIRST, then split — otherwise a ceil on the
@@ -201,7 +209,7 @@
   function gamesSummary() {
     const t = DB.getTickets();
     if (Dojo.LifeShop && Dojo.LifeShop.isWeak()) return Dojo.LifeShop.weakReason();
-    if (!games.length) return "Games not built yet \u00b7 Story inside";
+    if (!games.length) return "Games not built yet";
     if (!games.some(g => isUnlocked(g.id))) {
       const cheapest = Math.min(...Object.values(UNLOCK_PRICE));
       return `$${DB.getWallet()} \u00b7 unlock a game from $${cheapest}`;
@@ -214,6 +222,9 @@
   function renderGames(tab) {
     const root = document.getElementById("games-body");
     if (!root) return;
+    // Landing back on the tab list, however we got here (a tab click, a
+    // game's own close button, or backFromArcade below).
+    inGame = false;
     const active = tabs.some(t => t.id === tab) ? tab : "games";
     root.innerHTML = `
       ${tabs.length > 1 ? `<div class="tab-row">
@@ -244,7 +255,7 @@
         <div class="v-track wide" style="margin:0.7rem 0 0.4rem;"><span class="v-fill" style="width:${pct}%"></span></div>
         <div class="sw-meta">${xp} of ${at ? at.xp : "?"} XP \u00b7 ${toGo} to go</div>
         <p class="settings-hint" style="margin:0.7rem 0 0;">
-          The story, and keeping yourself fed, clean and housed, open together at
+          Keeping yourself fed, clean and housed opens at
           <strong>${at ? at.name : ""}</strong>. Until then the Arcade is just the games:
           nothing decays, you can't starve, and nobody goes through your pockets at night.
           It comes from studying \u2014 there is nothing to buy.
@@ -322,6 +333,7 @@
             }
             return;
           }
+          inGame = true;
           g.mount(body, { beginRound, settle, raise, MAX_STAKE, stakeDefault, renderGames, gameId: g.id });
         });
       }
@@ -329,9 +341,35 @@
     });
   }
 
+  // The Arcade screen's OWN topbar back button (btn-back-lobby5, wired
+  // in core/boot.js) — steps back one level at a time instead of always
+  // leaving Arcade entirely. Mid-game, that's the game list; from the
+  // game list, it's the Lobby, same as every other screen's back button.
+  function backFromArcade() {
+    if (inGame) renderGames("games");
+    else Dojo.showLobby();
+  }
+
   Dojo.Games = { register, beginRound, settle, raise, canPlay, isUnlocked, unlockGame,
                  stakeDefault, rememberStake, UNLOCK_PRICE, MAX_STAKE };
   Dojo.Arcade = Dojo.Games;
   Dojo.Arcade.registerTab = registerTab;
-  Object.assign(Dojo, { renderGames, gamesSummary });
+  Object.assign(Dojo, { renderGames, gamesSummary, backFromArcade });
+
+  // ---- Life panel ----
+  // Registered from here rather than by shop/life.js itself, because
+  // life.js loads BEFORE this file and so cannot see Arcade.registerTab
+  // at its own load time (story/ could, which is why it self-registered).
+  //
+  // This tab exists because the life panel used to be a guest on the
+  // Story tab, and Story was removed. Vitals still decay on every chunk,
+  // exam and arcade round, and isWeak() still shuts the Arcade — so
+  // without a reachable place to buy food, water and shelter, a player
+  // would eventually be locked out of the Arcade with no way back in.
+  // Gated on the same "survival" rank feature the Story tab used, so it
+  // stays hidden until the sim actually turns on.
+  if (Dojo.renderLifeTab) {
+    TAB_GATE.life = "survival";
+    registerTab({ id: "life", label: "\u{1F35C} Life", render: body => Dojo.renderLifeTab(body) });
+  }
 })();

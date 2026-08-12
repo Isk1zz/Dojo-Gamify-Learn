@@ -109,8 +109,23 @@ const DB = (() => {
     return migrateFromLegacy();
   }
 
+  // localStorage.setItem throws on quota exhaustion and in Safari's
+  // private mode. It used to be called bare, so a full disk surfaced as
+  // an unhandled exception mid-action with the write silently lost.
+  // Contract signatures (JPEG dataURLs, ~2KB each) made quota a real
+  // ceiling rather than a theoretical one. Returns false instead of
+  // throwing so a caller can react; the Bus event lets the UI warn.
   function save(db) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      return true;
+    } catch (e) {
+      console.error("[DB] save failed — storage full or unavailable.", e);
+      if (typeof Dojo !== "undefined" && Dojo.Bus) {
+        Dojo.Bus.emit("db:saveFailed", { error: String(e && e.name || e) });
+      }
+      return false;
+    }
   }
 
   function migrateFromLegacy() {
@@ -133,6 +148,33 @@ const DB = (() => {
     } catch (e) { /* ignore */ }
     save(db);
     return db;
+  }
+
+  // Fills in anything a profile is missing, from defaultProfile's shape.
+  // Migrations only add the fields they introduced, which assumes every
+  // earlier field is already present — true for a profile this app
+  // created, NOT true for an imported or hand-edited file. A profile
+  // missing `stats` used to throw on getStats() and on answering any
+  // quiz, which bricked the app until localStorage was cleared by hand.
+  // Shallow-merges the top level and the one nested object that gets
+  // read field-by-field (stats); everything else is read defensively.
+  function normalizeProfile(p) {
+    const base = defaultProfile((p && p.name) || "Student");
+    const out = { ...base, ...(p || {}) };
+    out.stats = { ...base.stats, ...((p && p.stats) || {}) };
+    if (!out.stats.topicStats || typeof out.stats.topicStats !== "object") {
+      out.stats.topicStats = {};
+    }
+    // These are read with .forEach / Object.entries and would throw on a
+    // non-object; a wrong TYPE is as bad as a missing field here.
+    if (!out.completedChunks || typeof out.completedChunks !== "object") out.completedChunks = {};
+    if (!out.reviews || typeof out.reviews !== "object") out.reviews = {};
+    if (!Array.isArray(out.completedTopics)) out.completedTopics = [];
+    if (!Array.isArray(out.inventory)) out.inventory = [];
+    if (!Array.isArray(out.ownedThemes)) out.ownedThemes = [];
+    if (!Array.isArray(out.seenQuotes)) out.seenQuotes = [];
+    if (!out.courseContracts || typeof out.courseContracts !== "object") out.courseContracts = {};
+    return out;
   }
 
   function migrate(db) {
@@ -219,6 +261,23 @@ const DB = (() => {
         if (!p.courseContracts) p.courseContracts = {};
       }
     }
+    // Backstop after the version-specific steps: any profile that is
+    // still missing a field (imported, hand-edited, or written by a
+    // version this build has never heard of) gets healed here rather
+    // than throwing somewhere far away at read time.
+    if (db.profiles && typeof db.profiles === "object") {
+      for (const id of Object.keys(db.profiles)) {
+        db.profiles[id] = normalizeProfile(db.profiles[id]);
+      }
+    } else {
+      db.profiles = {};
+    }
+    // An activeProfileId pointing at a profile that isn't there leaves
+    // the app in a half-loaded state — no active profile, but not the
+    // clean "no profile yet" path either.
+    if (db.activeProfileId && !db.profiles[db.activeProfileId]) {
+      db.activeProfileId = Object.keys(db.profiles)[0] || null;
+    }
     db.version = DB_VERSION;
     save(db);
     return db;
@@ -239,12 +298,43 @@ const DB = (() => {
     return { id: db.activeProfileId, ...db.profiles[db.activeProfileId] };
   }
 
+  // ---- Secret admin profile ----
+  // Creating a profile with this exact name (case-insensitive) starts it
+  // already fully stocked. Replaces the old `adminaccount` cheat code
+  // by explicit request: codes.js never ships to production (see
+  // docs/CHEATCODES.md — it's gitignored on purpose), so there was no
+  // way to reach it on the deployed site. A secret profile NAME ships
+  // fine, the same way the code string did — nobody types it by
+  // accident, and it needs no visible "Codes" UI at all.
+  const SECRET_ADMIN_NAME = "adminaccount";
+
+  function applyAdminStart(profileId) {
+    const db = load();
+    const p = db.profiles[profileId];
+    if (!p) return;
+    const topics = (typeof ALL_TOPICS !== "undefined" ? ALL_TOPICS : []);
+    const doneTopics = new Set(p.completedTopics || []);
+    topics.forEach(t => {
+      doneTopics.add(t.id);
+      if (!p.completedChunks[t.id]) p.completedChunks[t.id] = [];
+      t.chunks.forEach((c, idx) => {
+        if (!p.completedChunks[t.id].includes(idx)) p.completedChunks[t.id].push(idx);
+      });
+    });
+    p.completedTopics = [...doneTopics];
+    p.tickets = TICKET_MAX;
+    p.ticketsUpdatedAt = new Date().toISOString();
+    p.wallet = 50000;
+    save(db);
+  }
+
   function createProfile(name) {
     const db = load();
     const id = generateId();
     db.profiles[id] = defaultProfile(name);
     db.activeProfileId = id;
     save(db);
+    if ((name || "").trim().toLowerCase() === SECRET_ADMIN_NAME) applyAdminStart(id);
     return id;
   }
 
@@ -878,60 +968,14 @@ const DB = (() => {
     save(db);
   }
 
-  // ---- Story ----
-  function getStoryProgress() {
-    const p = getActiveProfile();
-    const sp = (p && p.storyProgress) || {};
-    return {
-      unlockedNodes: [...(sp.unlockedNodes || ["act1_node1"])],
-      completedNodes: [...(sp.completedNodes || [])],
-      attempts: { ...(sp.attempts || {}) },
-      flags: [...(sp.flags || [])]
-    };
-  }
-
-  // Records that a scene was played, win or lose. `tries` is what lets
-  // the story know a node was failed rather than never opened.
-  function recordNodeAttempt(nodeId, outcome) {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return;
-    p.storyProgress = p.storyProgress || { unlockedNodes: [], completedNodes: [], attempts: {}, flags: [] };
-    p.storyProgress.attempts = p.storyProgress.attempts || {};
-    const rec = p.storyProgress.attempts[nodeId] || { tries: 0, lastOutcome: null };
-    rec.tries += 1;
-    rec.lastOutcome = outcome || null;
-    p.storyProgress.attempts[nodeId] = rec;
-    save(db);
-  }
-
-  function addStoryFlag(flag) {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return;
-    p.storyProgress = p.storyProgress || { unlockedNodes: [], completedNodes: [], attempts: {}, flags: [] };
-    p.storyProgress.flags = p.storyProgress.flags || [];
-    if (!p.storyProgress.flags.includes(flag)) p.storyProgress.flags.push(flag);
-    save(db);
-  }
-
-  function unlockNode(nodeId) {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return;
-    p.storyProgress = p.storyProgress || { unlockedNodes: [], completedNodes: [] };
-    if (!p.storyProgress.unlockedNodes.includes(nodeId)) p.storyProgress.unlockedNodes.push(nodeId);
-    save(db);
-  }
-
-  function completeNode(nodeId) {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return;
-    p.storyProgress = p.storyProgress || { unlockedNodes: [], completedNodes: [] };
-    if (!p.storyProgress.completedNodes.includes(nodeId)) p.storyProgress.completedNodes.push(nodeId);
-    save(db);
-  }
+  // ---- Story: removed ----
+  // The Story branch was cut (see BACKLOG.md). Its DB API
+  // (getStoryProgress / recordNodeAttempt / addStoryFlag / unlockNode /
+  // completeNode) went with it — nothing called them once story/ was
+  // gone. The storyProgress FIELD is deliberately still written by
+  // defaultProfile and preserved by migrations: this file never drops a
+  // field, so an existing profile keeps its narrative history intact in
+  // case the branch ever comes back.
 
   // ---- Admin ----
   // Marks every topic complete. Used by the settings cheat code so a
@@ -968,12 +1012,33 @@ const DB = (() => {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const db = JSON.parse(e.target.result);
-          if (!db.profiles || typeof db.profiles !== 'object') {
-            reject(new Error('Invalid database file'));
+          const incoming = JSON.parse(e.target.result);
+          if (!incoming || typeof incoming !== "object" ||
+              !incoming.profiles || typeof incoming.profiles !== "object" ||
+              Array.isArray(incoming.profiles)) {
+            reject(new Error("Invalid database file — no profiles found."));
             return;
           }
-          save(db);
+          if (!Object.keys(incoming.profiles).length) {
+            reject(new Error("That backup contains no profiles."));
+            return;
+          }
+          // A file from a NEWER build can hold fields this version has no
+          // migration for. Importing it used to stamp it as the current
+          // version and silently drop whatever it didn't understand —
+          // refusing is the honest outcome.
+          const v = Number(incoming.version);
+          if (Number.isFinite(v) && v > DB_VERSION) {
+            reject(new Error(`That backup is from a newer version (v${v}); this build understands up to v${DB_VERSION}.`));
+            return;
+          }
+          // Anything without a usable version is treated as oldest-known
+          // so every migration step runs, rather than being assumed current.
+          if (!Number.isFinite(v)) incoming.version = 1;
+          // migrate() normalizes every profile and repairs activeProfileId,
+          // then saves. Import goes through the same door a normal load
+          // does instead of writing unvalidated JSON straight to storage.
+          const db = migrate(incoming);
           resolve(db);
         } catch (err) {
           reject(err);
@@ -1033,11 +1098,6 @@ const DB = (() => {
     patchVitals,
     getLastVitalTick,
     setLastVitalTick,
-    getStoryProgress,
-    unlockNode,
-    completeNode,
-    recordNodeAttempt,
-    addStoryFlag,
     unlockAllTopics,
     constants: () => ({ TICKET_MAX }),
     getTheme,

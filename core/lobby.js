@@ -73,7 +73,6 @@
     tile("btn-lobby-garden", "lobby-garden-sub", gardenSummary());
     tile("btn-lobby-shop",   "lobby-shop-sub",   shopSummary());
     tile("btn-lobby-games",  "lobby-games-sub",  Dojo.gamesSummary ? Dojo.gamesSummary() : null);
-    // Story shares the Arcade screen as a tab — no tile of its own.
 
     renderCharge();
     if (Dojo.renderStreak) Dojo.renderStreak();

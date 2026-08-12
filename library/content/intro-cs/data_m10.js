@@ -49,6 +49,11 @@ const MODULE_10 = {
       chunks: [
         {
           title: "What a Computer System Is",
+          glossary: [
+            { term: "Computer system", definition: "An electronic device that accepts data as input, processes it according to stored instructions, and produces output." },
+            { term: "Data", definition: "Raw, unprocessed facts with no context attached yet." },
+            { term: "Information", definition: "Data that has been processed, organized, or given context so it becomes meaningful." }
+          ],
           predict: {
             question: "A pocket calculator can add, subtract, and display results. A smartphone can do all of that too, plus run apps, browse the web, and be reprogrammed for entirely new tasks. Are both equally 'computers' in the formal sense?",
             options: [
@@ -105,6 +110,11 @@ const MODULE_10 = {
 
         {
           title: "Classifying Computers by Size and Power",
+          glossary: [
+            { term: "Supercomputer", definition: "The most powerful class of computer, built for massive parallel scientific calculation." },
+            { term: "Mainframe", definition: "A large computer built for high reliability and many simultaneous users, not raw speed." },
+            { term: "Microcomputer", definition: "The smallest computer class — desktops, laptops, and smartphones." }
+          ],
           explain: {
             blocks: [
               { text: `Computers are commonly classified by their processing power, physical size, and typical use: supercomputers (the most powerful, used for massive scientific calculations), mainframes (large systems supporting many simultaneous users, common in banking and large institutions), minicomputers (mid-range, once common as departmental servers), and microcomputers (the smallest class, including desktop PCs, laptops, and smartphones).` },
@@ -151,6 +161,11 @@ const MODULE_10 = {
 
         {
           title: "General-Purpose vs. Special-Purpose Computers",
+          glossary: [
+            { term: "General-purpose computer", definition: "A computer designed to be reprogrammed for a wide range of different tasks." },
+            { term: "Special-purpose computer", definition: "A computer built and permanently configured to perform one specific function." },
+            { term: "Embedded system", definition: "A special-purpose computer built into a larger device to run one dedicated job." }
+          ],
           explain: {
             blocks: [
               { text: `Beyond size and power, computers are also classified by purpose. A general-purpose computer is designed to be reprogrammed for a wide range of different tasks — word processing today, video editing tomorrow. A special-purpose computer is built and permanently configured to perform one specific function extremely well, and is not intended to be reprogrammed for other tasks.` },
@@ -258,6 +273,9 @@ const MODULE_10 = {
       chunks: [
         {
           title: "The Stored-Program Concept",
+          glossary: [
+            { term: "Stored-program concept", definition: "The idea that a computer's instructions and data are both held in the same memory, in the same form, so instructions can be loaded and changed like any other data." }
+          ],
           predict: {
             question: "Before the stored-program concept, some early computers had to be physically rewired — swapping cables and switches — to run a different program. Why was this such a fundamental limitation compared to modern computers?",
             options: [
@@ -314,6 +332,12 @@ const MODULE_10 = {
 
         {
           title: "The Four Core Components",
+          glossary: [
+            { term: "CPU (Central Processing Unit)", definition: "The component that carries out a program's instructions." },
+            { term: "Control unit", definition: "The part of the CPU that fetches and directs execution of each instruction in sequence." },
+            { term: "ALU (Arithmetic Logic Unit)", definition: "The part of the CPU that performs calculations." },
+            { term: "Fetch-decode-execute cycle", definition: "The repeating process of retrieving an instruction from memory, determining its operation, and carrying it out." }
+          ],
           explain: {
             blocks: [
               { text: `The Von Neumann architecture organizes a computer around four core components: the Central Processing Unit (CPU), which carries out instructions; memory, which holds both instructions and data; input/output devices, which move information in and out of the system; and a control unit (often described as part of the CPU), which directs the fetching and execution of each instruction in sequence.` },
@@ -360,6 +384,10 @@ const MODULE_10 = {
 
         {
           title: "The Von Neumann Bottleneck",
+          glossary: [
+            { term: "Von Neumann bottleneck", definition: "The performance limit caused by instructions and data sharing one memory connection the CPU can access only one at a time." },
+            { term: "Cache memory", definition: "Small, extremely fast memory located close to the CPU, holding recently-used instructions and data to reduce the bottleneck's impact." }
+          ],
           explain: {
             blocks: [
               { text: `Because the Von Neumann architecture stores both instructions and data in the same shared memory, and the CPU can typically only fetch one thing across that connection at a time, the speed at which data can move between memory and the CPU becomes a hard limit on overall performance — even if the CPU itself could theoretically process much faster. This limitation is known as the Von Neumann bottleneck.` },
@@ -467,6 +495,12 @@ const MODULE_10 = {
       chunks: [
         {
           title: "RAM vs. ROM: Volatile and Non-Volatile Memory",
+          glossary: [
+            { term: "RAM (Random Access Memory)", definition: "The computer's volatile working memory; loses its contents when power is removed." },
+            { term: "ROM (Read-Only Memory)", definition: "Non-volatile memory that retains its contents without power, typically holding startup instructions." },
+            { term: "Volatile", definition: "Requires continuous power to hold its contents." },
+            { term: "Non-volatile", definition: "Retains its contents without power." }
+          ],
           predict: {
             question: "If a computer suddenly loses power while you're editing an unsaved document, the document is gone. But the computer's built-in startup instructions (the ones that run every time you power it on) are intact even after power loss. Why the difference?",
             options: [
@@ -523,6 +557,11 @@ const MODULE_10 = {
 
         {
           title: "Units of Memory Measurement",
+          glossary: [
+            { term: "Bit", definition: "A single binary digit, 0 or 1 — the smallest unit of data." },
+            { term: "Byte", definition: "A group of 8 bits, typically enough to represent one character." },
+            { term: "Kilobyte / Megabyte / Gigabyte / Terabyte", definition: "Successive scale-ups from a byte, each roughly 1,000x (technically 1,024x) the last." }
+          ],
           explain: {
             blocks: [
               { text: `Computer memory and storage are measured in units built on the bit — a single binary digit, 0 or 1. Eight bits make one byte, which is typically enough to represent one character of text. From there, units scale up by roughly a thousand at each step: kilobyte (KB), megabyte (MB), gigabyte (GB), terabyte (TB), and beyond.` },
@@ -569,6 +608,10 @@ const MODULE_10 = {
 
         {
           title: "DASD vs. SASD: Direct vs. Sequential Access Storage",
+          glossary: [
+            { term: "DASD (Direct Access Storage Device)", definition: "Storage (like a hard disk or SSD) that can reach any location in roughly constant time." },
+            { term: "SASD (Sequential Access Storage Device)", definition: "Storage (like magnetic tape) that must be read in order from the start to reach a given point." }
+          ],
           explain: {
             blocks: [
               { text: `Secondary storage devices are classified by how they access data. A Direct Access Storage Device (DASD) — like a hard disk or SSD — can jump straight to any stored location in roughly constant time, regardless of where on the device that data physically sits. A Sequential Access Storage Device (SASD) — like magnetic tape — can only be read in order, from the beginning, to reach a specific point.` },
@@ -676,6 +719,11 @@ const MODULE_10 = {
       chunks: [
         {
           title: "Hardware vs. Software: What's the Actual Difference",
+          glossary: [
+            { term: "Hardware", definition: "The physical, tangible components of a computer system." },
+            { term: "Software", definition: "The set of instructions that tells hardware what to do." },
+            { term: "Firmware", definition: "Software permanently stored on a hardware chip, controlling a device's most basic behavior." }
+          ],
           predict: {
             question: "A customer complains their computer is 'broken' because a program keeps crashing, but the computer boots fine and all other programs run normally. Is this necessarily a hardware problem?",
             options: [
@@ -732,6 +780,10 @@ const MODULE_10 = {
 
         {
           title: "System Software: The Coordinator",
+          glossary: [
+            { term: "System software", definition: "Software that coordinates all activity in a computer system — interpreting commands, managing programs, interfacing hardware." },
+            { term: "Operating system", definition: "The primary example of system software; the platform every application runs on top of." }
+          ],
           explain: {
             blocks: [
               { text: `System software is the category of software responsible for coordinating all activities within a computer system, sitting between the user and the raw hardware. It receives and interprets user commands (translating between human instructions and machine language), runs and stores application programs as directed, retrieves stored programs on request, and creates the interface between peripheral devices and the CPU.` },
@@ -778,6 +830,10 @@ const MODULE_10 = {
 
         {
           title: "Application Software and Embedded Software",
+          glossary: [
+            { term: "Application software", definition: "Software written to help a user accomplish a specific task (word processing, browsing, games)." },
+            { term: "Embedded software", definition: "Software written to run on one dedicated special-purpose device, with little or no general-purpose OS underneath." }
+          ],
           explain: {
             blocks: [
               { text: `Application software is software written to help a user accomplish a specific task — word processing, spreadsheets, web browsers, games — and runs on top of system software rather than interacting with hardware directly. Embedded software is written to run on a dedicated, special-purpose device as part of a larger physical product, permanently built in and generally not intended to be replaced or reprogrammed by the end user.` },
