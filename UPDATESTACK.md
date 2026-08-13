@@ -67,7 +67,42 @@ separate, deliberately-cheaper "free tier with friction" product, not
 a like-for-like substitute.** Flagging this now so the numbers below
 aren't read as "this replaces buying the course," which they don't.
 
-**Ads-per-unit, scaled 1-3 "proportional to value" as asked:**
+**Updated 2026-08-13, per your follow-up:** Token rewards on this path
+are now **removed entirely (0)**, not halved as first proposed — see
+the rewards line below. You also asked for the ad count that would
+make this **actually 1:1 with the Token price**, not the "1 to 3 per
+unit, ~15 total" number above (which was scoped as low-friction, not
+revenue-matched). Here it is:
+
+**True 1:1 ad count (matches the $4.99 real-money value of 250 Tokens
+at the cheapest pack's rate, 350 Tokens/$6.99):**
+
+| Rewarded-video rate | Total ads for the WHOLE course | Avg per unit (÷8) |
+|---|---|---|
+| $0.02/view (high end) | **~250 ads** | ~31/unit |
+| $0.01/view (working estimate) | **~499 ads** | ~62/unit |
+| $0.005/view (low end) | **~998 ads** | ~125/unit |
+
+Distributed with the same 1:2:3 tiering as the low-friction table below
+(units 1-3 : 4-6 : 7-8 = 1 : 2 : 3 shares each), the $0.01/view middle
+estimate splits to roughly **~33 ads on units 1-3, ~67 on units 4-6,
+~100 on units 7-8** per unit — scale those up ~2x at the low end or
+down ~2x at the high end.
+
+**Saying this plainly rather than just handing over the number:**
+these are 30-125x the "1 to 3 ads" figure from the low-friction design
+above. At the per-unit-gate touchpoint (ads only shown between units,
+8 gates total), hitting true revenue parity means tens to ~100 ads at
+a single gate, which is not a screen anyone sits through — it would
+only be remotely tolerable if spread across many more/smaller
+touchpoints (e.g. a couple ads per CHUNK instead of per unit, over the
+course's ~150 chunks) rather than 8 big tolls. Flagging this as the
+real tradeoff: **cheap-per-touchpoint (1-3/unit) and revenue-matched
+(1:1) are not both achievable with 8 gates** — pick which one this
+feature is actually for before building either version.
+
+**Ads-per-unit, scaled 1-3 "proportional to value" (the low-friction
+version, NOT revenue-matched — see the 1:1 numbers above for that):**
 Two ways to define "value" per unit — pick one before building:
 
 | Unit | Topics | Tiered-by-position (simple) | Chunk-count-weighted (closer to actual content) |
@@ -115,20 +150,27 @@ Two ways to define "value" per unit — pick one before building:
 - **Anti-skip penalty**: closing/skipping an ad before it completes
   adds **+1 ad owed** next time (a debt, not a retry of the same ad) —
   matches what you asked ("наебал и закрыл — вернётся с долгом на +1").
-- **Token rewards halved** on this path specifically — `COURSE_TOKEN_REWARD`
-  (10) and the `UNIT_TOKEN_REWARD` table (units 3/5, currently 4/8) would
-  need an ad-rental variant paying half. Money and XP rewards NOT
-  mentioned as halved in the request — left full-rate here; **confirm
-  that's intentional** (Tokens are the "you'd normally pay real money
-  for this" currency, so only dampening that one makes sense to me,
-  but flagging since it wasn't explicit either way).
+- **Token rewards cut entirely (0) on this path** — updated per your
+  2026-08-13 follow-up (first pass had proposed halving; now removed
+  outright). `COURSE_TOKEN_REWARD` (10) and the `UNIT_TOKEN_REWARD`
+  table (units 3/5, currently 4/8) would need an ad-rental variant that
+  pays 0 Tokens specifically, while still paying its normal money/XP —
+  makes sense as a rule: Tokens are the "you'd otherwise pay real money
+  for this" currency, and this path already avoids that payment, so it
+  shouldn't also farm the currency that stands in for it. Money and XP
+  rewards still untouched/full-rate, not mentioned as cut.
 
 **Not decided, needs you before this becomes buildable:**
-1. Tiered-by-position vs chunk-weighted ad counts (recommend tiered).
-2. Whether to port `admin/logger.js` in for the logging requirement, or
+1. Which version this feature is actually for — low-friction (1-3
+   ads/unit, ~15 total, NOT revenue-matched) or true 1:1 revenue parity
+   (~250-1000 ads course-wide, tens to ~100 per unit-gate) — see above,
+   these are not compatible with the same 8-unit-gate design.
+2. If 1:1 parity is the goal: whether to move off "ads only between
+   units" toward more/smaller touchpoints (e.g. per chunk) so the count
+   per screen stays tolerable.
+3. Whether to port `admin/logger.js` in for the logging requirement, or
    build ad-logging fresh.
-3. Contract copy (serious version) — not drafted.
-4. Confirm money/XP rewards stay full-rate, only Tokens halve.
+4. Contract copy (serious version) — not drafted.
 
 ## Live bug reports — resolved since last check-in
 - **"Quotes stopped showing up after a unit"** — traced to the review
