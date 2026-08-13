@@ -1,5 +1,19 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 28 — Final Quiz button moved to the bottom of the unit list
+
+- [x] **Final Quiz entry moved from right-after-"Build a Custom Deck"
+      to the bottom of the unit list**, in both List and Map view. It
+      used to render before the units existed at all — now
+      `renderUnitSelect`'s list branch appends it after the unit grid,
+      and the map branch appends it after `renderUnitRoadmap` runs,
+      both via one shared `addFinalQuizEntry()` closure so the two
+      views can't drift out of sync with each other. Still never
+      locked (no hard locks — PROJECT.md §5), just positioned as "after
+      you've worked through the units" instead of competing with them
+      up top. Verified live in both views: Final Quiz renders last,
+      below all 8 units.
+
 ## Batch 27 — Token pack repricing + bonus badges
 
 - [x] **Pack amounts changed to 350/6.99, 654/11.99, 1234/20.99,

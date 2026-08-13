@@ -17,8 +17,6 @@ you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 - Lock the Final Quiz until all topics AND all units are passed. Note:
   this reverses the "no hard locks" call the Final Quiz was just built
   under — confirm before building.
-- Move the Final Quiz entry button from the top to the bottom of the
-  unit-select list (currently listed first).
 
 ## Blocked on the backend (Supabase — assigned, nothing built)
 - Career weekly XP ladder.

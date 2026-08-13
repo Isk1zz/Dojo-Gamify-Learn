@@ -244,11 +244,15 @@
     deckBtn.addEventListener("click", openDeckBuilder);
     body.appendChild(deckBtn);
 
-    // Cumulative Final Quiz — same "right next to the unit picker, not
-    // buried" placement as the deck builder above. Never locked (no
-    // hard locks — PROJECT.md §5), just an honest nudge via the
-    // subtitle if it hasn't been attempted or the course isn't done yet.
-    if (typeof FINAL_QUIZ_QUESTIONS !== "undefined" && FINAL_QUIZ_QUESTIONS.length) {
+    // Cumulative Final Quiz — sits at the BOTTOM of the unit list now
+    // (below units, either view), not right next to the unit picker —
+    // moved there on request so it reads as "after you've worked
+    // through the units" rather than competing with them for the first
+    // thing you see. Never locked (no hard locks — PROJECT.md §5), just
+    // an honest nudge via the subtitle if it hasn't been attempted or
+    // the course isn't done yet.
+    const addFinalQuizEntry = () => {
+      if (typeof FINAL_QUIZ_QUESTIONS === "undefined" || !FINAL_QUIZ_QUESTIONS.length) return;
       const allDone = unitsToShow.every(u => UNIT_TOPICS[u.id].every(t => completedTopics.has(t.id)));
       const fq = DB.getFinalQuiz();
       const sub = fq.attempts
@@ -260,10 +264,11 @@
       quizBtn.innerHTML = `\u{1F393} Final Quiz <span class="deck-builder-entry-sub">${sub}</span>`;
       quizBtn.addEventListener("click", startFinalQuiz);
       body.appendChild(quizBtn);
-    }
+    };
 
     if (state.unitMapView === "map") {
       renderUnitRoadmap(unitsToShow, body, completedTopics);
+      addFinalQuizEntry();
       updateProfileBadge();
       return;
     }
@@ -305,6 +310,7 @@
     });
 
     body.appendChild(grid);
+    addFinalQuizEntry();
     updateProfileBadge();
   }
 
