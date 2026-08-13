@@ -45,7 +45,7 @@
     { id: "medium", tokens: 654,  price: 11.99, priceLabel: "$11.99" },
     { id: "large",  tokens: 1234, price: 20.99, priceLabel: "$20.99" },
     { id: "bigger", tokens: 2345, price: 37.99, priceLabel: "$37.99" },
-    { id: "best",   tokens: 4987, price: 67.99, priceLabel: "$67.99" }
+    { id: "best",   tokens: 5000, price: 67.99, priceLabel: "$67.99" }
   ];
 
   // Bonus % vs. the smallest pack's tokens-per-dollar rate — the

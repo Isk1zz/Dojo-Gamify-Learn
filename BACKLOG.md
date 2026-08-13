@@ -3,14 +3,14 @@
 ## Batch 27 — Token pack repricing + bonus badges
 
 - [x] **Pack amounts changed to 350/6.99, 654/11.99, 1234/20.99,
-      2345/37.99, 4987/67.99.** The requested numbers included 6543 for
+      2345/37.99, 5000/67.99.** The requested numbers included 6543 for
       the $11.99 pack, which at 545.7 tokens/$ was 9x better value than
       every other pack including the $67.99 one — flagged before
       building (would've made the bigger packs pointless purchases),
       confirmed 654 instead, which fits the same scaling curve the
       other four numbers already formed.
 - [x] **Bonus badge added to each pack card** — a green corner pill
-      ("+9%", "+17%", "+23%", "+46%") showing tokens-per-dollar gained
+      ("+9%", "+17%", "+23%", "+47%") showing tokens-per-dollar gained
       vs. the smallest pack, so the value curve is visible, not just
       implied by the numbers. Computed from the real `tokens`/`price`
       on each pack (`bonusPct()` in `shop/tokens.js`), not hand-typed,
