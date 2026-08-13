@@ -35,6 +35,7 @@
       actionsEl.classList.toggle("lobby-style-cards", style === "cards");
       actionsEl.classList.toggle("lobby-style-star", style === "star");
     }
+    paintWind(style === "star");
 
     // Streak now lives as a persistent top-right badge (core/hud.js's
     // renderStreak), not a lobby-only line — it needs to be visible from
@@ -80,6 +81,40 @@
     if (Dojo.renderVitals) Dojo.renderVitals();
     showScreen("lobby");
     layoutLobbyRadial(style);
+  }
+
+  // ---- Wind + windmill (Star topology only) ----
+  // Purely decorative, added just for the fun of it — no game state
+  // reads or writes anything here. Seeded off the calendar day rather
+  // than Math.random() so it holds still within a visit (and across a
+  // re-render) instead of jittering, but still changes day to day
+  // rather than being a fixed number forever.
+  function windReading() {
+    const day = Math.floor(Date.now() / 86400000);
+    const seed = (day * 9301 + 49297) % 233280;
+    const speed = 4 + Math.round((seed / 233280) * 22); // 4-26 mph
+    const dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+    const dir = dirs[Math.floor(seed / 37) % dirs.length];
+    return { speed, dir };
+  }
+
+  function paintWind(active) {
+    const windEl = document.getElementById("lobby-wind");
+    const millEl = document.getElementById("lobby-windmill");
+    if (!active) {
+      if (windEl) windEl.style.display = "none";
+      return;
+    }
+    const w = windReading();
+    if (windEl) {
+      windEl.textContent = `\u{1F4A8} ${w.speed} mph ${w.dir}`;
+      windEl.style.display = "block";
+    }
+    // Faster wind spins the blades faster — 30/speed keeps the range
+    // sane (roughly 1.2s-7.5s per rotation across the 4-26 mph span)
+    // rather than a literal mph-to-seconds mapping, which isn't a real
+    // physical relationship anyway.
+    if (millEl) millEl.style.setProperty("--wm-speed", `${Math.max(1.2, 30 / w.speed).toFixed(1)}s`);
   }
 
   // Star's own tile order — Career/Garden and Settings/Arcade sit

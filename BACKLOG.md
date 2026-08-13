@@ -1,5 +1,28 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 17 — Star topology: wind + windmill (fun, no game state)
+
+- [x] **Wind speed/direction + spinning windmill, Star lobby only** —
+      requested "just for the fun sake." Purely decorative, reads and
+      writes no game state:
+      - `core/lobby.js`'s new `windReading()` derives a speed (4-26 mph)
+        and 8-point compass direction from the calendar day (not
+        `Math.random()`) — holds still within a visit/re-render, changes
+        day to day rather than being fixed forever or jittering.
+      - A small `💨 N mph DIR` badge (`#lobby-wind`) shows above the ring,
+        Star mode only.
+      - Four blade `<span>`s behind the hub (`#lobby-windmill`,
+        `pointer-events: none` so the hub button underneath still works)
+        spin via a CSS `@keyframes windmillSpin`, duration driven by
+        `--wm-speed` — faster wind spins faster (roughly 1.2s-7.5s per
+        rotation across the mph range; `30/speed`, not a real physical
+        formula, just tuned to feel right).
+      - Hidden entirely outside Star (`display: none` default, same
+        pattern the hub/spoke-lines already use).
+      Verified live: badge and spin both render in Star, computed
+      `animation-name`/`duration` confirmed non-default, both elements
+      confirmed `display: none` back in Classic.
+
 ## Batch 16 — adminaccount didn't grant rank or rank rewards
 
 - [x] **Bug: `adminaccount` unlocked courses/wallet/tickets but never
