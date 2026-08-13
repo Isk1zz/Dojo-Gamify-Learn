@@ -1,5 +1,17 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 37 — "Sources & further reading" visual polish
+
+- [x] **Fixed the sources box crowding the phase button below it** —
+      reported live as "sits on top of See Example." Not a literal
+      overlap, but close to one: only a top margin on the box, nothing
+      pushing space underneath, so a plain low-contrast box sat almost
+      flush against the bold gradient button right after it. Added
+      real bottom margin, an accent-colored left edge so the box reads
+      as its own distinct block, and a bolder label (accent-colored
+      when open) instead of a barely-there footnote. Verified live in
+      both collapsed and open states.
+
 ## Batch 36 — XP economy rebalance: review pay fixed, ladder + course XP scaled up
 
 - [x] **Root cause of "way too poor" traced and fixed, not just the

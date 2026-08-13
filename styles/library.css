@@ -684,26 +684,41 @@
 }
 .chunk-subhead:first-child { margin-top: 0; }
 
+/* Used to sit almost flush against the "See Example"/"See the
+   explanation" button right below it (margin-top only, nothing
+   pushing space underneath) — a plain, low-contrast box directly
+   above a bold gradient button read as one cramped stack rather than
+   two distinct things. Reported live as "sits on top of See Example."
+   Now: real breathing room below, an accent-colored left edge so it
+   reads as its own distinct block rather than a stray footnote, and a
+   bolder label that still stays visually quieter than actual chunk
+   content. */
 .sources-box {
-  margin-top: 1.5rem;
+  margin: 1.5rem 0 1.75rem;
   border: 1px solid rgba(255, 255, 255, 0.09);
+  border-left: 3px solid var(--border-accent);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.025);
   overflow: hidden;
+  transition: border-color 0.15s ease;
 }
+.sources-box:hover { border-left-color: var(--accent); }
 .sources-label {
   cursor: pointer;
-  padding: 0.75rem 1rem;
-  font-size: 0.82rem;
-  font-weight: 600;
+  display: flex; align-items: center; gap: 0.45rem;
+  padding: 0.85rem 1.1rem;
+  font-size: 0.84rem;
+  font-weight: 700;
   letter-spacing: 0.02em;
-  opacity: 0.72;
+  color: var(--text-dim);
   list-style: none;
   user-select: none;
+  transition: color 0.15s ease;
 }
 .sources-label::-webkit-details-marker { display: none; }
-.sources-label:hover { opacity: 1; }
+.sources-label:hover { color: var(--text); }
 .sources-box[open] .sources-label {
+  color: var(--accent-light);
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 .sources-list {
