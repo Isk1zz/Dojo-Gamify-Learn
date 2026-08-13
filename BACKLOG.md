@@ -1,5 +1,36 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 14 — Admin code reachable without a new profile
+
+- [x] **Bug: `adminaccount` unreachable once a profile already exists.**
+      Reported live: "As it doesn't ask the name I can't use
+      adminaccount." The secret-profile-name mechanism (Batch 3) only
+      ever checked the name at `createProfile` time — the welcome modal
+      that asks for a name only appears with zero profiles, so it was a
+      one-shot opportunity on a device's very first launch. Every other
+      session had no way to reach it at all.
+
+      Fixed by giving the same secret a second, always-available front
+      door: `data/db.js`'s new `applyAdminCode(input)` does the identical
+      `SECRET_ADMIN_NAME` match and applies to whichever profile is
+      **currently active** — no new profile needed. Settings' "Unlock
+      code" box, previously hidden entirely unless the gitignored
+      `settings/codes.js` happened to be present locally, is now
+      **always visible** and checks this first-class committed function
+      as a fallback after any local dev codes. Both paths are the same
+      check in the same committed file — this isn't a revival of the old
+      `codes.js` system, just a second caller into it.
+      `docs/CHEATCODES.md` rewritten to document both entry points.
+      Verified live: a second profile that never saw the welcome modal
+      typed the code in Settings and came back fully unlocked ($50,000,
+      tickets full, name confirmed unchanged).
+- [x] **Bug (duplicate report): Star lobby topology "misplaced."**
+      Already fixed and pushed last turn (`b9e0dfc`) — the overlapping
+      Flashcards circle on top of the hub. Re-verified live this turn,
+      confirmed clean (single small hub circle, no overlap). If still
+      visible on your end, it's a stale cached build — a hard refresh
+      should clear it.
+
 ## Batch 13 — Shop profile customization, Star topology fix, checkmark sizing
 
 - [x] **Shop: profile customization + avatar/badge "slots"**, the item

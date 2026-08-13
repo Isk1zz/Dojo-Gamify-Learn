@@ -158,18 +158,16 @@
           <span>Show hints</span>
         </label>
       </div>
-      ${window.DOJO_CODES ? `
       <div class="settings-section">
         <div class="stats-section-title">\u{1F511} Unlock code</div>
-        <p class="settings-hint">For testing and demos. The full list is in
-        <code>docs/CHEATCODES.md</code>.</p>
+        <p class="settings-hint">See <code>docs/CHEATCODES.md</code>.</p>
         <div class="admin-row">
           <input id="admin-code-input" class="modal-input admin-input" type="text"
                  placeholder="Enter code..." autocomplete="off" spellcheck="false" />
           <button id="btn-admin-apply" class="btn-ghost">Apply</button>
         </div>
         <div id="admin-msg" class="settings-hint" style="margin-top:0.5rem;"></div>
-      </div>` : ""}
+      </div>
       <div class="settings-section">
         <div class="stats-section-title">\u{1F4C4} Legal</div>
         <details class="legal-block">
@@ -304,14 +302,28 @@
     const codeInput = document.getElementById("admin-code-input");
     const msg = document.getElementById("admin-msg");
     function applyCode() {
-      if (!CODES) return;
       const val = (codeInput.value || "").trim();
-      const fn = CODES[val];
-      if (!fn) { msg.textContent = "Not a valid code."; return; }
-      const result = fn();
-      codeInput.value = "";
-      msg.textContent = result;
-      if (Dojo.renderVitals) Dojo.renderVitals();
+      // Local dev codes (settings/codes.js) first — gitignored, so this
+      // is `null` on the deployed site and the branch never runs there.
+      const fn = CODES ? CODES[val] : null;
+      if (fn) {
+        const result = fn();
+        codeInput.value = "";
+        msg.textContent = result;
+        if (Dojo.renderVitals) Dojo.renderVitals();
+        return;
+      }
+      // The one code that ships everywhere — see data/db.js's
+      // applyAdminCode. Checked second so a local dev code with the
+      // same text (there isn't one, but if there ever were) still wins.
+      if (DB.applyAdminCode(val)) {
+        codeInput.value = "";
+        msg.textContent = "Admin start applied — unlocked, tickets full, wallet at $50,000.";
+        if (Dojo.renderVitals) Dojo.renderVitals();
+        if (Dojo.updateProfileBadge) Dojo.updateProfileBadge();
+        return;
+      }
+      msg.textContent = "Not a valid code.";
     }
     if (applyBtn) applyBtn.addEventListener("click", applyCode);
     if (codeInput) codeInput.addEventListener("keydown", e => { if (e.key === "Enter") applyCode(); });

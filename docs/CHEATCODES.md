@@ -1,23 +1,32 @@
 # Admin access
 
-## The secret profile name
+The secret is the string **`adminaccount`** (case-insensitive). Two ways
+to use it — same effect either way: every course, unit, topic and chunk
+unlocked (flashcards included), tickets refilled, wallet set to exactly
+$50,000, applied to whichever profile ends up active.
 
-Create a profile named **`adminaccount`** (case-insensitive) in the welcome
-modal, and it starts already fully stocked: every course, unit, topic and
-chunk unlocked (flashcards included), tickets refilled, wallet set to
-exactly $50,000.
+## 1. As a profile name (at creation only)
 
-This works on the **deployed site**, not just locally — see below for why
-that matters and why it isn't a settings-panel toggle instead.
-
-Implementation: `data/db.js`'s `createProfile` checks the name against
+Create a profile named `adminaccount` in the welcome modal.
+`data/db.js`'s `createProfile` checks the name against
 `SECRET_ADMIN_NAME` and, on a match, calls `applyAdminStart` once, at
-creation. It doesn't keep re-applying on every load — spend the money,
-play normally, it behaves like any other profile from then on.
+creation. Only reachable from the "new profile" screen — no use once a
+profile already exists, which is every session after the first.
+
+## 2. As a typed code in Settings (works any time)
+
+Added because of exactly that gap — reported live: "As it doesn't ask
+the name I can't use adminaccount." Settings' "Unlock code" box (always
+visible now, not gated behind anything) checks the typed text against
+`DB.applyAdminCode(input)`, which does the same
+`SECRET_ADMIN_NAME` match and calls `applyAdminStart` on the **current**
+active profile — no new profile needed. Both paths are the same
+committed check in `data/db.js`; the code box is just a second front
+door to it.
 
 ---
 
-## Why not a typed-in "code" (and the history of this file)
+## Why not a `settings/codes.js`-style system (history)
 
 Earlier versions of this app had a `settings/codes.js` cheat-code system:
 type a string into Settings → Codes, press Apply. `codes.js` was
@@ -30,9 +39,10 @@ That worked for local testing, but it meant the Codes UI **never
 appeared on the deployed site at all** — there was no way to reach
 `adminaccount` (or any code) outside a local clone. By explicit request
 (2026-08-12), the one code that actually needed to work in production
-moved to the secret-profile-name mechanism above instead: a name typed
-into the welcome modal isn't gated by what got committed, so it ships
-fine without needing a visible "enter code" input anywhere.
+moved to the secret-profile-name mechanism above instead — a check
+that lives in committed, always-shipped code, unlike `codes.js`. The
+Settings code box above reuses that same committed check rather than
+reviving the old gitignored-file system.
 
 `settings/codes.js` / `codes.example.js` still exist, now empty, for
 anything that genuinely should only ever work locally (never on the

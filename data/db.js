@@ -350,6 +350,21 @@ const DB = (() => {
     return id;
   }
 
+  // Same secret, reachable without creating a new profile — typing it
+  // as a profile NAME only works from the "new profile" screen, so
+  // anyone who already has one (i.e. everyone past their first launch)
+  // had no way to reach it at all. Settings' code box (committed,
+  // ships to production — unlike the gitignored settings/codes.js) now
+  // checks this directly. Applies to whichever profile is ACTIVE, not
+  // a new one.
+  function applyAdminCode(input) {
+    if ((input || "").trim().toLowerCase() !== SECRET_ADMIN_NAME) return false;
+    const db = load();
+    if (!db.activeProfileId || !db.profiles[db.activeProfileId]) return false;
+    applyAdminStart(db.activeProfileId);
+    return true;
+  }
+
   function setActiveProfile(id) {
     const db = load();
     if (db.profiles[id]) {
@@ -1120,6 +1135,7 @@ const DB = (() => {
     init,
     getActiveProfile,
     createProfile,
+    applyAdminCode,
     setActiveProfile,
     updateProfileName,
     deleteProfile,
