@@ -151,16 +151,21 @@ cache-first strategy can pin a broken build.
   register two answers against the same card (double-counts toward the
   session total/XP, and the second tap's rating wins). Minor, only hits
   on unusually fast taps — flagging, not fixing unless you want it.
-- **Opera: rotate slider (Star lobby) rendered with broken styling.**
-  Root cause: the slider only used CSS `accent-color`, which tints the
+- **Opera: rotate slider (Star lobby) rendered with broken styling —
+  fixed, and a second real bug found in the same control.** Root
+  cause #1: the slider only used CSS `accent-color`, which tints the
   thumb and filled portion in Chromium but leaves the *track* drawn by
-  the browser's own native theme — Opera's default track apparently
-  renders as a light bar against this dark, tightly-cornered control.
-  Fixed by fully resetting the control (`appearance: none`) and drawing
-  the track/thumb ourselves for both WebKit and Gecko engines, so it no
-  longer depends on any browser's native skin. Couldn't verify in real
-  Opera specifically (not available as an engine here), so **please
-  confirm on your end** that it now looks right.
+  the browser's own native theme. Fixed by fully resetting the control
+  (`appearance: none`) and hand-drawing the track/thumb for both
+  WebKit and Gecko. Couldn't verify in real Opera (not available as an
+  engine here) — still needs your confirmation on that front.
+  **Root cause #2, found live after that fix**: the hand-drawn track
+  was hardcoded to a white-based rgba, invisible on light themes
+  (reported as "the slider isn't visible" on the Paper theme — a
+  near-transparent white line on a cream background). Fixed to use
+  `--border-accent`, the same variable `core/theme.js` already
+  repaints per theme. Verified live on both Paper (light) and Indigo
+  (dark) — visible and theme-colored on both.
 - **Token icon renders as silver on the phone screenshot, gold on
   laptop.** Very likely a platform emoji-rendering difference (🪙 is
   drawn by the OS's own emoji font, not CSS), not a code bug. Fix would
