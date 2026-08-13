@@ -46,7 +46,11 @@ const DB = (() => {
       chargeSpent: 0,        // lifetime spent in the shop
       ownedThemes: [],       // premium theme ids bought; free themes are never listed
       theme: "indigo",       // colour theme id
-      lobbyStyle: "classic", // "classic" | "cards" — a re-skin of the Lobby tiles, not a rearrangement
+      // "cards" is the default look now — "classic" and "star" both stay
+      // fully pickable in Settings, this only changes what a brand-new
+      // profile starts on. Existing profiles keep whatever they already
+      // have saved; this line only ever runs once, at profile creation.
+      lobbyStyle: "cards", // "classic" | "cards" | "star" — a re-skin of the Lobby tiles, not a rearrangement
       hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
       bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
       unitsUnlocked: false,  // bypasses the "finish the previous unit" prereq — see the unlockallunits code
@@ -615,6 +619,37 @@ const DB = (() => {
     const p = getActiveProfile();
     const ts = p && p.stats.topicStats[topicId];
     return ts ? ts.chunkResults[chunkIdx] : undefined;
+  }
+
+  // A finer-grained, flashcard-only signal — separate from chunkResults
+  // above on purpose. chunkResults is a plain right/wrong from the
+  // auto-graded lesson mini-quiz AND still gets a boolean write from
+  // flashcard self-report (see library.js's finishFlashcards /
+  // finishCustomDeck) — that's the existing weak/new/known 3-state
+  // system the deck builder's chip colors and worst-first sort already
+  // use, and it stays untouched. This is a 4-level self-assessment
+  // (0 Difficult .. 3 Known best) that ONLY a flashcard review writes,
+  // used for the deck builder's optional category filter and nothing
+  // else — mixing it into chunkResults would have made a lesson
+  // mini-quiz answer overwrite a flashcard confidence rating or vice
+  // versa, two different questions being asked of the learner.
+  function recordChunkConfidence(topicId, chunkIdx, level) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    if (!p.stats.topicStats[topicId]) {
+      p.stats.topicStats[topicId] = { attempts: 0, bestScore: 0, lastScore: 0, completedAt: null, chunkResults: [] };
+    }
+    const ts = p.stats.topicStats[topicId];
+    if (!Array.isArray(ts.chunkConfidence)) ts.chunkConfidence = [];
+    ts.chunkConfidence[chunkIdx] = level;
+    save(db);
+  }
+
+  function getChunkConfidence(topicId, chunkIdx) {
+    const p = getActiveProfile();
+    const ts = p && p.stats.topicStats[topicId];
+    return ts && Array.isArray(ts.chunkConfidence) ? ts.chunkConfidence[chunkIdx] : undefined;
   }
 
   // ---- Stats retrieval ----
@@ -1224,6 +1259,8 @@ const DB = (() => {
     touchStreak,
     recordQuizAnswer,
     getChunkResult,
+    recordChunkConfidence,
+    getChunkConfidence,
     recordExamResult,
     recordFinalQuizResult,
     getFinalQuiz,

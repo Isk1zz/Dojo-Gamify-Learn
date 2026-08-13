@@ -566,12 +566,32 @@
 }
 .flashcard.flipped .flashcard-front { transform: rotateY(-180deg); }
 .flashcard.flipped .flashcard-back  { transform: rotateY(0deg); }
+/* Free flip back and forth once revealed — reported live: forgetting
+   what was on the other side with no way back to check. */
+.flashcard.flipped { cursor: pointer; }
 .flashcard-answer { font-weight: 700; color: var(--accent-light); }
 .flashcard-explain { font-size: 0.85rem; color: var(--text-dim); font-weight: 400; line-height: 1.6; }
 
 .flashcard-flip-btn { display: flex; width: 100%; justify-content: center; }
-.flashcard-know-row { display: flex; gap: 0.75rem; }
-.flashcard-know-btn { flex: 1; justify-content: center; }
+
+/* Four-level self-assessment, replacing the old binary Knew-it /
+   Didn't-know-it row. Worst (Difficult) to best (Known best), left to
+   right — matches CONFIDENCE's own order in library.js. */
+.flashcard-confidence-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.flashcard-conf-btn {
+  flex: 1; min-width: 110px; display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+  padding: 0.6rem 0.4rem; cursor: pointer; font: inherit; text-align: center;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-card); color: var(--text);
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.flashcard-conf-btn:hover { transform: translateY(-2px); }
+.flashcard-conf-btn .conf-icon { font-size: 1.15rem; }
+.flashcard-conf-btn .conf-label { font-size: 0.72rem; font-weight: 600; }
+.flashcard-conf-btn.conf-difficult:hover { border-color: var(--red); background: var(--red-glow); }
+.flashcard-conf-btn.conf-still-learning:hover { border-color: var(--yellow); background: var(--yellow-glow); }
+.flashcard-conf-btn.conf-has-idea:hover { border-color: var(--cyan); background: var(--cyan-glow); }
+.flashcard-conf-btn.conf-known-best:hover { border-color: var(--green); background: var(--green-glow); }
 
 /* Correct/wrong feedback burst — a quick glow or shake right after
    "Knew it" / "Didn't know it", before the next card replaces this one
@@ -850,6 +870,24 @@
   opacity: 0.4; cursor: not-allowed; border-color: rgba(239,68,68,0.35); color: var(--text-muted);
 }
 .deck-unit-pill.locked:hover { border-color: rgba(239,68,68,0.35); color: var(--text-muted); }
+
+/* Optional confidence filter, same pill shape as the unit row above but
+   its own row so the two selections read as separate controls. Empty
+   selection (no chip active) = no filter, matches picker.confidenceFilter's
+   own "empty = show everything" default in library.js. */
+.deck-confidence-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem; }
+.deck-confidence-filter-label { font-size: 0.78rem; color: var(--text-muted); margin-right: 0.2rem; }
+.deck-conf-chip {
+  padding: 0.4rem 0.85rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted);
+  font: inherit; font-size: 0.78rem; font-weight: 600;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.deck-conf-chip:hover { color: var(--text); }
+.deck-conf-chip.conf-difficult.active { border-color: var(--red); background: var(--red-glow); color: var(--text); }
+.deck-conf-chip.conf-still-learning.active { border-color: var(--yellow); background: var(--yellow-glow); color: var(--text); }
+.deck-conf-chip.conf-has-idea.active { border-color: var(--cyan); background: var(--cyan-glow); color: var(--text); }
+.deck-conf-chip.conf-known-best.active { border-color: var(--green); background: var(--green-glow); color: var(--text); }
 
 .deck-topic-section.locked { opacity: 0.5; }
 .deck-topic-section.locked .deck-topic-header { margin-bottom: 0; }

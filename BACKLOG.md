@@ -1,5 +1,60 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 20 — Flashcard review overhaul + two small fixes
+
+- [x] **Bug (screenshot): Star lobby "broken"** — investigated, NOT a
+      code bug. The screenshot was taken from `file://…/index.html`
+      opened directly, a different origin with no cache-busting path
+      available to me; the current committed code renders 6 distinct,
+      non-overlapping tile positions when tested fresh. Almost certainly
+      a stale cached build — flagged to hard-refresh that tab rather
+      than chasing a bug that isn't reproducible in the current code.
+- [x] **"Anki-style" wording removed** (copyright concern) — the deck
+      builder's intro text now just says "Weakest cards come up first."
+- [x] **Default Lobby style changed from Classic to Cards.** Only
+      affects brand-new profiles (`defaultProfile()`'s `lobbyStyle`);
+      existing profiles keep whatever they already have saved. Classic
+      and Star both stay fully pickable in Settings.
+- [x] **Flashcard review overhaul** — four related asks, all touching
+      the same shared review flow (`renderFlashcard`/`answerFlashcard`
+      in `library.js`, used by both the single-topic review and the
+      custom deck builder):
+      1. **Two-way flip.** Reported live: forgetting what was on the
+         other side with no way back to check. The card face is now
+         clickable to flip freely in either direction once revealed;
+         the original "Show Answer" button still owns the first reveal.
+      2. **Four-level self-assessment**, replacing the old binary "Knew
+         it" / "Didn't know it": Difficult / Still learning / Has an
+         idea / Known best. A brand new `p.stats.topicStats[topicId].
+         chunkConfidence` array (`DB.recordChunkConfidence`/
+         `getChunkConfidence`) — deliberately **separate** from the
+         existing `chunkResults` boolean (which the lesson mini-quiz
+         still writes, and which still drives the existing weak/new/
+         known chip coloring and "worst-first" sort) so a lesson
+         quiz answer and a flashcard confidence rating can never
+         overwrite each other; they're answering different questions.
+      3. **Requeue on "Difficult."** Rated the worst level: the same
+         card reappears 5-10 cards later (spliced straight into
+         `state.flashDeck`, so the "X/Y" counter and the final-card
+         check both pick up the new total for free), and once more at
+         the very end of the stack if it's STILL "Difficult" then.
+         Capped at 2 requeues (3 total appearances) so a genuinely hard
+         card can't loop forever.
+      4. **Optional category filter in the deck builder** — toggle any
+         of the 4 confidence chips to narrow the chunk list to only
+         chunks last rated at one of the selected levels; empty
+         selection (default) shows everything. A chunk never reviewed
+         as a flashcard has no rating and drops out once any filter is
+         active.
+      Verified live end-to-end: flip-back confirmed (front → back →
+      front on the same card); rating "Difficult" grew the deck 3→4 with
+      `_requeues:1` on the right card; a clean 3-card run recorded
+      `chunkConfidence` levels `[3,3,3]` correctly (last-attempt-wins
+      confirmed by an earlier messy run being overwritten); the deck
+      builder's filter chip for "Known best" correctly showed exactly
+      those 3 chunks and nothing else, and "Difficult" correctly showed
+      zero once nothing was rated that low anymore.
+
 ## Batch 19 — Final Quiz: cumulative exam, all 8 units, built and shipped
 
 - [x] **Content**: `library/content/intro-cs/final_quiz.js`, 40 questions,

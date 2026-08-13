@@ -1484,7 +1484,12 @@
         if (done) done.forEach(idx => chunks.add(chunkKey(t.id, idx)));
       });
     });
-    state.deckBuilder = { courseId: course.id, unitIds: new Set(course.units), chunks, mode: "quiz" };
+    // Empty = no filter, show everything (the common case). Non-empty =
+    // only chunks whose last flashcard confidence rating (DB.
+    // getChunkConfidence) is in this set — an unrated chunk (never
+    // reviewed as a flashcard) is excluded once a filter is active,
+    // same as "pick only this subcategory" implies.
+    state.deckBuilder = { courseId: course.id, unitIds: new Set(course.units), chunks, mode: "quiz", confidenceFilter: new Set() };
   }
 
   function openDeckBuilder() {
@@ -1535,7 +1540,7 @@
 
     const intro = document.createElement("p");
     intro.className = "deck-builder-intro";
-    intro.textContent = "Pick units and chunks to build a review deck. Weakest cards come up first — Anki-style.";
+    intro.textContent = "Pick units and chunks to build a review deck. Weakest cards come up first.";
     body.appendChild(intro);
 
     if (!picker.mode) picker.mode = "quiz";
@@ -1557,6 +1562,33 @@
       note.textContent = "Term on the front, a short definition on the back — no options, no explanation. Minimalistic, for quick recall drilling.";
       body.appendChild(note);
     }
+
+    // Optional confidence filter — requested explicitly ("make it
+    // optional to pick only chosen subcategory"). Empty selection means
+    // no filter (default, shows everything); toggling one or more chips
+    // narrows the chunk list below to only chunks last rated at one of
+    // the selected levels (DB.getChunkConfidence). A chunk never
+    // reviewed as a flashcard has no rating and drops out once any
+    // filter chip is active — there's no "unrated" category to pick.
+    if (!picker.confidenceFilter) picker.confidenceFilter = new Set();
+    const filterRow = document.createElement("div");
+    filterRow.className = "deck-confidence-filter";
+    filterRow.innerHTML = `
+      <span class="deck-confidence-filter-label">Filter by confidence:</span>
+      ${CONFIDENCE.map(c => `
+        <button type="button" class="deck-conf-chip conf-${c.id}${picker.confidenceFilter.has(c.level) ? " active" : ""}" data-level="${c.level}">
+          ${c.icon} ${c.label}
+        </button>`).join("")}
+    `;
+    filterRow.querySelectorAll(".deck-conf-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        const level = parseInt(chip.getAttribute("data-level"), 10);
+        if (picker.confidenceFilter.has(level)) picker.confidenceFilter.delete(level);
+        else picker.confidenceFilter.add(level);
+        renderDeckBuilder();
+      });
+    });
+    body.appendChild(filterRow);
 
     // Same prereq rule as renderUnitSelect's list view and
     // renderUnitRoadmap — a locked unit can't supply cards, so it
@@ -1601,11 +1633,17 @@
     // total in glossary mode (one chunk can hold several terms) rather
     // than counting chunks and quietly under-reporting.
     const cardsIn = c => mode === "glossary" ? (c.glossary ? c.glossary.length : 0) : (c.quiz ? 1 : 0);
+    // Confidence filter applies on top of chunkHasSource, not instead
+    // of it — a chunk still needs real content for this mode either way.
+    const passesFilter = (t, idx) => {
+      if (picker.confidenceFilter.size === 0) return true;
+      return picker.confidenceFilter.has(DB.getChunkConfidence(t.id, idx));
+    };
 
     course.units.filter(uid => picker.unitIds.has(uid)).forEach(uid => {
       const topics = UNIT_TOPICS[uid] || [];
       topics.forEach((t, ti) => {
-        const sourceChunks = t.chunks.filter(c => chunkHasSource(c, mode)).length;
+        const sourceChunks = t.chunks.filter((c, idx) => chunkHasSource(c, mode) && passesFilter(t, idx)).length;
         if (!sourceChunks) return;
 
         // Within-unit prereq — same rule renderRoadmap uses for a
@@ -1628,7 +1666,7 @@
 
         const section = document.createElement("div");
         section.className = "deck-topic-section";
-        const selectedInTopic = t.chunks.filter((c, idx) => chunkHasSource(c, mode) && picker.chunks.has(chunkKey(t.id, idx))).length;
+        const selectedInTopic = t.chunks.filter((c, idx) => chunkHasSource(c, mode) && passesFilter(t, idx) && picker.chunks.has(chunkKey(t.id, idx))).length;
 
         const header = document.createElement("div");
         header.className = "deck-topic-header";
@@ -1640,7 +1678,7 @@
         header.querySelector(".deck-topic-toggle-all").addEventListener("click", () => {
           const allSelected = selectedInTopic === sourceChunks;
           t.chunks.forEach((c, idx) => {
-            if (!chunkHasSource(c, mode)) return;
+            if (!chunkHasSource(c, mode) || !passesFilter(t, idx)) return;
             const key = chunkKey(t.id, idx);
             if (allSelected) picker.chunks.delete(key); else picker.chunks.add(key);
           });
@@ -1651,7 +1689,7 @@
         const chunkRow = document.createElement("div");
         chunkRow.className = "deck-chunk-row";
         t.chunks.forEach((c, idx) => {
-          if (!chunkHasSource(c, mode)) return;
+          if (!chunkHasSource(c, mode) || !passesFilter(t, idx)) return;
           const key = chunkKey(t.id, idx);
           const selected = picker.chunks.has(key);
           if (selected) totalSelected += cardsIn(c);
@@ -1770,6 +1808,7 @@
     state.flashFlipped = false;
     state.flashResults = [];
     state.flashTimings = [];
+    state.flashConfidence = {};
     state.flashCardShownAt = Date.now();
     const title = document.getElementById("flashcard-title");
     if (title) title.textContent = mode === "glossary" ? "\u{1F4D6} Definitions" : "\u{1F5C2}️ Custom Deck";
@@ -1781,10 +1820,22 @@
   // What watering a due plant launches (see garden/GARDEN.md) instead of
   // replaying the whole topic. One card per chunk, built from that
   // chunk's existing quiz — no separate flashcard content to author.
-  // Self-reported (knew it / didn't), because there's no multiple-choice
-  // to grade automatically; the tally still feeds the same SM-2 quality
-  // scale showExamResults() uses, so a review advances the interval
-  // exactly like retaking the exam used to.
+  // Self-reported (four levels, not just knew-it/didn't), because
+  // there's no multiple-choice to grade automatically; the tally still
+  // feeds the same SM-2 quality scale showExamResults() uses, so a
+  // review advances the interval exactly like retaking the exam used to.
+  //
+  // Four self-assessment levels, replacing the old binary "Knew it" /
+  // "Didn't know it" — requested explicitly, and also the thing the
+  // requeue logic below and the deck builder's category filter both key
+  // off. Worst first, matching how they read left-to-right as buttons.
+  const CONFIDENCE = [
+    { level: 0, id: "difficult",      label: "Difficult",     icon: "\u{1F616}" },
+    { level: 1, id: "still-learning", label: "Still learning", icon: "\u{1F4D6}" },
+    { level: 2, id: "has-idea",       label: "Has an idea",   icon: "\u{1F4A1}" },
+    { level: 3, id: "known-best",     label: "Known best",    icon: "✅" }
+  ];
+
   function buildFlashDeck(topic) {
     const cards = [];
     topic.chunks.forEach((c, idx) => {
@@ -1809,6 +1860,7 @@
     state.flashFlipped = false;
     state.flashResults = [];
     state.flashTimings = [];
+    state.flashConfidence = {};
     state.flashCardShownAt = Date.now();
     const title = document.getElementById("flashcard-title");
     if (title) title.textContent = "\u{1F4A7} Review";
@@ -1816,15 +1868,24 @@
     showScreen("flashcards");
   }
 
-  // Both control rows (flip button, know/don't-know) are in the DOM from
-  // the start now, toggled with display rather than rebuilt — the CSS
-  // 3D flip (styles/library.css's .flashcard.flipped) transitions the
-  // SAME element over 0.5s; replacing the whole body's innerHTML on
+  // Both control rows (flip button, the confidence row) are in the DOM
+  // from the start now, toggled with display rather than rebuilt — the
+  // CSS 3D flip (styles/library.css's .flashcard.flipped) transitions
+  // the SAME element over 0.5s; replacing the whole body's innerHTML on
   // flip (the old approach) destroyed and recreated the node already in
   // its flipped state, so the card just popped instead of turning. The
-  // know-row is revealed partway through the turn rather than the
+  // confidence row is revealed partway through the turn rather than the
   // instant it starts, so it doesn't appear on the still-front-facing
   // card.
+  //
+  // Flip is two-way once revealed — reported live: forgetting what was
+  // on the other side and having no way back to check without ending
+  // the card. Clicking the card face itself toggles front/back freely;
+  // the original "Show Answer" button is still what triggers the FIRST
+  // reveal (so a fresh card doesn't look interactive before you've
+  // engaged with it), and stays hidden once the confidence row is up —
+  // no reason to show two different ways to do the same "look at the
+  // other side" thing at once.
   function renderFlashcard() {
     const body = document.getElementById("flashcard-body");
     const counter = document.getElementById("flashcard-counter");
@@ -1843,30 +1904,68 @@
         </div>
       </div>
       <button id="btn-flash-flip" class="btn-primary flashcard-flip-btn">Show Answer</button>
-      <div id="flashcard-know-row" class="flashcard-know-row" style="display:none;">
-        <button id="btn-flash-no" class="btn-ghost flashcard-know-btn">✕ Didn't know it</button>
-        <button id="btn-flash-yes" class="btn-primary flashcard-know-btn">✓ Knew it</button>
+      <div id="flashcard-confidence-row" class="flashcard-confidence-row" style="display:none;">
+        ${CONFIDENCE.map(c => `
+          <button class="flashcard-conf-btn conf-${c.id}" data-level="${c.level}">
+            <span class="conf-icon">${c.icon}</span><span class="conf-label">${c.label}</span>
+          </button>`).join("")}
       </div>
     `;
 
     const cardEl = document.getElementById("flashcard-el");
     const flipBtn = document.getElementById("btn-flash-flip");
-    const knowRow = document.getElementById("flashcard-know-row");
-    flipBtn.addEventListener("click", () => {
+    const confRow = document.getElementById("flashcard-confidence-row");
+    function reveal() {
       state.flashFlipped = true;
       cardEl.classList.add("flipped");
       flipBtn.style.display = "none";
-      setTimeout(() => { knowRow.style.display = "flex"; }, 260);
+      setTimeout(() => { confRow.style.display = "flex"; }, 260);
+    }
+    flipBtn.addEventListener("click", reveal);
+    // Free flip back and forth once revealed — tapping the card again
+    // just turns it, doesn't answer anything.
+    cardEl.addEventListener("click", () => {
+      if (!state.flashFlipped) return;
+      cardEl.classList.toggle("flipped");
     });
-    document.getElementById("btn-flash-no").addEventListener("click", () => answerFlashcard(false));
-    document.getElementById("btn-flash-yes").addEventListener("click", () => answerFlashcard(true));
+    confRow.querySelectorAll(".flashcard-conf-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        answerFlashcard(parseInt(btn.getAttribute("data-level")));
+      });
+    });
+  }
+
+  // 5-10 cards later, then once more at the very end of the stack if
+  // it's still rated "Difficult" then — requested explicitly. Deck
+  // length grows in place (spliced/pushed straight into state.flashDeck),
+  // so the "X/Y" counter and the final-card check both pick the new
+  // total up for free on their next read, no separate bookkeeping.
+  // Capped at 2 requeues (the card can appear at most 3 times total) so
+  // a card that's STILL "Difficult" on its third pass doesn't loop
+  // forever — it's a review session, not a punishment.
+  function scheduleRequeue(card) {
+    card._requeues = (card._requeues || 0) + 1;
+    if (card._requeues > 2) return;
+    const deck = state.flashDeck;
+    if (card._requeues === 1) {
+      const spacing = 5 + Math.floor(Math.random() * 6); // 5..10
+      deck.splice(Math.min(deck.length, state.flashIndex + 1 + spacing), 0, card);
+    } else {
+      deck.push(card);
+    }
   }
 
   // A card's own elapsed time (front shown -> answered), not counting the
-  // flip. Anyone can tap through a deck claiming "knew it" on everything;
-  // that costs nothing when a review paid no reward. Now that it does,
-  // this is the guard — see MIN_CARD_MS in finishFlashcards.
-  function answerFlashcard(knew) {
+  // flip. Anyone can tap through a deck claiming the top rating; that
+  // costs nothing when a review paid no reward. Now that it does, this
+  // is the guard — see MIN_CARD_MS in finishFlashcards. `level` is one
+  // of CONFIDENCE's 0-3; "knew" (kept for the XP/pass-rate math every
+  // finish function already does) is just level >= 2 ("has an idea" or
+  // better) — a genuine self-report, not a coin flip on 4 buttons.
+  function answerFlashcard(level) {
+    const knew = level >= 2;
+    const card = state.flashDeck[state.flashIndex];
     // Brief glow/shake on the card itself (styles/library.css's
     // .fc-correct / .fc-wrong) before moving on — long enough to read as
     // feedback, short enough not to feel like a delay.
@@ -1878,6 +1977,12 @@
     }
     state.flashResults.push(knew);
     state.flashTimings.push(Date.now() - state.flashCardShownAt);
+    state.flashConfidence = state.flashConfidence || {};
+    // Last rating for this chunk wins if it appears more than once in
+    // this session (a requeue, or two glossary terms off the same
+    // chunk) — same "last attempt wins" rule chunkResults already uses.
+    state.flashConfidence[chunkKey(card.topicId, card.chunkIdx)] = level;
+    if (level === 0) scheduleRequeue(card);
     setTimeout(() => {
       if (state.flashIndex + 1 < state.flashDeck.length) {
         state.flashIndex++;
@@ -1899,6 +2004,21 @@
   // new learning.
   const REVIEW_XP_BASE = 5;
 
+  // Shared by both finish functions — writes every chunk's LAST rating
+  // this session into DB.recordChunkConfidence. A chunkKey-format map
+  // ("topicId::chunkIdx" -> level) rather than a list, so a card seen
+  // twice (a requeue, or two glossary terms off the same chunk) only
+  // writes its final answer, same "last attempt wins" rule chunkResults
+  // already follows elsewhere.
+  function writeFlashConfidence() {
+    Object.entries(state.flashConfidence || {}).forEach(([key, level]) => {
+      const sep = key.lastIndexOf("::");
+      const topicId = key.slice(0, sep);
+      const chunkIdx = parseInt(key.slice(sep + 2), 10);
+      DB.recordChunkConfidence(topicId, chunkIdx, level);
+    });
+  }
+
   function finishFlashcards() {
     if (state.flashCustom) return finishCustomDeck();
     const topic = state.flashTopic;
@@ -1913,6 +2033,7 @@
     // toward the reward — rushing to "Knew it" shouldn't pay the same as
     // actually knowing it.
     const genuineKnown = state.flashResults.filter((knew, i) => knew && state.flashTimings[i] >= MIN_CARD_MS).length;
+    writeFlashConfidence();
 
     // The one DB write a review needs: advance (or lapse) the SM-2
     // interval, same mapping showExamResults() uses. No recordExamResult
@@ -1974,6 +2095,7 @@
     const passed = pct >= 80;
     const rushed = state.flashTimings.filter(ms => ms < MIN_CARD_MS).length;
     const genuineKnown = state.flashResults.filter((knew, i) => knew && state.flashTimings[i] >= MIN_CARD_MS).length;
+    writeFlashConfidence();
 
     deck.forEach((card, i) => {
       DB.recordQuizAnswer(card.topicId, card.chunkIdx, state.flashResults[i]);
