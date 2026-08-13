@@ -1,5 +1,21 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 24 — Landing page tagline/hint contradiction resolved
+
+- [x] **Dropped "Online" from the landing tagline.** It read "Online
+      study system..." directly above "No account needed — progress
+      saves automatically, on this device," which contradicted itself.
+      Not a copy-only call: the app has no account system or backend
+      today, and building one is a real future initiative (web →
+      mobile port, real accounts, an online DB) waiting on a teammate
+      who knows databases — logged as its own "Long-term roadmap" entry
+      in `UPDATESTACK.md`, deliberately placed at the bottom since it's
+      explicitly a later-not-now item, not designed here by guesswork.
+      Until that lands, the honest copy is the offline one, so the
+      tagline now just reads "A study system that keeps what you learn
+      from fading..." — verified live, no contradiction with the hint
+      line below it.
+
 ## Batch 21 — Star lobby: windmill/wind readout out, velocity rotate slider in
 
 - [x] **Windmill (the spinning blades behind the hub) replaced with a

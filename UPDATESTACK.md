@@ -5,11 +5,6 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
-## Open questions (need your answer before building)
-- Landing page contradiction — tagline now says "Online study system,"
-  the line right below it still says "No account needed — progress saves
-  automatically, on this device." Left both as-is pending your call.
-
 ## Needs a design decision first
 - Stars currency for course pricing — 3rd currency, needs the ad-network
   question resolved.
@@ -40,3 +35,12 @@ done (Final Quiz content + `unlockallunits`, see BACKLOG.md).
 ## Design conversation, not yet decided
 - Lobby topology: proposed Trunk line / Binary orbit / Ladder rungs.
   Recommended Trunk line. Waiting on your pick before scoping.
+
+## Long-term roadmap (later — needs the account/backend question settled first)
+- Finish out the web app, then port to iOS and Android.
+- Real account system + online database — currently offline/local-only
+  (see landing page copy) on purpose, because nobody on the team knows
+  databases yet. A friend who does is expected to be free "later" — this
+  whole line (accounts, online DB, and everything above that's "Blocked
+  on the backend") waits on that, rather than being half-designed now by
+  someone who'd be guessing at the DB side.
