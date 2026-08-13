@@ -62,7 +62,7 @@
       // explanation below.
       card.className = `topic-card course-card${c.available && !locked ? "" : " ahead restricted"}`;
       if (!c.available) card.setAttribute("data-explain", "Not open yet — this course is still being built.");
-      else if (locked) card.setAttribute("data-explain", `Costs 🪙 ${c.priceTokens} — visit the Token Shop.`);
+      else if (locked) card.setAttribute("data-explain", `Costs 🪙 ${c.priceTokens} — click to view & buy.`);
       card.innerHTML = `
         <div class="topic-num">${c.icon}</div>
         <div class="topic-title">${c.title}</div>
@@ -79,7 +79,7 @@
         <div class="course-progress"><div class="course-progress-fill" style="width:${pct}%"></div></div>
       `;
       if (c.available && locked) {
-        card.addEventListener("click", () => Router.go("token-shop"));
+        card.addEventListener("click", () => showCourseBuyModal(c));
       } else if (c.available) {
         card.addEventListener("click", () => {
           const enter = () => {
@@ -209,6 +209,66 @@
       closeContract();
       onSigned();
     });
+  }
+
+  // ---- Locked-course buy modal ----
+  // Clicking a locked course used to jump straight to the Token Shop,
+  // which turned "buy this course" into a two-step hunt: land on the
+  // shop, then find the separate Priced Courses section further down
+  // the page — reported live as "it just redirects me to the shop"
+  // (read as the purchase not working at all, when it was really just
+  // not discoverable). This shows the course's own structure and a buy
+  // button right where the course was clicked; the Token Shop is now
+  // only where you go to buy MORE Tokens, not to buy a course itself.
+  function showCourseBuyModal(course) {
+    const overlay = document.getElementById("course-buy-modal");
+    if (!overlay) { Router.go("token-shop"); return; }
+    const unitList = course.units
+      .map(id => UNITS.find(u => u.id === id))
+      .filter(Boolean);
+    const tokens = DB.getTokens();
+    const afford = tokens >= course.priceTokens;
+
+    overlay.style.display = "flex";
+    overlay.innerHTML = `
+      <div class="modal-card">
+        <div class="modal-close" id="course-buy-close">✕</div>
+        <div class="contract-seal">${course.icon}</div>
+        <h2 class="modal-title">${course.title}</h2>
+        <p class="contract-subtitle">${course.subtitle}</p>
+        <div class="contract-body">
+          <p>${unitList.length} units:</p>
+          <ul class="contract-terms">
+            ${unitList.map(u => `<li>${u.icon} ${u.title} — ${u.subtitle}</li>`).join("")}
+          </ul>
+        </div>
+        <div class="chunk-actions">
+          ${afford
+            ? `<button id="course-buy-confirm" class="btn-primary">Unlock for 🪙 ${course.priceTokens}</button>`
+            : `<button id="course-buy-getmore" class="btn-primary">Need 🪙 ${course.priceTokens - tokens} more — Token Shop</button>`}
+        </div>
+      </div>`;
+
+    overlay.querySelector("#course-buy-close").addEventListener("click", () => {
+      overlay.style.display = "none";
+    });
+    const confirmBtn = overlay.querySelector("#course-buy-confirm");
+    if (confirmBtn) {
+      confirmBtn.addEventListener("click", () => {
+        if (Dojo.buyCourse && Dojo.buyCourse(course.id)) {
+          overlay.style.display = "none";
+          if (Dojo.renderVitals) Dojo.renderVitals();
+          renderCourseSelect();
+        }
+      });
+    }
+    const getMoreBtn = overlay.querySelector("#course-buy-getmore");
+    if (getMoreBtn) {
+      getMoreBtn.addEventListener("click", () => {
+        overlay.style.display = "none";
+        Router.go("token-shop");
+      });
+    }
   }
 
   function renderUnitSelect() {

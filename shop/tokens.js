@@ -93,11 +93,16 @@
     return true;
   }
 
+  // Token Shop sells Tokens, full stop — it used to also list every
+  // priced course in its own "Priced Courses" section, which meant
+  // buying a course was a two-step hunt (get redirected here, then find
+  // the right card further down). Buying a course now happens right
+  // where it's clicked (library.js's showCourseBuyModal, via the
+  // buyCourse/ownsCourse exported below), so this screen only needs to
+  // sell what it's named after.
   function renderTokenShop() {
     const body = document.getElementById("token-shop-body");
     if (!body) return;
-
-    const pricedCourses = COURSES.filter(c => c.priceTokens > 0);
 
     body.innerHTML = `
       <div class="shop-wallet">
@@ -112,11 +117,6 @@
         <div class="stats-section-title">🪙 Token Packs</div>
         <div class="shop-grid" id="token-packs-grid"></div>
       </div>
-      ${pricedCourses.length ? `
-      <div class="settings-section">
-        <div class="stats-section-title">\u{1F4DA} Priced Courses</div>
-        <div class="shop-grid" id="token-courses-grid"></div>
-      </div>` : ""}
     `;
 
     const packGrid = body.querySelector("#token-packs-grid");
@@ -140,34 +140,8 @@
       packGrid.appendChild(card);
     });
 
-    if (pricedCourses.length) {
-      const courseGrid = body.querySelector("#token-courses-grid");
-      pricedCourses.forEach(c => {
-        const owned = ownsCourse(c.id);
-        const afford = DB.getTokens() >= c.priceTokens;
-        const card = document.createElement("div");
-        card.className = `shop-card${owned ? " owned" : ""}`;
-        card.innerHTML = `
-          <div class="shop-card-preview game-preview"><span class="gp-icon">${c.icon}</span></div>
-          <div class="shop-card-body">
-            <div class="shop-name">${c.title}</div>
-            <div class="shop-tagline">${c.subtitle}</div>
-            ${owned
-              ? `<div class="shop-price">Owned</div>`
-              : `<button class="shop-btn buy${afford ? "" : " short"}" ${afford ? "" : "disabled"}>
-                   Unlock 🪙 ${c.priceTokens}${afford ? "" : ` · need ${c.priceTokens - DB.getTokens()} more`}
-                 </button>`}
-          </div>`;
-        const btn = card.querySelector("button");
-        if (btn && !btn.disabled) {
-          btn.addEventListener("click", () => { if (buyCourse(c.id)) renderTokenShop(); });
-        }
-        courseGrid.appendChild(card);
-      });
-    }
-
     showScreen("token-shop");
   }
 
-  Object.assign(Dojo, { renderTokenShop, ownsCourse });
+  Object.assign(Dojo, { renderTokenShop, ownsCourse, buyCourse });
 })();

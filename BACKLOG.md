@@ -1,5 +1,33 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 31 — Fixed the real "can't buy the course" blocker
+
+- [x] **Found the actual bug behind "I still can't buy the course"**
+      (reported live, after the cache fix had already resolved the
+      phone menu issue). Not a purchase-logic bug — `buyCourse`/
+      `spendTokens` worked fine when tested directly. The real problem:
+      clicking a locked course redirected to the Token Shop, where the
+      actual "Unlock" button lives in a separate Priced Courses section
+      further down the page. Read as "the purchase does nothing."
+- [x] **New course-buy modal** (`library.js`'s `showCourseBuyModal`,
+      new `#course-buy-modal` overlay in `index.html`, reusing the
+      contract modal's markup pattern): clicking a locked course now
+      shows its unit structure and an inline buy button right there —
+      "Unlock for 🪙 N" if affordable, "Need 🪙 N more — Token Shop" if
+      not. The Token Shop is now only where you go to buy MORE Tokens,
+      not to buy a course. `buyCourse` exported from `shop/tokens.js`
+      so `library.js` can call it directly.
+- [x] **Verified live, full loop:** modal renders full unit list;
+      close button works; insufficient balance shows the correct
+      "Need N more" button routing to Token Shop; after buying a
+      covering pack, the SAME modal instance re-opens showing "Unlock
+      for 🪙 1000" instead; clicking it buys, closes the modal, and
+      re-renders the Library card unlocked — one click, no redirect.
+- [x] **Removed the now-redundant Priced Courses section from the Token
+      Shop entirely** — buying happens in the Library modal above, so
+      the Token Shop only sells what it's named after (Token packs).
+      Re-verified the full buy loop still works with that section gone.
+
 ## Batch 30 — Service worker cache version bumped for the first time all session
 
 - [x] **`sw.js`'s `CACHE_VERSION` bumped `cs-dojo-v2` → `cs-dojo-v3`** —
