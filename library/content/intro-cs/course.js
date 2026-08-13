@@ -129,10 +129,13 @@
     subtitle: "Networks, programming and emerging technologies",
     icon: "\u{1F4BB}",
     available: true,
-    // 1000 -- ~$21 real-world, one pack size above the smallest (see
-    // shop/tokens.js's bonus badges). Locks the only course behind the
-    // Token Shop's demo buyPack() until real payment exists.
-    priceTokens: 1000,
+    // 250 -- was 1000 (~$21), dropped to lower the barrier to entry
+    // (the ROI conversation surfaced that the app is competing against
+    // genuinely free alternatives, and $21 to even try the one course
+    // that exists is a real friction point). 250 is comfortably covered
+    // by even the smallest $6.99/350-Token pack. Locks the only course
+    // behind the Token Shop's demo buyPack() until real payment exists.
+    priceTokens: 250,
     units
   });
 })();

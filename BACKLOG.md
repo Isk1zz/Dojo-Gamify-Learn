@@ -1,5 +1,30 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 39 — Intro to CS price cut 1000 → 250 Tokens; Token rewards cut to match
+
+- [x] **`intro-cs` priceTokens dropped 1000 → 250** — lowering the
+      barrier to entry, prompted directly by the ROI conversation:
+      $21 to even try the one course that exists is real friction
+      against genuinely free alternatives. 250 is comfortably covered
+      by the smallest $6.99/350-Token pack alone.
+- [x] **Token-side unit rewards cut ÷4 to match** (Unit 3: 15→4, Unit
+      5: 30→8, course-complete: 40→10) — keeps the Token RETURN from
+      finishing the course the same proportion of the (now lower)
+      Token cost. Money rewards (units 1/2/6/7, unchanged) and XP
+      rewards (units 4/8, unchanged) are separate currencies from the
+      course's own Token price and weren't touched.
+- [x] **Fixed a now-stale design note**: `shop/ranks.js`'s comment on
+      the 795 free Tokens across the ladder claimed ranking up alone
+      could never fully cover a course — true against the old
+      1000-Token price, false against the new 250 one (795 > 250).
+      Rewritten to say so plainly: a free path into the one course
+      that exists is now possible purely by studying, which is treated
+      as the point of the price drop, not a leak to close.
+- [x] **Verified live**: course price shows 250 everywhere (locked
+      card badge, buy modal, Token Shop routing); Token reward chips
+      show 🪙4/🪙8 on units 3/5; money ($30/$20/$100/$50) and XP
+      (⭐120/⭐240) rewards on units 1/2/6/7/4/8 all confirmed unchanged.
+
 ## Batch 38 — Rank ladder doubled again: 100,000 XP, ~15-course target
 
 - [x] **Nobel Laureate ceiling doubled again, 50,000 → 100,000 XP**

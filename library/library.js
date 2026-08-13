@@ -47,7 +47,12 @@
   // Deliberately NOT every unit at the same value — see the chat that
   // scoped this for which units carry which reward and why.
   const UNIT_MONEY_REWARD = { 1: 30, 2: 20, 6: 100, 7: 50 };
-  const UNIT_TOKEN_REWARD = { 3: 15, 5: 30 };
+  // 4/8, not 15/30 — cut ÷4 alongside intro-cs's priceTokens dropping
+  // 1000 → 250 (BACKLOG.md), so the Token RETURN from finishing the
+  // course stays the same proportion of the (now lower) Token COST.
+  // Money rewards are a separate currency from the course's own price
+  // and are untouched.
+  const UNIT_TOKEN_REWARD = { 3: 4, 5: 8 };
   // Units 4 and 8 were the two with no completion reward at all — filled
   // with XP instead of money/Tokens on request, since XP is the one
   // thing shop/ranks.js's ladder pacing already accounts for scaling
@@ -56,7 +61,8 @@
   // finishChunk's comment) so a full course lands at a meaningful slice
   // of the ladder instead of ~5% of it.
   const UNIT_XP_REWARD = { 4: 120, 8: 240 };
-  const COURSE_TOKEN_REWARD = 40;
+  // 10, not 40 — same ÷4 cut as the Token unit rewards above.
+  const COURSE_TOKEN_REWARD = 10;
   // Separate from FINAL_QUIZ_XP_BASE below, which scales with score and
   // pays out on every attempt — this is a flat, ONE-TIME bonus for the
   // first genuine pass, on top of that. 200, not 100 — scaled up 2x.

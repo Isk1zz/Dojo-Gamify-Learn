@@ -55,13 +55,16 @@
 // there is something worth giving.
 //
 // ---- Token rewards specifically (7 ranks: 6, 8, 11, 12, 15, 17, 18) ----
-// Sized so the ladder's free Tokens can never fully cover a course on
-// their own: 100+50+150+75+200+100+120 = 795, short of the 1000-Token
-// price on the one course that exists (shop/tokens.js). Ranking up
-// stays worth celebrating without turning into a grind-instead-of-buy
-// path around the Token Shop — every free-Token profile still needs at
-// least one real purchase (or the demo stub, today) to actually get in.
-// Re-check this sum if either the ladder or a course price changes.
+// 100+50+150+75+200+100+120 = 795 free Tokens across the ladder.
+// Originally sized to stay under the course price so ranking up alone
+// could never fully cover one — that constraint no longer holds now
+// that intro-cs dropped from 1000 to 250 (barrier-to-entry call, see
+// BACKLOG.md): 795 comfortably clears 250 on its own, so a profile CAN
+// reach the one course that exists purely by studying, no purchase
+// ever required. Left as-is deliberately — a free path into the one
+// course that exists isn't a leak to plug, it's the accessible-entry
+// point the price drop was for. Re-check this math once a second,
+// differently-priced course exists, since 795 won't stretch as far.
 // ================================================
 
 const RANKS = [
