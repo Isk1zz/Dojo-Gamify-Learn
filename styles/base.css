@@ -902,20 +902,16 @@ body {
   font-size: 0.72rem; line-height: 1.2; font-weight: 600;
 }
 .lobby-star-lines, .lobby-hub, .lobby-rotate-control { display: none; }
-/* Wind speed/direction — purely decorative, Star topology only, added
-   just for the fun of it. See core/lobby.js's paintWind. */
-.lobby-wind {
-  display: none; text-align: center; margin: -1.2rem 0 0.6rem;
-  font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim);
-}
-/* Rotate control — drag to spin the whole ring. core/lobby.js's
-   layoutLobbyRadial folds the slider's value into every tile's angle
-   and recomputes --tx/--ty (the same trig as the spoke lines), so the
-   ring turns by repositioning tiles rather than by a CSS transform on
-   the container — a rotate() on the container would spin each tile's
-   icon/text sideways too, and un-rotating just the inner content is
-   the same compound-transform hit-testing trap layoutLobbyRadial's own
-   comment already documents fixing once. */
+/* Rotate control — a velocity dial, not a position dial. Centered on 0
+   (no spin); drag either way to set how fast the ring turns, in
+   degrees/second. core/lobby.js's starSpinTick reads the slider every
+   animation frame and accumulates it into an angle fed through the
+   same trig layoutLobbyRadial already uses for tile position and the
+   spoke lines, so the ring turns by repositioning tiles rather than by
+   a CSS transform on the container — a rotate() on the container would
+   spin each tile's icon/text sideways too, and un-rotating just the
+   inner content is the same compound-transform hit-testing trap
+   layoutLobbyRadial's own comment already documents fixing once. */
 .lobby-style-star .lobby-rotate-control {
   display: flex; align-items: center; gap: 0.4rem;
   position: absolute; top: 0.2rem; left: 0.2rem; z-index: 3;
@@ -924,9 +920,6 @@ body {
 .lobby-rotate-slider {
   width: 84px; accent-color: var(--accent);
   cursor: pointer;
-}
-.lobby-style-star .lobby-tile {
-  transition: left 0.08s linear, top 0.08s linear, transform 0.15s ease, box-shadow 0.15s ease;
 }
 .lobby-style-star .lobby-star-lines {
   display: block; position: absolute; inset: 0; width: 100%; height: 100%;

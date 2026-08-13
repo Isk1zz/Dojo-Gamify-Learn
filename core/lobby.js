@@ -35,7 +35,6 @@
       actionsEl.classList.toggle("lobby-style-cards", style === "cards");
       actionsEl.classList.toggle("lobby-style-star", style === "star");
     }
-    paintWind(style === "star");
 
     // Streak now lives as a persistent top-right badge (core/hud.js's
     // renderStreak), not a lobby-only line — it needs to be visible from
@@ -80,48 +79,51 @@
     if (Dojo.renderStreak) Dojo.renderStreak();
     if (Dojo.renderVitals) Dojo.renderVitals();
     showScreen("lobby");
-    layoutLobbyRadial(style);
-  }
-
-  // ---- Wind (Star topology only) ----
-  // Purely decorative, added just for the fun of it — no game state
-  // reads or writes anything here. Seeded off the calendar day rather
-  // than Math.random() so it holds still within a visit (and across a
-  // re-render) instead of jittering, but still changes day to day
-  // rather than being a fixed number forever.
-  function windReading() {
-    const day = Math.floor(Date.now() / 86400000);
-    const seed = (day * 9301 + 49297) % 233280;
-    const speed = 4 + Math.round((seed / 233280) * 22); // 4-26 mph
-    const dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
-    const dir = dirs[Math.floor(seed / 37) % dirs.length];
-    return { speed, dir };
-  }
-
-  function paintWind(active) {
-    const windEl = document.getElementById("lobby-wind");
-    if (!active) {
-      if (windEl) windEl.style.display = "none";
-      return;
-    }
-    const w = windReading();
-    if (windEl) {
-      windEl.textContent = `\u{1F4A8} ${w.speed} mph ${w.dir}`;
-      windEl.style.display = "block";
-    }
+    starAngle = 0;
+    layoutLobbyRadial(style, starAngle);
+    if (style === "star") startStarSpin(); else stopStarSpin();
   }
 
   // ---- Rotate slider (Star topology only) ----
-  // Purely visual, same spirit as the wind reading above — no game
-  // state involved. Dragging it feeds straight into layoutLobbyRadial's
-  // angle math below rather than spinning the container with CSS, so
-  // tile icons/text stay upright as the ring turns. Resets to 0 every
-  // time the lobby is (re)entered; nothing about the angle is worth
-  // persisting.
-  function wireRotateSlider() {
+  // Purely visual, no game state involved. The slider is a VELOCITY
+  // dial, not a position dial — centered on 0 (no spin), drag either
+  // way to set how many degrees/second the ring turns. A rAF loop
+  // (starSpinTick) reads that value every frame and accumulates it
+  // into starAngle, which feeds the same trig layoutLobbyRadial already
+  // used for tile position and spoke lines, so tile icons/text stay
+  // upright and click hit-testing stays correct while it spins — a
+  // CSS transform on the container would rotate tile content sideways
+  // too and reintroduce the hit-testing mismatch documented below.
+  // Resets to 0 every time the lobby is (re)entered; nothing about the
+  // angle is worth persisting.
+  let starAngle = 0;
+  let starSpinHandle = null;
+  let starLastTs = null;
+
+  function stopStarSpin() {
+    if (starSpinHandle) cancelAnimationFrame(starSpinHandle);
+    starSpinHandle = null;
+    starLastTs = null;
+  }
+
+  function starSpinTick(ts) {
+    const lobbyEl = document.getElementById("lobby");
     const slider = document.getElementById("lobby-rotate-slider");
-    if (!slider) return;
-    slider.addEventListener("input", () => layoutLobbyRadial("star"));
+    if (!lobbyEl || !lobbyEl.classList.contains("active") || !slider) { stopStarSpin(); return; }
+    if (starLastTs == null) starLastTs = ts;
+    const dt = (ts - starLastTs) / 1000;
+    starLastTs = ts;
+    const velocity = parseFloat(slider.value) || 0; // degrees/second
+    if (velocity !== 0) {
+      starAngle = (starAngle + velocity * dt) % 360;
+      layoutLobbyRadial("star", starAngle);
+    }
+    starSpinHandle = requestAnimationFrame(starSpinTick);
+  }
+
+  function startStarSpin() {
+    stopStarSpin();
+    starSpinHandle = requestAnimationFrame(starSpinTick);
   }
 
   // Star's own tile order — Career/Garden and Settings/Arcade sit
@@ -161,7 +163,7 @@
   // setting it as `left`/`top`. Ordinary box position plus a single
   // `translate(-50%, -50%)` to center on that point has exactly one
   // reasonable interpretation for hit-testing, unlike the rotate chain.
-  function layoutLobbyRadial(style) {
+  function layoutLobbyRadial(style, angle) {
     const actionsEl = document.getElementById("lobby-actions");
     const svg = document.getElementById("lobby-star-lines");
     if (!actionsEl) return;
@@ -193,8 +195,7 @@
     const box = actionsEl.getBoundingClientRect();
     const cx = box.width / 2, cy = box.height / 2;
     const r = parseFloat(getComputedStyle(actionsEl).getPropertyValue("--lobby-radius")) || 130;
-    const rotSlider = document.getElementById("lobby-rotate-slider");
-    const rot = rotSlider ? parseFloat(rotSlider.value) || 0 : 0;
+    const rot = typeof angle === "number" ? angle : 0;
 
     tiles.forEach((el, i) => {
       const a = (-90 + rot + i * (360 / n)) * Math.PI / 180;
@@ -210,8 +211,6 @@
       return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
     }).join("");
   }
-
-  wireRotateSlider();
 
   // ---- seam: what this branch offers to everyone else ----
   Object.assign(Dojo, { showLobby });
