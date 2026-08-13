@@ -48,11 +48,11 @@
       const done = topics.filter(t => completedTopics.has(t.id)).length;
       const pct = topics.length ? Math.round((done / topics.length) * 100) : 0;
 
-      // A priced course (see registry.js's priceStars) not yet bought
+      // A priced course (see registry.js's priceTokens) not yet bought
       // is the second genuine hard-lock, same treatment as "not built
       // yet" below — Dojo.ownsCourse always returns true for a free
       // course, so this is a no-op for every course today.
-      const locked = c.priceStars > 0 && Dojo.ownsCourse && !Dojo.ownsCourse(c.id);
+      const locked = c.priceTokens > 0 && Dojo.ownsCourse && !Dojo.ownsCourse(c.id);
 
       const card = document.createElement("div");
       // The one genuine hard-lock in the app — everything inside an
@@ -62,7 +62,7 @@
       // explanation below.
       card.className = `topic-card course-card${c.available && !locked ? "" : " ahead restricted"}`;
       if (!c.available) card.setAttribute("data-explain", "Not open yet — this course is still being built.");
-      else if (locked) card.setAttribute("data-explain", `Costs ⭐ ${c.priceStars} — visit the Star Shop.`);
+      else if (locked) card.setAttribute("data-explain", `Costs 🪙 ${c.priceTokens} — visit the Token Shop.`);
       card.innerHTML = `
         <div class="topic-num">${c.icon}</div>
         <div class="topic-title">${c.title}</div>
@@ -74,12 +74,12 @@
           <span>·</span>
           <span>${pct}% complete</span>
           ${!c.available ? '<span class="topic-badge ahead-badge">Coming soon</span>' : ""}
-          ${c.available && locked ? `<span class="topic-badge ahead-badge">⭐ ${c.priceStars}</span>` : ""}
+          ${c.available && locked ? `<span class="topic-badge ahead-badge">🪙 ${c.priceTokens}</span>` : ""}
         </div>
         <div class="course-progress"><div class="course-progress-fill" style="width:${pct}%"></div></div>
       `;
       if (c.available && locked) {
-        card.addEventListener("click", () => Router.go("star-shop"));
+        card.addEventListener("click", () => Router.go("token-shop"));
       } else if (c.available) {
         card.addEventListener("click", () => {
           const enter = () => {

@@ -3,7 +3,7 @@
 > The folder is still called `shop/`; the screen is called **Career**.
 > Nothing is bought with study currency any more.
 
-Three currencies now, still deliberately separate — see `stars.js` below
+Three currencies now, still deliberately separate — see `tokens.js` below
 for the newest one.
 
 | File | Role |
@@ -11,7 +11,7 @@ for the newest one.
 | `themes.js` | Pure data: free `THEMES` + reward `PREMIUM_THEMES`. No DOM, no DB. |
 | `ranks.js` | Pure data: the 20-rank ladder, XP thresholds, rewards, lookups. |
 | `shop.js` | The Career screen — rank, the full ladder, what each rung awards. Read-only: it doesn't equip anything, see below. |
-| `stars.js` | The ⭐ Star Shop screen (reached from Library) — packs and priced-course purchases. See its own section below. |
+| `tokens.js` | The 🪙 Token Shop screen (reached from Library) — packs and priced-course purchases. See its own section below. |
 
 `life.js` (the life-sim: vitals, decay, night theft, the goods shop) was
 **removed** — see BACKLOG.md's Batch 5/9. The wallet strip it also used to
@@ -27,7 +27,7 @@ Stylesheet: `styles/shop.css`.
 |---|---|---|
 | ⚡ XP | studying | **never spent** — it raises your rank |
 | $ money | Garden, Arcade | food, hygiene, shelter, story scenes, game unlocks, Arcade stake-cap upgrades |
-| ⭐ Stars | rank-up rewards, real-money packs (currently a demo stub) | unlocks priced Library courses |
+| 🪙 Tokens | rank-up rewards, real-money packs (currently a demo stub) | unlocks priced Library courses |
 
 **None of the three convert to each other**, and nothing anywhere buys
 progress, hints, retries or exam advantage.
@@ -99,20 +99,25 @@ Arcade payouts, spent on Arcade unlocks and stakes — it just no longer
 buys anything survival-related, because there's no survival system left
 to buy for.
 
-## Stars (`stars.js`) — the Library's own currency
+## Tokens (`tokens.js`) — the Library's own currency
 
-A course opts into costing Stars by setting `priceStars` on its manifest
+Named Tokens, not Stars — ⭐ was already the XP glyph everywhere (the rank
+chip, the "+N XP" fly-bolt — see `core/hud.js`) before this currency
+existed, so it was renamed before ever shipping past one session rather
+than leave two unrelated things sharing a symbol.
+
+A course opts into costing Tokens by setting `priceTokens` on its manifest
 (`library/content/registry.js` defaults it to 0 = free). No course does
 today — `intro-cs` stays free — so this is machinery for the day a second,
 paid course exists, not a change to anything currently gated.
 
-**Earning:** a handful of rank-up rewards carry `reward: { stars: N }`
+**Earning:** a handful of rank-up rewards carry `reward: { tokens: N }`
 (ranks 6, 11, 15 right now) — credited exactly ONCE per rank crossed, via
 `core/boot.js`'s `"rank:up"` Bus listener, not re-derived from XP the way
-theme/bgStripe rewards are (see the comment on that in `ranks.js` — Stars
+theme/bgStripe rewards are (see the comment on that in `ranks.js` — Tokens
 are spendable, so a membership-scan pattern would re-grant them forever).
 
-**Spending / buying:** `Dojo.ownsCourse(id)` / the Star Shop's `buyCourse`
+**Spending / buying:** `Dojo.ownsCourse(id)` / the Token Shop's `buyCourse`
 gate courses the same way Arcade unlocks and stake-cap tiers do — a string
 in `DB`'s generic inventory array (`course_<id>`), no bespoke profile
 field. `buyPack()` is the real-money side, and **it's a deliberate stub**:
@@ -126,7 +131,8 @@ Course pricing was benchmarked against the market before building this —
 Dojo's actual shape (offline, no account, one-time unlock) is closer to
 Anki ($25 once, own forever) and Udemy (per-course, not subscription) than
 to Duolingo/Brilliant/Coursera's subscriptions, which is why courses are
-priced as one-time Star unlocks, not a recurring toll.
+priced as one-time Token unlocks, not a recurring toll. Pack pricing:
+$6.99/350, $11.99/650, $20.99/1200, $37.99/2300, $67.99/4500.
 
 ## The wallet strip (moved to `core/hud.js`)
 
@@ -141,7 +147,7 @@ wallet — there's nothing else left to render there.
 
 ## Exports
 `THEMES`, `PREMIUM_THEMES`, `ALL_THEMES`, `isPremium`, `renderShop`, `shopSummary`,
-`renderStarShop`, `ownsCourse`
+`renderTokenShop`, `ownsCourse`
 
 ## Emits
-`wallet:changed`, `stars:changed`
+`wallet:changed`, `tokens:changed`

@@ -1,25 +1,48 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
-## Batch 25 — ⭐ Stars economy: earn, spend, Star Shop, priced-course gating
+## Batch 26 — Popover z-index fix + landing page arrow removed
 
-- [x] **Stars is now a real, third currency**, separate from $ and XP
-      (`DB.getStars/addStars/spendStars`, mirroring the `$` wallet
+- [x] **`#wallet-popover` (shared by the $ and 🪙 chips) was rendering
+      almost entirely hidden behind a screen's own `.topbar`**, reported
+      live on the Token Shop screen ("the popup isn't visible as it's
+      under the dollar wallet and the bar itself") — reproduced exactly:
+      only a thin sliver peeked out below the topbar. Root cause: a
+      `position: sticky` `.topbar` forms its own stacking context, so
+      the popover's `z-index: 65` (sized only to clear the 59 vitals
+      strip it launched next to) wasn't being compared against it
+      directly and lost. Fixed by raising `.streak-popover`'s z-index to
+      500 — safely above any screen's own chrome, not just the vitals
+      strip. Verified live: real mouse click on the 🪙 chip while on the
+      Token Shop screen now shows the popover fully, not clipped.
+- [x] **Landing page's "Begin Training" button no longer has a trailing
+      arrow.** Was `Begin Training →`; the `<span class="arrow">` is
+      removed, not just hidden.
+
+## Batch 25 — 🪙 Tokens economy: earn, spend, Token Shop, priced-course gating
+
+- [x] **Tokens is now a real, third currency**, separate from $ and XP
+      (`DB.getTokens/addTokens/spendTokens`, mirroring the `$` wallet
       exactly). Researched the market first (Duolingo $60-120/yr,
       Brilliant $162-336/yr, Coursera Plus $399-708/yr, Quizlet
       $36-45/yr, vs. Anki $25 one-time / Udemy per-course) — Dojo's
       actual shape (offline, no account, one-time unlock) is the Anki/
       Udemy comparable, not the subscription apps, so courses are
-      designed as one-time Star unlocks, never a recurring toll.
-- [x] **Free earn path:** `reward: { stars: N }` added to 3 previously-
-      blank rank rungs (6, 11, 15 — 100/150/200 Stars). Credited exactly
+      designed as one-time Token unlocks, never a recurring toll.
+- [x] **Named Tokens, not Stars — caught mid-build.** ⭐ was already the
+      XP glyph (rank chip, "+N XP" fly-bolt, `core/hud.js`) before this
+      currency existed; shipped as "Stars" first, then renamed to
+      Tokens/🪙 across every file before this ever reached a second
+      session, rather than leave two unrelated things sharing a symbol.
+- [x] **Free earn path:** `reward: { tokens: N }` added to 3 previously-
+      blank rank rungs (6, 11, 15 — 100/150/200 Tokens). Credited exactly
       once per rank crossed via a new `"rank:up"` Bus listener in
       `core/boot.js`, NOT re-derived from XP the way theme/bgStripe
       rewards are — `shop/ranks.js` now documents why that pattern
       doesn't work for a spendable currency.
-- [x] **⭐ Star Shop screen** (`shop/stars.js`, reached from a new button
-      in the Library topbar): 4 Star packs ($2.99/300 → $19.99/2600,
-      bigger pack = better rate) and a Priced Courses section that only
-      appears once a course actually costs Stars.
+- [x] **🪙 Token Shop screen** (`shop/tokens.js`, reached from a new
+      button in the Library topbar): 5 Token packs ($6.99/350 →
+      $67.99/4500, bigger pack = better rate) and a Priced Courses
+      section that only appears once a course actually costs Tokens.
 - [x] **Real-money purchases are a DELIBERATE STUB, not faked.** No
       backend exists (static GitHub Pages site) to verify a real
       payment, and building one wasn't the ask — confirmed with the
@@ -31,19 +54,29 @@
       function — earning/spending/gating don't change.
 - [x] **Course pricing gate wired end-to-end**, even though no course
       uses it yet: `library/content/registry.js`'s course manifests
-      gained an optional `priceStars` (defaults to 0 = free — `intro-cs`
-      is unaffected). `Dojo.ownsCourse(id)` gates `renderCourseSelect`
-      the same way Arcade unlocks/stake tiers already gate their own
-      screens — a string in `DB`'s generic inventory array
-      (`course_<id>`), no new profile field.
+      gained an optional `priceTokens` (defaults to 0 = free —
+      `intro-cs` is unaffected). `Dojo.ownsCourse(id)` gates
+      `renderCourseSelect` the same way Arcade unlocks/stake tiers
+      already gate their own screens — a string in `DB`'s generic
+      inventory array (`course_<id>`), no new profile field.
+- [x] **Wallet-chip popover bug found and fixed while testing the new
+      Tokens chip.** Tapping the $ chip then the 🪙 chip right after (or
+      vice versa) just closed the popover instead of switching to the
+      new chip's content — `toggleWalletPopover` only checked "is a
+      popover open," not "open for which chip." `#wallet-popover` now
+      tracks which chip it's showing (`dataset.forChip`) and only
+      toggle-closes on a second tap of the SAME chip.
 - [x] **Verified live, full loop:** fresh profile, forced a rank
-      crossing at rank 6 → confirmed exactly 100 Stars credited; opened
-      the Star Shop, bought the Medium pack → balance 100→650; pushed a
-      throwaway `priceStars: 500` course into `COURSES` at runtime →
-      confirmed it rendered locked with a "⭐ 500" badge, clicking it
-      routed to the Star Shop instead of entering, bought it there
-      (650→150 Stars), confirmed `Dojo.ownsCourse` flipped to `true`
-      and the lock cleared. Cleaned up the test course/profile after.
+      crossing at rank 6 → confirmed exactly 100 Tokens credited; opened
+      the Token Shop, bought a pack → balance updated correctly; pushed
+      a throwaway `priceTokens: 500` course into `COURSES` at runtime →
+      confirmed it rendered locked with a "🪙 500" badge, clicking it
+      routed to the Token Shop instead of entering, bought it there,
+      confirmed `Dojo.ownsCourse` flipped to `true` and the lock
+      cleared. Cleaned up the test course/profile after. Popover fix
+      verified separately: wallet→tokens→wallet chip-switching now
+      updates content instead of closing, at both desktop and mobile
+      viewport widths.
 
 ## Batch 24 — Landing page tagline/hint contradiction resolved
 

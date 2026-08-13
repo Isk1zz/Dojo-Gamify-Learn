@@ -118,7 +118,7 @@
 /* Second currency chip, same shape as the wallet's — sits right after it
    (the wallet still owns margin-left:auto, pinning the PAIR to the
    right as a group) rather than each chip pinning itself separately. */
-.vital-stars {
+.vital-tokens {
   display: flex; align-items: center; gap: 0.35rem;
   padding: 0.2rem 0.55rem; border-radius: 999px; cursor: pointer;
   background: var(--bg-card); border: 1px solid var(--border);

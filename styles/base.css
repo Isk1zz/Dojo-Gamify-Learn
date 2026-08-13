@@ -698,7 +698,16 @@ body {
 }
 
 .streak-popover {
-  position: fixed; z-index: 65; min-width: 180px;
+  /* z-index 65 used to lose to a screen's own .topbar (position: sticky
+     forms its own stacking context, so a bare z-index number here isn't
+     compared against it directly — the popover rendered but painted
+     UNDER the topbar, invisible except for a sliver, reported live on
+     the Token Shop screen: "the popup isn't visible as it's under the
+     dollar wallet and the bar itself"). This popover is meant to sit
+     above EVERY screen's chrome unconditionally, so it needs a value
+     safely past anything a screen defines, not just past the vitals
+     strip (59) it was originally sized against. */
+  position: fixed; z-index: 500; min-width: 180px;
   padding: 0.7rem 0.85rem; border-radius: var(--radius-sm);
   background: var(--bg-card); border: 1px solid var(--border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);

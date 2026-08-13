@@ -1,20 +1,25 @@
 // ================================================
-// CS Dojo — SHOP / stars
+// CS Dojo — SHOP / tokens
 // ------------------------------------------------
-// A SECOND, separate currency from $ money — Stars buy Library courses,
+// A SECOND, separate currency from $ money — Tokens buy Library courses,
 // money buys Arcade/Garden things. Same "two currencies, deliberately
 // separate" rule SHOP.md documents for XP vs money; see data/db.js's
-// getStars/addStars/spendStars comment.
+// getTokens/addTokens/spendTokens comment.
 //
-// ---- Where Stars come from ----
+// Named Tokens, not Stars — ⭐ was already the XP glyph (rank chip, the
+// "+N XP" fly-bolt) before this currency existed. Renamed before it
+// ever shipped past one session rather than leave two unrelated things
+// sharing a symbol.
+//
+// ---- Where Tokens come from ----
 //   - Free: a handful of rank-up rewards (shop/ranks.js's `reward:
-//     { stars: N }`), credited once per rank crossed — see
+//     { tokens: N }`), credited once per rank crossed — see
 //     core/boot.js's "rank:up" Bus listener.
 //   - Bought: real-money packs, below. THIS PART IS A DELIBERATE STUB —
 //     see the big comment on buyPack().
 //
 // ---- Course pricing ----
-// A course opts into costing Stars by setting `priceStars` in its
+// A course opts into costing Tokens by setting `priceTokens` in its
 // manifest (library/content/registry.js defaults it to 0 = free). No
 // course does today — intro-cs stays free — so nothing currently gated
 // changes; this is the machinery for the day a second, paid course
@@ -26,16 +31,17 @@
 (() => {
   const showScreen = Dojo.showScreen;
 
-  // ---- Star packs ----
+  // ---- Token packs ----
   // Priced against the market (Anki/Udemy's one-time-purchase shape,
   // not Duolingo/Brilliant/Coursera's subscriptions — see the chat that
   // scoped this). Bigger pack, better rate, same psychology every
   // mobile-game currency shop uses.
-  const STAR_PACKS = [
-    { id: "small",  stars: 300,  priceLabel: "$2.99" },
-    { id: "medium", stars: 550,  priceLabel: "$4.99" },
-    { id: "large",  stars: 1200, priceLabel: "$9.99" },
-    { id: "best",   stars: 2600, priceLabel: "$19.99" }
+  const TOKEN_PACKS = [
+    { id: "small",  tokens: 350,  priceLabel: "$6.99" },
+    { id: "medium", tokens: 650,  priceLabel: "$11.99" },
+    { id: "large",  tokens: 1200, priceLabel: "$20.99" },
+    { id: "bigger", tokens: 2300, priceLabel: "$37.99" },
+    { id: "best",   tokens: 4500, priceLabel: "$67.99" }
   ];
 
   // ---- Course ownership ----
@@ -43,16 +49,16 @@
   function ownsCourse(courseId) {
     const c = COURSES.find(x => x.id === courseId);
     if (!c) return false;
-    if (!c.priceStars) return true; // free course — always "owned"
+    if (!c.priceTokens) return true; // free course — always "owned"
     return DB.getInventory().includes(courseKey(courseId));
   }
 
   function buyCourse(courseId) {
     const c = COURSES.find(x => x.id === courseId);
-    if (!c || !c.priceStars || ownsCourse(courseId)) return false;
-    if (!DB.spendStars(c.priceStars)) return false;
+    if (!c || !c.priceTokens || ownsCourse(courseId)) return false;
+    if (!DB.spendTokens(c.priceTokens)) return false;
     DB.addInventory(courseKey(courseId));
-    Dojo.Bus.emit("stars:changed", { delta: -c.priceStars, reason: "course-buy" });
+    Dojo.Bus.emit("tokens:changed", { delta: -c.priceTokens, reason: "course-buy" });
     return true;
   }
 
@@ -66,24 +72,24 @@
   // honest placeholder standing in the exact spot the real checkout
   // call goes, not a working purchase. Swap this one function's body
   // for a real Payment Link redirect once there's an account to wire it
-  // to; nothing else in the Star economy needs to change.
+  // to; nothing else in the Token economy needs to change.
   function buyPack(packId) {
-    const pack = STAR_PACKS.find(p => p.id === packId);
+    const pack = TOKEN_PACKS.find(p => p.id === packId);
     if (!pack) return false;
-    DB.addStars(pack.stars);
-    Dojo.Bus.emit("stars:changed", { delta: pack.stars, reason: "pack-demo" });
+    DB.addTokens(pack.tokens);
+    Dojo.Bus.emit("tokens:changed", { delta: pack.tokens, reason: "pack-demo" });
     return true;
   }
 
-  function renderStarShop() {
-    const body = document.getElementById("star-shop-body");
+  function renderTokenShop() {
+    const body = document.getElementById("token-shop-body");
     if (!body) return;
 
-    const pricedCourses = COURSES.filter(c => c.priceStars > 0);
+    const pricedCourses = COURSES.filter(c => c.priceTokens > 0);
 
     body.innerHTML = `
       <div class="shop-wallet">
-        <div class="sw-balance">⭐ ${DB.getStars()}</div>
+        <div class="sw-balance">🪙 ${DB.getTokens()}</div>
         <p class="settings-hint" style="margin:0.6rem 0 0;">
           Buying is a DEMO right now — packs credit instantly, no real
           payment happens yet. Real checkout arrives once this becomes a
@@ -91,38 +97,38 @@
         </p>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">⭐ Star Packs</div>
-        <div class="shop-grid" id="star-packs-grid"></div>
+        <div class="stats-section-title">🪙 Token Packs</div>
+        <div class="shop-grid" id="token-packs-grid"></div>
       </div>
       ${pricedCourses.length ? `
       <div class="settings-section">
         <div class="stats-section-title">\u{1F4DA} Priced Courses</div>
-        <div class="shop-grid" id="star-courses-grid"></div>
+        <div class="shop-grid" id="token-courses-grid"></div>
       </div>` : ""}
     `;
 
-    const packGrid = body.querySelector("#star-packs-grid");
-    STAR_PACKS.forEach(pack => {
+    const packGrid = body.querySelector("#token-packs-grid");
+    TOKEN_PACKS.forEach(pack => {
       const card = document.createElement("div");
       card.className = "shop-card";
       card.innerHTML = `
-        <div class="shop-card-preview game-preview"><span class="gp-icon">⭐</span></div>
+        <div class="shop-card-preview game-preview"><span class="gp-icon">🪙</span></div>
         <div class="shop-card-body">
-          <div class="shop-name">${pack.stars} Stars</div>
+          <div class="shop-name">${pack.tokens} Tokens</div>
           <div class="shop-tagline">Demo purchase — no real payment</div>
           <button class="shop-btn buy" data-pack="${pack.id}">${pack.priceLabel} (demo)</button>
         </div>`;
       card.querySelector("button").addEventListener("click", () => {
-        if (buyPack(pack.id)) renderStarShop();
+        if (buyPack(pack.id)) renderTokenShop();
       });
       packGrid.appendChild(card);
     });
 
     if (pricedCourses.length) {
-      const courseGrid = body.querySelector("#star-courses-grid");
+      const courseGrid = body.querySelector("#token-courses-grid");
       pricedCourses.forEach(c => {
         const owned = ownsCourse(c.id);
-        const afford = DB.getStars() >= c.priceStars;
+        const afford = DB.getTokens() >= c.priceTokens;
         const card = document.createElement("div");
         card.className = `shop-card${owned ? " owned" : ""}`;
         card.innerHTML = `
@@ -133,19 +139,19 @@
             ${owned
               ? `<div class="shop-price">Owned</div>`
               : `<button class="shop-btn buy${afford ? "" : " short"}" ${afford ? "" : "disabled"}>
-                   Unlock ⭐ ${c.priceStars}${afford ? "" : ` · need ${c.priceStars - DB.getStars()} more`}
+                   Unlock 🪙 ${c.priceTokens}${afford ? "" : ` · need ${c.priceTokens - DB.getTokens()} more`}
                  </button>`}
           </div>`;
         const btn = card.querySelector("button");
         if (btn && !btn.disabled) {
-          btn.addEventListener("click", () => { if (buyCourse(c.id)) renderStarShop(); });
+          btn.addEventListener("click", () => { if (buyCourse(c.id)) renderTokenShop(); });
         }
         courseGrid.appendChild(card);
       });
     }
 
-    showScreen("star-shop");
+    showScreen("token-shop");
   }
 
-  Object.assign(Dojo, { renderStarShop, ownsCourse });
+  Object.assign(Dojo, { renderTokenShop, ownsCourse });
 })();

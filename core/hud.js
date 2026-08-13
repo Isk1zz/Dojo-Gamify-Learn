@@ -129,13 +129,13 @@
     const activeEl = document.querySelector(".screen.active");
     if (activeEl && WALLET_HIDDEN_SCREENS.has(activeEl.id)) { strip.style.display = "none"; return; }
     strip.style.display = "flex";
-    strip.innerHTML = `<span class="vital-wallet"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`
-      + `<span class="vital-stars"><span class="vw-icon">⭐</span>${DB.getStars()}</span>`;
+    strip.innerHTML = `<span id="vital-wallet-chip" class="vital-wallet"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`
+      + `<span id="vital-tokens-chip" class="vital-tokens"><span class="vw-icon">🪙</span>${DB.getTokens()}</span>`;
   }
 
   // Tap the wallet, get a one-line reminder of what it's for. Same
-  // popover element doubles for the Stars chip — one at a time, whoever
-  // was tapped last, same as the wallet always worked.
+  // popover element doubles for the Tokens chip — one at a time,
+  // whoever was tapped last, same as the wallet always worked.
   function hideWalletPopover() {
     const pop = document.getElementById("wallet-popover");
     if (pop) pop.style.display = "none";
@@ -143,11 +143,20 @@
   function toggleWalletPopover(chip) {
     const pop = document.getElementById("wallet-popover");
     if (!pop || !chip) return;
-    if (pop.style.display === "block") { hideWalletPopover(); return; }
-    const isStars = chip.classList.contains("vital-stars");
-    pop.innerHTML = isStars
-      ? `<strong>⭐ ${DB.getStars()}</strong><br>`
-        + `Earned free from rank-ups, or bought in ⭐ Star Shop (Library). Spent `
+    // Only a click on the SAME chip that's already open should close it —
+    // tapping the OTHER chip while one is open used to just close
+    // whichever was open (this check didn't know which chip that was),
+    // so switching from $ to 🪙 looked like the popover "didn't show."
+    // It should switch straight to the new chip's content instead.
+    if (pop.style.display === "block" && pop.dataset.forChip === chip.id) {
+      hideWalletPopover();
+      return;
+    }
+    pop.dataset.forChip = chip.id;
+    const isTokens = chip.classList.contains("vital-tokens");
+    pop.innerHTML = isTokens
+      ? `<strong>🪙 ${DB.getTokens()}</strong><br>`
+        + `Earned free from rank-ups, or bought in 🪙 Token Shop (Library). Spent `
         + `to unlock courses. Never converts to or from $ money.`
       : `<strong>$${DB.getWallet()}</strong><br>`
         + `Earned from the Garden's daily dividends and Arcade wins. Spent to `
@@ -158,7 +167,7 @@
     pop.style.right = `${window.innerWidth - r.right}px`;
   }
   document.addEventListener("click", e => {
-    const chip = e.target.closest && e.target.closest(".vital-wallet, .vital-stars");
+    const chip = e.target.closest && e.target.closest(".vital-wallet, .vital-tokens");
     if (chip) { toggleWalletPopover(chip); return; }
     if (e.target.closest && !e.target.closest("#wallet-popover")) hideWalletPopover();
   });

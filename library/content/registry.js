@@ -83,8 +83,8 @@ const Content = (() => {
         id: c.id, title: c.title, subtitle: c.subtitle, icon: c.icon,
         available: c.available !== false,
         // 0/omitted = free, same as every course today. A course manifest
-        // opts INTO the Star Shop by setting this — see shop/stars.js.
-        priceStars: c.priceStars || 0,
+        // opts INTO the Token Shop by setting this — see shop/tokens.js.
+        priceTokens: c.priceTokens || 0,
         units: unitObjects.map(u => u.id),
         unitObjects
       });

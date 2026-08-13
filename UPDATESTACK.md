@@ -6,10 +6,10 @@ left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
 ## Ready to build, no blockers
-Nothing right now — Stars (earn, spend, Star Shop, course-price gating,
+Nothing right now — Tokens (earn, spend, Token Shop, course-price gating,
 see BACKLOG.md) is done. Real-money purchases stay a labeled demo stub
 until there's a payment account to wire a Payment Link to — that's a
-you-side task, not a code blocker, see `shop/stars.js`'s `buyPack()`.
+you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 
 ## New asks, not yet scoped (flagged, needs a decision first)
 - XP-farming / bot-prevention on Final Quiz retries — no anti-abuse check
