@@ -6,28 +6,32 @@
 //
 // ---- How the ladder was sized ----
 //
-// The ceiling is 50,000 XP at Nobel Laureate — 5x the previous 10,000
-// ceiling, by explicit request once the ladder was checked against
-// this app's ACTUAL content: one full course completion (141 chunks,
-// every topic exam, the Final Quiz) only nets ~2,300 XP at a realistic
-// ~90% average score, so the old 10,000 ceiling needed something like
-// 4-5 courses' worth of content to ever reach — with exactly one
-// course existing, "top of the ladder" was functionally unreachable,
-// not just a long climb. Raising the ceiling doesn't fix that by
-// itself; see the review-XP note below, which is the other half of
-// the same fix. The GAPS still widen the same way relative to each
-// other, just scaled up 5x along with everything else.
+// The ceiling is 100,000 XP at Nobel Laureate — doubled again from
+// 50,000 by explicit request, this time sized against a deliberately
+// LONG-TERM content target rather than what exists today: one full
+// course completion (141 chunks, every topic exam, the Final Quiz)
+// nets ~6,870 XP at a realistic ~90% average score, so 100,000 lands
+// at ~14.6 courses' worth of content — "about 15 courses" to call
+// someone a Nobel Laureate, the explicit target this ceiling was
+// picked to hit. With exactly one course existing today, that's an
+// aspirational multi-year target, not a near-term one — deliberately;
+// see library.js's REVIEW_XP_PER_CARD for the other half of why that's
+// sustainable rather than just a wall (review pays properly now, so
+// the climb doesn't stall once the one course is exhausted). The GAPS
+// still widen the same way relative to each other, just scaled up
+// 2x again along with everything else.
 //
 //   15 min  ~= 5 chunks
 //   1 chunk  = 5-7 XP, so ~30 XP on a normal NEW-content day
 //
 // At a flat 30 XP/day of pure new content, Nobel Laureate lands around
-// day 1,667 — but that number assumes nobody ever reviews, which was
-// never realistic and is even less so now that review pays properly
-// (see library.js's REVIEW_XP_PER_CARD): once the one course's content
-// is exhausted, daily income shifts to review sessions instead of
-// stopping, so real day-counts run faster than this pure-new-content
-// figure once someone's past the first course.
+// day 3,333 (~9 years) — but that number assumes nobody ever reviews
+// and nothing new ever ships, neither of which is the real scenario:
+// review pays properly now (see library.js's REVIEW_XP_PER_CARD), and
+// every additional course shipped is 3x denser XP/day than review-only
+// income at the same daily time, so real day-counts drop substantially
+// as more courses launch. This ceiling was chosen for where the
+// content roadmap is headed, not for the one course that exists today.
 //
 // Gaps widen deliberately: early ranks land fast enough to feel like
 // something is happening, late ones slowly enough that Nobel Laureate
@@ -61,26 +65,26 @@
 // ================================================
 
 const RANKS = [
-  { n: 1,  xp: 0,     name: "Lab Intern",               abbr: "INT",  reward: { bgStripe: "diagonal" } },
-  { n: 2,  xp: 600,   name: "Research Assistant I",     abbr: "RA1",  reward: { bgStripe: "crosshatch" } },
-  { n: 3,  xp: 1500,  name: "Research Assistant II",    abbr: "RA2",  reward: { bgStripe: "herringbone" } },
-  { n: 4,  xp: 2600,  name: "Lab Technician",           abbr: "TCH",  reward: { theme: "sakura" } },
-  { n: 5,  xp: 3900,  name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
-  { n: 6,  xp: 5400,  name: "Research Coordinator",     abbr: "CRD",  reward: { tokens: 100 } },
-  { n: 7,  xp: 7100,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
-  { n: 8,  xp: 9000,  name: "Lab Manager",              abbr: "MGR",  reward: { tokens: 50 } },
-  { n: 9,  xp: 11100, name: "Senior Lab Manager",       abbr: "SLM",  reward: { bgStripe: "lattice" } },
-  { n: 10, xp: 13400, name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
-  { n: 11, xp: 15900, name: "Director of Operations",   abbr: "DOP",  reward: { tokens: 150 } },
-  { n: 12, xp: 18600, name: "Master Technician",        abbr: "MTC",  reward: { tokens: 75 } },
-  { n: 13, xp: 21500, name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
-  { n: 14, xp: 24700, name: "Postdoctoral Researcher",  abbr: "PDR",  reward: { bgStripe: "origami" } },
-  { n: 15, xp: 28200, name: "Project Lead",             abbr: "PL",   reward: { tokens: 200 } },
-  { n: 16, xp: 32000, name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
-  { n: 17, xp: 36100, name: "Program Director",         abbr: "PD",   reward: { tokens: 100 } },
-  { n: 18, xp: 40500, name: "Senior Program Director",  abbr: "SPD",  reward: { tokens: 120 } },
-  { n: 19, xp: 45100, name: "Vice President of R&D",    abbr: "VP",   reward: { theme: "fuji" } },
-  { n: 20, xp: 50000, name: "Nobel Laureate",           abbr: "NL",   reward: { theme: "kirigami" } }
+  { n: 1,  xp: 0,      name: "Lab Intern",               abbr: "INT",  reward: { bgStripe: "diagonal" } },
+  { n: 2,  xp: 1200,   name: "Research Assistant I",     abbr: "RA1",  reward: { bgStripe: "crosshatch" } },
+  { n: 3,  xp: 3000,   name: "Research Assistant II",    abbr: "RA2",  reward: { bgStripe: "herringbone" } },
+  { n: 4,  xp: 5200,   name: "Lab Technician",           abbr: "TCH",  reward: { theme: "sakura" } },
+  { n: 5,  xp: 7800,   name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
+  { n: 6,  xp: 10800,  name: "Research Coordinator",     abbr: "CRD",  reward: { tokens: 100 } },
+  { n: 7,  xp: 14200,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
+  { n: 8,  xp: 18000,  name: "Lab Manager",              abbr: "MGR",  reward: { tokens: 50 } },
+  { n: 9,  xp: 22200,  name: "Senior Lab Manager",       abbr: "SLM",  reward: { bgStripe: "lattice" } },
+  { n: 10, xp: 26800,  name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
+  { n: 11, xp: 31800,  name: "Director of Operations",   abbr: "DOP",  reward: { tokens: 150 } },
+  { n: 12, xp: 37200,  name: "Master Technician",        abbr: "MTC",  reward: { tokens: 75 } },
+  { n: 13, xp: 43000,  name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
+  { n: 14, xp: 49400,  name: "Postdoctoral Researcher",  abbr: "PDR",  reward: { bgStripe: "origami" } },
+  { n: 15, xp: 56400,  name: "Project Lead",             abbr: "PL",   reward: { tokens: 200 } },
+  { n: 16, xp: 64000,  name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
+  { n: 17, xp: 72200,  name: "Program Director",         abbr: "PD",   reward: { tokens: 100 } },
+  { n: 18, xp: 81000,  name: "Senior Program Director",  abbr: "SPD",  reward: { tokens: 120 } },
+  { n: 19, xp: 90200,  name: "Vice President of R&D",    abbr: "VP",   reward: { theme: "fuji" } },
+  { n: 20, xp: 100000, name: "Nobel Laureate",           abbr: "NL",   reward: { theme: "kirigami" } }
 ];
 
 // Empty since the life-sim (the last thing that used a feature gate —

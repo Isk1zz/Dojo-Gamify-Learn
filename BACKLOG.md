@@ -1,5 +1,21 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 38 — Rank ladder doubled again: 100,000 XP, ~15-course target
+
+- [x] **Nobel Laureate ceiling doubled again, 50,000 → 100,000 XP**
+      (`shop/ranks.js`), explicitly sized this time against a long-term
+      content target rather than what exists today: one course
+      completion nets ~6,870 XP, so 100,000 lands at ~14.6 courses'
+      worth — "about 15 courses" was the explicit target this number
+      was picked to hit. Every rung's threshold and the gaps between
+      them scaled proportionally. Header comment rewritten to state the
+      15-course target directly and to stop implying the old "day
+      1,667" pure-content estimate was ever the realistic path — it
+      isn't, once review pays properly and more courses ship.
+      Token-reward rank amounts untouched (only XP thresholds moved).
+- [x] **Verified live**: ceiling confirmed at 100,000 XP, rank 6 at
+      10,800 XP.
+
 ## Batch 37 — "Sources & further reading" visual polish
 
 - [x] **Fixed the sources box crowding the phase button below it** —
