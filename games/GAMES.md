@@ -65,8 +65,9 @@ decision rather than a missing file — it cost a whole round trip to spot. It
 now draws **"Not loaded — see console"** and logs the exact tag to add.
 
 ## The gate — already enforced
-Per round: **1 ticket**, stake capped at $50 and at the wallet. Tickets: **7
-per 6 hours, ceiling 7** — the only limiter.
+Per round: **1 ticket**, stake capped at each game's own cap (see Stake-cap
+upgrades below) and at the wallet. Tickets: **7 per 6 hours, ceiling 7** — the
+only limiter.
 
 Energy was removed in v6. It and tickets were two rate limits doing the same
 job, and the ticket is the one that reads as "come back later". The `energy`
@@ -90,10 +91,33 @@ so playing at a steady stake meant retyping it all evening.
 
 - It is remembered **before** `beginRound`'s refusals, so a round you couldn't
   afford still leaves the number you meant in the box.
-- `stakeDefault()` clamps to the wallet and to `MAX_STAKE`. A pre-filled amount
-  you can't afford is worse than a wrong one.
+- `stakeDefault(gameId)` clamps to the wallet and to that game's own cap. A
+  pre-filled amount you can't afford (or can't legally stake in that game) is
+  worse than a wrong one.
 - Session-only, deliberately. A stake is a mood, not a setting, and it would
   otherwise need a `db.js` field.
+- `lastStake` itself stays SHARED across all four games on purpose — the boxes
+  agree on the same *number*, just clamped differently per game now that caps
+  differ. Splitting it per-game was considered and rejected: that's what made
+  the four boxes disagree with each other in the first place.
+
+## Stake-cap upgrades (Arcade → Upgrades tab)
+
+Each game starts at the $50 base cap (`MAX_STAKE`) and can be raised through 5
+tiers, bought one at a time with money: $75/$500, $100/$1000, $150/$2000,
+$200/$4000, $250/$8000. Tiers are **per game** — maxing out Crash says nothing
+about Blackjack.
+
+Ownership is stored the same way `UNLOCK_PRICE` game unlocks are: a string in
+`DB`'s inventory array (`stake_<gameId>_<tier>`), not a bespoke profile field —
+no `db.js` schema change needed. `stakeTier(gameId)` reports the highest tier
+key present; `stakeCapFor(gameId)` turns that into a dollar figure;
+`buyStakeUpgrade(gameId)` is the only way tiers change, same "money only moves
+through one function" rule `beginRound`/`settle`/`raise` already follow.
+
+A game must be unlocked (owned) before its upgrade ladder can be bought — the
+Upgrades tab still shows every built game's card, greyed out, so the ladder
+isn't a surprise the day you do unlock one.
 
 ## Tabs and `TAB_GATE`
 

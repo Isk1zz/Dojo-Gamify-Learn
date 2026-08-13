@@ -11,8 +11,6 @@ just "what's still owed."
   automatically, on this device." Left both as-is pending your call.
 
 ## Needs a design decision first
-- Increase betting cap by upgrading user profile — likely rank-tied like
-  themes/stripes, but that's a guess, not a decision.
 - Stars currency for course pricing — 3rd currency, needs the ad-network
   question resolved.
 - Buy stars for money to unlock courses — same currency question as above.

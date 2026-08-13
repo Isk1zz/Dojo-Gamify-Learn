@@ -7,7 +7,8 @@
 //
 // The gate:
 //   - 1 ticket per round. 7 tickets per 6h, ceiling 7.
-//   - stake capped at MAX_STAKE and at the current wallet.
+//   - stake capped at the game's own cap (see STAKE_TIERS) and at the
+//     current wallet.
 //   - the game must be unlocked.
 // Energy was deleted in v6 — it and tickets were two rate limits doing
 // the same job. The `energy` field survives in stored profiles because
@@ -28,7 +29,58 @@
   const Bus = Dojo.Bus;
   const showScreen = Dojo.showScreen;
 
+  // Base cap before any upgrade is bought — was the flat MAX_STAKE
+  // every game shared. Kept as the tier-0 floor now that each game has
+  // its own ladder (see STAKE_TIERS below).
   const MAX_STAKE = 50;
+
+  // ---- Stake-cap upgrades (Arcade → Upgrades tab) ----
+  // Each of the four games has its OWN cap, upgraded independently —
+  // maxing out Crash says nothing about Blackjack's cap. Same "bought
+  // once with MONEY" pattern as UNLOCK_PRICE below, stored the same
+  // generic way: a string in DB's inventory array, not a bespoke field,
+  // so no profile-schema migration was needed for this. Ownership of
+  // tier N implies nothing about tier N-1 being separately owned —
+  // stakeTier() just reports the highest tier whose key is present.
+  const STAKE_TIERS = [
+    { tier: 1, cap: 75,  price: 500 },
+    { tier: 2, cap: 100, price: 1000 },
+    { tier: 3, cap: 150, price: 2000 },
+    { tier: 4, cap: 200, price: 4000 },
+    { tier: 5, cap: 250, price: 8000 }
+  ];
+
+  const stakeTierKey = (gameId, tier) => `stake_${gameId}_${tier}`;
+
+  // Highest tier bought for this game, 0 if none.
+  function stakeTier(gameId) {
+    const inv = DB.getInventory();
+    for (let i = STAKE_TIERS.length - 1; i >= 0; i--) {
+      if (inv.includes(stakeTierKey(gameId, STAKE_TIERS[i].tier))) return STAKE_TIERS[i].tier;
+    }
+    return 0;
+  }
+
+  function stakeCapFor(gameId) {
+    const t = stakeTier(gameId);
+    return t === 0 ? MAX_STAKE : STAKE_TIERS[t - 1].cap;
+  }
+
+  // Returns the tier definition (tier, cap, price) not yet owned by this
+  // game, or null if it's already at the top of the ladder.
+  function nextStakeTier(gameId) {
+    return STAKE_TIERS[stakeTier(gameId)] || null;
+  }
+
+  // Returns true only if the money actually left the wallet.
+  function buyStakeUpgrade(gameId) {
+    const next = nextStakeTier(gameId);
+    if (!next || !isUnlocked(gameId)) return false;
+    if (!DB.spendMoney(next.price)) return false;
+    DB.addInventory(stakeTierKey(gameId, next.tier));
+    Bus.emit("wallet:changed", { delta: -next.price, reason: "stake-upgrade" });
+    return true;
+  }
 
   // ---- Unlock prices ----
   // Bought once, with MONEY, and stored in the inventory as
@@ -57,13 +109,18 @@
   // arcade level entirely. See backFromArcade below.
   let inGame = false;
 
-  function rememberStake(n) {
+  function rememberStake(n, gameId) {
     const s = Math.floor(Number(n) || 0);
-    if (s > 0) lastStake = Math.min(s, MAX_STAKE);
+    // Clamped to whichever game just set it, not a shared ceiling — the
+    // four boxes still agree on the NUMBER (that's the point of keeping
+    // this shared rather than per-game), just not on what the top of
+    // the range is, since that's per-game now.
+    if (s > 0) lastStake = Math.min(s, gameId ? stakeCapFor(gameId) : MAX_STAKE);
   }
 
-  function stakeDefault() {
-    return Math.max(1, Math.min(lastStake, MAX_STAKE, DB.getWallet() || 1));
+  function stakeDefault(gameId) {
+    const cap = gameId ? stakeCapFor(gameId) : MAX_STAKE;
+    return Math.max(1, Math.min(lastStake, cap, DB.getWallet() || 1));
   }
 
   const unlockKey = id => `game_${id}`;
@@ -126,10 +183,10 @@
   function beginRound(stake, gameId) {
     // Remembered before any of the refusals below, so a round you
     // couldn't afford still leaves the number you meant in the box.
-    rememberStake(stake);
+    rememberStake(stake, gameId);
     if (gameId && !isUnlocked(gameId)) return null;
     const s = Math.floor(Number(stake) || 0);
-    if (s <= 0 || s > MAX_STAKE) return null;
+    if (s <= 0 || s > stakeCapFor(gameId)) return null;
     if (DB.getWallet() < s) return null;
     if (DB.getTickets() < 1) return null;
     if (!DB.spendMoney(s)) return null;
@@ -171,7 +228,10 @@
   // ---- Tabs ----
   // Another branch adds a tab instead of taking its own lobby slot:
   //   Arcade.registerTab({ id, label, render(body) })
-  const tabs = [{ id: "games", label: "\u{1F3B0} Games", render: renderGamesTab }];
+  const tabs = [
+    { id: "games", label: "\u{1F3B0} Games", render: renderGamesTab },
+    { id: "upgrades", label: "⬆️ Upgrades", render: renderUpgradesTab }
+  ];
   function registerTab(tab) { if (!tabs.some(t => t.id === tab.id)) tabs.push(tab); }
 
   // ---- Rank-gated tabs ----
@@ -268,8 +328,10 @@
           ${tickets < DB.constants().TICKET_MAX ? `\u00b7 next in ${fmtWait(DB.msUntilNextTicket())}` : ""}
         </div>
         <p class="settings-hint" style="margin:0.6rem 0 0;">
-          One ticket a round, stakes capped at $${MAX_STAKE}, seven tickets every six hours.
-          That ceiling is the whole brake \u2014 the arcade is a break, not an income.
+          One ticket a round, seven tickets every six hours. Each game starts
+          capped at $${MAX_STAKE} a stake \u2014 raise it per game in
+          \u2b06\ufe0f Upgrades. That ceiling is the whole brake \u2014 the arcade is a
+          break, not an income.
         </p>
       </div>
       <div class="settings-section">
@@ -323,7 +385,76 @@
             return;
           }
           inGame = true;
-          g.mount(body, { beginRound, settle, raise, MAX_STAKE, stakeDefault, renderGames, gameId: g.id });
+          g.mount(body, {
+            beginRound, settle, raise, renderGames, gameId: g.id,
+            MAX_STAKE: stakeCapFor(g.id),
+            stakeDefault: () => stakeDefault(g.id)
+          });
+        });
+      }
+      grid.appendChild(card);
+    });
+  }
+
+  // Per-game stake-cap ladder. Unbuilt/not-yet-unlocked games still show
+  // a card (greyed out, same "locked" treatment the Games tab uses) so
+  // the ladder itself isn't a surprise once a game IS unlocked — same
+  // reasoning as `reward: null` ranks staying on the ladder in ranks.js.
+  function renderUpgradesTab(body) {
+    if (!body) return;
+    body.innerHTML = `
+      <div class="shop-wallet">
+        <div class="sw-balance">$${DB.getWallet()}</div>
+        <p class="settings-hint" style="margin:0.6rem 0 0;">
+          Five tiers per game, each raising ONLY that game's stake cap.
+          Unlock the game in \u{1F3B0} Games first.
+        </p>
+      </div>
+      <div class="settings-section">
+        <div class="stats-section-title">\u{2b06}\u{fe0f} Stake Upgrades</div>
+        <div class="shop-grid" id="upgrades-grid"></div>
+      </div>`;
+
+    const grid = body.querySelector("#upgrades-grid");
+
+    catalogue().filter(g => g.built).forEach(g => {
+      const owned = isUnlocked(g.id);
+      const tier = owned ? stakeTier(g.id) : 0;
+      const cap = owned ? stakeCapFor(g.id) : MAX_STAKE;
+      const next = owned ? nextStakeTier(g.id) : null;
+      const afford = next ? DB.getWallet() >= next.price : false;
+
+      const card = document.createElement("div");
+      card.className = `shop-card${owned ? " owned" : " locked"}`;
+
+      let action;
+      if (!owned) {
+        action = `<div class="shop-price soon-tag">Unlock the game first</div>`;
+      } else if (!next) {
+        action = `<div class="shop-price">Maxed — $${cap} cap</div>`;
+      } else {
+        action = `<button class="shop-btn buy${afford ? "" : " short"}" data-act="upgrade" data-game="${g.id}" ${afford ? "" : "disabled"}>
+                    Tier ${next.tier}: $${next.cap} cap — $${next.price}${afford ? "" : ` · need $${next.price - DB.getWallet()} more`}
+                  </button>`;
+      }
+
+      card.innerHTML = `
+        <div class="shop-card-preview game-preview"><span class="gp-icon">${g.icon}</span></div>
+        <div class="shop-card-body">
+          <div class="shop-name">${g.name}</div>
+          <div class="shop-tagline">${owned ? `Tier ${tier}/5 · current cap $${cap}` : g.tagline}</div>
+          ${action}
+        </div>`;
+
+      const btn = card.querySelector("button");
+      if (btn && !btn.disabled) {
+        btn.addEventListener("click", () => {
+          // Redraw THIS TAB IN PLACE, same reasoning as the Games tab's
+          // own unlock handler — ARCHITECTURE.md §6.
+          if (buyStakeUpgrade(g.id)) {
+            if (Dojo.renderVitals) Dojo.renderVitals();
+            renderUpgradesTab(body);
+          }
         });
       }
       grid.appendChild(card);

@@ -1,5 +1,54 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 21 — Star lobby: windmill/wind readout out, velocity rotate slider in
+
+- [x] **Windmill (the spinning blades behind the hub) replaced with a
+      draggable rotate slider.** First pass: slider set an absolute
+      angle, top-left of the ring, Star style only — dragging it feeds
+      into the same trig `layoutLobbyRadial` already used for tile
+      position and the spoke lines (repositions tiles via `--tx`/`--ty`,
+      not a CSS `rotate()` on the container), so tile icons/text stay
+      upright and click hit-testing stays correct as it turns. Verified
+      live post-rotation: a settled click on a rotated tile navigates to
+      the right screen.
+- [x] **Wind readout ("💨 N mph DIR") removed entirely; slider reworked
+      into a velocity dial.** Follow-up ask: the slider should set spin
+      *speed*, not a fixed angle. Centered on 0 (no spin); dragging
+      either way sets degrees/second. A `requestAnimationFrame` loop
+      (`starSpinTick` in `core/lobby.js`) reads the slider every frame
+      and accumulates it into an angle, still fed through the same
+      `layoutLobbyRadial` trig. Verified live: off-center spins
+      continuously (tile position keeps advancing across a wait), back
+      at 0 holds still (`--tx` identical before/after a wait).
+
+## Batch 22 — Per-game stake-cap upgrades
+
+- [x] **Per-game stake-cap upgrades, bought in Arcade → Upgrades.**
+      Each of the four games now has its own $50→$75→$100→$150→$200→$250
+      cap ladder (5 tiers, $500/$1000/$2000/$4000/$8000, doubling each
+      tier), independent per game — maxing Crash says nothing about
+      Blackjack. Deliberately kept OUT of the Career screen: `SHOP.md`
+      documents Career as read-only ("no money shop any more") after
+      the old life-sim shop was removed, and reversing that call wasn't
+      the goal — confirmed with the requester before building, landed
+      in Arcade instead, right next to the existing game-unlock
+      purchases that already spend the same currency there.
+      Ownership stored the same way game unlocks are (a string in DB's
+      inventory array, `stake_<gameId>_<tier>`) — no `db.js` schema
+      change needed. `games/games.js` gained `STAKE_TIERS`,
+      `stakeTier`/`stakeCapFor`/`nextStakeTier`/`buyStakeUpgrade`, and a
+      second Arcade tab (`renderUpgradesTab`); `beginRound`/
+      `rememberStake`/`stakeDefault` all now take a `gameId` and clamp
+      to that game's cap instead of one shared `MAX_STAKE`. `lastStake`
+      itself stays shared across games on purpose (see `GAMES.md`).
+      Verified live end-to-end: unlocked Crash, bought its tier-1
+      upgrade ($500, wallet debited exactly that), card redrew in place
+      showing Tier 1/5 · $75 cap · next tier $100/$1000, opened Crash
+      itself and confirmed its stake input's `max="75"` and its own
+      copy ("Max stake $75") both picked up the new cap, confirmed
+      `beginRound(100, 'crash')` is rejected (over cap) while
+      `beginRound(70, 'crash')` succeeds and debits the wallet.
+
 ## Batch 20 — Flashcard review overhaul + two small fixes
 
 - [x] **Bug (screenshot): Star lobby "broken"** — investigated, NOT a
