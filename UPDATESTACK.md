@@ -30,6 +30,63 @@ you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
   bypassing course ownership, Sources-box crowding the phase button —
   all found and fixed (Batches 32/33/37).
 
+## SECURITY AUDIT (2026-08-13) — findings, verified not guessed
+
+**Clean / verified good:**
+- **XSS via profile name is properly guarded.** The profile name is the
+  only genuinely user-controlled string in the app, and every single
+  place it renders uses `.textContent`, never `innerHTML` —
+  `core/profile.js` (list + badge), `core/hud.js` (nickname),
+  `core/lobby.js` (welcome line). Checked every `${...name...}` template
+  literal in the codebase; the rest are app-authored data (theme, rank,
+  garden-stage, badge names), not user input.
+- **`settings/codes.js` is correctly gitignored and not deployed**, and
+  `codes.example.js` is currently empty (`({})`), so no live cheat
+  codes ship in the bundle.
+
+**Real findings, in honest severity order:**
+1. **The whole paywall is client-side only and bypassable.** Anyone can
+   open devtools, edit localStorage, and unlock every course for free.
+   This is not a bug to patch — it is a direct consequence of "static
+   site, no backend, no accounts." Worth stating plainly because it
+   caps what the Token economy can ever be worth commercially until
+   there is a server. Everything below is smaller than this.
+2. **`SECRET_ADMIN_NAME = "adminaccount"` is hardcoded in tracked,
+   deployed `data/db.js`** (line ~341), so it is publicly readable by
+   anyone who views source on the live site. Typing it as a profile
+   name grants the admin unlock. Note `codes.example.js`'s own comment
+   already acknowledges this trade ("that ships fine") — it was a
+   deliberate call to make it work on the deployed site. Given finding
+   #1 it grants nothing that devtools didn't already, but it should be
+   a *known* public string, not one believed to be secret.
+3. **Old cheat codes are still in git history** — commit `0a4a2d2`
+   committed a `settings/codes.js` containing `admin613`, `agrala`,
+   `parnasa100`, `capmyrank`; `9282a36` untracked it, which does NOT
+   remove it from history. **Low severity**: those codes only ever
+   executed from a locally-present `codes.js`, which is never served,
+   so they are inert on the deployed site. Only matters if those
+   strings are reused as secrets elsewhere. Fixing properly means
+   history rewrite (`git filter-repo`) + force-push — deliberately NOT
+   done unilaterally, since that rewrites shared history.
+
+**Not yet audited (next session):** CSP headers; `innerHTML` with
+authored course content (low risk, but unreviewed); localStorage quota
+exhaustion / corrupt-JSON resilience on `DB.load()`; whether `sw.js`'s
+cache-first strategy can pin a broken build.
+
+## CLEANUP — assessed, deliberately NOT executed
+
+- **Dead profile fields** (`energy`, `vitals`, `lastVitalTick`,
+  `storyProgress`) are life-sim leftovers nothing reads. They look like
+  obvious deletions, but `data/db.js` documents "migrations never drop
+  a field" as a deliberate invariant — removing them would break that
+  contract and risk old saved profiles. **Recommend leaving them**; the
+  cost is a few unread bytes per profile, the risk of removal is real.
+- **Empty infra objects** (`FEATURES`, `TAB_GATE`, `COMING`) are all
+  documented as intentional extension seams, not oversights. Leave.
+- **`settings/codes.js` and `codes.example.js` are byte-identical**
+  (both the empty template). Harmless, but the local copy is redundant.
+
 ## Still open — needs your input
 - **Token icon renders as silver on the phone screenshot, gold on
   laptop.** Very likely a platform emoji-rendering difference (🪙 is
@@ -86,6 +143,40 @@ you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 - A promo plan once there's something concrete to point people at.
 None of this has a code deliverable yet — it's strategy work, flagged
 here so it isn't lost, not something I can just start building.
+
+### Popularization notes — what to BUILD to make it spreadable
+Ordered by (impact ÷ effort). These are the code-side changes that would
+actually help distribution, as opposed to the strategy work above.
+
+**Highest leverage, genuinely cheap:**
+1. **Shareable result cards.** The Final Quiz / topic-mastery result
+   screen already computes a score, a rank, and a streak — rendering
+   that to a downloadable image (canvas) with the Dojo mark turns every
+   pass into an organic post. This is the single most social-shaped
+   thing the app already almost has.
+2. **Open Graph / Twitter card meta tags.** `index.html` has a
+   `description` but no `og:image`/`og:title`. Right now every link
+   anyone shares unfurls as a bare grey box — actively costs clicks.
+   Near-zero effort, pure upside.
+3. **A real favicon/app-icon audit + install prompt polish.** It's
+   already an installable PWA; "add to home screen" is a retention
+   mechanic that costs nothing extra to lean into.
+
+**Medium effort, high ceiling:**
+4. **A free sample unit that needs no purchase.** With the course now
+   priced, a first-time visitor hits a paywall before experiencing the
+   thing that's actually good (the chunk→predict→explain→quiz loop).
+   One free unit is the strongest possible demo of the product.
+5. **Deep links to a specific topic/unit** (`?topic=...`). Makes the
+   app linkable from a video description or a comment, instead of only
+   ever "go to the homepage and find it."
+6. **A public "what I learned" streak/stat page** — needs the backend,
+   so parked behind the account work, but worth designing toward.
+
+**Worth noting honestly:** the biggest growth blocker is not a missing
+feature, it's that there is one course and no distribution channel. #1
+and #2 above are the only items here that pay off *before* those two
+problems are solved.
 
 ## Long-term roadmap (later — needs the account/backend question settled first)
 - Finish out the web app, then port to iOS and Android.
