@@ -122,6 +122,17 @@ function insigniaSvg(rank) {
     return RANKS.find(r => r.xp > xp) || null;
   }
 
+  // Visual tier, not a gameplay one — four even 5-rank bands so the
+  // ladder reads as a progression at a glance (basic -> mid -> elite ->
+  // legendary), same convention most game rank ladders use. Purely
+  // cosmetic: nothing about XP math, rewards, or unlocks reads this.
+  function rankTier(n) {
+    if (n <= 5) return "basic";
+    if (n <= 10) return "mid";
+    if (n <= 15) return "elite";
+    return "legendary";
+  }
+
   // Everything the HUD needs in one call.
   function progress(xp) {
     const cur = rankFor(xp);
@@ -165,7 +176,7 @@ function insigniaSvg(rank) {
   // "rank:up" Bus listener in core/boot.js) — event-driven, not
   // recomputed from current state.
 
-  Dojo.Ranks = { RANKS, FEATURES, rankFor, nextRank, progress, unlockedThemes, themeRank,
+  Dojo.Ranks = { RANKS, FEATURES, rankFor, nextRank, progress, rankTier, unlockedThemes, themeRank,
                  unlockedBgStripes, bgStripeRank,
                  hasFeature, featureRank, insigniaSvg };
 })();

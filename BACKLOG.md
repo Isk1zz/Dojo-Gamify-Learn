@@ -1,5 +1,17 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 34 — Rank tier colors
+
+- [x] **Rank abbreviation badges now color-coded by tier** — four even
+      5-rank bands (`shop/ranks.js`'s new `rankTier(n)`): basic (1-5,
+      gray), mid (6-10, blue), elite (11-15, purple), legendary (16-20,
+      gold, with a glow). Applied to both the Career ladder's small
+      badges and the current-rank card's big badge. Purely visual —
+      nothing about XP, rewards, or unlocks reads the tier; an
+      unreached rank still shows its tier color, just dimmed by the
+      row's own existing opacity. Verified live: all four tiers render
+      distinctly across the full ladder.
+
 ## Batch 33 — Unit/course completion rewards (Asphalt-Legends-style track), Final Quiz lock, Career/Flashcards fixes
 
 - [x] **Unit and course completion rewards**, styled as a mobile-racing-

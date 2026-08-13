@@ -173,8 +173,20 @@
 .rr-badge {
   font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
   color: var(--text-dim); text-align: center;
+  padding: 0.15rem 0.35rem; border-radius: 5px; border: 1px solid transparent;
 }
-.rank-row.reached .rr-badge { color: var(--accent-light); }
+/* Tier colors — four even 5-rank bands, basic -> mid -> elite ->
+   legendary (shop/ranks.js's rankTier). Purely visual: an unreached
+   rank still shows its tier color, just dimmed by .rank-row's own
+   opacity, same as everything else in an unreached row — the tier
+   itself isn't a reached/unreached state. */
+.tier-basic { color: var(--text-dim); background: rgba(255,255,255,0.04); border-color: var(--border); }
+.tier-mid { color: #38bdf8; background: rgba(56,189,248,0.12); border-color: rgba(56,189,248,0.35); }
+.tier-elite { color: #c084fc; background: rgba(168,85,247,0.14); border-color: rgba(168,85,247,0.4); }
+.tier-legendary {
+  color: #fbbf24; background: rgba(251,191,36,0.16); border-color: rgba(251,191,36,0.45);
+  box-shadow: 0 0 8px rgba(251,191,36,0.25);
+}
 .rr-xp { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); }
 .rr-reward { font-size: 0.76rem; color: var(--text-dim); min-width: 140px; text-align: right; }
 .rr-blank { color: var(--text-muted); opacity: 0.5; }

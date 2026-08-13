@@ -54,7 +54,7 @@
     body.innerHTML = `
       <div class="shop-wallet">
         <div class="rank-now">
-          <span class="rank-badge">${prog.cur.abbr}</span>
+          <span class="rank-badge tier-${R.rankTier(prog.cur.n)}">${prog.cur.abbr}</span>
           <span>
             <span class="rank-name">${prog.cur.name}</span>
             <span class="sw-meta">${xp} XP total${prog.next
@@ -100,7 +100,7 @@
       const row = document.createElement("div");
       row.className = `rank-row${reached ? " reached" : ""}${isNow ? " now" : ""}`;
       row.innerHTML = `
-        <span class="rr-badge">${r.abbr}</span>
+        <span class="rr-badge tier-${R.rankTier(r.n)}">${r.abbr}</span>
         <span class="rr-name">${r.name}</span>
         <span class="rr-xp">${r.xp} XP</span>
         <span class="rr-reward">${rewardLabel
