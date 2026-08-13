@@ -31,9 +31,6 @@ you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
   be swapping the emoji for a custom inline SVG coin icon everywhere
   Tokens are shown — real but small work. Confirm it's worth doing
   before I build it.
-- **XP-farming / bot-prevention on Final Quiz retries** — no anti-abuse
-  check exists yet on repeated attempts. (The OTHER Final Quiz ask —
-  locking it until every unit is complete — is done, Batch 33.)
 
 ## Blocked on the backend (Supabase — assigned, nothing built)
 - Career weekly XP ladder.

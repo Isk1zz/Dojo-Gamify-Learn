@@ -1442,6 +1442,8 @@
     state.examSubmitted = [];
     state.quizAnswer = null;
     state.quizSubmitted = false;
+    // Stage 2 of Final Quiz anti-farming — see showFinalQuizResults.
+    state.finalQuizStartedAt = Date.now();
     showScreen("exam");
     renderExamQuestion();
   }
@@ -1645,8 +1647,18 @@
     // (see data/db.js), which makes it the exact dedup signal a
     // one-time completion bonus needs.
     const isFirstPass = passed && !DB.getFinalQuiz().completedAt;
-    DB.recordFinalQuizResult(correct, total, passed);
+    const { xpEligible } = DB.recordFinalQuizResult(correct, total, passed);
     Bus.emit("final-quiz:finished", { correct, total, passed });
+
+    // Stage 2 of Final Quiz anti-farming: a genuine cumulative read
+    // takes real time, even skimming — a full guess-through clicking
+    // options as fast as the UI allows finishes in a couple of
+    // seconds. 4s/question is generous (a real fast reader still
+    // clears it) while catching that. Stage 1 (data/db.js's daily
+    // xpEligible cap) and this are independent checks; either one
+    // withholding the per-attempt bonus is enough.
+    const elapsedMs = Date.now() - (state.finalQuizStartedAt || Date.now());
+    const tooFast = elapsedMs < total * 4000;
 
     document.getElementById("btn-to-topics").textContent = "Back to Library";
     document.getElementById("result-icon").textContent = passed ? "\u{1F393}" : "\u{1F4DA}";
@@ -1663,12 +1675,25 @@
     const bonus = Math.round(FINAL_QUIZ_XP_BASE * mult);
     const bonusEl = document.getElementById("result-charge");
     if (bonusEl) {
-      const granted = awardCharge(bonus, scoreEl);
-      let html = `<span class="charge-award">⚡ +${granted} XP <span class="ca-mult">(&times;${mult.toFixed(2)} for ${pct}%)</span></span>`;
+      let html = "";
+      if (xpEligible && !tooFast) {
+        const granted = awardCharge(bonus, scoreEl);
+        html = `<span class="charge-award">⚡ +${granted} XP <span class="ca-mult">(&times;${mult.toFixed(2)} for ${pct}%)</span></span>`;
+      } else {
+        // Withheld, not hidden — explain why rather than silently
+        // giving 0, same "no hard locks, but be honest about limits"
+        // shape as everywhere else in this app.
+        html = `<span class="charge-award full">${tooFast
+          ? "No XP this time — that finished too fast for a genuine read."
+          : "No XP this time — today's Final Quiz XP cap is used up."}</span>`;
+      }
       // One-time completion bonus, on top of the scaled per-attempt one
       // above — separate from it because this one only ever fires once,
-      // the first time the Final Quiz is actually passed.
-      if (isFirstPass) {
+      // the first time the Final Quiz is actually passed. Not gated by
+      // the daily cap (it can only ever fire once, ever), but still
+      // gated by tooFast — a guessed-through "pass" shouldn't be able
+      // to claim it either.
+      if (isFirstPass && !tooFast) {
         const completionGranted = awardCharge(FINAL_QUIZ_COMPLETION_XP, scoreEl);
         html += `<br><span class="charge-award">\u{1F393} +${completionGranted} XP <span class="ca-mult">first Final Quiz pass</span></span>`;
       }

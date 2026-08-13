@@ -97,8 +97,10 @@ const DB = (() => {
       courseContracts: {}, // { courseId: { signature, signedAt } }
 
       // Cumulative Final Quiz — deliberately separate from stats.topicStats,
-      // see data/db.js's recordFinalQuizResult for why.
-      finalQuiz: { attempts: 0, bestScore: 0, lastScore: 0, completedAt: null },
+      // see data/db.js's recordFinalQuizResult for why. xpAttemptsToday/
+      // xpAttemptsDate are the anti-farming daily cap on the per-attempt
+      // XP bonus (recordFinalQuizResult), not on the quiz itself.
+      finalQuiz: { attempts: 0, bestScore: 0, lastScore: 0, completedAt: null, xpAttemptsToday: 0, xpAttemptsDate: null },
 
       // ---- v7: streak ----
       // A deliberate reversal of PROJECT.md §5's "no streaks" decision —
@@ -598,17 +600,36 @@ const DB = (() => {
   // p.stats.topicStats under a made-up id would silently corrupt real
   // stats (completionPct, weak-spot lookups, the SM-2 review queue).
   // Its own small, separate record instead.
+  // Stage 1 of Final Quiz anti-farming (see library.js's showFinalQuizResults
+  // for Stage 2, a minimum-time floor): the per-attempt scaled XP bonus used
+  // to pay out on every single attempt, pass OR fail — "usable any time,"
+  // no cooldown, no cap, on a quiz that's trivial to guess through in
+  // seconds. Caps how many attempts per REAL DAY earn that bonus; the quiz
+  // itself is never blocked past the cap (no hard locks — PROJECT.md §5),
+  // only the XP stops, same "the activity always works, the reward is
+  // what's rate-limited" shape games/games.js's Arcade tickets already use.
+  const FINAL_QUIZ_XP_ATTEMPTS_PER_DAY = 3;
+
   function recordFinalQuizResult(correct, total, passed) {
     const db = load();
     const p = db.profiles[db.activeProfileId];
-    if (!p) return;
-    if (!p.finalQuiz) p.finalQuiz = { attempts: 0, bestScore: 0, lastScore: 0, completedAt: null };
+    if (!p) return { xpEligible: false };
+    if (!p.finalQuiz) p.finalQuiz = { attempts: 0, bestScore: 0, lastScore: 0, completedAt: null, xpAttemptsToday: 0, xpAttemptsDate: null };
     const pct = Math.round((correct / total) * 100);
     p.finalQuiz.attempts++;
     p.finalQuiz.lastScore = pct;
     if (pct > p.finalQuiz.bestScore) p.finalQuiz.bestScore = pct;
     if (passed && !p.finalQuiz.completedAt) p.finalQuiz.completedAt = new Date().toISOString();
+
+    const today = new Date().toISOString().slice(0, 10);
+    if (p.finalQuiz.xpAttemptsDate !== today) {
+      p.finalQuiz.xpAttemptsDate = today;
+      p.finalQuiz.xpAttemptsToday = 0;
+    }
+    const xpEligible = p.finalQuiz.xpAttemptsToday < FINAL_QUIZ_XP_ATTEMPTS_PER_DAY;
+    if (xpEligible) p.finalQuiz.xpAttemptsToday++;
     save(db);
+    return { xpEligible, attemptsToday: p.finalQuiz.xpAttemptsToday, cap: FINAL_QUIZ_XP_ATTEMPTS_PER_DAY };
   }
 
   function getFinalQuiz() {

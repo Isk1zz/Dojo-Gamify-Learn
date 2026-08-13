@@ -1,5 +1,34 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 40 — Final Quiz anti-farming: daily XP cap + minimum-time floor
+
+- [x] **Closed a real farming hole**: the Final Quiz's per-attempt
+      scaled XP bonus paid out on EVERY attempt — pass or fail, "usable
+      any time," no cooldown, no cap. A 40-question guess-through in a
+      few seconds still netted real XP, repeatably, forever. Two
+      independent stages added, kept deliberately small per request
+      ("drop it on a few stages, stop before reaching limit") rather
+      than building a full anti-fraud system:
+      - **Stage 1 — daily cap** (`data/db.js`'s `recordFinalQuizResult`,
+        `FINAL_QUIZ_XP_ATTEMPTS_PER_DAY = 3`): reuses the exact
+        same-shape daily-reset pattern the streak system already uses.
+        The quiz itself is never blocked past the cap (no hard locks —
+        PROJECT.md §5), only the XP stops.
+      - **Stage 2 — minimum-time floor** (`library.js`'s
+        `showFinalQuizResults`, 4s/question): a genuine cumulative read
+        takes real time even skimming; a bot/guess-through clicking as
+        fast as the UI allows finishes in seconds. Also gates the
+        one-time first-pass completion bonus — a guessed "pass"
+        shouldn't be able to claim that either.
+      - Both withhold XP with a visible reason shown on screen, never
+        silently.
+- [x] **Verified live**: a scripted 40-question guess-through (finished
+      in ~1 second) correctly got 0 XP with "finished too fast for a
+      genuine read"; 4 backdated-timing attempts in one profile-day
+      correctly earned XP on the first 2 (cap already partly consumed
+      by the earlier test) and were blocked with "today's Final Quiz
+      XP cap is used up" on the rest.
+
 ## Batch 39 — Intro to CS price cut 1000 → 250 Tokens; Token rewards cut to match
 
 - [x] **`intro-cs` priceTokens dropped 1000 → 250** — lowering the
