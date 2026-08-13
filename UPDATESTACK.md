@@ -12,9 +12,15 @@ until there's a payment account to wire a Payment Link to — that's a
 you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 
 ## Live bug reports — resolved since last check-in
-- Star lobby "broken" on phone, and Kirigami+stripes "a mess" — both
-  confirmed stale-cache artifacts (Batch 30's `CACHE_VERSION` bump);
-  code was already correct. Fixed for good going forward.
+- Star lobby "broken" on phone — the FIRST report of this really was a
+  stale-cache artifact (Batch 30). A LATER report of the same symptom
+  turned out to be a real bug the cache fix didn't touch: fonts loading
+  over the network and mobile viewport resize both happen after the
+  ring's one-shot layout measurement. Found and fixed for real in
+  Batch 41 — don't reach for "stale cache" reflexively next time this
+  comes up, check first.
+- Kirigami+stripes "a mess" — confirmed stale-cache artifact (Batch 30);
+  code was already correct.
 - "Bought the course, couldn't unlock it" — real bug found: clicking a
   locked course redirected to the Token Shop where the actual buy
   button lived in a separate section further down the page. Fixed with
@@ -43,7 +49,35 @@ you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 
 ## Design conversation, not yet decided
 - Lobby topology: proposed Trunk line / Binary orbit / Ladder rungs.
-  Recommended Trunk line. Waiting on your pick before scoping.
+  Recommended Trunk line. Star shipped and iterated on since this was
+  raised — likely moot now, confirm before scoping.
+- **Weather VFX for the (Star) lobby** — clickable clouds that randomly
+  set a weather effect, from a large reference list spanning six
+  categories (standard atmospheric, liquid precip, frozen/mixed precip,
+  severe/cyclonic, wind/dust, rare/optical — full lists pasted in chat,
+  not reproduced here). Explicitly a rough sketch, not a spec — needs a
+  real design pass before scoping, not literal implementation of every
+  named weather type.
+  **Flagged conflict, per your ask to surface these before deciding:**
+  the lobby already carries two decorative overlay layers — each
+  theme's own `bg` (`shop/themes.js`) and the separate `bgStripe` layer
+  on top of it (`core/theme.js`). Three themes (Kirigami, Terminal,
+  Ronin) already suppress the stripe layer entirely because their OWN
+  `bg` is a repeating pattern and a second one on top just reads as
+  noise (see `core/theme.js`'s `stripeCssFor`). A weather layer is a
+  THIRD overlay — it will hit the exact same problem, likely worse
+  (moving clouds vs. a static pattern), and needs the same kind of
+  per-theme suppression/dimming logic worked out, not bolted on blind.
+- **"Cosmos" theme** — a new theme option, pitched alongside real
+  planetary-weather trivia (Mercury through Neptune, pasted in chat) as
+  possible flavor text/tooltips. Also a rough sketch — needs a palette,
+  a `bg` treatment, and a decision on where the trivia text actually
+  lives (tooltip? an About panel? nowhere, just inspiration for the
+  color choice?) before it's buildable.
+- **Star lobby decoration ("stars around etc")** — vague ask for more
+  visual flourish on the ring itself. No concrete direction yet; would
+  benefit from being scoped together with the weather idea above rather
+  than separately, since both are "decorate the lobby" asks.
 
 ## Marketing / growth — not engineering, needs your input to scope
 - Research what's actually driving engagement on hype-topic study/growth
