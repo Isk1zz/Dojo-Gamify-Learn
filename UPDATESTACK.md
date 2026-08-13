@@ -178,6 +178,21 @@ feature, it's that there is one course and no distribution channel. #1
 and #2 above are the only items here that pay off *before* those two
 problems are solved.
 
+## Backend port — roadmap written, see docs/BACKEND-ROADMAP.md
+Full plan for Firebase (Auth + Firestore), accounts, and the legal pack
+now exists as its own doc. Two things in it need YOUR decision before
+any code starts:
+1. **Which "register in Diia" you actually mean** — registering a
+   business entity, joining Дія.City, or integrating Diia.ID for
+   identity verification. Three different projects with different
+   requirements; pick one before spending money.
+2. **Whether identity documents are really needed** (recommend: no —
+   see Flag 2 in the doc). Also read Flag 1 on keeping the Arcade's
+   currency separated from real money, which is currently doing real
+   legal work by accident and shouldn't be merged casually.
+Also note: Cloud Functions needs the paid Blaze plan, which is the one
+real "free tier" caveat — the doc lists three ways around it.
+
 ## Long-term roadmap (later — needs the account/backend question settled first)
 - Finish out the web app, then port to iOS and Android.
 - Real account system + online database — currently offline/local-only
