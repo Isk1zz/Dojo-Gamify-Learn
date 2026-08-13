@@ -129,10 +129,13 @@
     const activeEl = document.querySelector(".screen.active");
     if (activeEl && WALLET_HIDDEN_SCREENS.has(activeEl.id)) { strip.style.display = "none"; return; }
     strip.style.display = "flex";
-    strip.innerHTML = `<span class="vital-wallet"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`;
+    strip.innerHTML = `<span class="vital-wallet"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`
+      + `<span class="vital-stars"><span class="vw-icon">⭐</span>${DB.getStars()}</span>`;
   }
 
-  // Tap the wallet, get a one-line reminder of what it's for.
+  // Tap the wallet, get a one-line reminder of what it's for. Same
+  // popover element doubles for the Stars chip — one at a time, whoever
+  // was tapped last, same as the wallet always worked.
   function hideWalletPopover() {
     const pop = document.getElementById("wallet-popover");
     if (pop) pop.style.display = "none";
@@ -141,16 +144,21 @@
     const pop = document.getElementById("wallet-popover");
     if (!pop || !chip) return;
     if (pop.style.display === "block") { hideWalletPopover(); return; }
-    pop.innerHTML = `<strong>$${DB.getWallet()}</strong><br>`
-      + `Earned from the Garden's daily dividends and Arcade wins. Spent to `
-      + `unlock Arcade games and place stakes.`;
+    const isStars = chip.classList.contains("vital-stars");
+    pop.innerHTML = isStars
+      ? `<strong>⭐ ${DB.getStars()}</strong><br>`
+        + `Earned free from rank-ups, or bought in ⭐ Star Shop (Library). Spent `
+        + `to unlock courses. Never converts to or from $ money.`
+      : `<strong>$${DB.getWallet()}</strong><br>`
+        + `Earned from the Garden's daily dividends and Arcade wins. Spent to `
+        + `unlock Arcade games and place stakes.`;
     const r = chip.getBoundingClientRect();
     pop.style.display = "block";
     pop.style.top = `${r.bottom + 6}px`;
     pop.style.right = `${window.innerWidth - r.right}px`;
   }
   document.addEventListener("click", e => {
-    const chip = e.target.closest && e.target.closest(".vital-wallet");
+    const chip = e.target.closest && e.target.closest(".vital-wallet, .vital-stars");
     if (chip) { toggleWalletPopover(chip); return; }
     if (e.target.closest && !e.target.closest("#wallet-popover")) hideWalletPopover();
   });

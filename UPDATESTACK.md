@@ -5,14 +5,11 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
-## Needs a design decision first
-- Stars currency for course pricing — 3rd currency, needs the ad-network
-  question resolved.
-- Buy stars for money to unlock courses — same currency question as above.
-
 ## Ready to build, no blockers
-Nothing right now — both items from the last "ready to build" batch are
-done (Final Quiz content + `unlockallunits`, see BACKLOG.md).
+Nothing right now — Stars (earn, spend, Star Shop, course-price gating,
+see BACKLOG.md) is done. Real-money purchases stay a labeled demo stub
+until there's a payment account to wire a Payment Link to — that's a
+you-side task, not a code blocker, see `shop/stars.js`'s `buyPack()`.
 
 ## New asks, not yet scoped (flagged, needs a decision first)
 - XP-farming / bot-prevention on Final Quiz retries — no anti-abuse check

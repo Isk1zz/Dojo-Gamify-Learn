@@ -20,6 +20,7 @@
   const SCREENS = {
     lobby:          () => Dojo.showLobby,
     "course-select":() => Dojo.renderCourseSelect,
+    "star-shop":    () => Dojo.renderStarShop,
     "unit-select":  () => Dojo.renderUnitSelect,
     "topic-map":    () => Dojo.renderTopicMap,
     garden:         () => Dojo.renderGarden,
@@ -43,6 +44,8 @@
   on("btn-start", () => { Dojo.checkProfile(); Dojo.showLobby(); });
 
   on("btn-lobby-courses",  () => Router.go("course-select"));
+  on("btn-star-shop",      () => Router.go("star-shop"));
+  on("btn-back-star-shop", () => Router.go("course-select"));
   on("btn-lobby-garden",   () => Router.go("garden"));
   on("btn-lobby-shop",     () => Router.go("shop"));
   on("btn-lobby-games",    () => Router.go("games"));
@@ -87,6 +90,21 @@
   // the balance repaints it here rather than reaching for the element
   // itself.
   Bus.on("wallet:changed", () => Dojo.renderVitals && Dojo.renderVitals());
+  Bus.on("stars:changed", () => Dojo.renderVitals && Dojo.renderVitals());
+
+  // Free Stars, event-driven off the SAME rank-up crossing that already
+  // fires (core/hud.js's checkRankUp emits this on every XP-earning
+  // action, but only actually FIRES when a rank boundary is crossed).
+  // Credited here, once, rather than re-derived from XP like theme/
+  // bgStripe rewards are — see shop/ranks.js's comment on why Stars
+  // can't use that pattern.
+  Bus.on("rank:up", ({ to }) => {
+    const bonus = to && to.reward && to.reward.stars;
+    if (bonus) {
+      DB.addStars(bonus);
+      Bus.emit("stars:changed", { delta: bonus, reason: "rank-up" });
+    }
+  });
 
   Bus.on("progress:changed", () => {
     if (state.currentUnit) Dojo.renderTopicMap();

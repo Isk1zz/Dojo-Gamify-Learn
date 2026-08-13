@@ -1,5 +1,50 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 25 — ⭐ Stars economy: earn, spend, Star Shop, priced-course gating
+
+- [x] **Stars is now a real, third currency**, separate from $ and XP
+      (`DB.getStars/addStars/spendStars`, mirroring the `$` wallet
+      exactly). Researched the market first (Duolingo $60-120/yr,
+      Brilliant $162-336/yr, Coursera Plus $399-708/yr, Quizlet
+      $36-45/yr, vs. Anki $25 one-time / Udemy per-course) — Dojo's
+      actual shape (offline, no account, one-time unlock) is the Anki/
+      Udemy comparable, not the subscription apps, so courses are
+      designed as one-time Star unlocks, never a recurring toll.
+- [x] **Free earn path:** `reward: { stars: N }` added to 3 previously-
+      blank rank rungs (6, 11, 15 — 100/150/200 Stars). Credited exactly
+      once per rank crossed via a new `"rank:up"` Bus listener in
+      `core/boot.js`, NOT re-derived from XP the way theme/bgStripe
+      rewards are — `shop/ranks.js` now documents why that pattern
+      doesn't work for a spendable currency.
+- [x] **⭐ Star Shop screen** (`shop/stars.js`, reached from a new button
+      in the Library topbar): 4 Star packs ($2.99/300 → $19.99/2600,
+      bigger pack = better rate) and a Priced Courses section that only
+      appears once a course actually costs Stars.
+- [x] **Real-money purchases are a DELIBERATE STUB, not faked.** No
+      backend exists (static GitHub Pages site) to verify a real
+      payment, and building one wasn't the ask — confirmed with the
+      requester ("leave an imitation, once the project is baked I'll
+      legalize it and open a payment system"). `buyPack()` credits the
+      pack instantly and labels itself "(demo)" everywhere in the UI
+      rather than pretending to check out for real. Swapping in a real
+      Stripe Payment Link redirect later touches only that one
+      function — earning/spending/gating don't change.
+- [x] **Course pricing gate wired end-to-end**, even though no course
+      uses it yet: `library/content/registry.js`'s course manifests
+      gained an optional `priceStars` (defaults to 0 = free — `intro-cs`
+      is unaffected). `Dojo.ownsCourse(id)` gates `renderCourseSelect`
+      the same way Arcade unlocks/stake tiers already gate their own
+      screens — a string in `DB`'s generic inventory array
+      (`course_<id>`), no new profile field.
+- [x] **Verified live, full loop:** fresh profile, forced a rank
+      crossing at rank 6 → confirmed exactly 100 Stars credited; opened
+      the Star Shop, bought the Medium pack → balance 100→650; pushed a
+      throwaway `priceStars: 500` course into `COURSES` at runtime →
+      confirmed it rendered locked with a "⭐ 500" badge, clicking it
+      routed to the Star Shop instead of entering, bought it there
+      (650→150 Stars), confirmed `Dojo.ownsCourse` flipped to `true`
+      and the lock cleared. Cleaned up the test course/profile after.
+
 ## Batch 24 — Landing page tagline/hint contradiction resolved
 
 - [x] **Dropped "Online" from the landing tagline.** It read "Online

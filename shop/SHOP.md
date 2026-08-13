@@ -3,13 +3,15 @@
 > The folder is still called `shop/`; the screen is called **Career**.
 > Nothing is bought with study currency any more.
 
-Two shops, two currencies, deliberately separate.
+Three currencies now, still deliberately separate — see `stars.js` below
+for the newest one.
 
 | File | Role |
 |---|---|
 | `themes.js` | Pure data: free `THEMES` + reward `PREMIUM_THEMES`. No DOM, no DB. |
 | `ranks.js` | Pure data: the 20-rank ladder, XP thresholds, rewards, lookups. |
 | `shop.js` | The Career screen — rank, the full ladder, what each rung awards. Read-only: it doesn't equip anything, see below. |
+| `stars.js` | The ⭐ Star Shop screen (reached from Library) — packs and priced-course purchases. See its own section below. |
 
 `life.js` (the life-sim: vitals, decay, night theft, the goods shop) was
 **removed** — see BACKLOG.md's Batch 5/9. The wallet strip it also used to
@@ -24,10 +26,11 @@ Stylesheet: `styles/shop.css`.
 | | earned by | does what |
 |---|---|---|
 | ⚡ XP | studying | **never spent** — it raises your rank |
-| $ money | Garden, Arcade | food, hygiene, shelter, story scenes, game unlocks |
+| $ money | Garden, Arcade | food, hygiene, shelter, story scenes, game unlocks, Arcade stake-cap upgrades |
+| ⭐ Stars | rank-up rewards, real-money packs (currently a demo stub) | unlocks priced Library courses |
 
-**Neither converts to the other**, and nothing anywhere buys progress, hints,
-retries or exam advantage.
+**None of the three convert to each other**, and nothing anywhere buys
+progress, hints, retries or exam advantage.
 
 ### Why XP isn't a currency any more
 The study side was a capped wallet through v5, and a cap needs a sink, a sink
@@ -96,6 +99,35 @@ Arcade payouts, spent on Arcade unlocks and stakes — it just no longer
 buys anything survival-related, because there's no survival system left
 to buy for.
 
+## Stars (`stars.js`) — the Library's own currency
+
+A course opts into costing Stars by setting `priceStars` on its manifest
+(`library/content/registry.js` defaults it to 0 = free). No course does
+today — `intro-cs` stays free — so this is machinery for the day a second,
+paid course exists, not a change to anything currently gated.
+
+**Earning:** a handful of rank-up rewards carry `reward: { stars: N }`
+(ranks 6, 11, 15 right now) — credited exactly ONCE per rank crossed, via
+`core/boot.js`'s `"rank:up"` Bus listener, not re-derived from XP the way
+theme/bgStripe rewards are (see the comment on that in `ranks.js` — Stars
+are spendable, so a membership-scan pattern would re-grant them forever).
+
+**Spending / buying:** `Dojo.ownsCourse(id)` / the Star Shop's `buyCourse`
+gate courses the same way Arcade unlocks and stake-cap tiers do — a string
+in `DB`'s generic inventory array (`course_<id>`), no bespoke profile
+field. `buyPack()` is the real-money side, and **it's a deliberate stub**:
+there's no backend (static GitHub Pages site), so nothing here can verify a
+real payment yet. It credits the pack instantly and says so in the UI
+rather than faking a checkout flow — swap that one function for a real
+Stripe Payment Link redirect once there's an account to wire it to; the
+rest of the economy (earning, spending, gating) doesn't need to change.
+
+Course pricing was benchmarked against the market before building this —
+Dojo's actual shape (offline, no account, one-time unlock) is closer to
+Anki ($25 once, own forever) and Udemy (per-course, not subscription) than
+to Duolingo/Brilliant/Coursera's subscriptions, which is why courses are
+priced as one-time Star unlocks, not a recurring toll.
+
 ## The wallet strip (moved to `core/hud.js`)
 
 The always-on top strip shows the wallet balance whenever a profile is
@@ -108,7 +140,8 @@ already calls them (`core/core.js`'s `showScreen` choke point, several
 wallet — there's nothing else left to render there.
 
 ## Exports
-`THEMES`, `PREMIUM_THEMES`, `ALL_THEMES`, `isPremium`, `renderShop`, `shopSummary`
+`THEMES`, `PREMIUM_THEMES`, `ALL_THEMES`, `isPremium`, `renderShop`, `shopSummary`,
+`renderStarShop`, `ownsCourse`
 
 ## Emits
-`wallet:changed`
+`wallet:changed`, `stars:changed`

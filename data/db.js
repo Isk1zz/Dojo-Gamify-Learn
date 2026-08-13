@@ -63,6 +63,11 @@ const DB = (() => {
       ownedAvatars: [],      // purchased avatar ids
       pinnedBadges: [],      // up to 3 badge ids showcased next to the name
 
+      // ---- v22: Stars (⭐) — Library course currency, separate from $ ----
+      // Earned free via rank-up rewards (shop/ranks.js) and/or bought in
+      // real money packs (shop/stars.js). Never converts to/from $ money.
+      stars: 0,
+
       // ---- v5: economy & life-sim ----
       wallet: 0,             // $ earned from garden dividends and mini-games
       tickets: TICKET_MAX,   // arcade entries; 2 per 6h, hard ceiling on losses
@@ -1059,6 +1064,37 @@ const DB = (() => {
     return true;
   }
 
+  // ---- Stars (⭐) ----
+  // A second, SEPARATE currency from `$` money — Stars buy Library
+  // courses, money buys Arcade/Garden things. Nothing converts either
+  // way, same "two currencies, deliberately separate" rule SHOP.md
+  // documents for XP vs money. Storage-only here, same as wallet: prices
+  // and pack sizes live in shop/stars.js, never here.
+  function getStars() {
+    const p = getActiveProfile();
+    return p ? (p.stars || 0) : 0;
+  }
+
+  function addStars(amount) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return 0;
+    p.stars = Math.max(0, (p.stars || 0) + amount);
+    save(db);
+    return p.stars;
+  }
+
+  // All-or-nothing, like spendMoney.
+  function spendStars(amount) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return false;
+    if ((p.stars || 0) < amount) return false;
+    p.stars -= amount;
+    save(db);
+    return true;
+  }
+
   // ---- Lazy regeneration ----
   // Nothing runs on a timer; we work out how much time passed since the
   // stored stamp and credit that on read. Keeps tickets correct when the
@@ -1282,6 +1318,9 @@ const DB = (() => {
     getWallet,
     addMoney,
     spendMoney,
+    getStars,
+    addStars,
+    spendStars,
     getTickets,
     spendTicket,
     refillTickets,

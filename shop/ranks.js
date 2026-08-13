@@ -47,16 +47,16 @@ const RANKS = [
   { n: 3,  xp: 300,   name: "Research Assistant II",    abbr: "RA2",  reward: { bgStripe: "herringbone" } },
   { n: 4,  xp: 520,   name: "Lab Technician",           abbr: "TCH",  reward: { theme: "sakura" } },
   { n: 5,  xp: 780,   name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
-  { n: 6,  xp: 1080,  name: "Research Coordinator",     abbr: "CRD",  reward: null },
+  { n: 6,  xp: 1080,  name: "Research Coordinator",     abbr: "CRD",  reward: { stars: 100 } },
   { n: 7,  xp: 1420,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
   { n: 8,  xp: 1800,  name: "Lab Manager",              abbr: "MGR",  reward: null },
   { n: 9,  xp: 2220,  name: "Senior Lab Manager",       abbr: "SLM",  reward: { bgStripe: "lattice" } },
   { n: 10, xp: 2680,  name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
-  { n: 11, xp: 3180,  name: "Director of Operations",   abbr: "DOP",  reward: null },
+  { n: 11, xp: 3180,  name: "Director of Operations",   abbr: "DOP",  reward: { stars: 150 } },
   { n: 12, xp: 3720,  name: "Master Technician",        abbr: "MTC",  reward: null },
   { n: 13, xp: 4300,  name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
   { n: 14, xp: 4940,  name: "Postdoctoral Researcher",  abbr: "PDR",  reward: { bgStripe: "origami" } },
-  { n: 15, xp: 5640,  name: "Project Lead",             abbr: "PL",   reward: null },
+  { n: 15, xp: 5640,  name: "Project Lead",             abbr: "PL",   reward: { stars: 200 } },
   { n: 16, xp: 6400,  name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
   { n: 17, xp: 7220,  name: "Program Director",         abbr: "PD",   reward: null },
   { n: 18, xp: 8100,  name: "Senior Program Director",  abbr: "SPD",  reward: null },
@@ -155,6 +155,15 @@ function insigniaSvg(rank) {
   function bgStripeRank(id) {
     return RANKS.find(r => r.reward && r.reward.bgStripe === id) || null;
   }
+
+  // `reward: { stars: N }` is deliberately NOT read the same way as
+  // theme/bgStripe above. Those are permanent access flags, safe to
+  // re-derive from XP on every call. Stars are spendable — crediting
+  // them from a membership scan would re-grant the same Stars every
+  // time this function runs. Instead they're granted exactly once, at
+  // the moment core/hud.js's checkRankUp crosses that rank (see the
+  // "rank:up" Bus listener in core/boot.js) — event-driven, not
+  // recomputed from current state.
 
   Dojo.Ranks = { RANKS, FEATURES, rankFor, nextRank, progress, unlockedThemes, themeRank,
                  unlockedBgStripes, bgStripeRank,
