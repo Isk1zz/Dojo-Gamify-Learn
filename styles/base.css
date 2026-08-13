@@ -986,7 +986,13 @@ body {
    in Opera renders as a light bar that clashes badly against this
    dark, tightly-cornered control (reported "broken style in Opera").
    Drawing the whole track ourselves makes it look identical regardless
-   of which engine/skin renders the native parts. */
+   of which engine/skin renders the native parts.
+   The first pass hardcoded that hand-drawn track to a white-based
+   rgba, which is exactly backwards on a LIGHT theme (Paper etc.) —
+   a near-invisible white line on a cream background, reported as "the
+   slider isn't visible." Track now reads `--border-accent`, the same
+   theme-recolored variable core/theme.js already repaints per theme
+   (see paintTheme), so it stays visible regardless of theme mode. */
 .lobby-rotate-slider {
   width: 84px; height: 16px;
   cursor: pointer;
@@ -995,7 +1001,7 @@ body {
 }
 .lobby-rotate-slider::-webkit-slider-runnable-track {
   height: 4px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--border-accent);
 }
 .lobby-rotate-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -1006,7 +1012,7 @@ body {
 }
 .lobby-rotate-slider::-moz-range-track {
   height: 4px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--border-accent);
 }
 .lobby-rotate-slider::-moz-range-progress {
   height: 4px; border-radius: 999px;
