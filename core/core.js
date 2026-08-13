@@ -117,6 +117,14 @@ const Bus = (() => {
       </div>`;
   }
 
+  // Settings' hints toggle. A single body class, flipped once per
+  // profile load/switch and again whenever Settings changes it — every
+  // .settings-hint paragraph app-wide (shop, games, library, etc.) hides
+  // off one CSS rule instead of each branch checking the flag itself.
+  function applyHints(on) {
+    document.body.classList.toggle("hide-hints", !on);
+  }
+
   function showScreen(id) {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
@@ -127,7 +135,7 @@ const Bus = (() => {
     // internal lesson/exam/flashcards/deck-builder screens bypass
     // Router entirely, so this is the only place that reliably fires
     // on every switch. Lets the wallet strip hide itself on screens
-    // where a running balance is just noise — see shop/life.js.
+    // where a running balance is just noise — see core/hud.js.
     if (Dojo.renderVitals) Dojo.renderVitals();
   }
 
@@ -183,6 +191,6 @@ document.addEventListener("pointerdown", e => {
 });
 
 Object.assign(Dojo, {
-  state, Bus, Router, showScreen,
+  state, Bus, Router, showScreen, applyHints,
   shuffled, shuffleQuestion, pickQuote, quoteHtml
 });

@@ -14,6 +14,7 @@
   const state = Dojo.state;
   const Bus = Dojo.Bus;
   const Router = Dojo.Router;
+  const AVATARS = Dojo.AVATARS;
   const applyTheme = (...a) => Dojo.applyTheme(...a);
   const renderCharge = (...a) => Dojo.renderCharge(...a);
   const renderTopicMap = (...a) => Dojo.renderTopicMap(...a);
@@ -56,8 +57,29 @@
     const profile = DB.getActiveProfile();
     if (!profile) return;
     const name = profile.name || "Student";
-    document.getElementById("profile-avatar").textContent = name.charAt(0).toUpperCase();
+    const avatarId = DB.getAvatar ? DB.getAvatar() : null;
+    const equippedIcon = avatarId && Dojo.avatarIcon ? Dojo.avatarIcon(avatarId) : null;
+    document.getElementById("profile-avatar").textContent = equippedIcon || name.charAt(0).toUpperCase();
     document.getElementById("profile-name-display").textContent = name;
+
+    // Pinned badges — up to 3, showcased right next to the name. Reads
+    // library/stats.js's BADGES table for the icon; if that branch isn't
+    // loaded (or nothing's pinned) this is just an empty span.
+    const pinsEl = document.getElementById("profile-pins");
+    if (pinsEl) {
+      const pinned = DB.getPinnedBadges ? DB.getPinnedBadges() : [];
+      const table = Dojo.BADGES || [];
+      pinsEl.textContent = "";
+      pinned.forEach(id => {
+        const b = table.find(x => x.id === id);
+        if (!b) return;
+        const span = document.createElement("span");
+        span.className = "pin-icon";
+        span.textContent = b.icon;
+        span.title = b.name;
+        pinsEl.appendChild(span);
+      });
+    }
   }
 
   function toggleDropdown() {
@@ -87,10 +109,52 @@
     }
   });
 
+  // Bought with $, equipped on purchase — same one-click "buy = wear it"
+  // flow the old life-shop's shelter tiers used. Re-clicking an OWNED
+  // avatar just re-equips it (or lets you switch back after trying
+  // another), never charges twice.
+  function renderAvatarGrid() {
+    const grid = document.getElementById("pd-avatars-grid");
+    const walletNote = document.getElementById("pd-avatar-wallet");
+    if (!grid || !AVATARS) return;
+    const owned = new Set(DB.getOwnedAvatars ? DB.getOwnedAvatars() : []);
+    const equipped = DB.getAvatar ? DB.getAvatar() : null;
+    const wallet = DB.getWallet ? DB.getWallet() : 0;
+    if (walletNote) walletNote.textContent = `$${wallet}`;
+
+    grid.innerHTML = AVATARS.map(a => {
+      const have = owned.has(a.id);
+      const active = equipped === a.id;
+      return `
+        <button type="button" class="pd-avatar-swatch${active ? " active" : ""}" data-avatar="${a.id}"
+                title="${a.name}${have ? "" : ` — $${a.price}`}">
+          <span class="pd-avatar-icon">${a.icon}</span>
+          ${have ? "" : `<span class="pd-avatar-price">$${a.price}</span>`}
+        </button>`;
+    }).join("");
+
+    grid.querySelectorAll("[data-avatar]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-avatar");
+        const a = AVATARS.find(x => x.id === id);
+        if (!a) return;
+        const ok = DB.buyAvatar(id, a.price);
+        if (!ok) {
+          btn.classList.add("shake");
+          setTimeout(() => btn.classList.remove("shake"), 350);
+          return;
+        }
+        updateProfileBadge();
+        renderAvatarGrid();
+      });
+    });
+  }
+
   function renderDropdown() {
     const profile = DB.getActiveProfile();
     const nameInput = document.getElementById("pd-name-edit");
     nameInput.value = profile ? profile.name : "";
+    renderAvatarGrid();
 
     const profiles = DB.listProfiles();
     const list = document.getElementById("pd-profiles-list");

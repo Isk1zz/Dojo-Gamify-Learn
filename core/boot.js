@@ -48,6 +48,11 @@
   on("btn-lobby-games",    () => Router.go("games"));
   on("btn-lobby-settings", () => Router.go("settings"));
   on("btn-lobby-stats",    () => Dojo.showStatsModal());
+  on("btn-lobby-flashcards", () => Dojo.openFlashcardsHub && Dojo.openFlashcardsHub());
+  // Star layout's hub button — Flashcards' home in that topology only
+  // (see core/lobby.js's STAR_ORDER comment). Inert in Classic/Cards,
+  // where .lobby-hub stays display:none and the real tile handles it.
+  on("btn-lobby-hub-flashcards", () => Dojo.openFlashcardsHub && Dojo.openFlashcardsHub());
 
   ["btn-back-lobby", "btn-back-lobby2", "btn-back-lobby3",
    "btn-back-lobby4", "btn-back-lobby6"]
@@ -71,14 +76,16 @@
   // Branches announce facts; the reaction lives with whoever cares.
   Bus.on("profile:changed", () => {
     Dojo.applyTheme(DB.getTheme());
+    if (Dojo.applyBgStripe) Dojo.applyBgStripe(DB.getBgStripe());
+    if (Dojo.applyHints) Dojo.applyHints(DB.getHintsEnabled());
     Dojo.renderCharge();
     Dojo.updateProfileBadge();
     if (Dojo.renderVitals) Dojo.renderVitals();
   });
 
-  // Vitals live in the top strip, so any branch that changes them
-  // repaints it here rather than reaching for the element itself.
-  Bus.on("vitals:changed", () => Dojo.renderVitals && Dojo.renderVitals());
+  // The wallet strip lives in the top bar, so any branch that changes
+  // the balance repaints it here rather than reaching for the element
+  // itself.
   Bus.on("wallet:changed", () => Dojo.renderVitals && Dojo.renderVitals());
 
   Bus.on("progress:changed", () => {
@@ -88,13 +95,10 @@
   // ---- 4. Start ----
   DB.init();
   Dojo.applyTheme(DB.getTheme());
+  if (Dojo.applyBgStripe) Dojo.applyBgStripe(DB.getBgStripe());
+  if (Dojo.applyHints) Dojo.applyHints(DB.getHintsEnabled());
   Dojo.renderCharge();
   if (Dojo.renderStreak) Dojo.renderStreak();
   Dojo.updateProfileBadge();
-  // No boot-time decay tick. A "day" used to mean a resolved story
-  // scene (shop/life.js's storyDayTick, called by story.js) — with
-  // Story removed nothing advances it, so vitals now hold steady
-  // rather than decaying. See shop/LIFE notes and BACKLOG.md: the
-  // life-sim's own removal is a separate, larger call.
   if (Dojo.renderVitals) Dojo.renderVitals();
 })();

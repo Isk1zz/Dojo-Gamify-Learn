@@ -53,6 +53,27 @@
   margin: 1.25rem 0 0.5rem;
 }
 
+/* ── Badges (library/stats.js's badgeGridHtml) ── */
+.badge-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 0.6rem;
+}
+.badge-chip {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  padding: 0.7rem 0.4rem; text-align: center; font: inherit; color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-surface); opacity: 0.5; cursor: default;
+}
+.badge-chip.earned { opacity: 1; border-color: var(--border-accent); background: var(--accent-glow); cursor: pointer; }
+.badge-chip.pinned { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.badge-icon { font-size: 1.4rem; }
+.badge-name { font-size: 0.68rem; font-weight: 600; line-height: 1.25; }
+.badge-pin-dot {
+  position: absolute; top: 6px; right: 6px; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--accent);
+}
+
 .stats-topic-list {
   display: flex;
   flex-direction: column;
@@ -269,6 +290,9 @@
 .roadmap-bubble:hover { transform: translate(-50%, -50%) scale(1.08); border-color: var(--border-accent); }
 .roadmap-node.completed .roadmap-bubble {
   border-color: var(--green); background: var(--green); color: #fff; box-shadow: 0 0 8px var(--green-glow);
+  /* Completed nodes only — the ✓ and its green bubble, 20% smaller than
+     the shared 64px/1.6rem base every other state still uses. */
+  width: 51px; height: 51px; font-size: 1.28rem;
 }
 .roadmap-node.current .roadmap-bubble {
   border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); animation: pulse 2s ease infinite;
@@ -548,6 +572,29 @@
 .flashcard-flip-btn { display: flex; width: 100%; justify-content: center; }
 .flashcard-know-row { display: flex; gap: 0.75rem; }
 .flashcard-know-btn { flex: 1; justify-content: center; }
+
+/* Correct/wrong feedback burst — a quick glow or shake right after
+   "Knew it" / "Didn't know it", before the next card replaces this one
+   (see library.js's answerFlashcard). The glow only needs to touch the
+   visible back face (correct/wrong is only ever marked post-flip) and
+   only animates box-shadow, so it can't fight that face's own rotateY
+   transform. The shake animates the OUTER .flashcard wrapper instead of
+   a face — translating the wrapper moves the whole 3D scene together
+   without overwriting either face's individual rotateY. */
+.flashcard.fc-correct .flashcard-back { animation: fcCorrectGlow 0.32s ease; }
+.flashcard.fc-wrong { animation: fcWrongShake 0.32s ease; }
+@keyframes fcCorrectGlow {
+  0% { box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+  40% { box-shadow: 0 0 22px 4px var(--green-glow); border-color: var(--green); }
+  100% { box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+}
+@keyframes fcWrongShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(3px); }
+}
 .chunk-subhead {
   font-size: 0.95rem;
   font-weight: 700;

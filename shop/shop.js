@@ -4,7 +4,7 @@
 // The sink for lightning charge. Cosmetic goods only — nothing here
 // buys progress, hints, retries or exam advantage, because the whole
 // learning argument falls over if grinding is the shortest path to a
-// passing score. Life-shop consumables (v5) live in shop/life.js.
+// passing score.
 // ================================================
 
 (() => {
@@ -12,6 +12,7 @@
   // Late-bound on purpose. A branch may be loaded before the branch
   // it calls into, so these resolve at call time, not at load time.
   const PREMIUM_THEMES = Dojo.PREMIUM_THEMES;
+  const BG_STRIPES = Dojo.BG_STRIPES;
   const showScreen = Dojo.showScreen;
   const Router = Dojo.Router;
   const Bus = Dojo.Bus;
@@ -30,12 +31,13 @@
   //
   // Was the Shop, then Inventory, now Career — which is what it actually
   // shows: your rank, the ladder above you, and the rewards attached to
-  // each rung. "Inventory" implied a bag of things, and the one real bag
-  // in the app is the life-shop one on the Story tab.
+  // each rung. "Inventory" implied a bag of things, and the bag (life
+  // goods) it referred to is gone along with the rest of the life-sim.
   //
-  // Nothing here is bought. Themes arrive with a RANK, so this screen
-  // shows what you have, what is coming, and what it takes to get there.
-  // Money and life goods live on the Story tab.
+  // Nothing here is bought. Themes and background stripes arrive with a
+  // RANK, so this screen shows what you have, what is coming, and what
+  // it takes to get there. Money lives in the wallet strip (core/hud.js)
+  // and is spent in the Arcade.
   //
   // NOTE: DB.getInventory()/addInventory are UNRELATED and keep their
   // names. That field stores game unlocks and carried life goods, and
@@ -63,7 +65,7 @@
         <p class="settings-hint" style="margin:0.6rem 0 0;">
           XP comes from finishing chunks and passing exams, and is never spent.
           Rewards arrive when you reach the rank \u2014 there is nothing to buy. Themes
-          are equipped from Settings once they're unlocked.
+          and background stripes are equipped from Settings once they're unlocked.
         </p>
       </div>
       <div class="settings-section">
@@ -79,6 +81,16 @@
       const theme = r.reward && r.reward.theme
         ? (PREMIUM_THEMES.find(t => t.id === r.reward.theme) || {}).name
         : null;
+      const stripe = r.reward && r.reward.bgStripe
+        ? (BG_STRIPES.find(s => s.id === r.reward.bgStripe) || {}).name
+        : null;
+      // A rung only ever hands out one reward today, but both are checked
+      // rather than assuming \u2014 a future rung with both should show both,
+      // not silently drop one.
+      const rewardLabel = [
+        theme ? `\u{1F3A8} ${theme}` : null,
+        stripe ? `\u{1F9F5} ${stripe}` : null
+      ].filter(Boolean).join(" \u00b7 ");
 
       const row = document.createElement("div");
       row.className = `rank-row${reached ? " reached" : ""}${isNow ? " now" : ""}`;
@@ -86,8 +98,8 @@
         <span class="rr-badge">${r.abbr}</span>
         <span class="rr-name">${r.name}</span>
         <span class="rr-xp">${r.xp} XP</span>
-        <span class="rr-reward">${theme
-          ? `\u{1F3A8} ${theme}`
+        <span class="rr-reward">${rewardLabel
+          ? rewardLabel
           : `<span class="rr-blank">\u2014</span>`}</span>`;
       ladder.appendChild(row);
     });

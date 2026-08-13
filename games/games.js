@@ -7,7 +7,6 @@
 //
 // The gate:
 //   - 1 ticket per round. 7 tickets per 6h, ceiling 7.
-//   - a bite out of vitals per round, via LifeShop.cost("arcade").
 //   - stake capped at MAX_STAKE and at the current wallet.
 //   - the game must be unlocked.
 // Energy was deleted in v6 — it and tickets were two rate limits doing
@@ -128,9 +127,6 @@
     // Remembered before any of the refusals below, so a round you
     // couldn't afford still leaves the number you meant in the box.
     rememberStake(stake);
-    // Too weak to play. The Library is never gated this way — only the
-    // optional systems are. See shop/life.js.
-    if (Dojo.LifeShop && Dojo.LifeShop.isWeak()) return null;
     if (gameId && !isUnlocked(gameId)) return null;
     const s = Math.floor(Number(stake) || 0);
     if (s <= 0 || s > MAX_STAKE) return null;
@@ -138,7 +134,6 @@
     if (DB.getTickets() < 1) return null;
     if (!DB.spendMoney(s)) return null;
     if (!DB.spendTicket()) { DB.addMoney(s); return null; }
-    if (Dojo.LifeShop) Dojo.LifeShop.cost("arcade");
     Bus.emit("wallet:changed", { delta: -s, reason: "stake" });
     return { stake: s, gameId: gameId || null };
   }
@@ -170,7 +165,6 @@
   }
 
   function canPlay() {
-    if (Dojo.LifeShop && Dojo.LifeShop.isWeak()) return false;
     return DB.getTickets() >= 1;
   }
 
@@ -208,7 +202,6 @@
 
   function gamesSummary() {
     const t = DB.getTickets();
-    if (Dojo.LifeShop && Dojo.LifeShop.isWeak()) return Dojo.LifeShop.weakReason();
     if (!games.length) return "Games not built yet";
     if (!games.some(g => isUnlocked(g.id))) {
       const cheapest = Math.min(...Object.values(UNLOCK_PRICE));
@@ -274,9 +267,6 @@
           \u{1F3AB} ${tickets}/${DB.constants().TICKET_MAX} tickets
           ${tickets < DB.constants().TICKET_MAX ? `\u00b7 next in ${fmtWait(DB.msUntilNextTicket())}` : ""}
         </div>
-        ${Dojo.LifeShop && Dojo.LifeShop.weakReason()
-          ? `<div class="vitals-warn">\u26A0 ${Dojo.LifeShop.weakReason()} \u2014 the Arcade is shut. Buy something in the Shop.</div>`
-          : ""}
         <p class="settings-hint" style="margin:0.6rem 0 0;">
           One ticket a round, stakes capped at $${MAX_STAKE}, seven tickets every six hours.
           That ceiling is the whole brake \u2014 the arcade is a break, not an income.
@@ -325,8 +315,7 @@
           if (btn.getAttribute("data-act") === "unlock") {
             // Redraw THIS TAB IN PLACE. Going through renderGames would
             // end in showScreen -> scrollTo(0,0) and throw the page to
-            // the top on every purchase — the same jump already fixed
-            // for story choices and life-shop buys. ARCHITECTURE.md §6.
+            // the top on every purchase. ARCHITECTURE.md §6.
             if (unlockGame(g.id)) {
               if (Dojo.renderVitals) Dojo.renderVitals();
               renderGamesTab(body);
@@ -355,21 +344,4 @@
   Dojo.Arcade = Dojo.Games;
   Dojo.Arcade.registerTab = registerTab;
   Object.assign(Dojo, { renderGames, gamesSummary, backFromArcade });
-
-  // ---- Life panel ----
-  // Registered from here rather than by shop/life.js itself, because
-  // life.js loads BEFORE this file and so cannot see Arcade.registerTab
-  // at its own load time (story/ could, which is why it self-registered).
-  //
-  // This tab exists because the life panel used to be a guest on the
-  // Story tab, and Story was removed. Vitals still decay on every chunk,
-  // exam and arcade round, and isWeak() still shuts the Arcade — so
-  // without a reachable place to buy food, water and shelter, a player
-  // would eventually be locked out of the Arcade with no way back in.
-  // Gated on the same "survival" rank feature the Story tab used, so it
-  // stays hidden until the sim actually turns on.
-  if (Dojo.renderLifeTab) {
-    TAB_GATE.life = "survival";
-    registerTab({ id: "life", label: "\u{1F35C} Life", render: body => Dojo.renderLifeTab(body) });
-  }
 })();

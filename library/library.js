@@ -1125,9 +1125,6 @@
     DB.markChunkComplete(topic.id, state.currentChunk);
     // Streak used to touch here, per chunk — moved to showExamResults
     // (only on an actual topic pass), see the comment there for why.
-    // Studying costs a little upkeep. It never gates anything —
-    // low vitals shut the Arcade and Story, never the Library.
-    if (Dojo.LifeShop) Dojo.LifeShop.cost("chunk");
     Bus.emit("chunk:completed", { topicId: topic.id, chunkIdx: state.currentChunk });
 
     // 5-7 XP per chunk. Retries don't pay again — otherwise deliberately
@@ -1266,7 +1263,6 @@
 
     // Record exam result in DB
     DB.recordExamResult(topic.id, correct, total, passed);
-    if (Dojo.LifeShop) Dojo.LifeShop.cost("exam");
     Bus.emit("exam:finished", { topicId: topic.id, correct, total, passed });
     // Map percentage onto SM-2's 0-5 quality scale.
     DB.scheduleReview(topic.id, Math.max(0, Math.min(5, Math.round(pct / 20))));
@@ -1395,6 +1391,34 @@
     if (!state.deckBuilder || state.deckBuilder.courseId !== course.id) initDeckBuilderState(course);
     renderDeckBuilder();
     showScreen("deck-builder");
+  }
+
+  // Lobby-level entry point — promotes the deck builder out from behind
+  // "pick a course first," per the standalone-screen decision (see
+  // BACKLOG.md). Only one course exists today, so this just selects it;
+  // if a second course ever ships, this is the seam that would need a
+  // course picker in front of it. Tracks how the screen was entered so
+  // its back button can return to the right place either way.
+  function openFlashcardsHub() {
+    const course = COURSES[0];
+    if (!course) return;
+    state.currentCourse = course.id;
+    state.deckBuilderFromLobby = true;
+    const backBtn = document.getElementById("btn-back-deckbuilder");
+    if (backBtn) backBtn.textContent = "← Lobby";
+    openDeckBuilder();
+  }
+
+  // The lobby tile's one-line summary — same "ask the branch, don't
+  // compute it in lobby.js" rule every other tile follows.
+  function flashcardsSummary() {
+    if (!COURSES.length) return null;
+    const completed = DB.getCompletedChunks();
+    let total = 0;
+    Object.values(completed).forEach(set => { total += set ? set.size : 0; });
+    return total > 0
+      ? `${total} chunk${total === 1 ? "" : "s"} reviewed so far — build a deck`
+      : "Pick any chunks, drill your weak spots";
   }
 
   function renderDeckBuilder() {
@@ -1690,36 +1714,50 @@
     showScreen("flashcards");
   }
 
+  // Both control rows (flip button, know/don't-know) are in the DOM from
+  // the start now, toggled with display rather than rebuilt — the CSS
+  // 3D flip (styles/library.css's .flashcard.flipped) transitions the
+  // SAME element over 0.5s; replacing the whole body's innerHTML on
+  // flip (the old approach) destroyed and recreated the node already in
+  // its flipped state, so the card just popped instead of turning. The
+  // know-row is revealed partway through the turn rather than the
+  // instant it starts, so it doesn't appear on the still-front-facing
+  // card.
   function renderFlashcard() {
     const body = document.getElementById("flashcard-body");
     const counter = document.getElementById("flashcard-counter");
     const deck = state.flashDeck;
     const card = deck[state.flashIndex];
     if (counter) counter.textContent = `${state.flashIndex + 1}/${deck.length}`;
+    state.flashFlipped = false;
 
     body.innerHTML = `
       <div class="flashcard-topic">${card.topicTitle}</div>
-      <div class="flashcard ${state.flashFlipped ? "flipped" : ""}">
+      <div class="flashcard" id="flashcard-el">
         <div class="flashcard-face flashcard-front">${card.q}</div>
         <div class="flashcard-face flashcard-back">
           <div class="flashcard-answer">${card.a}</div>
           ${card.explanation ? `<div class="flashcard-explain">${card.explanation}</div>` : ""}
         </div>
       </div>
-      ${!state.flashFlipped
-        ? `<button id="btn-flash-flip" class="btn-primary flashcard-flip-btn">Show Answer</button>`
-        : `<div class="flashcard-know-row">
-             <button id="btn-flash-no" class="btn-ghost flashcard-know-btn">✕ Didn't know it</button>
-             <button id="btn-flash-yes" class="btn-primary flashcard-know-btn">✓ Knew it</button>
-           </div>`}
+      <button id="btn-flash-flip" class="btn-primary flashcard-flip-btn">Show Answer</button>
+      <div id="flashcard-know-row" class="flashcard-know-row" style="display:none;">
+        <button id="btn-flash-no" class="btn-ghost flashcard-know-btn">✕ Didn't know it</button>
+        <button id="btn-flash-yes" class="btn-primary flashcard-know-btn">✓ Knew it</button>
+      </div>
     `;
 
+    const cardEl = document.getElementById("flashcard-el");
     const flipBtn = document.getElementById("btn-flash-flip");
-    if (flipBtn) flipBtn.addEventListener("click", () => { state.flashFlipped = true; renderFlashcard(); });
-    const noBtn = document.getElementById("btn-flash-no");
-    if (noBtn) noBtn.addEventListener("click", () => answerFlashcard(false));
-    const yesBtn = document.getElementById("btn-flash-yes");
-    if (yesBtn) yesBtn.addEventListener("click", () => answerFlashcard(true));
+    const knowRow = document.getElementById("flashcard-know-row");
+    flipBtn.addEventListener("click", () => {
+      state.flashFlipped = true;
+      cardEl.classList.add("flipped");
+      flipBtn.style.display = "none";
+      setTimeout(() => { knowRow.style.display = "flex"; }, 260);
+    });
+    document.getElementById("btn-flash-no").addEventListener("click", () => answerFlashcard(false));
+    document.getElementById("btn-flash-yes").addEventListener("click", () => answerFlashcard(true));
   }
 
   // A card's own elapsed time (front shown -> answered), not counting the
@@ -1727,16 +1765,26 @@
   // that costs nothing when a review paid no reward. Now that it does,
   // this is the guard — see MIN_CARD_MS in finishFlashcards.
   function answerFlashcard(knew) {
+    // Brief glow/shake on the card itself (styles/library.css's
+    // .fc-correct / .fc-wrong) before moving on — long enough to read as
+    // feedback, short enough not to feel like a delay.
+    const cardEl = document.getElementById("flashcard-el");
+    if (cardEl) {
+      cardEl.classList.remove("fc-correct", "fc-wrong");
+      void cardEl.offsetWidth;
+      cardEl.classList.add(knew ? "fc-correct" : "fc-wrong");
+    }
     state.flashResults.push(knew);
     state.flashTimings.push(Date.now() - state.flashCardShownAt);
-    if (state.flashIndex + 1 < state.flashDeck.length) {
-      state.flashIndex++;
-      state.flashFlipped = false;
-      state.flashCardShownAt = Date.now();
-      renderFlashcard();
-    } else {
-      finishFlashcards();
-    }
+    setTimeout(() => {
+      if (state.flashIndex + 1 < state.flashDeck.length) {
+        state.flashIndex++;
+        state.flashCardShownAt = Date.now();
+        renderFlashcard();
+      } else {
+        finishFlashcards();
+      }
+    }, 320);
   }
 
   // A card answered faster than this couldn't have been read, let alone
@@ -1805,6 +1853,7 @@
     if (wisdomEl) wisdomEl.innerHTML = "";
 
     showScreen("exam-result");
+    if (Dojo.burstConfetti) Dojo.burstConfetti(document.getElementById("result-icon"));
   }
 
   // A custom deck can span many topics, so there's no single topic id
@@ -1852,6 +1901,7 @@
     if (wisdomEl) wisdomEl.innerHTML = "";
 
     showScreen("exam-result");
+    if (Dojo.burstConfetti) Dojo.burstConfetti(document.getElementById("result-icon"));
   }
 
 
@@ -1864,7 +1914,15 @@
   };
   on("btn-back-courses", renderCourseSelect);
   on("btn-back-units",  () => { showScreen("unit-select"); renderUnitSelect(); });
-  on("btn-back-deckbuilder", () => { showScreen("unit-select"); renderUnitSelect(); });
+  on("btn-back-deckbuilder", () => {
+    if (state.deckBuilderFromLobby) {
+      state.deckBuilderFromLobby = false;
+      document.getElementById("btn-back-deckbuilder").textContent = "← Unit";
+      Dojo.showLobby();
+    } else {
+      showScreen("unit-select"); renderUnitSelect();
+    }
+  });
   on("btn-back-topics", () => { showScreen("topic-map"); renderTopicMap(); });
   on("btn-back-topics2",() => { showScreen("topic-map"); renderTopicMap(); });
   // The result screen (and the "back" out of it) is shared across three
@@ -1911,5 +1969,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, libraryTotals, resumeAt, startNextDueReview, openDeckBuilder, renderDeckBuilder });
+  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, libraryTotals, resumeAt, startNextDueReview, openDeckBuilder, renderDeckBuilder, openFlashcardsHub, flashcardsSummary });
 })();

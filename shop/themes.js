@@ -157,6 +157,48 @@
   const ALL_THEMES = [...THEMES, ...PREMIUM_THEMES];
   const isPremium = id => PREMIUM_THEMES.some(t => t.id === id);
 
+  // ---- Background stripes ----
+  // A second, independent layer over any colour theme — the paper-cut
+  // "kirigami" motif in miniature, decoupled from the full Kirigami
+  // theme above so it can be earned much earlier and mixed with any
+  // theme choice. Pure data, theme-agnostic (fixed white overlays, same
+  // reasoning as the Kirigami theme's own `bg`), painted by
+  // core/theme.js's applyBgStripe onto --bg-stripe-image. Unlock is
+  // rank-gated via shop/ranks.js's reward.bgStripe, not bought.
+  const BG_STRIPES = [
+    {
+      id: "diagonal", name: "Diagonal",
+      css: "repeating-linear-gradient(120deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 40px)"
+    },
+    {
+      id: "crosshatch", name: "Cross-hatch",
+      css: "repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 26px)," +
+           "repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 26px)"
+    },
+    {
+      id: "herringbone", name: "Herringbone",
+      css: "repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 3px, transparent 3px 18px)," +
+           "repeating-linear-gradient(-45deg, rgba(255,255,255,0.025) 0 3px, transparent 3px 18px)"
+    },
+    {
+      // Rank 9 (Senior Lab Manager) — a fine perpendicular grid, distinct
+      // from Cross-hatch's diagonal one, wide-spaced so it stays subtle
+      // at a bigger page area than the earlier low-rank stripes.
+      id: "lattice", name: "Lattice",
+      css: "repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 34px)," +
+           "repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 34px)"
+    },
+    {
+      // Rank 14 (Postdoctoral Researcher) — the most intricate one on
+      // purpose (a diamond lattice plus a soft central vignette), since
+      // it lands well past every other stripe reward.
+      id: "origami", name: "Origami",
+      css: "repeating-linear-gradient(45deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 30px)," +
+           "repeating-linear-gradient(-45deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 30px)," +
+           "radial-gradient(ellipse 60% 45% at 50% 0%, rgba(255,255,255,0.05), transparent 65%)"
+    }
+  ];
+
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { THEMES, PREMIUM_THEMES, ALL_THEMES, isPremium });
+  Object.assign(Dojo, { THEMES, PREMIUM_THEMES, ALL_THEMES, isPremium, BG_STRIPES });
 })();

@@ -14,6 +14,7 @@
   const THEMES = Dojo.THEMES;
   const ALL_THEMES = Dojo.ALL_THEMES;
   const isPremium = (...a) => Dojo.isPremium(...a);
+  const BG_STRIPES = Dojo.BG_STRIPES;
 
   function hexToRgb(hex) {
     const n = parseInt(hex.slice(1), 16);
@@ -41,6 +42,21 @@
     return ALL_THEMES.find(x => x.id === id) || THEMES[0];
   }
 
+  // A separate, rank-gated axis from the colour theme (see shop/themes.js's
+  // BG_STRIPES) — same "must have reached the rank" gate, same fallback
+  // shape, just its own CSS var so it can be layered over any theme.
+  function bgStripeUnlocked(id) {
+    if (id === "none") return true;
+    return Dojo.Ranks ? Dojo.Ranks.unlockedBgStripes(DB.getXp()).has(id) : false;
+  }
+
+  function applyBgStripe(id) {
+    const stripe = bgStripeUnlocked(id) && BG_STRIPES
+      ? BG_STRIPES.find(s => s.id === id)
+      : null;
+    document.documentElement.style.setProperty("--bg-stripe-image", stripe ? stripe.css : "none");
+  }
+
   // Text was "deliberately not themed" (see core/CORE.md) for as long as
   // every theme was a dark background — a fixed light text color always
   // had contrast. A light theme breaks that assumption outright, so text
@@ -59,7 +75,18 @@
   const DARK_TEXT = { text: "#e2e8f0", dim: "#94a3b8", muted: "#64748b", border: "rgba(255, 255, 255, 0.06)" };
 
   function applyTheme(id) {
-    const t = resolveTheme(id);
+    paintTheme(resolveTheme(id));
+  }
+
+  // Locked-theme preview (Settings): paints a theme's CSS variables
+  // straight from ALL_THEMES, skipping the unlock gate — nothing is
+  // bought or persisted, it's just what the app would look like. Falls
+  // back to Indigo for an unknown id, same as the gated path.
+  function previewTheme(id) {
+    paintTheme(ALL_THEMES.find(x => x.id === id) || THEMES[0]);
+  }
+
+  function paintTheme(t) {
     const [r, g, b] = hexToRgb(t.accent);
     const [dr, dg, db_] = hexToRgb(t.deep);
     const bolt = t.bolt || [shade(t.accent, -0.35), t.accent, t.light];
@@ -90,5 +117,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { applyTheme, resolveTheme, themeUnlocked, hexToRgb, shade });
+  Object.assign(Dojo, { applyTheme, previewTheme, resolveTheme, themeUnlocked, applyBgStripe, bgStripeUnlocked, hexToRgb, shade });
 })();

@@ -73,6 +73,7 @@
     tile("btn-lobby-garden", "lobby-garden-sub", gardenSummary());
     tile("btn-lobby-shop",   "lobby-shop-sub",   shopSummary());
     tile("btn-lobby-games",  "lobby-games-sub",  Dojo.gamesSummary ? Dojo.gamesSummary() : null);
+    tile("btn-lobby-flashcards", "lobby-flashcards-sub", Dojo.flashcardsSummary ? Dojo.flashcardsSummary() : null);
 
     renderCharge();
     if (Dojo.renderStreak) Dojo.renderStreak();
@@ -86,6 +87,12 @@
   // was asked for on the ring layout specifically, not as a change to
   // the tile list itself. Classic/Cards still read straight DOM order
   // (index.html), so this array is the ONLY place that order differs.
+  // Flashcards deliberately does NOT sit on this ring — reported live
+  // as "broken" once it did: 6 tiles fit the ring radius Star was tuned
+  // for; a 7th (or 8th, with Resume also visible) started overlapping.
+  // It lives in the hub instead — see the "middle button" wiring below,
+  // which fixes the tile count problem structurally rather than
+  // re-tuning the radius for a number that can grow again later.
   const STAR_ORDER = [
     "btn-lobby-courses", "btn-lobby-resume", "btn-lobby-shop",
     "btn-lobby-garden", "btn-lobby-settings", "btn-lobby-stats", "btn-lobby-games"
@@ -97,6 +104,21 @@
   // on its own — a fixed angle-per-DOM-slot scheme would leave a gap
   // at its spot whenever it's hidden. Must run after showScreen("lobby")
   // so the container has real layout to measure.
+  //
+  // Tile position used to be a pure-CSS `rotate(angle) translate(radius)
+  // rotate(-angle)` chain driven by a single `--angle` custom property —
+  // clean in theory, but a chained rotate/translate/rotate transform is
+  // exactly the kind of thing real browsers (and their touch/pointer
+  // hit-testing) don't all agree on: the circle could render in one
+  // place while the actual clickable point sat somewhere else entirely
+  // (reported live: "lobby's mouse points offset from real position",
+  // reproduced — a tile's own computed center point activated a
+  // DIFFERENT tile across the layout). Fixed by computing each tile's
+  // pixel position in JS with plain trig — the same formula already
+  // used for the SVG spoke lines below, now shared by both — and
+  // setting it as `left`/`top`. Ordinary box position plus a single
+  // `translate(-50%, -50%)` to center on that point has exactly one
+  // reasonable interpretation for hit-testing, unlike the rotate chain.
   function layoutLobbyRadial(style) {
     const actionsEl = document.getElementById("lobby-actions");
     const svg = document.getElementById("lobby-star-lines");
@@ -104,7 +126,7 @@
     const allTiles = Array.from(actionsEl.querySelectorAll(".lobby-tile"));
 
     if (style !== "star") {
-      allTiles.forEach(el => el.style.removeProperty("--angle"));
+      allTiles.forEach(el => { el.style.removeProperty("--tx"); el.style.removeProperty("--ty"); });
       if (svg) svg.innerHTML = "";
       return;
     }
@@ -114,13 +136,17 @@
       .filter(el => el && el.style.display !== "none");
 
     const n = tiles.length;
-    tiles.forEach((el, i) => {
-      el.style.setProperty("--angle", `${-90 + i * (360 / n)}deg`);
-    });
-
     const box = actionsEl.getBoundingClientRect();
     const cx = box.width / 2, cy = box.height / 2;
     const r = parseFloat(getComputedStyle(actionsEl).getPropertyValue("--lobby-radius")) || 130;
+
+    tiles.forEach((el, i) => {
+      const a = (-90 + i * (360 / n)) * Math.PI / 180;
+      const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+      el.style.setProperty("--tx", `${x}px`);
+      el.style.setProperty("--ty", `${y}px`);
+    });
+
     svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
     svg.innerHTML = tiles.map((_, i) => {
       const a = (-90 + i * (360 / n)) * Math.PI / 180;

@@ -119,7 +119,10 @@
           <path id="crash-area" fill="url(#crashAreaGrad)" d=""></path>
           <path id="crash-line" fill="none" stroke-width="2.5" stroke-linecap="round" d=""></path>
         </svg>
-        <div class="crash-rocket" id="crash-rocket">\u{1F680}</div>
+        <div class="crash-rocket" id="crash-rocket">
+          <span class="ball-flame"></span>
+          <span class="ball-glyph">⚽</span>
+        </div>
         <div class="crash-mult" id="crash-mult">1.00\u00d7</div>
         <div class="crash-status" id="crash-status">Set a stake and go.</div>
       </div>
@@ -226,29 +229,22 @@
       areaEl.setAttribute("d", `${d} L${tip.x.toFixed(1)},${CURVE_H} L0,${CURVE_H} Z`);
       lineEl.setAttribute("stroke", crashed ? "var(--red)" : "var(--accent-light)");
 
-      // Rocket heading is the curve's actual direction AT the tip — the
-      // last two points, nothing smoothed or averaged further back.
-      // Samples are throttled to ~1 per 45ms (see pushSample), so
-      // adjacent points are far enough apart in pixels for this to be a
-      // stable reading rather than the sub-pixel noise a same-frame
-      // pair would have been before that throttle existed.
-      const tail = pts.length > 1 ? pts[pts.length - 2] : tip;
-      const angle = Math.atan2(tip.y - tail.y, tip.x - tail.x) * 180 / Math.PI;
+      // The ball just travels and spins in place (see .ball-glyph's own
+      // CSS animation) — unlike the old rocket glyph it has no "facing
+      // direction" to point, so this only ever moves it, never rotates
+      // the wrapper.
       rocketEl.style.left = `${(tip.x / CURVE_W) * 100}%`;
       rocketEl.style.top = `${(tip.y / CURVE_H) * 100}%`;
-      // Rotate by the raw travel angle — turned back 90deg (CCW) from an
-      // earlier +90 offset that looked right on paper (rocket glyph
-      // measured pointing straight up in isolation) but was visibly
-      // wrong in flight. Whatever the actual glyph/baseline mismatch
-      // was, this is the offset that matches what's on screen.
-      rocketEl.style.transform = `translate(-50%, -50%) rotate(${angle.toFixed(1)}deg)`;
+      rocketEl.style.transform = "translate(-50%, -50%)";
     }
+
+    const ballGlyph = () => rocketEl.querySelector(".ball-glyph");
 
     function resetCurve() {
       samples = [{ t: 0, m: 1 }];
       lastPushT = -Infinity;
-      rocketEl.textContent = "\u{1F680}";
       rocketEl.classList.remove("exploded");
+      if (ballGlyph()) ballGlyph().textContent = "⚽";
       redrawCurve(false);
       paintSky(1);
     }
@@ -304,7 +300,7 @@
       pushSample(Date.now() - startedAt, mult, true);
       redrawCurve(!won);
       if (!won) {
-        rocketEl.textContent = "\u{1F4A5}";
+        if (ballGlyph()) ballGlyph().textContent = "\u{1F4A5}";
         rocketEl.classList.add("exploded");
         stageEl.classList.remove("shake"); void stageEl.offsetWidth; stageEl.classList.add("shake");
       } else {
@@ -324,9 +320,7 @@
       const stake = Math.floor(Number(stakeEl.value) || 0);
       const round = api.beginRound(stake, api.gameId);
       if (!round) {
-        statusEl.textContent = Dojo.LifeShop && Dojo.LifeShop.isWeak()
-          ? Dojo.LifeShop.weakReason() + "."
-          : DB.getTickets() < 1 ? "No tickets left \u2014 seven come back every six hours."
+        statusEl.textContent = DB.getTickets() < 1 ? "No tickets left \u2014 seven come back every six hours."
           : DB.getWallet() < stake ? "Not enough money for that stake."
           : `Stake must be between $1 and $${api.MAX_STAKE}.`;
         return;

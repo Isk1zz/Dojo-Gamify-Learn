@@ -34,6 +34,9 @@
   --bolt-3: #7dd3fc;
   --bolt-glow: rgba(56, 189, 248, 0.55);
   --bg-image: none;
+  /* Set by core/theme.js's applyBgStripe — an independent, rank-gated
+     overlay layered under --bg-image, decoupled from theme choice. */
+  --bg-stripe-image: none;
   --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --mono: 'JetBrains Mono', monospace;
   --radius: 16px;
@@ -47,7 +50,7 @@ html { font-size: 16px; scroll-behavior: smooth; }
 body {
   font-family: var(--font);
   background: var(--bg-deep);
-  background-image: var(--bg-image);
+  background-image: var(--bg-stripe-image), var(--bg-image);
   background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;
@@ -234,6 +237,12 @@ body {
   white-space: nowrap;
 }
 
+/* Pinned badges (up to 3) — set by core/profile.js's updateProfileBadge,
+   picked from library/stats.js's Badges grid. Empty when nothing's
+   pinned, so it costs no layout space by default. */
+.profile-pins { display: flex; gap: 0.2rem; }
+.pin-icon { font-size: 0.85rem; line-height: 1; }
+
 /* ============================================
    Profile Dropdown
    ============================================ */
@@ -300,6 +309,22 @@ body {
   background: var(--border);
   margin: 0.5rem 0;
 }
+
+.pd-wallet-note { font-weight: 400; text-transform: none; letter-spacing: normal; color: var(--green); }
+.pd-avatars-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem;
+}
+.pd-avatar-swatch {
+  display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+  padding: 0.4rem 0.2rem; cursor: pointer; font: inherit;
+  border: 1px solid var(--border); border-radius: var(--radius-xs);
+  background: var(--bg-surface); color: var(--text);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.pd-avatar-swatch:hover { transform: translateY(-1px); }
+.pd-avatar-swatch.active { border-color: var(--accent); background: var(--accent-glow); }
+.pd-avatar-icon { font-size: 1.15rem; }
+.pd-avatar-price { font-size: 0.62rem; font-family: var(--mono); color: var(--text-muted); }
 
 .pd-profiles-list {
   max-height: 140px;
@@ -438,14 +463,26 @@ body {
 
 /* ============================================
    Shared layout utilities
-   Used by settings, garden, shop, games and story.
+   Used by settings, garden, shop and games.
    They live here rather than in one branch's sheet
-   because five branches use them.
+   because several branches use them.
    ============================================ */
 .settings-body, .garden-body {
   max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem;
 }
 .settings-section { margin-bottom: 2.25rem; }
+
+/* Generic "that didn't work" feedback — a purchase you can't afford, a
+   pin slot that's full. Distinct from the wallet/crash-stage shakes
+   above, which are scoped to their own specific elements/animations. */
+.shake { animation: genericShake 0.35s ease; }
+@keyframes genericShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
 
 /* The negative top margin exists to tuck a hint under a section title.
    It used to be unconditional, which pulled the hint UP INTO whatever
@@ -838,19 +875,26 @@ body {
   position: relative; height: 440px; margin-top: 0.5rem;
 }
 .lobby-style-star .lobby-tile {
-  position: absolute; top: 50%; left: 50%; z-index: 2;
+  /* --tx/--ty are set by core/lobby.js's layoutLobbyRadial with the same
+     trig used for the SVG spoke lines, so the visible circle and its
+     actual clickable point are computed from the same numbers — a
+     rotate(angle) translate(radius) rotate(-angle) chain used to do this
+     purely in CSS, but that's exactly the kind of compound transform
+     real browsers' pointer/touch hit-testing doesn't reliably agree on
+     (reported live: the visible circle and the point that actually
+     registered a click were in two different places). Falls back to
+     dead center if unset, same as before. */
+  position: absolute; top: var(--ty, 50%); left: var(--tx, 50%); z-index: 2;
   width: 112px; height: 112px; padding: 0.6rem; margin: 0;
   border-radius: 50%; flex-direction: column; justify-content: center;
   gap: 0.2rem; text-align: center;
   box-shadow: 0 0 0 1px var(--border-accent), 0 0 18px 3px var(--accent-glow);
-  transform: translate(-50%, -50%) rotate(var(--angle, 0deg))
-    translate(var(--lobby-radius)) rotate(calc(-1 * var(--angle, 0deg)));
+  transform: translate(-50%, -50%);
 }
 .lobby-style-star .lobby-tile:hover, .lobby-style-star .lobby-tile:focus-visible {
   z-index: 3;
   box-shadow: 0 0 0 1px var(--border-accent), 0 0 26px 5px var(--accent-glow-strong);
-  transform: translate(-50%, -50%) rotate(var(--angle, 0deg))
-    translate(var(--lobby-radius)) rotate(calc(-1 * var(--angle, 0deg))) scale(1.1);
+  transform: translate(-50%, -50%) scale(1.1);
 }
 .lobby-style-star .lt-sub, .lobby-style-star .arrow { display: none; }
 .lobby-style-star .lt-icon { font-size: 1.6rem; }
@@ -868,9 +912,18 @@ body {
 .lobby-style-star .lobby-hub {
   display: flex; align-items: center; justify-content: center;
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 66px; height: 66px; border-radius: 50%; z-index: 1;
+  width: 66px; height: 66px; border-radius: 50%; z-index: 2;
   background: var(--accent-glow); border: 1px solid var(--border-accent);
   font-size: 1.6rem; box-shadow: 0 0 24px var(--accent-glow-strong);
+  /* Now a <button> (was a decorative <div>) — Flashcards' home in this
+     topology, see core/lobby.js's STAR_ORDER comment. Reset button
+     chrome, keep the same glowing-hub look, add real hover feedback. */
+  cursor: pointer; font: inherit; color: inherit; padding: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.lobby-style-star .lobby-hub:hover, .lobby-style-star .lobby-hub:focus-visible {
+  transform: translate(-50%, -50%) scale(1.08);
+  box-shadow: 0 0 30px var(--accent-glow-strong);
 }
 @media (max-width: 420px) {
   .lobby-style-star { --lobby-radius: 122px; height: 340px; }

@@ -11,10 +11,16 @@
   // it calls into, so these resolve at call time, not at load time.
   const THEMES = Dojo.THEMES;
   const PREMIUM_THEMES = Dojo.PREMIUM_THEMES;
+  const BG_STRIPES = Dojo.BG_STRIPES || [];
   const showScreen = Dojo.showScreen;
   const Router = Dojo.Router;
   const Bus = Dojo.Bus;
   const applyTheme = (...a) => Dojo.applyTheme(...a);
+  // btn-back-lobby3 lives in the static topbar, outside #settings-body,
+  // so it survives every re-render — bind the preview-cleanup listener
+  // to it once, ever, instead of stacking a new one per visit.
+  let backBtnBound = false;
+  let previewing = false;
   const renderShop = (...a) => Dojo.renderShop(...a);
   const renderCharge = (...a) => Dojo.renderCharge(...a);
   const updateProfileBadge = (...a) => Dojo.updateProfileBadge(...a);
@@ -25,8 +31,11 @@
     const body = document.getElementById("settings-body");
     const current = DB.getTheme();
     const owned = PREMIUM_THEMES.filter(t => Dojo.themeUnlocked(t.id));
-    const locked = PREMIUM_THEMES.length - owned.length;
+    const lockedThemes = PREMIUM_THEMES.filter(t => !Dojo.themeUnlocked(t.id));
+    const locked = lockedThemes.length;
     const lobbyStyle = DB.getLobbyStyle ? DB.getLobbyStyle() : "classic";
+    const hintsOn = DB.getHintsEnabled ? DB.getHintsEnabled() : true;
+    const currentStripe = DB.getBgStripe ? DB.getBgStripe() : "none";
 
     const swatch = t => `
       <button class="theme-swatch${t.id === current ? " active" : ""}"
@@ -34,6 +43,22 @@
         <span class="sw-preview"><span class="sw-dot"></span></span>
         <span class="sw-name">${t.name}</span>
       </button>`;
+
+    // Locked themes get a preview instead of a select — clicking paints
+    // the app in that theme without unlocking or persisting anything
+    // (Dojo.previewTheme skips the rank gate on purpose). The rank
+    // needed comes from Dojo.Ranks.themeRank, same lookup the reward
+    // list elsewhere in the app uses.
+    const lockedSwatch = t => {
+      const r = Dojo.Ranks && Dojo.Ranks.themeRank ? Dojo.Ranks.themeRank(t.id) : null;
+      return `
+      <button class="theme-swatch locked" data-preview-theme="${t.id}"
+              style="--sw:${t.swatch};--sw-bg:${t.card}">
+        <span class="sw-preview"><span class="sw-dot"></span><span class="sw-lock">\u{1F512}</span></span>
+        <span class="sw-name">${t.name}</span>
+        ${r ? `<span class="sw-req">Rank ${r.n} · ${r.abbr}</span>` : ""}
+      </button>`;
+    };
 
     // Bars preview for classic/cards — "cards" just draws them elevated
     // and rounded, so the thumbnail itself demonstrates the re-skin
@@ -57,6 +82,27 @@
       }
       return `<span class="style-preview-radial"><span class="rp-hub"></span>${dots}</span>`;
     };
+    // Background stripes: a separate, rank-gated overlay independent of
+    // colour theme (see shop/themes.js's BG_STRIPES + shop/ranks.js's
+    // reward.bgStripe). "None" is always available and isn't in the
+    // data list, so it's synthesized here as the first swatch.
+    const stripeSwatch = s => {
+      const unlocked = Dojo.bgStripeUnlocked ? Dojo.bgStripeUnlocked(s.id) : false;
+      const r = Dojo.Ranks && Dojo.Ranks.bgStripeRank ? Dojo.Ranks.bgStripeRank(s.id) : null;
+      return `
+      <button class="style-swatch stripe-swatch${!unlocked ? " locked" : ""}${s.id === currentStripe ? " active" : ""}"
+              ${unlocked ? `data-bg-stripe="${s.id}"` : "disabled"}>
+        <span class="stripe-preview" style="background-image:${s.css};"></span>
+        <span class="sw-name">${s.name}${!unlocked ? " \u{1F512}" : ""}</span>
+        ${!unlocked && r ? `<span class="sw-req">Rank ${r.n} · ${r.abbr}</span>` : ""}
+      </button>`;
+    };
+    const noneStripeSwatch = `
+      <button class="style-swatch stripe-swatch${currentStripe === "none" ? " active" : ""}" data-bg-stripe="none">
+        <span class="stripe-preview"></span>
+        <span class="sw-name">None</span>
+      </button>`;
+
     const lobbyStyleSwatch = (id, name, kind) => `
       <button class="style-swatch${id === lobbyStyle ? " active" : ""}" data-lobby-style="${id}">
         ${kind === "star" ? starPreview() : barsPreview(kind === "cards")}
@@ -77,9 +123,14 @@
           ${owned.length
             ? `${owned.length} unlocked.`
             : "None unlocked yet."}
-          ${locked ? `${locked} more are waiting further up the rank ladder.` : "You have them all."}
+          ${locked ? `${locked} more are waiting further up the rank ladder — tap one to preview it.` : "You have them all."}
         </p>
         ${owned.length ? `<div class="theme-grid">${owned.map(swatch).join("")}</div>` : ""}
+        ${locked ? `<div class="theme-grid" style="margin-top:${owned.length ? "0.7rem" : "0"};">${lockedThemes.map(lockedSwatch).join("")}</div>` : ""}
+        <div id="theme-preview-bar" class="theme-preview-bar" style="display:none;">
+          <span id="theme-preview-label"></span>
+          <button id="btn-restore-theme" class="btn-ghost">↩ Restore my theme</button>
+        </div>
         <button id="btn-settings-shop" class="btn-ghost" style="margin-top:0.9rem;">\u{1F396} Open Career</button>
       </div>
       <div class="settings-section">
@@ -90,6 +141,22 @@
           ${lobbyStyleSwatch("cards", "Cards", "cards")}
           ${lobbyStyleSwatch("star", "Star", "star")}
         </div>
+      </div>
+      <div class="settings-section">
+        <div class="stats-section-title">\u{1F9F5} Background stripes</div>
+        <p class="settings-hint">A subtle overlay pattern, layered under your colour theme. Earned by rank, separate from themes.</p>
+        <div class="lobby-style-grid">
+          ${noneStripeSwatch}
+          ${BG_STRIPES.map(stripeSwatch).join("")}
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="stats-section-title">\u{1F4A1} Hints</div>
+        <p class="settings-hint">The small explainer text under section titles across the app — like this one.</p>
+        <label class="hint-toggle-row">
+          <input type="checkbox" id="hints-toggle" ${hintsOn ? "checked" : ""} />
+          <span>Show hints</span>
+        </label>
       </div>
       ${window.DOJO_CODES ? `
       <div class="settings-section">
@@ -143,12 +210,69 @@
         </div>
       </div>`;
 
-    body.querySelectorAll(".theme-swatch").forEach(btn => {
+    body.querySelectorAll(".theme-swatch:not(.locked)").forEach(btn => {
       btn.addEventListener("click", () => {
         const id = btn.getAttribute("data-theme");
         DB.setTheme(id);
         applyTheme(id);
         body.querySelectorAll(".theme-swatch").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        hidePreviewBar();
+      });
+    });
+
+    // Locked themes: preview only, never selects or persists. The bar
+    // stays up until the user restores or picks a real (owned) theme —
+    // whichever comes first — so a preview never quietly outlives the
+    // visit.
+    const previewBar = document.getElementById("theme-preview-bar");
+    const previewLabel = document.getElementById("theme-preview-label");
+    function hidePreviewBar() {
+      previewing = false;
+      if (previewBar) previewBar.style.display = "none";
+    }
+    body.querySelectorAll("[data-preview-theme]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-preview-theme");
+        Dojo.previewTheme(id);
+        previewing = true;
+        if (previewBar && previewLabel) {
+          previewLabel.textContent = `Previewing "${btn.querySelector(".sw-name").textContent}"`;
+          previewBar.style.display = "flex";
+        }
+      });
+    });
+    const restoreBtn = document.getElementById("btn-restore-theme");
+    if (restoreBtn) restoreBtn.addEventListener("click", () => {
+      applyTheme(DB.getTheme());
+      hidePreviewBar();
+    });
+
+    // Leaving Settings mid-preview (the Lobby back button, not the
+    // restore button above) must not carry a never-bought theme along
+    // to the rest of the app — capture-phase so this runs before
+    // boot.js's own listener on the same button. Bound once, ever: this
+    // button lives outside #settings-body and survives every re-render.
+    const backBtn = document.getElementById("btn-back-lobby3");
+    if (backBtn && !backBtnBound) {
+      backBtnBound = true;
+      backBtn.addEventListener("click", () => {
+        if (previewing) { applyTheme(DB.getTheme()); previewing = false; }
+      }, true);
+    }
+
+    const hintsToggle = document.getElementById("hints-toggle");
+    if (hintsToggle) hintsToggle.addEventListener("change", () => {
+      DB.setHintsEnabled(hintsToggle.checked);
+      if (Dojo.applyHints) Dojo.applyHints(hintsToggle.checked);
+    });
+
+    body.querySelectorAll("[data-bg-stripe]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-bg-stripe");
+        DB.setBgStripe(id);
+        if (Dojo.applyBgStripe) Dojo.applyBgStripe(id);
+        body.querySelectorAll(".stripe-swatch").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
       });
     });

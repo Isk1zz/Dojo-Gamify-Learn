@@ -65,17 +65,18 @@ decision rather than a missing file — it cost a whole round trip to spot. It
 now draws **"Not loaded — see console"** and logs the exact tag to add.
 
 ## The gate — already enforced
-Per round: **1 ticket + a bite out of vitals**, stake capped at $50 and at the
-wallet. Tickets: **7 per 6 hours, ceiling 7** — the only limiter.
+Per round: **1 ticket**, stake capped at $50 and at the wallet. Tickets: **7
+per 6 hours, ceiling 7** — the only limiter.
 
 Energy was removed in v6. It and tickets were two rate limits doing the same
 job, and the ticket is the one that reads as "come back later". The `energy`
 field still exists in stored profiles because migrations never drop fields, but
 nothing reads it and `spendEnergy` is not called anywhere.
 
-If any vital is at or below 15, `beginRound` returns `null` and `canPlay()` is
-false — you are too weak to play. The Library is never gated this way; see
-`shop/SHOP.md`.
+Rounds used to also cost a bite out of vitals, and being too weak (any vital
+≤15) shut the Arcade — that was the life-sim, removed along with the rest of
+it (see `shop/SHOP.md` and BACKLOG.md's Batch 5/9). Tickets are the only gate
+now.
 
 That ceiling is the point. The arcade is a break between study sessions, not an
 income line — the Garden is the income line, and it pays for *remembering
@@ -94,33 +95,18 @@ so playing at a steady stake meant retyping it all evening.
 - Session-only, deliberately. A stake is a mood, not a setting, and it would
   otherwise need a `db.js` field.
 
-## The Story tab arrives with rank
+## Tabs and `TAB_GATE`
 
-The Story tab and the whole survival sim — hunger, thirst, hygiene, rent, the
-life shop — are gated on **Senior Lab Manager** (1110 XP). Before that a new
-profile just studies.
+The Arcade screen supports tabs via `Arcade.registerTab({ id, label,
+render(body) })`; a registered tab may name a rank feature it needs in
+`TAB_GATE`, and a locked tab stays on screen wearing a padlock rather than
+being hidden — a reward nobody knows about isn't a reward.
 
-Three systems on day one is two too many. By 1110 XP the Library is a habit, so
-the sim reads as something that arrived rather than something in the way.
-
-**Senior Lab Manager, not Senior Research Coordinator.** SSG already hands out
-Sumi Ink, and two rewards on one rung means the smaller one goes unnoticed —
-you only read the rank-up once. MSG was one of the deliberate blanks in the
-ladder, so the sim fills an empty rung instead of crowding a full one.
-`tests-games.js` asserts
-that no rank carries a theme and a feature at the same time, so the next
-feature can't quietly land on a busy rung either.
-
-**The locked tab stays on screen** wearing a padlock, and opening it says what's
-behind it, which rank it needs, and how much XP is left. Hiding it was the first
-attempt and it was wrong: a player who hasn't earned it then has no idea the
-story exists, and a reward nobody knows about isn't a reward.
-
-`story/` still registers itself normally and knows nothing about this — the
-host screen decides what it shows (`TAB_GATE` in `games.js`). Feature unlocks
-live next to the theme rewards in `shop/ranks.js`; `shop/life.js` sleeps
-entirely until the gate opens, so nothing decays, nobody robs you, and the
-vitals strip stays hidden.
+`TAB_GATE` is currently **empty**. Story used it (removed earlier), then the
+Life tab used it (removed with the life-sim — see `shop/SHOP.md` and
+BACKLOG.md's Batch 5/9); nothing gates a tab right now. Kept as infra for
+whatever rank-gated feature arrives next, same reasoning `shop/ranks.js`
+keeps `hasFeature`/`featureRank` around with an empty `FEATURES` object.
 
 ## The seam — use it
 ```js

@@ -27,11 +27,10 @@
 // place the 15-min assumption is written down.
 //
 // ---- Feature unlocks ----
-// Rank hands out FEATURES as well as themes. A brand-new profile should
-// not be juggling hunger, rent and a story on day one — that is three
-// systems before anyone has finished a chunk. They arrive at Senior Lab
-// Manager (2220 XP, a few weeks of normal use), by which point the
-// Library is a habit and the sim is a reward rather than a chore.
+// Rank can hand out FEATURES as well as themes — a rank-gated system a
+// brand-new profile shouldn't be juggling on day one. Currently unused
+// (the life-sim was the only feature that ever registered here; see
+// BACKLOG.md for its removal) but kept as infra for the next one.
 //
 // Pure data, like everything else here: hasFeature takes the xp, it
 // does not read DB. Callers pass DB.getXp().
@@ -43,20 +42,20 @@
 // ================================================
 
 const RANKS = [
-  { n: 1,  xp: 0,     name: "Lab Intern",               abbr: "INT",  reward: null },
-  { n: 2,  xp: 120,   name: "Research Assistant I",     abbr: "RA1",  reward: null },
-  { n: 3,  xp: 300,   name: "Research Assistant II",    abbr: "RA2",  reward: null },
+  { n: 1,  xp: 0,     name: "Lab Intern",               abbr: "INT",  reward: { bgStripe: "diagonal" } },
+  { n: 2,  xp: 120,   name: "Research Assistant I",     abbr: "RA1",  reward: { bgStripe: "crosshatch" } },
+  { n: 3,  xp: 300,   name: "Research Assistant II",    abbr: "RA2",  reward: { bgStripe: "herringbone" } },
   { n: 4,  xp: 520,   name: "Lab Technician",           abbr: "TCH",  reward: { theme: "sakura" } },
   { n: 5,  xp: 780,   name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
   { n: 6,  xp: 1080,  name: "Research Coordinator",     abbr: "CRD",  reward: null },
   { n: 7,  xp: 1420,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
   { n: 8,  xp: 1800,  name: "Lab Manager",              abbr: "MGR",  reward: null },
-  { n: 9,  xp: 2220,  name: "Senior Lab Manager",       abbr: "SLM",  reward: null },
+  { n: 9,  xp: 2220,  name: "Senior Lab Manager",       abbr: "SLM",  reward: { bgStripe: "lattice" } },
   { n: 10, xp: 2680,  name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
   { n: 11, xp: 3180,  name: "Director of Operations",   abbr: "DOP",  reward: null },
   { n: 12, xp: 3720,  name: "Master Technician",        abbr: "MTC",  reward: null },
   { n: 13, xp: 4300,  name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
-  { n: 14, xp: 4940,  name: "Postdoctoral Researcher",  abbr: "PDR",  reward: null },
+  { n: 14, xp: 4940,  name: "Postdoctoral Researcher",  abbr: "PDR",  reward: { bgStripe: "origami" } },
   { n: 15, xp: 5640,  name: "Project Lead",             abbr: "PL",   reward: null },
   { n: 16, xp: 6400,  name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
   { n: 17, xp: 7220,  name: "Program Director",         abbr: "PD",   reward: null },
@@ -65,15 +64,11 @@ const RANKS = [
   { n: 20, xp: 10000, name: "Nobel Laureate",           abbr: "NL",   reward: { theme: "kirigami" } }
 ];
 
-const FEATURES = {
-  // id            rank it arrives at
-  survival:        9    // vitals, the life shop, and the Story tab
-};
-// Senior Lab Manager, not Senior Research Coordinator. SSG already hands
-// out Sumi Ink, and two rewards landing on one rung means the smaller one
-// goes unnoticed — you only read the rank-up once. MSG (2220 XP) was one
-// of the deliberate blanks, so the survival sim fills an empty rung
-// instead of crowding a full one.
+// Empty since the life-sim (the last thing that used a feature gate —
+// vitals, the life shop, the Story tab before it) was removed. Kept as
+// infra: hasFeature/featureRank stay generic so a future rank-gated
+// feature has somewhere to register without re-deriving this plumbing.
+const FEATURES = {};
 
 // ---- Rank badge glyphs ----
 // One emoji per rank on a shared card frame — not the hand-drawn
@@ -149,6 +144,19 @@ function insigniaSvg(rank) {
     return RANKS.find(r => r.reward && r.reward.theme === themeId) || null;
   }
 
+  // Same pattern as the theme pair above, for the background-stripe
+  // rewards — a separate axis from themes, unlocked earlier on purpose.
+  function unlockedBgStripes(xp) {
+    return new Set(
+      RANKS.filter(r => xp >= r.xp && r.reward && r.reward.bgStripe).map(r => r.reward.bgStripe)
+    );
+  }
+
+  function bgStripeRank(id) {
+    return RANKS.find(r => r.reward && r.reward.bgStripe === id) || null;
+  }
+
   Dojo.Ranks = { RANKS, FEATURES, rankFor, nextRank, progress, unlockedThemes, themeRank,
+                 unlockedBgStripes, bgStripeRank,
                  hasFeature, featureRank, insigniaSvg };
 })();

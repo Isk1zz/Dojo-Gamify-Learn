@@ -61,9 +61,13 @@ number here, it belongs in the branch that owns the feature.
 - v7→v8 `lobbyStyle` added, defaulting to `"classic"` (today's look,
   unchanged for anyone who doesn't touch the setting).
 
-`lastVitalTick` is also still on old profiles and no longer read by
-anything — vitals decay moved from a real-calendar-day tick to a story-day
-one (a resolved scene) in the same pass streak was added. See `shop/SHOP.md`.
+`vitals`, `lastVitalTick`, `storyProgress` and `inventory` are also still on
+profiles and no longer read by the vitals/Story systems that wrote them —
+both were removed (see `shop/SHOP.md`, BACKLOG.md's Batch 4/5/9). Left in
+place per the same rule: migrations never drop fields, and an unread one
+costs nothing. `inventory` itself is NOT fully dead — `games.js` reuses
+`DB.getInventory`/`addInventory` for an unrelated purpose (tracking which
+arcade games are unlocked).
 
 **Every migration is additive with a safe default. Never drop a field.**
 `miniQuiz*` keys are historical — the UI says "Questions". Change labels in

@@ -26,6 +26,35 @@
 }
 .sw-name { font-size: 0.78rem; text-align: center; }
 
+/* Locked themes: same card, dimmed, with a lock badge and the rank that
+   unlocks it. Still clickable — it previews instead of selecting. */
+.theme-swatch.locked { opacity: 0.6; }
+.theme-swatch.locked:hover { opacity: 0.85; }
+.theme-swatch.locked .sw-preview { position: relative; }
+.sw-lock {
+  position: absolute; top: 4px; right: 4px; font-size: 0.75rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+.sw-req {
+  font-size: 0.68rem; text-align: center; color: var(--text-muted);
+  font-family: var(--mono);
+}
+.theme-preview-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.7rem;
+  margin-top: 0.9rem; padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border-accent); border-radius: var(--radius-sm);
+  background: var(--accent-glow);
+  font-size: 0.82rem;
+}
+
+/* ── Hints toggle ── */
+.hint-toggle-row {
+  display: flex; align-items: center; gap: 0.6rem; cursor: pointer;
+  font-size: 0.9rem;
+}
+.hint-toggle-row input { width: 16px; height: 16px; cursor: pointer; }
+body.hide-hints .settings-hint { display: none; }
+
 /* ── Lobby style picker — see styles/base.css's .lobby-style-cards /
    .lobby-style-radial / .lobby-style-star for what each actually does
    on the Lobby itself. ── */
@@ -42,6 +71,15 @@
 .style-preview { display: flex; flex-direction: column; gap: 4px; width: 100%; }
 .spb { height: 10px; border-radius: 3px; background: var(--bg-surface); border: 1px solid var(--border); }
 .spb-card { border-radius: 6px; border-color: transparent; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25); }
+
+/* ── Background-stripe picker — same swatch shell as Lobby style, a
+   filled preview box instead of the bars/radial thumbnail. ── */
+.stripe-swatch.locked { opacity: 0.55; cursor: default; }
+.stripe-swatch.locked:hover { transform: none; }
+.stripe-preview {
+  display: block; width: 100%; height: 46px; border-radius: var(--radius-xs);
+  background-color: var(--bg-surface);
+}
 
 /* Dot-ring thumbnail for Radial/Star — dots and (for star) hub + spokes
    are laid out in JS with the same angle formula core/lobby.js uses on

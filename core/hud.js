@@ -105,6 +105,56 @@
     if (e.target.closest && !e.target.closest("#streak-popover")) hideStreakPopover();
   });
 
+  // ---- Wallet strip ----
+  // Moved here from the now-removed shop/life.js (see BACKLOG.md's life-
+  // sim removal) — this file's own header already claimed "wallet and
+  // energy" as its job, life.js just got there first historically. The
+  // wallet itself (DB.getWallet/addMoney/spendMoney) is core economy,
+  // untouched by the life-sim's removal: Garden dividends and Arcade
+  // wins/losses still run through it. Only the survival gate is gone —
+  // the strip now shows whenever a profile is active, full stop.
+  const WALLET_HIDDEN_SCREENS = new Set([
+    "course-select", "unit-select", "topic-map", "deck-builder",
+    "lesson", "exam", "exam-result", "flashcards"
+  ]);
+
+  function renderVitals() {
+    const strip = document.getElementById("vitals-strip");
+    if (!strip) return;
+    if (!DB.getActiveProfile()) { strip.style.display = "none"; return; }
+    // Router.current() only tracks screens reached through Router.go —
+    // lesson/exam/flashcards/deck-builder are shown via a direct
+    // showScreen() call inside library.js and never register there, so
+    // the active .screen element is the only thing that's always right.
+    const activeEl = document.querySelector(".screen.active");
+    if (activeEl && WALLET_HIDDEN_SCREENS.has(activeEl.id)) { strip.style.display = "none"; return; }
+    strip.style.display = "flex";
+    strip.innerHTML = `<span class="vital-wallet"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`;
+  }
+
+  // Tap the wallet, get a one-line reminder of what it's for.
+  function hideWalletPopover() {
+    const pop = document.getElementById("wallet-popover");
+    if (pop) pop.style.display = "none";
+  }
+  function toggleWalletPopover(chip) {
+    const pop = document.getElementById("wallet-popover");
+    if (!pop || !chip) return;
+    if (pop.style.display === "block") { hideWalletPopover(); return; }
+    pop.innerHTML = `<strong>$${DB.getWallet()}</strong><br>`
+      + `Earned from the Garden's daily dividends and Arcade wins. Spent to `
+      + `unlock Arcade games and place stakes.`;
+    const r = chip.getBoundingClientRect();
+    pop.style.display = "block";
+    pop.style.top = `${r.bottom + 6}px`;
+    pop.style.right = `${window.innerWidth - r.right}px`;
+  }
+  document.addEventListener("click", e => {
+    const chip = e.target.closest && e.target.closest(".vital-wallet");
+    if (chip) { toggleWalletPopover(chip); return; }
+    if (e.target.closest && !e.target.closest("#wallet-popover")) hideWalletPopover();
+  });
+
   // The "renewed" moment — first qualifying action of a real day, per
   // DB.touchStreak's `changed` flag. Callers pass the count straight
   // from that return value so this never has to re-derive it.
@@ -250,5 +300,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { renderCharge, awardCharge, flyBolt, checkRankUp, renderStreak, celebrateStreak, moneyBurst });
+  Object.assign(Dojo, { renderCharge, awardCharge, flyBolt, checkRankUp, renderStreak, celebrateStreak, moneyBurst, burstConfetti, renderVitals });
 })();

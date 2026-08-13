@@ -47,6 +47,16 @@ const DB = (() => {
       ownedThemes: [],       // premium theme ids bought; free themes are never listed
       theme: "indigo",       // colour theme id
       lobbyStyle: "classic", // "classic" | "cards" — a re-skin of the Lobby tiles, not a rearrangement
+      hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
+      bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
+
+      // ---- Profile customization ----
+      // Bought with $ wallet money, not XP — a deliberate mirror of the
+      // charge/money split everywhere else in the app (charge -> cosmetic
+      // rank rewards, money -> everything else). See core/profile.js.
+      avatar: null,          // equipped avatar emoji id, null = initial-letter default
+      ownedAvatars: [],      // purchased avatar ids
+      pinnedBadges: [],      // up to 3 badge ids showcased next to the name
 
       // ---- v5: economy & life-sim ----
       wallet: 0,             // $ earned from garden dividends and mini-games
@@ -174,6 +184,8 @@ const DB = (() => {
     if (!Array.isArray(out.ownedThemes)) out.ownedThemes = [];
     if (!Array.isArray(out.seenQuotes)) out.seenQuotes = [];
     if (!out.courseContracts || typeof out.courseContracts !== "object") out.courseContracts = {};
+    if (!Array.isArray(out.ownedAvatars)) out.ownedAvatars = [];
+    if (!Array.isArray(out.pinnedBadges)) out.pinnedBadges = [];
     return out;
   }
 
@@ -719,6 +731,68 @@ const DB = (() => {
     return true;
   }
 
+  // ---- Profile customization (avatars, pinned badges) ----
+  // Bought with $, the same wallet everything in shop/life.js's old
+  // catalogue and the Arcade already spend from — see shop/avatars.js.
+  function getAvatar() {
+    const p = getActiveProfile();
+    return p ? p.avatar : null;
+  }
+
+  function getOwnedAvatars() {
+    const p = getActiveProfile();
+    return [...((p && p.ownedAvatars) || [])];
+  }
+
+  // The only path that may touch the wallet for an avatar purchase —
+  // same "one place per purchase" rule shop/life.js's buy() used to
+  // follow. Equips on purchase, same as buying a hostel bed used to
+  // apply immediately rather than sitting unused in a bag.
+  function buyAvatar(id, price) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return false;
+    if (!Array.isArray(p.ownedAvatars)) p.ownedAvatars = [];
+    if (p.ownedAvatars.includes(id)) { p.avatar = id; save(db); return true; }
+    if ((p.wallet || 0) < price) return false;
+    p.wallet -= price;
+    p.ownedAvatars.push(id);
+    p.avatar = id;
+    save(db);
+    return true;
+  }
+
+  function setAvatar(id) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return false;
+    if (id !== null && !(p.ownedAvatars || []).includes(id)) return false;
+    p.avatar = id;
+    save(db);
+    return true;
+  }
+
+  function getPinnedBadges() {
+    const p = getActiveProfile();
+    return [...((p && p.pinnedBadges) || [])];
+  }
+
+  // Toggle a badge in/out of the showcase — up to 3 slots, same cap
+  // enforced here so no caller can silently exceed it.
+  const MAX_PINNED_BADGES = 3;
+  function togglePinnedBadge(id) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return false;
+    if (!Array.isArray(p.pinnedBadges)) p.pinnedBadges = [];
+    const i = p.pinnedBadges.indexOf(id);
+    if (i >= 0) { p.pinnedBadges.splice(i, 1); save(db); return true; }
+    if (p.pinnedBadges.length >= MAX_PINNED_BADGES) return false;
+    p.pinnedBadges.push(id);
+    save(db);
+    return true;
+  }
+
   // ---- Theme ----
   function getTheme() {
     const p = getActiveProfile();
@@ -743,6 +817,34 @@ const DB = (() => {
     const p = db.profiles[db.activeProfileId];
     if (!p) return;
     p.lobbyStyle = id;
+    save(db);
+  }
+
+  // Defaults to true (undefined reads as "on") so an already-migrated
+  // profile that predates this field never silently loses its hints.
+  function getHintsEnabled() {
+    const p = getActiveProfile();
+    return !p || p.hintsEnabled !== false;
+  }
+
+  function setHintsEnabled(on) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.hintsEnabled = !!on;
+    save(db);
+  }
+
+  function getBgStripe() {
+    const p = getActiveProfile();
+    return (p && p.bgStripe) || "none";
+  }
+
+  function setBgStripe(id) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.bgStripe = id;
     save(db);
   }
 
@@ -923,50 +1025,14 @@ const DB = (() => {
     return true;
   }
 
-  function consumeInventory(itemId) {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return false;
-    const i = (p.inventory || []).indexOf(itemId);
-    if (i < 0) return false;
-    p.inventory.splice(i, 1);
-    save(db);
-    return true;
-  }
-
-  // ---- Vitals ----
-  function getVitals() {
-    const p = getActiveProfile();
-    return { ...(p && p.vitals) || { hunger: 100, thirst: 100, hygiene: 100, shelterTier: "street" } };
-  }
-
-  // patch = { hunger: +20, shelterTier: "hostel" }. Numbers are added
-  // and clamped 0-100; strings are set.
-  function patchVitals(patch) {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return null;
-    p.vitals = p.vitals || { hunger: 100, thirst: 100, hygiene: 100, shelterTier: "street" };
-    for (const [k, v] of Object.entries(patch || {})) {
-      if (typeof v === "number") p.vitals[k] = Math.max(0, Math.min(100, (p.vitals[k] || 0) + v));
-      else p.vitals[k] = v;
-    }
-    save(db);
-    return { ...p.vitals };
-  }
-
-  function getLastVitalTick() {
-    const p = getActiveProfile();
-    return p ? (p.lastVitalTick || null) : null;
-  }
-
-  function setLastVitalTick(dayStr) {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return;
-    p.lastVitalTick = dayStr;
-    save(db);
-  }
+  // consumeInventory, getVitals, patchVitals, getLastVitalTick and
+  // setLastVitalTick were the life-sim's own DB API — removed with
+  // shop/life.js (see BACKLOG.md's Batch 5/9). getInventory/addInventory
+  // stay: games.js uses them for unrelated one-off game unlocks (see its
+  // own comment on that). The `vitals`, `lastVitalTick`, `storyProgress`
+  // and `inventory` FIELDS stay in defaultProfile/migrate — this file
+  // never drops a field, and an unread one costs nothing (same call made
+  // for storyProgress when Story was removed).
 
   // ---- Story: removed ----
   // The Story branch was cut (see BACKLOG.md). Its DB API
@@ -1093,17 +1159,22 @@ const DB = (() => {
     setLastDividendClaim,
     getInventory,
     addInventory,
-    consumeInventory,
-    getVitals,
-    patchVitals,
-    getLastVitalTick,
-    setLastVitalTick,
     unlockAllTopics,
     constants: () => ({ TICKET_MAX }),
     getTheme,
     setTheme,
     getLobbyStyle,
     setLobbyStyle,
+    getHintsEnabled,
+    setHintsEnabled,
+    getBgStripe,
+    setBgStripe,
+    getAvatar,
+    setAvatar,
+    getOwnedAvatars,
+    buyAvatar,
+    getPinnedBadges,
+    togglePinnedBadge,
     setPosition,
     getPosition,
     clearPosition,

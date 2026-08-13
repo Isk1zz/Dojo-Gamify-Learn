@@ -96,8 +96,6 @@
   border-bottom: 1px solid var(--border);
   font-size: 0.72rem;
 }
-.vital { display: flex; align-items: center; gap: 0.3rem; }
-.v-icon { font-size: 0.8rem; }
 .v-track {
   width: 46px; height: 5px; border-radius: 999px; overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
@@ -108,11 +106,9 @@
   background: var(--green);
   transition: width 0.4s ease, background 0.3s ease;
 }
-.vital.low .v-fill { background: var(--yellow); }
-.vital.critical .v-fill, .v-fill.critical { background: var(--red); }
-/* margin-left:auto used to be on the shelter label next to this — shelter
-   moved into the Story tab only, so the wallet alone now owns pinning
-   itself to the right of the strip. */
+/* The wallet is the only thing left in the strip (see core/hud.js) — it
+   used to share the row with shelter/vitals labels, hence margin-left:auto
+   to pin itself to the right rather than the row being centered/packed. */
 .vital-wallet {
   margin-left: auto; display: flex; align-items: center; gap: 0.35rem;
   padding: 0.2rem 0.55rem; border-radius: 999px; cursor: pointer;
@@ -120,17 +116,6 @@
   font-family: var(--mono); font-weight: 700; color: var(--green);
 }
 .vw-icon { font-size: 0.85rem; }
-
-.vitals-detail { margin-top: 0.85rem; display: flex; flex-direction: column; gap: 0.45rem; }
-.vd-row { display: flex; align-items: center; gap: 0.7rem; }
-.vd-label { font-size: 0.78rem; min-width: 92px; color: var(--text-dim); }
-.vd-num { font-family: var(--mono); font-size: 0.75rem; min-width: 26px; text-align: right; }
-.vitals-warn {
-  margin-top: 0.8rem; padding: 0.55rem 0.75rem;
-  border-radius: var(--radius-sm);
-  background: var(--red-glow); border: 1px solid rgba(239, 68, 68, 0.3);
-  font-size: 0.8rem; line-height: 1.45;
-}
 
 /* The vitals strip sits under the charge bar, so screens start lower.
    Charge bar is now 2.3rem (was 2.1rem); shifted down by the same delta. */
@@ -175,26 +160,4 @@
 .scp-lock {
   position: absolute; inset: 0; display: flex; align-items: center;
   justify-content: center; font-size: 1.5rem;
-}
-
-/* ── The bag (carried consumables) ── */
-.bag-grid { display: flex; flex-direction: column; gap: 0.4rem; }
-.bag-item {
-  display: grid; grid-template-columns: auto 1fr auto auto auto;
-  align-items: center; gap: 0.8rem; width: 100%;
-  padding: 0.6rem 0.9rem; cursor: pointer; font: inherit;
-  text-align: left; color: var(--text);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  background: var(--bg-card);
-  transition: border-color 0.15s ease, transform 0.15s ease;
-}
-.bag-item:hover { border-color: var(--border-accent); transform: translateX(3px); }
-.bag-icon { font-size: 1.2rem; }
-.bag-name { font-size: 0.88rem; font-weight: 600; }
-.bag-effect { font-size: 0.75rem; color: var(--text-dim); }
-.bag-count { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); }
-.bag-use {
-  font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-xs);
-  background: var(--accent-glow); color: var(--accent-light);
 }

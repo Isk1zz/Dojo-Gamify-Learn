@@ -209,9 +209,7 @@
       round = api.beginRound(stake, api.gameId);
       if (!round) {
         tone = "lost";
-        message = Dojo.LifeShop && Dojo.LifeShop.isWeak()
-          ? Dojo.LifeShop.weakReason() + "."
-          : DB.getTickets() < 1 ? "No tickets left — seven come back every six hours."
+        message = DB.getTickets() < 1 ? "No tickets left — seven come back every six hours."
           : DB.getWallet() < stake ? "Not enough money for that stake."
           : `Stake must be between $1 and $${api.MAX_STAKE}.`;
         paint();

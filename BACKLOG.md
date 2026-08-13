@@ -1,5 +1,303 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 13 — Shop profile customization, Star topology fix, checkmark sizing
+
+- [x] **Shop: profile customization + avatar/badge "slots"**, the item
+      that depended on Batch 12's profile screen. New `shop/avatars.js`
+      (pure data, 8 emoji avatars, $30-$75) bought with $ wallet money —
+      not XP, mirroring the charge/money split every other purchase in
+      the app follows. `data/db.js` gained `avatar`, `ownedAvatars`,
+      `pinnedBadges` fields + `getAvatar/setAvatar/getOwnedAvatars/
+      buyAvatar/getPinnedBadges/togglePinnedBadge`. Buying equips
+      immediately (same "buy = wear it" flow the old life-shop's shelter
+      tiers used). The profile dropdown (`core/profile.js`) got an
+      "Avatar" picker grid; `#profile-avatar` now shows the equipped
+      emoji instead of the name-initial letter once one's bought.
+      "Slots" = up to 3 pinned badges — `library/stats.js`'s badge chips
+      are now clickable (earned ones only) to pin/unpin, shown as small
+      icons next to the profile name (`#profile-pins`). A 4th pin
+      attempt shakes instead of silently failing or evicting one.
+      Verified live via direct DOM dispatch (coordinate-based clicks are
+      unreliable in this session's browser tooling — see Batch 12's
+      note): bought+equipped the fox avatar, wallet debited exactly
+      $30, avatar rendered in the badge; pinned a badge, `DB.
+      getPinnedBadges()` confirmed.
+- [x] **Bug: Star lobby topology broken again**, reported live right
+      after Flashcards was added to `STAR_ORDER` (Batch 9) — 6 tiles
+      fit the ring radius Star was originally tuned for; a 7th (8th
+      counting Resume when visible) started overlapping. Rather than
+      re-tuning the radius for a count that can grow again later,
+      Flashcards moved OFF the ring entirely and into the hub — the
+      center element was purely decorative (a static lightning-bolt
+      `<div>`) with nothing to click. It's now a real `<button
+      id="btn-lobby-hub-flashcards">`, wired in `core/boot.js`, styled
+      with proper hover/focus feedback in `styles/base.css`. `STAR_ORDER`
+      back to the original 6. Classic/Cards untouched — Flashcards stays
+      a normal tile there, this was Star-specific. Verified live: exactly
+      6 evenly-spaced ring tiles, hub button correctly opens the deck
+      builder, Classic mode still shows Flashcards as tile #4 in DOM
+      order.
+- [x] **Roadmap checkmark + green bubble, 20% smaller.** Scoped to
+      completed nodes only (`.roadmap-node.completed .roadmap-bubble`
+      in `styles/library.css`) — 64px→51px, 1.6rem→1.28rem font-size.
+      Current/due/ahead/default bubbles keep the original size; only the
+      ✓-on-green state shrank, since that's what was flagged. Verified
+      via computed style (51px / 20.48px, both exactly 80% of original).
+
+## Batch 12 — Star lobby hit-testing bug, User profile screen + badges
+
+- [x] **Bug: lobby's mouse position was offset from the real click target
+      in Star layout.** Reported live mid-session ("lobby's mouse points
+      offset from real position"). Root cause: `.lobby-style-star
+      .lobby-tile` positioned itself with a chained
+      `rotate(angle) translate(radius) rotate(-angle)` transform driven
+      by a single `--angle` custom property — a compound transform is
+      exactly the kind of thing browsers' pointer/touch hit-testing
+      don't all reliably agree on, so the circle could paint in one spot
+      while the point that actually registered a click sat somewhere
+      else. Reproduced via a ref-based click landing on the wrong tile
+      relative to its visual position.
+
+  Fixed by computing each tile's pixel position in JS with plain trig
+  (`core/lobby.js`'s `layoutLobbyRadial` — the same formula already used
+  for the SVG spoke lines, now shared by both) and setting it as
+  `left`/`top` via new `--tx`/`--ty` properties, with the CSS reduced to
+  a single `translate(-50%, -50%)` to center on that point
+  (`styles/base.css`). Ordinary box position has exactly one
+  interpretation for hit-testing, unlike the rotate chain.
+
+  Verified live: every tile's own bounding-rect center now resolves back
+  to itself via `elementFromPoint` (previously inconsistent), all 7
+  tiles render and navigate correctly, zero console errors. Note: I
+  could not cleanly reproduce the exact human symptom through my own
+  click-automation tooling (it has its own screenshot-vs-viewport
+  coordinate-scaling quirk, unrelated to the site) — the fix is based on
+  the reproducible ref-based mismatch plus a well-documented class of
+  real browser behavior for chained CSS transforms, not a byte-for-byte
+  repro of what you saw. Worth a quick confirm on your end.
+- [x] **User profile screen with stats + badges** — the confirmed
+      PROJECT.md §5 reversal, built. Rather than a parallel screen,
+      extended the existing Stats modal (`library/stats.js`,
+      `#stats-modal`) since it was already the de facto profile surface
+      — retitled "👤 Your Profile", Lobby tile subtitle updated to
+      mention badges. Added a `BADGES` array (10 badges) computed
+      entirely from data that already exists — `DB.getStats()`,
+      `DB.getStreak()`, `DB.getXp()` via `Dojo.Ranks.rankFor` — no new
+      DB fields, no new writes, stats.js stays read-only over other
+      branches' data per its own header comment. Badges are real
+      accomplishments only (course completion milestones, a perfect
+      exam, a clean exam record, 90%+ accuracy over volume, week/month
+      streaks, reaching Lab Manager+), per PROJECT.md's explicit
+      "same restraint the rest of the app has, not participation
+      trophies" instruction on this exact reversal. Locked badges show
+      greyed with a 🔒; earned ones show their real icon. Verified live:
+      5/10 correctly earned on the test profile (100% completion, rank
+      10, but zero exams taken — exam-gated badges correctly stayed
+      locked).
+      - Still open, not built here: "Shop: profile customization + item
+        slots" (depends on this screen, now unblocked — see
+        UPDATESTACK.md).
+
+## Batch 11 — Career reward-display bug, leftover Story text, tagline
+
+- [x] **Bug: Career didn't show background-stripe rewards.** `shop/shop.js`'s
+      rank-ladder row only ever checked `r.reward.theme`; ranks with a
+      `bgStripe` reward instead (1, 2, 3, 9, 14 — see Batch 9/10) showed a
+      blank "—" even though they'd earned something. Now checks both and
+      can show both on one rung if a future rank ever carries them
+      together, instead of silently dropping one.
+- [x] **Leftover "Story tab" text cleaned up** — 4 stale comments found by
+      grep across the codebase that survived the Story removal (much
+      earlier this session) and, in two cases, the life-sim removal right
+      before this: `shop/shop.js` (2, explaining what Career used to be
+      called and where money "lived"), `games/games.js` (1, a jump-fix
+      comment naming both removed features), `styles/base.css` (1, a
+      shared-utilities file list). No functional change — comments only.
+- [x] **Landing page tagline changed**, exact text swap as given:
+      "An offline study system..." → "Online study system that keeps
+      what you learn from fading — chunk by chunk, day by day."
+      (`index.html`'s `.landing-sub`).
+
+  > ⚠ **Flagged, not resolved:** the app is not online yet — Batch 6
+  > (Supabase backend) is still assigned-but-not-started. The very next
+  > line on the same landing page still reads "No account needed —
+  > progress saves automatically, on this device" (`.landing-hint`),
+  > which now directly contradicts the tagline above it. Left as-is
+  > since only the tagline swap was requested — flagging so it's a
+  > decision, not a surprise. Worth revisiting either when the backend
+  > ships, or sooner if the "online" framing is meant to start now as
+  > positioning ahead of the actual feature.
+- [ ] **Increase betting cap by upgrading user profile** — new ask, not
+      scoped or built. Reads as tying `games.js`'s `MAX_STAKE` ($50, flat
+      for everyone today) to something the player can raise — most likely
+      rank, given every other progression axis in the app is XP/rank-based
+      already. Needs a design pass before building: what raises it
+      (rank automatically, like themes/stripes? or a separate purchase?),
+      what the new ceiling curve looks like, and whether it interacts with
+      the wallet-bank decision (Batch — blocked on backend) at all. Flagged
+      here rather than guessed at.
+
+## Batch 10 — life-sim removal, done; two new background stripes
+
+- [x] **Life-sim fully removed**, per Batch 5's scope, re-verified against
+      the actual current code rather than followed blind (the plan
+      predated the wallet-click explainer and the theme-preview/hints
+      work, both of which touched the same files):
+      - `shop/life.js` **deleted**. Its script tag removed from
+        `index.html`.
+      - The wallet strip it also owned (`renderVitals`, the wallet
+        popover, `WALLET_HIDDEN_SCREENS`) **moved to `core/hud.js`**
+        rather than deleted with the rest — `$` money is core economy
+        (Garden dividends, Arcade stakes/payouts), not part of the
+        life-sim, and hud.js's own header comment already claimed
+        "wallet and energy" as its job. The strip now shows whenever a
+        profile is active — the old `survivalOn()` rank-gate on the
+        strip itself is gone along with the rank feature that drove it.
+      - `games/games.js`: removed the Life tab registration
+        (`TAB_GATE.life`, the `registerTab({id:"life"...` block) and
+        every `Dojo.LifeShop.isWeak()`/`weakReason()` check (`beginRound`,
+        `canPlay`, `gamesSummary`, the tab's warning banner) — the
+        Arcade is no longer gated by anything but tickets and wallet.
+      - `games/crash.js`, `hilo.js`, `mines.js`, `blackjack.js`: each
+        game's own "why did the round refuse to start" message dropped
+        its `isWeak()` branch — same 4 files the original scope named.
+      - `shop/ranks.js`: `FEATURES.survival` removed (the only feature
+        that ever used the mechanism); `hasFeature`/`featureRank` kept
+        as infra for whatever rank-gated feature comes next.
+      - `data/db.js`: removed `getVitals`, `patchVitals`,
+        `consumeInventory`, and `getLastVitalTick`/`setLastVitalTick`
+        (the last two were already fully dead before this — nothing
+        called them even before the removal). **Kept**
+        `getInventory`/`addInventory` — `games.js` reuses them for an
+        unrelated purpose (tracking unlocked arcade games), confirmed
+        by grep before touching anything. The `vitals`, `lastVitalTick`,
+        `storyProgress`, `inventory` **fields** stay in
+        `defaultProfile()`/migrations, per the standing "never drop a
+        field" rule.
+      - `styles/shop.css`: removed the now-fully-dead `.vitals-detail`,
+        `.vd-*`, `.vitals-warn`, `.bag-*` rules. Kept `.v-track`/`.v-fill`
+        (shared with the Career and Arcade progress bars) and
+        `.vitals-strip`/`.vital-wallet` (the surviving wallet strip).
+      - Docs updated: `shop/SHOP.md` (the whole life-shop section
+        rewritten), `games/GAMES.md` (stale Story-tab-arrives-with-rank
+        section replaced with a short current `TAB_GATE` note),
+        `docs/ARCHITECTURE.md` (event list, tab example, invariants
+        list), `data/DATA.md` (field-retention note extended).
+      - A first pass literally deleted `shop/life.js` wholesale per the
+        plan's own wording, which would have taken the wallet strip
+        down with it — caught before shipping by re-deriving what else
+        depended on the file (same check the Story removal used
+        earlier), not from a bug report.
+      - Verified live: full nav sweep (Lobby → Arcade → Crash round →
+        Garden → Settings), zero console errors, zero `life.js` network
+        requests, `Dojo.LifeShop` undefined everywhere it used to be
+        checked, Arcade still gated correctly by tickets/wallet alone.
+      - One real bug caught during verification: the DB export object
+        still listed the just-deleted function names
+        (`consumeInventory`, `getVitals`, etc.), which threw
+        `ReferenceError` on load — fixed immediately, re-verified clean.
+- [x] **Two more background-stripe rewards**, requested mid-task: Lattice
+      (rank 9, Senior Lab Manager) and Origami (rank 14, Postdoctoral
+      Researcher) added to `shop/themes.js`'s `BG_STRIPES` and wired into
+      `shop/ranks.js`. Research Assistant II already had Herringbone from
+      Batch 9, so nothing changed there. Verified live at the current
+      profile's rank: Lattice unlocked, Origami correctly still locked
+      with "Rank 14 · PDR" showing.
+
+## Batch 9 — Crash reskin, background stripes, Flashcards hub, card VFX
+
+- [x] **Crash game reskin (ball on fire).** `games/crash.js`'s rocket
+      glyph is now a spinning ⚽ with a flickering orange radial-glow
+      flame trailing it (`.ball-flame`, `styles/games.css`); explosion
+      state still swaps to \u{1F4A5} on a bust. The wrapper no longer rotates
+      to a travel angle (a ball has no "facing" the way the rocket did)
+      — `core/theme.js`-style small refactor split the position-only
+      transform out. Verified live: mid-flight the ball spins with a
+      visible flame trail, cash-out leaves it intact, a bust swaps it
+      to the explosion glyph.
+- [x] **Kirigami-style background stripes, rank-gated.** A new axis
+      independent of colour theme — `shop/themes.js`'s `BG_STRIPES`
+      (Diagonal, Cross-hatch, Herringbone), unlocked via
+      `shop/ranks.js`'s `reward.bgStripe` on ranks 1/2/3 (Diagonal is
+      free from rank 1, i.e. immediately; the other two gate at 120xp
+      and 300xp). Painted onto a second `--bg-stripe-image` CSS layer
+      (`core/theme.js`'s `applyBgStripe`, `styles/base.css`) under the
+      theme's own background, so it mixes with any theme. New
+      "Background stripes" picker in Settings, same locked-swatch
+      treatment as the theme grid. Verified live at xp 0/120/300 via
+      `Dojo.Ranks.unlockedBgStripes` and by selecting each swatch and
+      watching the page-wide overlay change.
+- [x] **Flashcards manager — promoted to a standalone Lobby tile**, per
+      the scoping decision (new screen, not a rename of "Build a Custom
+      Deck," which keeps its existing label and location in Library
+      unchanged). New "🗒️ Flashcards" tile on the Lobby
+      (`index.html`, `core/lobby.js`, wired in `core/boot.js`) opens
+      `library.js`'s existing deck builder directly via a new
+      `openFlashcardsHub()` — auto-selects the one course that exists
+      today (a second course would need a picker in front of this; the
+      seam is there but not built, since there's nothing to pick from
+      yet). The deck builder's back button now reads "← Lobby" and
+      returns there when entered this way, "← Unit" and returns to
+      Library's unit-select otherwise (`state.deckBuilderFromLobby`
+      flag). The tile's subtitle reports total chunks reviewed so far.
+      "Track flashcard history" is covered by the picker's existing
+      weak/new/known colour-coding per chunk, not a separate log — kept
+      in scope rather than building a second history view. Verified
+      live: tile opens the builder with the right back-button label,
+      selecting chunks and completing a review writes back and shows
+      updated colours on return, "← Lobby" returns to the Lobby.
+- [x] **VFX for flashcards** — all three variants the user picked:
+      - *Flip animation*: the CSS 3D flip in `styles/library.css` already
+        existed but never actually played — `renderFlashcard()` was
+        rebuilding the card's innerHTML on every flip, so the DOM node
+        the transition was defined on got destroyed and recreated
+        already in its end state (an instant pop, not a turn). Fixed by
+        keeping both control rows in the DOM from the start and toggling
+        `.flipped` on the existing node instead of re-rendering.
+      - *Correct/wrong feedback burst*: a green glow on the back face for
+        "Knew it," a red shake on the wrapper for "Didn't know it"
+        (`.fc-correct` / `.fc-wrong`, `styles/library.css`), with a short
+        320ms pause before the next card so the feedback is visible.
+      - *Deck-complete celebration*: `core/hud.js`'s existing confetti
+        burst (previously only used for streaks) is now exported as
+        `Dojo.burstConfetti` and fired from both `finishFlashcards()` and
+        `finishCustomDeck()` once the result screen shows.
+      Verified live end-to-end: flip visibly turns the card now (confirmed
+      via computed style, not just class name), advancing cards shows the
+      glow/shake, finishing a 5-card deck reaches "Deck Cleared!" with
+      `Dojo.burstConfetti` confirmed callable and wired at that exact
+      point in the code path.
+
+## Batch 8 — theme preview + hints toggle, done
+
+- [x] **Theme preview for locked themes in Settings.** Every locked
+      premium theme now renders as its own swatch (lock badge + the
+      rank/abbr that unlocks it, via `Dojo.Ranks.themeRank`) instead of
+      just a "N more locked" count. Tapping one repaints the whole app
+      in that theme's colours without unlocking or persisting anything
+      — `core/theme.js` split `applyTheme` into a gated `resolveTheme`
+      path and a new `previewTheme(id)` that paints straight from
+      `ALL_THEMES`, skipping the rank check on purpose. A "Previewing
+      X · Restore my theme" bar appears while active; the real theme
+      restores on Restore, on picking any owned theme, or on leaving
+      Settings via the Lobby back button (capture-phase listener, bound
+      once since that button lives outside the re-rendered body).
+      Verified live: preview paints instantly, restore returns to
+      Indigo Night, and the app doesn't get stuck wearing an unbought
+      theme.
+- [x] **Settings: hints on/off toggle.** New checkbox in a "Hints"
+      settings section; unchecking sets `p.hintsEnabled = false`
+      (`DB.getHintsEnabled`/`setHintsEnabled`, defaults to `true` so an
+      already-migrated profile never loses hints) and flips a single
+      `body.hide-hints` class (`Dojo.applyHints`, `core/core.js`) that
+      hides every `.settings-hint` paragraph app-wide — the same class
+      already used for guidance text in Shop, Games, Library, etc.
+      Applied at boot and on profile switch (`core/boot.js`) so it's
+      correct from the first paint, not just after visiting Settings.
+      Verified live: toggling off hides all 8 `.settings-hint` nodes on
+      both Settings and Arcade, survives a full page reload, toggling
+      back on restores them.
+
 ## Batch 7 — two tiny items, done (13% of session left)
 
 - [x] **"Watered! +5xp" overlap — verified, no bug.** Triggered the
@@ -31,21 +329,21 @@ rows changed status right after this table was written:
 
 | Item | Status |
 |---|---|
-| Theme preview for locked themes in Settings | Not started |
-| Flashcards manager (persistent, "near all units") | Not started — likely overlaps with the deck builder, needs a scoping decision |
-| VFX for flashcards | Not started — your note trailed off ("vfx (flashcards, ).") before saying what |
-| Crash game reskin (ball on fire) | Not started |
-| Kirigami-style background variations, rank-gated | Not started |
+| Theme preview for locked themes in Settings | **Done (Batch 8)** |
+| Flashcards manager (persistent, "near all units") | **Done (Batch 9)** |
+| VFX for flashcards | **Done (Batch 9)** |
+| Crash game reskin (ball on fire) | **Done (Batch 9)** |
+| Kirigami-style background variations, rank-gated | **Done (Batch 9)** |
 | Achievements/badges + profile screen | Confirmed (you said build it anyway, reversal written into PROJECT.md) but not built |
 | Online database / live backend | Assigned: Supabase (see Batch 6) — nothing built; this gates the next few rows |
 | Career weekly XP ladder (#N badge, popup, rank deltas) | Not started — needs the backend above |
 | Stars currency for course pricing | Not started — flagged that it's a 3rd currency needing a real design decision, and the ad-watching path needs a real ad network |
 | Wallet-click mechanic explainer | Not started |
-| Settings hints on/off toggle | Not started |
+| Settings hints on/off toggle | **Done (Batch 8)** |
 | "Watered! +5xp" overlap on the Garden's single-topic review screen specifically | Not re-verified — the general case was fixed but this exact screen state has never been checked live |
 | Wallet bank/stocks (3 stocks, deposits) | Not started — unclear if local-only or tied to the black market's live economy |
 | Black market (financial pyramid, bots) | Not started — depends on backend |
-| ~~Erase Story mode + hunger/thirst/hygiene~~ | **Story: done (Batch 4). Life-sim removal: scoped separately, Batch 5.** |
+| ~~Erase Story mode + hunger/thirst/hygiene~~ | **Done — Story (Batch 4), life-sim removal (Batch 10).** |
 | Post-completion questionnaire | Blocked — confirmed as real data collection with no backend to send it to |
 | Final Quiz / cumulative exam content | Reference material saved in this file, content not written |
 | "Add more cards" (original ambiguous ask) | Never resolved directly — folded into the cheat-code fix instead |
@@ -105,11 +403,11 @@ before being fixed rather than assumed:
       see `Arcade.registerTab` yet). Verified the whole loop: drain
       vitals → Arcade shuts → buy from Life tab → Arcade reopens.
 
-**Still open, deliberately not done here:** the life-sim's own removal
-— see "Batch 5" below for the scope and plan. The app is fully working
-either way, with or without it, as things stand right now.
+**Later done:** the life-sim's own removal — see Batch 10 above. "Batch 5"
+below is kept as the original scope/plan it followed (re-verified against
+the code rather than applied blind — see Batch 10 for what changed).
 
-## Batch 5 — enlisted, not started: remove the life-sim
+## Batch 5 — done (see Batch 10): remove the life-sim
 
 Re-scoped after the Story audit — smaller than first estimated. Every
 `Dojo.LifeShop.*` and `Dojo.renderVitals()` call site outside
@@ -436,9 +734,8 @@ or only on the ladder.
 
 ## H. Everything else from this batch — mostly small, a few need scoping
 
-- [ ] **Theme preview in Settings** for locked themes — show what a
-      locked theme looks like before it's unlocked. Small, self-
-      contained, no backend needed.
+- [x] **Theme preview in Settings** for locked themes — done, see
+      Batch 8 at the top of this file.
 - [ ] **New cheat code: `unlockallunits`** — as literally requested,
       but worth flagging: `admin613` already unlocks every unit (unit
       locks are prereq-based off `completedTopics`, and `admin613` sets
@@ -448,28 +745,20 @@ or only on the ladder.
       the named code regardless since it was explicitly asked for, but
       may just alias `admin613` unless there's a difference in mind
       worth asking about next session.
-- [ ] **Flashcards manager** — a persistent screen (not tucked inside
-      one course's unit-select) to pick any chunk across any unit and
-      track flashcard history, positioned near "all units." Sounds like
-      the natural evolution of the custom deck builder — likely the
-      same underlying picker, promoted to its own lobby-level entry
-      rather than a button inside Library. See also the next item.
-- [ ] **Rename/reposition: "Flashcards Deck" instead of "Build a Custom
-      Deck."** Reads as the same request as the flashcards manager
-      above — confirm whether this is a rename of the existing button,
-      or describing the standalone manager screen, before touching
-      either.
-- [ ] **VFX line item is incomplete** — "vfx (flashcards, )." trails
-      off. Needs the rest of the sentence before there's anything to
-      build.
-- [ ] **Crash game reskin** — replace the current rocket-on-an-
-      exponential-curve animation with a guy kicking a ball that flies
-      fast enough to catch fire, same exponential curve underneath.
-      Self-contained visual change in `games/`.
-- [ ] **More background stripe designs** (kirigami-style, several
-      variations) — one available immediately, a few gated to early
-      ranks. Extends the existing theme/rank-reward system
-      (`shop/themes.js`-adjacent), doesn't need new infrastructure.
+- [x] **Flashcards manager** — done, see Batch 9. Scoped as a new
+      standalone Lobby tile (user's explicit choice over a rename); the
+      "rename instead" alternative below was NOT taken.
+- [x] ~~Rename/reposition: "Flashcards Deck" instead of "Build a Custom
+      Deck."~~ Resolved by AskUserQuestion — user chose the standalone
+      screen, not a rename. "Build a Custom Deck" keeps its existing
+      label and location in Library, untouched.
+- [x] **VFX for flashcards** — done, see Batch 9 (flip animation fixed
+      to actually play, correct/wrong glow+shake, deck-complete
+      confetti). Scoped via AskUserQuestion once the user's trailed-off
+      note was clarified.
+- [x] **Crash game reskin** — done, see Batch 9.
+- [x] **More background stripe designs** (kirigami-style, several
+      variations) — done, see Batch 9.
 - [ ] **Achievements/badges** — already confirmed and documented as a
       reversal in PROJECT.md §5 last session; this batch just restates
       it. Tracked under section D above, not duplicated here.
@@ -489,7 +778,8 @@ or only on the ladder.
       currency, or sit alongside it permanently?
 - [ ] **Wallet click → brief mechanic explainer** — small tooltip/
       popover on tap, no backend needed.
-- [ ] **Settings: hints on/off toggle** — small, self-contained.
+- [x] **Settings: hints on/off toggle** — done, see Batch 8 at the top
+      of this file.
 - [ ] **Bug: "Watered! +5xp sits almost on Review again"** — this is
       the Garden's single-topic flashcard review result screen
       specifically. The general XP-badge-overlap fix earlier this
