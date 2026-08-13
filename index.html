@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="styles/settings.css" />
   <link rel="stylesheet" href="styles/shop.css" />
   <link rel="stylesheet" href="styles/games.css" />
+  <link rel="stylesheet" href="styles/admin.css" />
 </head>
 <body>
   <div id="app">
@@ -95,6 +96,15 @@
       </div>
     </div>
 
+    <!-- ====== Admin User Inspector (admin/admin.js) ====== -->
+    <div id="user-inspect-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-card modal-card-wide">
+        <div class="modal-close" id="btn-inspect-close">✕</div>
+        <h2 class="modal-title" id="inspect-modal-title" style="font-size:1.3rem;">👤 User Inspector</h2>
+        <div id="user-inspect-body"></div>
+      </div>
+    </div>
+
     <!-- ====== Profile Dropdown ====== -->
     <div id="profile-dropdown" class="profile-dropdown" style="display:none;">
       <div class="pd-header">
@@ -112,6 +122,7 @@
       <div class="pd-divider"></div>
       <button id="pd-new-profile" class="pd-action">＋ New Profile</button>
       <button id="pd-stats" class="pd-action">📊 View Statistics</button>
+      <button id="pd-admin" class="pd-action">🛡️ Admin &amp; Logs</button>
     </div>
 
     <!-- ====== Landing ====== -->
@@ -308,6 +319,7 @@
           <button id="profile-badge" class="profile-badge">
             <span id="profile-avatar" class="profile-avatar">S</span>
             <span id="profile-name-display" class="profile-name-display">Student</span>
+            <span id="profile-patron-star" class="profile-patron-star" style="display:none;"></span>
             <span id="profile-pins" class="profile-pins"></span>
           </button>
         </div>
@@ -365,6 +377,14 @@
       </div>
       <div class="flashcard-body" id="flashcard-body"></div>
     </section>
+
+    <!-- ====== Admin & Telemetry Suite (admin/admin.js) ======
+         No topbar of its own — renderAdmin() builds its full header
+         (title, tabs, back button) straight into #admin-body, same
+         self-contained pattern the Settings/Shop bodies already use. -->
+    <section id="admin" class="screen">
+      <div id="admin-body"></div>
+    </section>
   </div>
 
   <!-- ============================================================
@@ -384,6 +404,7 @@
   <!-- 1. Kernel + persistence -->
   <script src="core/core.js"></script>
   <script src="data/db.js"></script>
+  <script src="admin/logger.js"></script>
 
   <!-- 2. Content (pure data), one folder per course.
        registry.js first, build.js last, courses in between.
@@ -430,6 +451,7 @@
   <script src="settings/codes.js" onerror="void 0"></script>
   <script src="settings/settings.js"></script>
   <script src="core/lobby.js"></script>
+  <script src="admin/admin.js"></script>
 
   <!-- 4. Boot -->
   <script src="core/boot.js"></script>

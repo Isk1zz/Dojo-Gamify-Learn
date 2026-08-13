@@ -74,6 +74,24 @@
     document.getElementById("profile-avatar").textContent = equippedIcon || name.charAt(0).toUpperCase();
     document.getElementById("profile-name-display").textContent = name;
 
+    // Patron star — a support-recognition tier (shop/tokens.js's
+    // PATRON_TIERS), not an earned badge, so it's a separate span next
+    // to the name rather than mixed into the pinned-badges row below.
+    const starEl = document.getElementById("profile-patron-star");
+    if (starEl) {
+      const tier = DB.getPatronTier ? DB.getPatronTier() : 0;
+      const table = Dojo.PATRON_TIERS || [];
+      const info = table.find(t => t.tier === tier);
+      if (info) {
+        starEl.textContent = info.star;
+        starEl.className = `profile-patron-star tier-${info.tier}`;
+        starEl.title = `${info.label} — thank you for supporting the Dojo`;
+        starEl.style.display = "";
+      } else {
+        starEl.style.display = "none";
+      }
+    }
+
     // Pinned badges — up to 3, showcased right next to the name. Reads
     // library/stats.js's BADGES table for the icon; if that branch isn't
     // loaded (or nothing's pinned) this is just an empty span.
@@ -226,6 +244,18 @@
     closeDropdown();
     showStatsModal();
   });
+
+  // admin/admin.js registers "admin" with Router and owns the isAdmin
+  // gate itself (shows a passcode challenge if the active profile isn't
+  // one yet) — this button is just the entry point, same as any other
+  // Router.go call elsewhere in the app.
+  const pdAdminBtn = document.getElementById("pd-admin");
+  if (pdAdminBtn) {
+    pdAdminBtn.addEventListener("click", () => {
+      closeDropdown();
+      if (Router) Router.go("admin");
+    });
+  }
 
   // ---- seam: what this branch offers to everyone else ----
   Object.assign(Dojo, { checkProfile, showProfileModal, hideProfileModal, updateProfileBadge, closeDropdown, renderDropdown });

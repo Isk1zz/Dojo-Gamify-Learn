@@ -58,13 +58,14 @@
 // 100+50+150+75+200+100+120 = 795 free Tokens across the ladder.
 // Originally sized to stay under the course price so ranking up alone
 // could never fully cover one — that constraint no longer holds now
-// that intro-cs dropped from 1000 to 250 (barrier-to-entry call, see
-// BACKLOG.md): 795 comfortably clears 250 on its own, so a profile CAN
-// reach the one course that exists purely by studying, no purchase
-// ever required. Left as-is deliberately — a free path into the one
-// course that exists isn't a leak to plug, it's the accessible-entry
-// point the price drop was for. Re-check this math once a second,
-// differently-priced course exists, since 795 won't stretch as far.
+// that intro-cs dropped from 1000 to 250, and again to 100 (barrier-
+// to-entry calls, see BACKLOG.md): 795 clears 100 nearly 8x over, so a
+// profile CAN reach the one course that exists purely by studying, no
+// purchase ever required, with a lot of room to spare. Left as-is
+// deliberately — a free path into the one course that exists isn't a
+// leak to plug, it's the accessible-entry point the price drops were
+// for. Re-check this math once a second, differently-priced course
+// exists, since 795 stretches a lot further than it used to.
 // ================================================
 
 const RANKS = [

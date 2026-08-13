@@ -117,6 +117,20 @@
     if (state.currentUnit) Dojo.renderTopicMap();
   });
 
+  // Admin & Telemetry Suite shortcut (Ctrl+Shift+A / F2) — a genuine
+  // cross-branch binding (nothing "owns" a global keydown), so it lives
+  // here even though admin/admin.js registers its own screen. Same
+  // isAdmin gate every other entry point goes through; this is just a
+  // faster door to it, not a bypass.
+  if (Dojo.Router) {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "F2" || (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a")) {
+        e.preventDefault();
+        Router.go("admin");
+      }
+    });
+  }
+
   // ---- 4. Start ----
   DB.init();
   Dojo.applyTheme(DB.getTheme());

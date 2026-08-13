@@ -72,6 +72,24 @@ const DB = (() => {
       // real money packs (shop/tokens.js). Never converts to/from $ money.
       tokens: 0,
 
+      // ---- v23: Patron tier — a support-recognition star, not a real
+      // subscription (no billing/recurring-payment system exists here,
+      // same demo-stub honesty as Token packs). 0 = none, 1 = Supporter,
+      // 2 = Patron, 3 = Contributor — see shop/tokens.js's PATRON_TIERS.
+      patronTier: 0,
+
+      // ---- v24: Admin/moderation suite (admin/admin.js) ----
+      // `isAdmin` gates the suite itself — unrelated to SECRET_ADMIN_NAME
+      // below, which is an older, differently-scoped "maxed-out starter
+      // profile" cheat, not a moderation role. Nothing outside admin.js
+      // currently reads isBanned/warnings — see ADMIN.md's documented
+      // ban-overlay/notice-modal behavior, not implemented here (that UI
+      // wasn't part of what was ported; flagged, not silently built).
+      isAdmin: false,
+      isBanned: false,
+      banReason: "",
+      warnings: [],           // [{ id, message, issuedAt, read }]
+
       // ---- v5: economy & life-sim ----
       wallet: 0,             // $ earned from garden dividends and mini-games
       tickets: TICKET_MAX,   // arcade entries; 2 per 6h, hard ceiling on losses
@@ -203,6 +221,7 @@ const DB = (() => {
     if (!Array.isArray(out.inventory)) out.inventory = [];
     if (!Array.isArray(out.ownedThemes)) out.ownedThemes = [];
     if (!Array.isArray(out.seenQuotes)) out.seenQuotes = [];
+    if (!Array.isArray(out.warnings)) out.warnings = [];
     if (!out.courseContracts || typeof out.courseContracts !== "object") out.courseContracts = {};
     if (!Array.isArray(out.ownedAvatars)) out.ownedAvatars = [];
     if (!Array.isArray(out.pinnedBadges)) out.pinnedBadges = [];
@@ -458,13 +477,90 @@ const DB = (() => {
     save(db);
   }
 
+  // Force-logout, NOT a delete — clears the session (same "no active
+  // profile" state a fresh visit starts in) but leaves the profile and
+  // all its data untouched. Only acts if the kicked id is the one
+  // currently active; kicking a profile that isn't logged in anywhere
+  // in THIS browser is a no-op, which is correct — there's no server
+  // session for a client-only admin panel to actually terminate.
+  function kickProfile(id) {
+    const db = load();
+    if (db.activeProfileId === id) {
+      db.activeProfileId = null;
+      save(db);
+    }
+  }
+
+  // ---- Admin/moderation suite (admin/admin.js) ----
+  function getProfileById(id) {
+    const db = load();
+    const p = db.profiles[id];
+    return p ? { id, ...p } : null;
+  }
+
+  function setAdminStatus(id, isAdmin) {
+    const db = load();
+    const p = db.profiles[id];
+    if (!p) return false;
+    p.isAdmin = !!isAdmin;
+    save(db);
+    return true;
+  }
+
+  function setBannedStatus(id, isBanned, reason) {
+    const db = load();
+    const p = db.profiles[id];
+    if (!p) return false;
+    p.isBanned = !!isBanned;
+    p.banReason = isBanned ? (reason || "") : "";
+    save(db);
+    return true;
+  }
+
+  function addWarning(id, message) {
+    const db = load();
+    const p = db.profiles[id];
+    if (!p) return false;
+    if (!Array.isArray(p.warnings)) p.warnings = [];
+    p.warnings.push({
+      id: "warn_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+      message,
+      issuedAt: new Date().toISOString(),
+      read: false
+    });
+    save(db);
+    return true;
+  }
+
+  function clearWarnings(id) {
+    const db = load();
+    const p = db.profiles[id];
+    if (!p) return false;
+    p.warnings = [];
+    save(db);
+    return true;
+  }
+
   function listProfiles() {
     const db = load();
     return Object.entries(db.profiles).map(([id, p]) => ({
       id,
       name: p.name,
       createdAt: p.createdAt,
-      topicsCompleted: (p.completedTopics || []).length
+      topicsCompleted: (p.completedTopics || []).length,
+      // Added for admin/admin.js's user table — every other listProfiles
+      // caller (the profile switcher) only ever read the four fields
+      // above, so this is additive, not a behavior change for them.
+      xp: p.chargeEarned || 0,
+      wallet: p.wallet || 0,
+      tokens: p.tokens || 0,
+      tickets: p.tickets !== undefined ? p.tickets : TICKET_MAX,
+      avatar: p.avatar || null,
+      isAdmin: !!p.isAdmin,
+      isBanned: !!p.isBanned,
+      banReason: p.banReason || "",
+      warnings: p.warnings || [],
+      completedTopics: p.completedTopics || []
     }));
   }
 
@@ -844,14 +940,25 @@ const DB = (() => {
     return v;
   }
 
+  // Patron tiers (shop/tokens.js's PATRON_TIERS) grant a permanent XP
+  // multiplier as part of the "thank you" — 0 = no patron, tier 1/2/3
+  // match the Supporter/Patron/Contributor tiers there by index.
+  // Applied here, in the one function every XP grant already funnels
+  // through (chunk/exam/review/final-quiz/unit-reward XP all call
+  // addXp, directly or via core/hud.js's awardCharge), so nothing else
+  // needs to know this exists.
+  const PATRON_XP_MULT = { 0: 1, 1: 1.5, 2: 1.75, 3: 2 };
+
   function addXp(amount) {
     const db = load();
     const p = db.profiles[db.activeProfileId];
     if (!p || amount <= 0) return 0;
-    p.charge = (p.charge || 0) + amount;
-    p.chargeEarned = (p.chargeEarned || 0) + amount;
+    const mult = PATRON_XP_MULT[p.patronTier || 0] || 1;
+    const granted = Math.round(amount * mult);
+    p.charge = (p.charge || 0) + granted;
+    p.chargeEarned = (p.chargeEarned || 0) + granted;
     save(db);
-    return amount;
+    return granted;
   }
 
   function getChargeTotals() {
@@ -923,6 +1030,25 @@ const DB = (() => {
     if (!p) return false;
     if (id !== null && !(p.ownedAvatars || []).includes(id)) return false;
     p.avatar = id;
+    save(db);
+    return true;
+  }
+
+  function getPatronTier() {
+    const p = getActiveProfile();
+    return p ? (p.patronTier || 0) : 0;
+  }
+
+  // A tier can only go UP here — same "no downgrade path" shape as
+  // owning an avatar, since this is a one-time demo "thank you," not a
+  // real subscription that can lapse. Real recurring billing (and a
+  // real downgrade/cancel path) is backend work, not this.
+  function setPatronTier(tier) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return false;
+    if (tier <= (p.patronTier || 0)) return false;
+    p.patronTier = tier;
     save(db);
     return true;
   }
@@ -1373,6 +1499,14 @@ const DB = (() => {
     setBgStripe,
     getAvatar,
     setAvatar,
+    getPatronTier,
+    setPatronTier,
+    getProfileById,
+    setAdminStatus,
+    setBannedStatus,
+    addWarning,
+    clearWarnings,
+    kickProfile,
     getOwnedAvatars,
     buyAvatar,
     getPinnedBadges,

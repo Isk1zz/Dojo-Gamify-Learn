@@ -1,5 +1,80 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 47 — Token Shop rebuild, Patron tiers + XP multiplier, Admin suite ported
+
+- [x] **Token Shop rebuilt end to end.** Course price cut 250 → 100
+      Tokens (`library/content/intro-cs/course.js`). `TOKEN_PACKS`
+      (`shop/tokens.js`) went through three iterations in one session —
+      a 6-tier "cheap everywhere" version, then your exact final
+      5-tier numbers: 100/$3.99, 250/$5.99, 700/$11.99, 1500/$19.99,
+      3500/$39.99. Verified live: pack 1 is deliberately the WORST
+      per-token rate in the ladder (worse than the original pre-session
+      $6.99/350 pack), bonus% climbs to +199%/+249% on the top two —
+      confirmed via the app's own live-computed `bonusPct()`, not
+      just hand math. Flagged directly in chat (not smoothed over)
+      since this is a real strategic pivot from "cheap at every tier"
+      to "cheap entry, big reward for buying more."
+- [x] **Patron tiers added** (`shop/tokens.js`'s `PATRON_TIERS`,
+      `data/db.js`'s `patronTier` field) — Supporter/Patron/Contributor,
+      a support-recognition star next to the name (shown in the
+      Topic Map's profile-badge, same place pinned achievement badges
+      already live — that's an existing app convention, not something
+      new here). Each tier grants a permanent XP multiplier (+50% /
+      +75% / ×2), applied once, centrally, in `DB.addXp` — the one
+      function every XP source (chunks, exams, reviews, final quiz,
+      unit/course rewards) already funnels through, so nothing else
+      needed to know this exists. Verified live: `awardCharge(100)`
+      granted 175 at tier 2 and 200 at tier 3, exactly as specified.
+      Stars are genuinely different per tier (grayscale/blue-tinted for
+      Supporter vs. natural gold for Patron vs. a medal icon entirely
+      for Contributor) after the first pass shipped with barely
+      distinguishable colors — caught and fixed same session.
+      Tiers can only go up, never down (`DB.setPatronTier`) — same
+      "demo, not real billing" honesty as Token packs.
+- [x] **Ported the Admin & Telemetry Suite** from a separate downloaded
+      copy of this project (`admin/admin.js`, `admin/logger.js`,
+      `admin/ADMIN.md`, `styles/admin.css`) that had it and this repo
+      didn't. Full account: `admin/ADMIN.md`'s new top note. Short
+      version — wired in properly (index.html screen + modal + script
+      tags, `core/boot.js`'s Ctrl+Shift+A/F2 shortcut, `core/profile.js`'s
+      dropdown entry), and checked for bugs as asked:
+      - **6 DB functions the panel called didn't exist yet**
+        (`setAdminStatus`, `setBannedStatus`, `addWarning`,
+        `clearWarnings`, `getProfileById`, `kickProfile`) — added,
+        following the existing `deleteProfile`/`getActiveProfile`
+        patterns. `listProfiles()` only returned 4 fields; expanded to
+        include xp/wallet/tokens/tickets/avatar/isAdmin/isBanned/
+        warnings, which the user table needs.
+      - **Real bug found and fixed**: every `rankInfo.title` reference
+        (table, inspector, analytics) read a field this project's rank
+        objects don't have (they use `name`) — rendered literally
+        "undefined" for every user's rank name. Confirmed via the User
+        Inspector before/after ("Rank 1 · undefined" → "Rank 1 · Lab
+        Intern").
+      - **Trimmed the admin passcode list** — the ported
+        `MASTER_ADMIN_KEYS` also accepted bare "admin" and "dojodev",
+        guessable enough to be worse than no gate. Kept only
+        `adminaccount`/`admin613`, both already public elsewhere in
+        this app (SECRET_ADMIN_NAME and old git history respectively),
+        so nothing NEW is exposed. Documented plainly that this is a
+        speed bump, not real auth, on a client-only app.
+      - **Flagged, not built**: ban/warning ENFORCEMENT (the suspension
+        overlay, the acknowledgment modal ADMIN.md describes) isn't
+        implemented anywhere outside the panel itself — wasn't part of
+        the ported files. Banning currently only sets a flag.
+      - **Flagged and labeled, not rebuilt**: the Analytics tab's
+        14-week heatmap is synthetic (deterministic, not random, but
+        not real per-day history — this app doesn't track a daily
+        activity log yet). Card title now says "Illustrative" instead
+        of presenting it as genuine data.
+      **Verified live**: unlocked via passcode, exercised all 5 tabs,
+      ran a real ban+2 warnings+kick+delete cycle on a second test
+      profile through the actual DB layer, confirmed the DB Inspector
+      round-trips valid JSON, confirmed the Logger tab captures real
+      Bus events, confirmed both new entry points (dropdown button,
+      Ctrl+Shift+A) work via actual clicks/keypresses, not just direct
+      function calls.
+
 ## Batch 46 — Profile screen: grouped by confidence classification, not units
 
 - [x] **"Profile: get rid of the old approach — classification front and

@@ -129,13 +129,13 @@
     subtitle: "Networks, programming and emerging technologies",
     icon: "\u{1F4BB}",
     available: true,
-    // 250 -- was 1000 (~$21), dropped to lower the barrier to entry
-    // (the ROI conversation surfaced that the app is competing against
-    // genuinely free alternatives, and $21 to even try the one course
-    // that exists is a real friction point). 250 is comfortably covered
-    // by even the smallest $6.99/350-Token pack. Locks the only course
-    // behind the Token Shop's demo buyPack() until real payment exists.
-    priceTokens: 250,
+    // 100 -- was 250, before that 1000 (~$21). Cut again 2026-08-14
+    // alongside the Token Shop's rebuild: the smallest pack now buys
+    // EXACTLY 100 Tokens for $1.99, so this is priced to be a single
+    // starter-pack purchase, not a fraction of a bigger one. Locks the
+    // only course behind the Token Shop's demo buyPack() until real
+    // payment exists.
+    priceTokens: 100,
     units
   });
 })();

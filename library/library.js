@@ -47,9 +47,16 @@
   // Deliberately NOT every unit at the same value — see the chat that
   // scoped this for which units carry which reward and why.
   const UNIT_MONEY_REWARD = { 1: 30, 2: 20, 6: 100, 7: 50 };
-  // 4/8, not 15/30 — cut ÷4 alongside intro-cs's priceTokens dropping
-  // 1000 → 250 (BACKLOG.md), so the Token RETURN from finishing the
-  // course stays the same proportion of the (now lower) Token COST.
+  // 4/8, not 15/30 — cut ÷4 when intro-cs's priceTokens first dropped
+  // 1000 → 250, to keep the Token RETURN roughly proportional to the
+  // Token COST. priceTokens dropped again, 250 → 100, without a
+  // matching cut here (not requested) — these two plus
+  // COURSE_TOKEN_REWARD (below) are now a LARGER share of the course
+  // price than that original proportion intended. Doesn't change
+  // anything functionally (rank-up Tokens alone already dwarf the
+  // course price either way, see shop/ranks.js's comment), but the
+  // "stays proportional" framing is now stale — flagging, not
+  // re-deriving a new cut without being asked.
   // Money rewards are a separate currency from the course's own price
   // and are untouched.
   const UNIT_TOKEN_REWARD = { 3: 4, 5: 8 };

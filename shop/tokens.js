@@ -20,12 +20,11 @@
 //
 // ---- Course pricing ----
 // A course opts into costing Tokens by setting `priceTokens` in its
-// manifest (library/content/registry.js defaults it to 0 = free). No
-// course does today — intro-cs stays free — so nothing currently gated
-// changes; this is the machinery for the day a second, paid course
-// exists. Ownership is stored the same way Arcade game unlocks and
-// stake-cap tiers are (a string in DB's generic inventory array), not a
-// bespoke profile field.
+// manifest (library/content/registry.js defaults it to 0 = free).
+// intro-cs is the one paid course today (100 Tokens, course.js) —
+// ownership is stored the same way Arcade game unlocks and stake-cap
+// tiers are (a string in DB's generic inventory array), not a bespoke
+// profile field.
 // ================================================
 
 (() => {
@@ -40,12 +39,22 @@
   // the bonus badge below is computed, not hand-typed, and can't drift
   // out of sync with the actual tokens/price the way a hardcoded
   // percentage could.
+  //
+  // Rebuilt again 2026-08-14, final pass — your exact numbers. Note
+  // this is a DIFFERENT shape than the two drafts before it: pack 1
+  // (100 Tokens/$3.99, exactly one course) is deliberately the WORST
+  // per-token rate in the whole ladder — worse even than the
+  // pre-session $6.99/350 pack (50 tokens/$) — while every tier above
+  // it gets dramatically better, up to +249% by the top pack. That's a
+  // real strategic pivot from the "cheap everywhere, including the
+  // biggest pack" version two commits ago — flagged in chat, not
+  // silently smoothed over. See bonusPct() for the live-computed %.
   const TOKEN_PACKS = [
-    { id: "small",  tokens: 350,  price: 6.99,  priceLabel: "$6.99" },
-    { id: "medium", tokens: 654,  price: 11.99, priceLabel: "$11.99" },
-    { id: "large",  tokens: 1234, price: 20.99, priceLabel: "$20.99" },
-    { id: "bigger", tokens: 2345, price: 37.99, priceLabel: "$37.99" },
-    { id: "best",   tokens: 5000, price: 67.99, priceLabel: "$67.99" }
+    { id: "starter", tokens: 100,  price: 3.99,  priceLabel: "$3.99" },
+    { id: "small",   tokens: 250,  price: 5.99,  priceLabel: "$5.99" },
+    { id: "medium",  tokens: 700,  price: 11.99, priceLabel: "$11.99" },
+    { id: "large",   tokens: 1500, price: 19.99, priceLabel: "$19.99" },
+    { id: "best",    tokens: 3500, price: 39.99, priceLabel: "$39.99" }
   ];
 
   // Bonus % vs. the smallest pack's tokens-per-dollar rate — the
@@ -54,6 +63,37 @@
   const BASE_RATE = TOKEN_PACKS[0].tokens / TOKEN_PACKS[0].price;
   function bonusPct(pack) {
     return Math.round(((pack.tokens / pack.price) / BASE_RATE - 1) * 100);
+  }
+
+  // ---- Patron tiers ----
+  // A "thank you" recognition star, explicitly NOT a real subscription
+  // — there is no recurring-billing system here (same demo-stub honesty
+  // as TOKEN_PACKS above), so this is framed as "pick the tier that
+  // matches what you'd want to give," not an actual monthly charge.
+  // Positioning: the app itself stays deliberately cheap (see the
+  // 2026-08-14 price cut above) — this exists for people who want to
+  // support that staying true for everyone else, not as a paywall.
+  // Same star icon at every tier (as asked — "a star of one colour,
+  // then a star of a second colour"), recoloured via CSS
+  // (.profile-patron-star.tier-N); tier 3 swaps to a distinct icon and
+  // a named title ("Contributor") rather than a third star colour, per
+  // the ask. A tier can only be raised, never lowered — see
+  // `DB.setPatronTier`'s comment.
+  // XP multiplier per tier lives in data/db.js's PATRON_XP_MULT (applied
+  // in addXp, the one place every XP grant already funnels through) —
+  // `xpBonus` here is just the matching display label, kept in sync by
+  // hand since it's copy, not logic.
+  const PATRON_TIERS = [
+    { tier: 1, id: "supporter", label: "Supporter", range: "up to $10/mo", star: "⭐",
+      xpBonus: "+50% XP", desc: "A small thank-you star next to your name, and +50% XP on everything you earn." },
+    { tier: 2, id: "patron", label: "Patron", range: "$10–$25/mo", star: "⭐",
+      xpBonus: "+75% XP", desc: "A brighter star — you're covering more than just your own seat — and +75% XP." },
+    { tier: 3, id: "contributor", label: "Contributor", range: "$25+/mo", star: "🎖️",
+      xpBonus: "×2 XP", desc: "The top tier — named as a Contributor, not just another star colour — and double XP." }
+  ];
+
+  function choosePatronTier(tier) {
+    return DB.setPatronTier(tier);
   }
 
   // ---- Course ownership ----
@@ -117,6 +157,18 @@
         <div class="stats-section-title">🪙 Token Packs</div>
         <div class="shop-grid" id="token-packs-grid"></div>
       </div>
+      <div class="settings-section">
+        <div class="stats-section-title">⭐ Support the Dojo</div>
+        <p class="settings-hint" style="margin:0 0 0.6rem;">
+          The Dojo stays cheap on purpose — courses priced to actually
+          be affordable, not to extract. If it's worked for you and you
+          want to help keep it that way for everyone else, pick a tier.
+          A thank-you star next to your name, nothing gated behind it.
+          Same demo note as above: no real billing yet, and a tier can
+          only go up, never down.
+        </p>
+        <div class="shop-grid" id="patron-tiers-grid"></div>
+      </div>
     `;
 
     const packGrid = body.querySelector("#token-packs-grid");
@@ -140,8 +192,38 @@
       packGrid.appendChild(card);
     });
 
+    const currentTier = DB.getPatronTier ? DB.getPatronTier() : 0;
+    const tierGrid = body.querySelector("#patron-tiers-grid");
+    PATRON_TIERS.forEach(t => {
+      const owned = currentTier >= t.tier;
+      const card = document.createElement("div");
+      card.className = "shop-card";
+      card.innerHTML = `
+        <div class="shop-card-preview game-preview">
+          <span class="gp-icon profile-patron-star tier-${t.tier}">${t.star}</span>
+          <span class="pack-bonus-badge">${t.xpBonus}</span>
+        </div>
+        <div class="shop-card-body">
+          <div class="shop-name">${t.label}</div>
+          <div class="shop-tagline">${t.range} — ${t.desc}</div>
+          <button class="shop-btn buy" data-tier="${t.tier}" ${owned ? "disabled" : ""}>
+            ${owned ? "Current tier" : "Choose (demo)"}
+          </button>
+        </div>`;
+      const btn = card.querySelector("button");
+      if (!owned) {
+        btn.addEventListener("click", () => {
+          if (choosePatronTier(t.tier)) {
+            renderTokenShop();
+            if (Dojo.updateProfileBadge) Dojo.updateProfileBadge();
+          }
+        });
+      }
+      tierGrid.appendChild(card);
+    });
+
     showScreen("token-shop");
   }
 
-  Object.assign(Dojo, { renderTokenShop, ownsCourse, buyCourse });
+  Object.assign(Dojo, { renderTokenShop, ownsCourse, buyCourse, PATRON_TIERS });
 })();
