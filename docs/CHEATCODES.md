@@ -1,28 +1,39 @@
 # Admin access
 
-The secret is the string **`adminaccount`** (case-insensitive). Two ways
-to use it — same effect either way: every course, unit, topic and chunk
-unlocked (flashcards included), tickets refilled, wallet set to exactly
-$50,000, applied to whichever profile ends up active.
+Two codes, both live in `data/db.js`'s `ADMIN_CODES` map, both typeable
+into Settings' "Unlock code" box (always visible, checks
+`DB.applyAdminCode(input)`) — applied to whichever profile is currently
+active.
 
-## 1. As a profile name (at creation only)
+## `adminaccount` — full admin start
 
-Create a profile named `adminaccount` in the welcome modal.
-`data/db.js`'s `createProfile` checks the name against
-`SECRET_ADMIN_NAME` and, on a match, calls `applyAdminStart` once, at
-creation. Only reachable from the "new profile" screen — no use once a
-profile already exists, which is every session after the first.
+Every course, unit, topic and chunk unlocked (flashcards included),
+tickets refilled, wallet set to exactly $50,000, rank maxed to 10,000 XP
+(Nobel Laureate — every theme and background-stripe reward with it).
+`applyAdminStart` in `data/db.js`.
 
-## 2. As a typed code in Settings (works any time)
+**Also usable as a profile name**, at creation only: create a profile
+named `adminaccount` in the welcome modal and `createProfile` applies it
+immediately. Only reachable from the "new profile" screen — no use once
+a profile already exists, which is every session after the first. The
+Settings code box was added because of exactly that gap, reported live:
+"As it doesn't ask the name I can't use adminaccount." Same underlying
+function either way; the code box is just a second front door to it.
 
-Added because of exactly that gap — reported live: "As it doesn't ask
-the name I can't use adminaccount." Settings' "Unlock code" box (always
-visible now, not gated behind anything) checks the typed text against
-`DB.applyAdminCode(input)`, which does the same
-`SECRET_ADMIN_NAME` match and calls `applyAdminStart` on the **current**
-active profile — no new profile needed. Both paths are the same
-committed check in `data/db.js`; the code box is just a second front
-door to it.
+## `unlockallunits` — reachable, not completed
+
+Deliberately **not** an alias of `adminaccount`. Flips one boolean
+(`p.unitsUnlocked`) that bypasses the "finish the previous unit" prereq
+in all three places that check it (`library.js`'s unit-select list view,
+its map/roadmap view, and the deck builder) — every unit becomes
+clickable, but no topic or chunk is marked complete, so the content
+inside still shows as fresh/ungraded rather than already mastered.
+`applyUnlockAllUnits` in `data/db.js`.
+
+Requested explicitly, flagged first because `admin613` (an old,
+now-removed `codes.js` code) already unlocked every unit as a side
+effect of marking every topic complete — this exists specifically for
+the case that isn't: reachable without being done.
 
 ---
 

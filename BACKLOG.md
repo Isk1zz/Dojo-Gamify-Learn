@@ -1,5 +1,35 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 18 — `unlockallunits` cheat code, genuinely distinct from `adminaccount`
+
+- [x] Investigated the flagged concern first rather than assuming: unit
+      locking is 100% computed at render time from `completedTopics`
+      (no independent "unlocked units" state existed anywhere) — so a
+      real "reachable but not completed" code needed a new bypass flag,
+      not just a call to the existing `applyAdminStart`.
+      - `data/db.js`: new `p.unitsUnlocked` boolean (default `false`),
+        `applyUnlockAllUnits(profileId)` sets it, `getUnitsUnlocked()`
+        reads it. `applyAdminCode` refactored from a single hardcoded
+        check into an `ADMIN_CODES` lookup map (`adminaccount` and
+        `unlockallunits`, each with its own handler + message) so a
+        third code later is one map entry, not a rewritten function.
+      - `library/library.js`: all three places that compute a unit's
+        lock state — `renderUnitSelect`'s list view, `renderUnitRoadmap`
+        (map view), and the deck builder's `unitLocked` — now OR in
+        `DB.getUnitsUnlocked()`. Nothing else changed: `completedTopics`/
+        `completedChunks` stay exactly as they were, so unlocked units
+        still show their real content as fresh/ungraded.
+      - `settings/settings.js`: `applyCode()` now shows whatever message
+        `DB.applyAdminCode` returns instead of a hardcoded
+        admin-start-specific string.
+      - `docs/CHEATCODES.md` rewritten for both codes.
+      Verified live end-to-end: unit 2-8 confirmed locked
+      (`ahead: true`) on a fresh profile; applied `unlockallunits`
+      through the actual Settings UI; re-checked list view, map view,
+      AND the deck builder — all three show every unit reachable;
+      `completedTopics`, wallet and XP confirmed untouched (`0`, `0`,
+      `0`) — genuinely "reachable," not secretly "completed."
+
 ## Batch 17 — Star topology: wind + windmill (fun, no game state)
 
 - [x] **Wind speed/direction + spinning windmill, Star lobby only** —

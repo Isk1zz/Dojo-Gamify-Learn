@@ -49,6 +49,7 @@ const DB = (() => {
       lobbyStyle: "classic", // "classic" | "cards" — a re-skin of the Lobby tiles, not a rearrangement
       hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
       bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
+      unitsUnlocked: false,  // bypasses the "finish the previous unit" prereq — see the unlockallunits code
 
       // ---- Profile customization ----
       // Bought with $ wallet money, not XP — a deliberate mirror of the
@@ -362,19 +363,53 @@ const DB = (() => {
     return id;
   }
 
-  // Same secret, reachable without creating a new profile — typing it
-  // as a profile NAME only works from the "new profile" screen, so
-  // anyone who already has one (i.e. everyone past their first launch)
-  // had no way to reach it at all. Settings' code box (committed,
-  // ships to production — unlike the gitignored settings/codes.js) now
-  // checks this directly. Applies to whichever profile is ACTIVE, not
-  // a new one.
-  function applyAdminCode(input) {
-    if ((input || "").trim().toLowerCase() !== SECRET_ADMIN_NAME) return false;
+  // `unlockallunits` — deliberately distinct from `applyAdminStart`,
+  // not an alias of it. That one marks every topic AND chunk complete
+  // (adminaccount / the old admin613), which is "done," not "reachable
+  // but fresh." This one only flips whether the "finish the previous
+  // unit" prereq is enforced (library.js's three lock checks: unit-
+  // select's list view, its map/roadmap view, and the deck builder) —
+  // every unit becomes clickable, but nothing inside it is touched, so
+  // it still shows as ungraded/new content to actually study.
+  function applyUnlockAllUnits(profileId) {
     const db = load();
-    if (!db.activeProfileId || !db.profiles[db.activeProfileId]) return false;
-    applyAdminStart(db.activeProfileId);
-    return true;
+    const p = db.profiles[profileId];
+    if (!p) return;
+    p.unitsUnlocked = true;
+    save(db);
+  }
+
+  function getUnitsUnlocked() {
+    const p = getActiveProfile();
+    return !!(p && p.unitsUnlocked);
+  }
+
+  // Both secrets, reachable without creating a new profile — typing a
+  // name only works from the "new profile" screen, so anyone who
+  // already has one (i.e. everyone past their first launch) had no way
+  // to reach either at all. Settings' code box (committed, ships to
+  // production — unlike the gitignored settings/codes.js) checks both
+  // directly. Applies to whichever profile is ACTIVE, not a new one.
+  // Returns the message to show, or null for "not a valid code" — the
+  // caller doesn't need to know which code matched to react correctly.
+  const ADMIN_CODES = {
+    [SECRET_ADMIN_NAME]: {
+      fn: applyAdminStart,
+      msg: "Admin start applied — unlocked, tickets full, wallet at $50,000, rank maxed."
+    },
+    unlockallunits: {
+      fn: applyUnlockAllUnits,
+      msg: "All units unlocked — topics and chunks are still fresh, nothing marked complete."
+    }
+  };
+
+  function applyAdminCode(input) {
+    const entry = ADMIN_CODES[(input || "").trim().toLowerCase()];
+    if (!entry) return null;
+    const db = load();
+    if (!db.activeProfileId || !db.profiles[db.activeProfileId]) return null;
+    entry.fn(db.activeProfileId);
+    return entry.msg;
   }
 
   function setActiveProfile(id) {
@@ -1148,6 +1183,7 @@ const DB = (() => {
     getActiveProfile,
     createProfile,
     applyAdminCode,
+    getUnitsUnlocked,
     setActiveProfile,
     updateProfileName,
     deleteProfile,

@@ -6,10 +6,6 @@ left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
 ## Open questions (need your answer before building)
-- "the story" (your message: "after, proceed deleting the story") — I
-  read this as the leftover Story-tab **comments** (4 found, cleaned) since
-  the Story feature itself was already removed earlier. If you meant
-  something else, say so.
 - Landing page contradiction — tagline now says "Online study system,"
   the line right below it still says "No account needed — progress saves
   automatically, on this device." Left both as-is pending your call.
@@ -24,8 +20,7 @@ just "what's still owed."
 ## Ready to build, no blockers
 - Final Quiz / cumulative exam content (reference material already saved).
   Large — a full unit's worth of content authoring, not a quick add.
-- New cheat code `unlockallunits` — confirm it's not just `admin613`
-  again before building a duplicate.
+  In progress next.
 
 ## Blocked on the backend (Supabase — assigned, nothing built)
 - Career weekly XP ladder.

@@ -250,7 +250,7 @@
       // Locked — see PROJECT.md §5's "No hard locks" reversal note.
       // Same prereq rule renderUnitRoadmap uses: the immediately
       // preceding unit must be fully mastered.
-      const prereqDone = i === 0 || UNIT_TOPICS[unitsToShow[i - 1].id].every(t => completedTopics.has(t.id));
+      const prereqDone = i === 0 || DB.getUnitsUnlocked() || UNIT_TOPICS[unitsToShow[i - 1].id].every(t => completedTopics.has(t.id));
       const isAhead = pct < 100 && !prereqDone;
 
       const card = document.createElement("div");
@@ -325,7 +325,7 @@
       const topics = UNIT_TOPICS[u.id];
       const done = topics.filter(t => completedTopics.has(t.id)).length;
       const isCompleted = topics.length > 0 && done === topics.length;
-      const prereqDone = i === 0 || (() => {
+      const prereqDone = i === 0 || DB.getUnitsUnlocked() || (() => {
         const prevTopics = UNIT_TOPICS[unitsToShow[i - 1].id];
         return prevTopics.every(t => completedTopics.has(t.id));
       })();
@@ -1463,7 +1463,7 @@
     // building a review deck should un-complete anything).
     const unitLocked = {};
     course.units.forEach((uid, i) => {
-      unitLocked[uid] = i > 0 && !UNIT_TOPICS[course.units[i - 1]].every(t => completedTopics.has(t.id));
+      unitLocked[uid] = i > 0 && !DB.getUnitsUnlocked() && !UNIT_TOPICS[course.units[i - 1]].every(t => completedTopics.has(t.id));
       if (unitLocked[uid]) picker.unitIds.delete(uid);
     });
 

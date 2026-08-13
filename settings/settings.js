@@ -313,10 +313,13 @@
         if (Dojo.renderVitals) Dojo.renderVitals();
         return;
       }
-      // The one code that ships everywhere — see data/db.js's
+      // The codes that ship everywhere — see data/db.js's ADMIN_CODES /
       // applyAdminCode. Checked second so a local dev code with the
       // same text (there isn't one, but if there ever were) still wins.
-      if (DB.applyAdminCode(val)) {
+      // Returns the message to show, or null for "not a valid code" —
+      // this file doesn't need to know which code matched.
+      const adminMsg = DB.applyAdminCode(val);
+      if (adminMsg) {
         if (Dojo.renderVitals) Dojo.renderVitals();
         if (Dojo.updateProfileBadge) Dojo.updateProfileBadge();
         // XP (and therefore rank, and every rank-gated theme/stripe
@@ -330,7 +333,7 @@
         // the one `msg` currently points at.
         renderSettings();
         const freshMsg = document.getElementById("admin-msg");
-        if (freshMsg) freshMsg.textContent = "Admin start applied — unlocked, tickets full, wallet at $50,000, rank maxed.";
+        if (freshMsg) freshMsg.textContent = adminMsg;
         return;
       }
       msg.textContent = "Not a valid code.";
