@@ -317,10 +317,20 @@
       // applyAdminCode. Checked second so a local dev code with the
       // same text (there isn't one, but if there ever were) still wins.
       if (DB.applyAdminCode(val)) {
-        codeInput.value = "";
-        msg.textContent = "Admin start applied — unlocked, tickets full, wallet at $50,000.";
         if (Dojo.renderVitals) Dojo.renderVitals();
         if (Dojo.updateProfileBadge) Dojo.updateProfileBadge();
+        // XP (and therefore rank, and every rank-gated theme/stripe
+        // reward) just changed — the charge bar reads DB.getXp() fresh,
+        // but nothing repaints it on its own outside the normal
+        // award-XP flow.
+        if (Dojo.renderCharge) Dojo.renderCharge();
+        // Full re-render so the theme/stripe grids immediately reflect
+        // the new unlock state — re-fetch admin-msg after, since this
+        // tears down and rebuilds every element in the body, including
+        // the one `msg` currently points at.
+        renderSettings();
+        const freshMsg = document.getElementById("admin-msg");
+        if (freshMsg) freshMsg.textContent = "Admin start applied — unlocked, tickets full, wallet at $50,000, rank maxed.";
         return;
       }
       msg.textContent = "Not a valid code.";

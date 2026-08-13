@@ -1,5 +1,36 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 16 — adminaccount didn't grant rank or rank rewards
+
+- [x] **Bug: `adminaccount` unlocked courses/wallet/tickets but never
+      rank.** Reported live: "adminaccount didn't unlock me rank and
+      rewards." `applyAdminStart` (`data/db.js`) set
+      `completedTopics`/`completedChunks`/`tickets`/`wallet`, but never
+      touched `chargeEarned` — the one field `DB.getXp()` actually
+      reads. Rank, and every rank-gated theme/background-stripe reward,
+      stayed at whatever it was before (usually Lab Intern / 0 XP)
+      regardless of how "unlocked" everything else looked.
+
+      Fixed: `applyAdminStart` now also raises `chargeEarned` (and
+      `charge`) to 10,000 — the Nobel Laureate ceiling in
+      `shop/ranks.js` — if it's currently lower, maxing rank and every
+      reward on the ladder. Applies to both entry points (the secret
+      profile name at creation, and Batch 14's Settings code box) since
+      both call this same function.
+
+      Also fixed while verifying: applying the code updated the wallet/
+      vitals strip but never the rank chip itself (`Dojo.renderCharge`
+      wasn't called) or the Settings screen's own theme/stripe grids
+      (still showing the old locked state until a manual navigation).
+      `settings.js`'s success path now calls `renderCharge()` and does a
+      full `renderSettings()` re-render, re-attaching the success
+      message afterward since the re-render tears down the element it
+      was sitting in.
+
+      Verified live: fresh profile → apply code → XP reads exactly
+      10,000, rank chip shows "Nobel Laureate" immediately (no reload),
+      Awarded Themes reads "8 unlocked. You have them all."
+
 ## Batch 15 — Background stripes vs. actual themes: two visibility bugs
 
 Both reported live in one message, both root-caused to the same thing:

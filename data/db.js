@@ -320,6 +320,12 @@ const DB = (() => {
   // accident, and it needs no visible "Codes" UI at all.
   const SECRET_ADMIN_NAME = "adminaccount";
 
+  // 10,000 — the Nobel Laureate ceiling in shop/ranks.js. Kept as its
+  // own constant rather than importing RANKS here (db.js stays boring,
+  // no tuning numbers) — if the ladder's ceiling ever moves, this needs
+  // a matching bump, same as everywhere else in the app that assumes it.
+  const ADMIN_XP = 10000;
+
   function applyAdminStart(profileId) {
     const db = load();
     const p = db.profiles[profileId];
@@ -337,6 +343,12 @@ const DB = (() => {
     p.tickets = TICKET_MAX;
     p.ticketsUpdatedAt = new Date().toISOString();
     p.wallet = 50000;
+    // Reported live: "adminaccount didn't unlock me rank and rewards" —
+    // course/wallet/tickets were being set, but XP (chargeEarned, what
+    // DB.getXp() actually reads) never was, so rank stayed wherever it
+    // started and every rank-gated theme/stripe reward stayed locked.
+    if ((p.chargeEarned || 0) < ADMIN_XP) p.chargeEarned = ADMIN_XP;
+    if ((p.charge || 0) < ADMIN_XP) p.charge = ADMIN_XP;
     save(db);
   }
 
