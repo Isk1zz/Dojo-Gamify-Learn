@@ -137,10 +137,10 @@
         <div id="lobby-wind" class="lobby-wind" aria-hidden="true"></div>
         <div class="lobby-actions" id="lobby-actions">
           <svg class="lobby-star-lines" id="lobby-star-lines" aria-hidden="true"></svg>
-          <span id="lobby-windmill" class="lobby-windmill" aria-hidden="true">
-            <span class="wm-blade"></span><span class="wm-blade"></span>
-            <span class="wm-blade"></span><span class="wm-blade"></span>
-          </span>
+          <div class="lobby-rotate-control" id="lobby-rotate-control">
+            <span class="lobby-rotate-icon" aria-hidden="true">&#127760;</span>
+            <input type="range" id="lobby-rotate-slider" class="lobby-rotate-slider" min="0" max="360" value="0" step="1" aria-label="Rotate star layout" />
+          </div>
           <button id="btn-lobby-hub-flashcards" class="lobby-hub" type="button" aria-label="Flashcards"><span>&#128209;</span></button>
           <button id="btn-lobby-courses" class="lobby-tile primary">
             <span class="lt-icon">&#128218;</span>

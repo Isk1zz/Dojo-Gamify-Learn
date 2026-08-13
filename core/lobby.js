@@ -83,7 +83,7 @@
     layoutLobbyRadial(style);
   }
 
-  // ---- Wind + windmill (Star topology only) ----
+  // ---- Wind (Star topology only) ----
   // Purely decorative, added just for the fun of it — no game state
   // reads or writes anything here. Seeded off the calendar day rather
   // than Math.random() so it holds still within a visit (and across a
@@ -100,7 +100,6 @@
 
   function paintWind(active) {
     const windEl = document.getElementById("lobby-wind");
-    const millEl = document.getElementById("lobby-windmill");
     if (!active) {
       if (windEl) windEl.style.display = "none";
       return;
@@ -110,11 +109,19 @@
       windEl.textContent = `\u{1F4A8} ${w.speed} mph ${w.dir}`;
       windEl.style.display = "block";
     }
-    // Faster wind spins the blades faster — 30/speed keeps the range
-    // sane (roughly 1.2s-7.5s per rotation across the 4-26 mph span)
-    // rather than a literal mph-to-seconds mapping, which isn't a real
-    // physical relationship anyway.
-    if (millEl) millEl.style.setProperty("--wm-speed", `${Math.max(1.2, 30 / w.speed).toFixed(1)}s`);
+  }
+
+  // ---- Rotate slider (Star topology only) ----
+  // Purely visual, same spirit as the wind reading above — no game
+  // state involved. Dragging it feeds straight into layoutLobbyRadial's
+  // angle math below rather than spinning the container with CSS, so
+  // tile icons/text stay upright as the ring turns. Resets to 0 every
+  // time the lobby is (re)entered; nothing about the angle is worth
+  // persisting.
+  function wireRotateSlider() {
+    const slider = document.getElementById("lobby-rotate-slider");
+    if (!slider) return;
+    slider.addEventListener("input", () => layoutLobbyRadial("star"));
   }
 
   // Star's own tile order — Career/Garden and Settings/Arcade sit
@@ -186,9 +193,11 @@
     const box = actionsEl.getBoundingClientRect();
     const cx = box.width / 2, cy = box.height / 2;
     const r = parseFloat(getComputedStyle(actionsEl).getPropertyValue("--lobby-radius")) || 130;
+    const rotSlider = document.getElementById("lobby-rotate-slider");
+    const rot = rotSlider ? parseFloat(rotSlider.value) || 0 : 0;
 
     tiles.forEach((el, i) => {
-      const a = (-90 + i * (360 / n)) * Math.PI / 180;
+      const a = (-90 + rot + i * (360 / n)) * Math.PI / 180;
       const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
       el.style.setProperty("--tx", `${x}px`);
       el.style.setProperty("--ty", `${y}px`);
@@ -196,11 +205,13 @@
 
     svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
     svg.innerHTML = tiles.map((_, i) => {
-      const a = (-90 + i * (360 / n)) * Math.PI / 180;
+      const a = (-90 + rot + i * (360 / n)) * Math.PI / 180;
       const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
       return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
     }).join("");
   }
+
+  wireRotateSlider();
 
   // ---- seam: what this branch offers to everyone else ----
   Object.assign(Dojo, { showLobby });
