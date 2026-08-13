@@ -234,6 +234,24 @@
     deckBtn.addEventListener("click", openDeckBuilder);
     body.appendChild(deckBtn);
 
+    // Cumulative Final Quiz — same "right next to the unit picker, not
+    // buried" placement as the deck builder above. Never locked (no
+    // hard locks — PROJECT.md §5), just an honest nudge via the
+    // subtitle if it hasn't been attempted or the course isn't done yet.
+    if (typeof FINAL_QUIZ_QUESTIONS !== "undefined" && FINAL_QUIZ_QUESTIONS.length) {
+      const allDone = unitsToShow.every(u => UNIT_TOPICS[u.id].every(t => completedTopics.has(t.id)));
+      const fq = DB.getFinalQuiz();
+      const sub = fq.attempts
+        ? `Best: ${fq.bestScore}%${fq.completedAt ? " · passed" : ""}`
+        : (allDone ? "All units complete — ready when you are" : "Cumulative, all 8 units — usable any time");
+      const quizBtn = document.createElement("button");
+      quizBtn.className = "deck-builder-entry";
+      quizBtn.type = "button";
+      quizBtn.innerHTML = `\u{1F393} Final Quiz <span class="deck-builder-entry-sub">${sub}</span>`;
+      quizBtn.addEventListener("click", startFinalQuiz);
+      body.appendChild(quizBtn);
+    }
+
     if (state.unitMapView === "map") {
       renderUnitRoadmap(unitsToShow, body, completedTopics);
       updateProfileBadge();
@@ -1170,6 +1188,37 @@
     renderExamQuestion();
   }
 
+  // ---- Final Quiz (cumulative, all 8 units) ----
+  // Reuses the per-topic exam screen (renderExamQuestion only reads
+  // getTopic().icon/.title and state.examQuestions, neither of which
+  // cares whether the "topic" is real) by feeding it a pseudo-topic
+  // instead of building a second exam UI from scratch. `chunks: []` so
+  // the one line in showExamResults that reads topic.chunks for a
+  // wisdom-quote tag pool doesn't throw — that branch is skipped
+  // entirely for the final quiz anyway (see showFinalQuizResults), this
+  // is just insurance against the shape being relied on elsewhere later.
+  // `state.finalQuizActive` is what actually diverts the result flow;
+  // see showExamResults' first line.
+  const FINAL_QUIZ_TOPIC = {
+    id: "final-quiz", title: "Final Quiz", icon: "\u{1F393}", chunks: [],
+    examQuestions: (typeof FINAL_QUIZ_QUESTIONS !== "undefined" ? FINAL_QUIZ_QUESTIONS : [])
+  };
+
+  function startFinalQuiz() {
+    state.finalQuizActive = true;
+    state.currentTopics = [FINAL_QUIZ_TOPIC];
+    state.currentTopicIdx = 0;
+    state.examAttempts = (state.examAttempts || 0) + 1;
+    state.examQuestions = shuffled(FINAL_QUIZ_TOPIC.examQuestions).map(shuffleQuestion);
+    state.examIndex = 0;
+    state.examAnswers = [];
+    state.examSubmitted = [];
+    state.quizAnswer = null;
+    state.quizSubmitted = false;
+    showScreen("exam");
+    renderExamQuestion();
+  }
+
   function renderExamQuestion() {
     const topic = getTopic();
     const total = state.examQuestions.length;
@@ -1207,8 +1256,10 @@
 
     body.innerHTML = `
       <div class="exam-header">
-        <h2>${topic.icon} ${topic.title} — Mastery Exam</h2>
-        <p>Score 80% or higher to master this topic and start its review schedule.</p>
+        <h2>${topic.icon} ${topic.title}${state.finalQuizActive ? "" : " — Mastery Exam"}</h2>
+        <p>${state.finalQuizActive
+          ? "Cumulative — drawn from all 8 units. Score 80% or higher to pass."
+          : "Score 80% or higher to master this topic and start its review schedule."}</p>
       </div>
       <div class="exam-q-counter">Question ${idx + 1} of ${total}</div>
       <div class="exam-question-card">
@@ -1249,6 +1300,12 @@
   }
 
   function showExamResults() {
+    // The Final Quiz gets its own result path entirely — see
+    // startFinalQuiz's comment on why it can't safely fall through the
+    // rest of this function (topic.chunks, DB.recordExamResult keyed on
+    // a real topic id, markTopicComplete, scheduleReview — every one of
+    // those assumes a real topic).
+    if (state.finalQuizActive) { showFinalQuizResults(); return; }
     const topic = getTopic();
     // So the result screen's retry button knows which flow to relaunch —
     // it's shared with finishFlashcards() below.
@@ -1337,6 +1394,51 @@
       }
     }
 
+    showScreen("exam-result");
+  }
+
+  // Flat XP bonus rather than the per-topic exam's topicCharge-based
+  // one — there's no chunk-walking session to scale off (this can be
+  // taken cold, any time), so the reward has to stand on its own. Sized
+  // roughly like a strong topic exam finish, not a whole course's worth.
+  const FINAL_QUIZ_XP_BASE = 40;
+
+  function showFinalQuizResults() {
+    state.lastReviewMode = "final-quiz";
+    const total = state.examQuestions.length;
+    let correct = 0;
+    state.examQuestions.forEach((q, i) => { if (state.examAnswers[i] === q.correct) correct++; });
+    const pct = Math.round((correct / total) * 100);
+    const passed = pct >= 80;
+
+    DB.recordFinalQuizResult(correct, total, passed);
+    Bus.emit("final-quiz:finished", { correct, total, passed });
+
+    document.getElementById("btn-to-topics").textContent = "Back to Library";
+    document.getElementById("result-icon").textContent = passed ? "\u{1F393}" : "\u{1F4DA}";
+    document.getElementById("result-title").textContent = passed ? "Final Quiz Passed!" : "Not Quite Yet";
+    document.getElementById("btn-retry").textContent = "Retry Final Quiz";
+    document.getElementById("result-desc").textContent = passed
+      ? `You scored ${correct}/${total} across all 8 units — that's a genuine cumulative pass, not just one topic.`
+      : `You scored ${correct}/${total}. 80% passes. Nothing here is graded against you — retry whenever you're ready.`;
+    const scoreEl = document.getElementById("result-score");
+    scoreEl.textContent = `${pct}%`;
+    scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
+
+    const mult = 0.7 + (pct / 100) * 0.8;
+    const bonus = Math.round(FINAL_QUIZ_XP_BASE * mult);
+    const bonusEl = document.getElementById("result-charge");
+    if (bonusEl) {
+      const granted = awardCharge(bonus, scoreEl);
+      bonusEl.innerHTML = `<span class="charge-award">⚡ +${granted} XP <span class="ca-mult">(&times;${mult.toFixed(2)} for ${pct}%)</span></span>`;
+    }
+
+    // No per-topic wisdom quote — a cumulative quiz doesn't belong to
+    // any one topic's tag pool.
+    const wisdomEl = document.getElementById("result-wisdom");
+    if (wisdomEl) wisdomEl.innerHTML = "";
+
+    state.finalQuizActive = false;
     showScreen("exam-result");
   }
 
@@ -1930,6 +2032,7 @@
   // each needing a different "where does this actually lead" answer.
   on("btn-to-topics", () => {
     if (state.lastReviewMode === "custom-flashcards") openDeckBuilder();
+    else if (state.lastReviewMode === "final-quiz") { showScreen("unit-select"); renderUnitSelect(); }
     else { showScreen("topic-map"); renderTopicMap(); }
   });
   on("btn-back-flashcards", () => {
@@ -1939,6 +2042,7 @@
   on("btn-retry", () => {
     if (state.lastReviewMode === "custom-flashcards" && state.flashCustomRefs) startCustomDeckReview(state.flashCustomRefs, state.flashCustomMode);
     else if (state.lastReviewMode === "flashcards" && state.flashTopic) startFlashcardReview(state.flashTopic);
+    else if (state.lastReviewMode === "final-quiz") startFinalQuiz();
     else if (state.lastReviewMode === "exam" && state.examMustRedoTopic) startTopic(state.currentTopicIdx, 0);
     else startExam();
   });
@@ -1969,5 +2073,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, libraryTotals, resumeAt, startNextDueReview, openDeckBuilder, renderDeckBuilder, openFlashcardsHub, flashcardsSummary });
+  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, startFinalQuiz, libraryTotals, resumeAt, startNextDueReview, openDeckBuilder, renderDeckBuilder, openFlashcardsHub, flashcardsSummary });
 })();

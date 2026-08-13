@@ -1,5 +1,65 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 19 — Final Quiz: cumulative exam, all 8 units, built and shipped
+
+- [x] **Content**: `library/content/intro-cs/final_quiz.js`, 40 questions,
+      rewritten from the two 20-question reference sets pasted earlier
+      this session (kept verbatim in this file's own "Reference"
+      section above) into full standalone `{question, options, correct}`
+      entries — the originals were terse exam-prep shorthand, not
+      ready-to-render option lists.
+      - **One factual correction**, not a faithful reproduction: Set 2
+        Q6 claimed the Von Neumann architecture is defined by *separate*
+        instruction/data memory. Checked against this app's own
+        `data_m10.js` ("cf-von-neumann" chunk, written earlier this
+        session), which correctly says the opposite — a single SHARED
+        memory (the stored-program concept) is the defining trait;
+        separate memories is the Harvard architecture, the contrast
+        case. Shipping the reference's original wording would have
+        taught something the app's own lesson two clicks away directly
+        contradicts, so it's fixed rather than reproduced as-is.
+      - Kept every other question faithful to the reference's stated
+        correct answer, including a couple whose distractor design
+        reads a little oddly (flagged as such in the reference itself,
+        e.g. the mobile-OS question) — reworded for clarity without
+        changing what's being tested.
+      - Loaded in `index.html` alongside the other course data files,
+        before `course.js`. Full sourcing/correction notes live in the
+        file's own header comment.
+- [x] **Integration — deliberately does NOT touch real topic/completion
+      state.** No new screen built from scratch: reuses the existing
+      per-topic exam UI (`renderExamQuestion` only ever reads
+      `getTopic().icon/.title` and `state.examQuestions`, neither of
+      which cares whether the "topic" is real) by feeding it a
+      pseudo-topic. Where it diverges is the RESULT path — `showExamResults`
+      now branches to a new `showFinalQuizResults()` before any of
+      `DB.recordExamResult`/`markTopicComplete`/`scheduleReview` run,
+      because all three assume a real topic id and would have silently
+      corrupted `completionPct`, weak-spot lookups, and the SM-2 review
+      queue if fed `"final-quiz"`.
+      - `data/db.js`: new `p.finalQuiz = {attempts, bestScore, lastScore,
+        completedAt}`, its own `recordFinalQuizResult`/`getFinalQuiz` —
+        a completely separate record from `stats.topicStats`.
+      - `library.js`: `startFinalQuiz()`, `showFinalQuizResults()` (flat
+        40-XP-base bonus scaled by score, same 0.7-1.5× multiplier shape
+        per-topic exams use, since there's no `topicCharge` to scale
+        off — this can be taken cold, any time), `btn-retry`/
+        `btn-to-topics` handlers extended with a `"final-quiz"` branch.
+      - Entry point: a "🎓 Final Quiz" button in `renderUnitSelect`,
+        same placement/styling as the existing "Build a Custom Deck"
+        entry. **Never locked** (No hard locks — PROJECT.md §5) — the
+        subtitle nudges honestly instead ("All units complete — ready
+        when you are" / "Best: N% · passed" once attempted).
+      Verified live end-to-end: 40 questions confirmed loaded; answered
+      all correct → "Final Quiz Passed!", 100%, +60 XP at the ×1.50
+      multiplier; confirmed **zero** corruption of real state
+      (`completedTopics` stayed 0, `completionPct` stayed 0, no stray
+      `"final-quiz"` entry in `topicStats`); answered a failing run →
+      "Not Quite Yet", 25%, correct retry button; retried → attempt
+      count incremented to 2, `bestScore` correctly still 100 (a worse
+      later attempt doesn't overwrite a better earlier one); button
+      subtitle confirmed updating after an attempt.
+
 ## Batch 18 — `unlockallunits` cheat code, genuinely distinct from `adminaccount`
 
 - [x] Investigated the flagged concern first rather than assuming: unit

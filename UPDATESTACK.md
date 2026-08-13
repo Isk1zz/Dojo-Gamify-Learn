@@ -18,9 +18,8 @@ just "what's still owed."
 - Buy stars for money to unlock courses — same currency question as above.
 
 ## Ready to build, no blockers
-- Final Quiz / cumulative exam content (reference material already saved).
-  Large — a full unit's worth of content authoring, not a quick add.
-  In progress next.
+Nothing right now — both items from the last "ready to build" batch are
+done (Final Quiz content + `unlockallunits`, see BACKLOG.md).
 
 ## Blocked on the backend (Supabase — assigned, nothing built)
 - Career weekly XP ladder.

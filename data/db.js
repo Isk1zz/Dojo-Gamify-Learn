@@ -87,6 +87,10 @@ const DB = (() => {
       // library/library.js's showContractModal.
       courseContracts: {}, // { courseId: { signature, signedAt } }
 
+      // Cumulative Final Quiz — deliberately separate from stats.topicStats,
+      // see data/db.js's recordFinalQuizResult for why.
+      finalQuiz: { attempts: 0, bestScore: 0, lastScore: 0, completedAt: null },
+
       // ---- v7: streak ----
       // A deliberate reversal of PROJECT.md §5's "no streaks" decision —
       // see data/DATA.md for why. `freezes` refills to 2 at the start of
@@ -577,6 +581,30 @@ const DB = (() => {
     if (pct > ts.bestScore) ts.bestScore = pct;
     if (passed) ts.completedAt = new Date().toISOString();
     save(db);
+  }
+
+  // The cumulative Final Quiz deliberately does NOT go through
+  // recordExamResult/markTopicComplete/scheduleReview above — it isn't
+  // a real topic, and writing its result into p.completedTopics or
+  // p.stats.topicStats under a made-up id would silently corrupt real
+  // stats (completionPct, weak-spot lookups, the SM-2 review queue).
+  // Its own small, separate record instead.
+  function recordFinalQuizResult(correct, total, passed) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    if (!p.finalQuiz) p.finalQuiz = { attempts: 0, bestScore: 0, lastScore: 0, completedAt: null };
+    const pct = Math.round((correct / total) * 100);
+    p.finalQuiz.attempts++;
+    p.finalQuiz.lastScore = pct;
+    if (pct > p.finalQuiz.bestScore) p.finalQuiz.bestScore = pct;
+    if (passed && !p.finalQuiz.completedAt) p.finalQuiz.completedAt = new Date().toISOString();
+    save(db);
+  }
+
+  function getFinalQuiz() {
+    const p = getActiveProfile();
+    return (p && p.finalQuiz) || { attempts: 0, bestScore: 0, lastScore: 0, completedAt: null };
   }
 
   // Last-attempt correctness for one chunk's mini-quiz, or undefined if
@@ -1197,6 +1225,8 @@ const DB = (() => {
     recordQuizAnswer,
     getChunkResult,
     recordExamResult,
+    recordFinalQuizResult,
+    getFinalQuiz,
     getStats,
     scheduleReview,
     getReviews,

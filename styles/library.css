@@ -831,6 +831,7 @@
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 .deck-builder-entry:hover { border-color: var(--accent); color: var(--text); background: var(--accent-glow); }
+.deck-builder-entry-sub { font-size: 0.74rem; font-weight: 400; color: var(--text-muted); }
 
 .deck-builder-body { padding: 1.5rem; max-width: 900px; margin: 0 auto; }
 .deck-builder-intro { font-size: 0.88rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 1.1rem; }
