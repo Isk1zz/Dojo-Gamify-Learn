@@ -50,11 +50,39 @@
     return Dojo.Ranks ? Dojo.Ranks.unlockedBgStripes(DB.getXp()).has(id) : false;
   }
 
+  // The stripe overlay was designed against a dark, plain surface. Two
+  // real problems showed up combining it with actual themes, both
+  // reported live:
+  //   1. "kirigami stripes when combined with other ones create a
+  //      mess" — Kirigami's OWN `bg` is already a repeating diagonal
+  //      line pattern (the torn-paper look). Layering a second,
+  //      differently-angled repeating stripe on top reads as noise,
+  //      not texture. Any theme whose `bg` is itself a repeating
+  //      pattern (Kirigami, Terminal's CRT scanlines) suppresses the
+  //      separate stripe layer entirely rather than stacking a second
+  //      one — the theme's own texture wins.
+  //   2. "paper & frost + stripes poor visibility" — every stripe's
+  //      `css` is hardcoded `rgba(255,255,255,…)`, a white wash that
+  //      reads fine on a dark surface and goes nearly invisible on a
+  //      light one — the exact class of gap already flagged above for
+  //      other fixed-white overlays. Light themes (`mode: "light"`)
+  //      get the same pattern recoloured dark instead.
+  function stripeCssFor(id, t) {
+    const stripe = bgStripeUnlocked(id) && BG_STRIPES ? BG_STRIPES.find(s => s.id === id) : null;
+    if (!stripe) return "none";
+    if (t.bg && t.bg.includes("repeating-linear-gradient")) return "none";
+    if (t.mode === "light") return stripe.css.replace(/rgba\(255,\s*255,\s*255,/g, "rgba(15, 23, 42,");
+    return stripe.css;
+  }
+
+  // Called when the STRIPE choice itself changes (Settings) — repaints
+  // against whichever theme is actually equipped right now. A stripe
+  // pick is persisted (DB.setBgStripe, done by the caller), unlike a
+  // theme preview, so this always reads the real theme, never a
+  // previewed one.
   function applyBgStripe(id) {
-    const stripe = bgStripeUnlocked(id) && BG_STRIPES
-      ? BG_STRIPES.find(s => s.id === id)
-      : null;
-    document.documentElement.style.setProperty("--bg-stripe-image", stripe ? stripe.css : "none");
+    const t = resolveTheme(DB.getTheme ? DB.getTheme() : "indigo");
+    document.documentElement.style.setProperty("--bg-stripe-image", stripeCssFor(id, t));
   }
 
   // Text was "deliberately not themed" (see core/CORE.md) for as long as
@@ -114,6 +142,13 @@
     root.setProperty("--text-dim", tx.dim);
     root.setProperty("--text-muted", tx.muted);
     root.setProperty("--border", tx.border);
+
+    // Re-adapt the equipped stripe to whichever theme just painted —
+    // switching (or previewing) a theme used to leave the stripe
+    // exactly as it was, which is how it went unnoticed that Kirigami
+    // and the white-on-white light themes needed different handling.
+    const stripeId = DB.getBgStripe ? DB.getBgStripe() : "none";
+    root.setProperty("--bg-stripe-image", stripeCssFor(stripeId, t));
   }
 
   // ---- seam: what this branch offers to everyone else ----

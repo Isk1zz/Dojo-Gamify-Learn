@@ -1,5 +1,43 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 15 — Background stripes vs. actual themes: two visibility bugs
+
+Both reported live in one message, both root-caused to the same thing:
+`shop/themes.js`'s `BG_STRIPES` were designed against a plain dark
+surface and never re-checked against real themes.
+
+- [x] **"kirigami stripes when combined with other ones create a
+      mess."** Kirigami's own `bg` is already a repeating diagonal
+      line pattern (the torn-paper look); layering a second,
+      differently-angled stripe on top read as noise. Fixed generally,
+      not just for Kirigami: `core/theme.js`'s new `stripeCssFor(id, t)`
+      suppresses the separate stripe layer entirely (`--bg-stripe-image:
+      none`) whenever the active theme's own `bg` already contains a
+      `repeating-linear-gradient` — catches Terminal's CRT scanlines
+      too, same clash, not reported yet but same cause.
+- [x] **"paper & frost + stripes poor visibility."** Every stripe's
+      `css` is hardcoded `rgba(255,255,255,…)` — reads fine on a dark
+      surface, goes nearly invisible on Paper/Frost's light one. Same
+      class of gap `core/theme.js` already had a comment flagging for
+      other fixed-white overlays. `stripeCssFor` now recolours the
+      pattern to `rgba(15, 23, 42, …)` (dark) whenever `t.mode ===
+      "light"`, leaving the dark-theme version untouched.
+- [x] **Follow-on fix, not separately reported but found while fixing
+      the above:** switching (or previewing) a theme never re-painted
+      the stripe against it — it was set once, at boot/profile-switch,
+      and just sat there unchanged regardless of which theme was
+      active. That's *why* the mismatch was invisible until someone
+      actually combined the two: nobody had switched theme and stripe
+      independently before. `paintTheme(t)` now re-derives
+      `--bg-stripe-image` from the currently-equipped stripe every time
+      it runs, so it's always correct for whichever theme (real or
+      previewed) just painted.
+
+Verified live: Kirigami + Diagonal → `none`; Terminal + Diagonal →
+`none`; Paper + Diagonal → dark-recoloured pattern, visibly present in
+a screenshot; Indigo (dark, no repeating `bg`) + Diagonal → unchanged
+white pattern, confirming dark themes aren't affected by either fix.
+
 ## Batch 14 — Admin code reachable without a new profile
 
 - [x] **Bug: `adminaccount` unreachable once a profile already exists.**
