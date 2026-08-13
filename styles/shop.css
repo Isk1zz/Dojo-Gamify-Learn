@@ -50,6 +50,16 @@
 }
 .gp-icon { font-size: 2.4rem; }
 
+/* Token pack "you save X%" badge — corner ribbon, same spot a "NEW" or
+   sale tag sits in most shop UIs. Only shown when > 0 (the smallest
+   pack is the baseline it's measured against, so it never wears one). */
+.pack-bonus-badge {
+  position: absolute; top: 8px; right: 8px;
+  padding: 0.15rem 0.5rem; border-radius: 999px;
+  background: var(--green); color: var(--bg-deep);
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 800;
+}
+
 .shop-card-body { padding: 0.85rem 0.95rem 1rem; }
 .shop-name { font-weight: 700; font-size: 0.95rem; }
 .shop-tagline {

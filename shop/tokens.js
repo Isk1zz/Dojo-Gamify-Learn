@@ -35,14 +35,26 @@
   // Priced against the market (Anki/Udemy's one-time-purchase shape,
   // not Duolingo/Brilliant/Coursera's subscriptions — see the chat that
   // scoped this). Bigger pack, better rate, same psychology every
-  // mobile-game currency shop uses.
+  // mobile-game currency shop uses. `price` is the numeric $ amount
+  // (priceLabel is just its display string) — kept as a real number so
+  // the bonus badge below is computed, not hand-typed, and can't drift
+  // out of sync with the actual tokens/price the way a hardcoded
+  // percentage could.
   const TOKEN_PACKS = [
-    { id: "small",  tokens: 350,  priceLabel: "$6.99" },
-    { id: "medium", tokens: 650,  priceLabel: "$11.99" },
-    { id: "large",  tokens: 1200, priceLabel: "$20.99" },
-    { id: "bigger", tokens: 2300, priceLabel: "$37.99" },
-    { id: "best",   tokens: 4500, priceLabel: "$67.99" }
+    { id: "small",  tokens: 350,  price: 6.99,  priceLabel: "$6.99" },
+    { id: "medium", tokens: 654,  price: 11.99, priceLabel: "$11.99" },
+    { id: "large",  tokens: 1234, price: 20.99, priceLabel: "$20.99" },
+    { id: "bigger", tokens: 2345, price: 37.99, priceLabel: "$37.99" },
+    { id: "best",   tokens: 4987, price: 67.99, priceLabel: "$67.99" }
   ];
+
+  // Bonus % vs. the smallest pack's tokens-per-dollar rate — the
+  // baseline everything else is judged against, same "smallest pack
+  // sets the floor" logic a mobile-game shop's bonus badges use.
+  const BASE_RATE = TOKEN_PACKS[0].tokens / TOKEN_PACKS[0].price;
+  function bonusPct(pack) {
+    return Math.round(((pack.tokens / pack.price) / BASE_RATE - 1) * 100);
+  }
 
   // ---- Course ownership ----
   const courseKey = id => `course_${id}`;
@@ -109,13 +121,17 @@
 
     const packGrid = body.querySelector("#token-packs-grid");
     TOKEN_PACKS.forEach(pack => {
+      const bonus = bonusPct(pack);
       const card = document.createElement("div");
       card.className = "shop-card";
       card.innerHTML = `
-        <div class="shop-card-preview game-preview"><span class="gp-icon">🪙</span></div>
+        <div class="shop-card-preview game-preview">
+          <span class="gp-icon">🪙</span>
+          ${bonus > 0 ? `<span class="pack-bonus-badge">+${bonus}%</span>` : ""}
+        </div>
         <div class="shop-card-body">
           <div class="shop-name">${pack.tokens} Tokens</div>
-          <div class="shop-tagline">Demo purchase — no real payment</div>
+          <div class="shop-tagline">${bonus > 0 ? `${bonus}% more per $ than the smallest pack` : "Demo purchase — no real payment"}</div>
           <button class="shop-btn buy" data-pack="${pack.id}">${pack.priceLabel} (demo)</button>
         </div>`;
       card.querySelector("button").addEventListener("click", () => {
