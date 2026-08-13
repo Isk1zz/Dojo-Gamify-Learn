@@ -1,5 +1,26 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 46 — Profile screen: grouped by confidence classification, not units
+
+- [x] **"Profile: get rid of the old approach — classification front and
+      center, not sub-course units."** Confirmed the target was the
+      Stats/"Your Profile" modal (`library/stats.js`'s `renderStats`,
+      opened via the profile dropdown's "View Statistics"). Its topic
+      list was a flat "U1, U2, U3..." dump labeled "Topic Exam Scores
+      (All Units)". Replaced with sections grouped by the same
+      self-rated confidence scale the flashcard deck builder already
+      uses (😖 Struggling / 📖 Still learning / 💡 Have an idea / ✅ Know
+      this well, plus an "◌ Not yet reviewed" bucket for topics with no
+      flashcard rating at all) — exported `library.js`'s `CONFIDENCE`
+      array via `Dojo.CONFIDENCE` so stats.js doesn't duplicate it. A
+      topic lands in its WORST-rated chunk's bucket (not an average),
+      matching the same "surface what needs work" philosophy the
+      existing weak-spots section above it already uses. Unit numbers
+      dropped from the row label entirely.
+      **Verified live**: opened the real modal, confirmed section
+      titles read "✅ I know this well (1)" / "◌ Not yet reviewed (47)"
+      matching the actual rated/unrated split, no unit labels anywhere.
+
 ## Batch 45 — Opera slider fix, flashcard-confidence check, new quote
 
 - [x] **"Star lobby's rotate slider has broken styling in Opera."** The

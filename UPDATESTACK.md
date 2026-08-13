@@ -33,6 +33,103 @@ see BACKLOG.md) is done. Real-money purchases stay a labeled demo stub
 until there's a payment account to wire a Payment Link to — that's a
 you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 
+## NEW IDEA — ad-supported course rental (spec only, explicitly NOT built yet)
+Requested 2026-08-13: an alternative to paying 250 Tokens outright —
+"rent" the course by agreeing to watch ads, one contract-signing gate
+plus a per-unit ad toll. Written up in full so nothing is lost; **you
+said "not now, just write it down," so nothing below is implemented.**
+
+**Ad revenue reality check (asked for first, matters for the whole
+design):** there's no fixed universal number — it depends heavily on
+ad type, network, and geography — but for planning purposes, rough
+industry ballparks (2025) are:
+- Plain banner/display ads: **~$0.0005–$0.003 per impression** (eCPM
+  ~$0.50–$3). Not worth building around — too little per view.
+- **Rewarded video** (the closest fit here — user gets something for
+  watching a full ad, same shape as "watch this, unlock the unit"):
+  **~$0.005–$0.02 per view** (eCPM roughly $5–$20), higher in
+  US/EU/tier-1 markets, much lower elsewhere. **Used $0.01/view as the
+  working number below** — replace with real numbers once an ad
+  network (AdMob, Unity Ads, ironSource, etc.) is actually chosen.
+- Interstitial (full-screen, not "rewarded"): ~$0.003–$0.01/view.
+**Recommendation: rewarded video, not banner/interstitial** — it's the
+only format where "watch this or you don't get the unit" is an honest
+trade instead of an annoying tax, and it pays noticeably better.
+
+**The honest gap this creates:** intro-cs costs 250 Tokens, worth
+roughly **$5** at the cheapest pack's rate (350 Tokens / $6.99). At
+$0.01/rewarded-view, covering that $5 in ad revenue alone would take
+**~500 ad views for ONE course unlock** — nowhere close to what a
+per-unit "1 to 3 ads" toll can realistically generate (see the table
+below: full-course total lands around 10-15 ads). **This can't be
+priced to match a Token purchase 1:1 — it has to be treated as a
+separate, deliberately-cheaper "free tier with friction" product, not
+a like-for-like substitute.** Flagging this now so the numbers below
+aren't read as "this replaces buying the course," which they don't.
+
+**Ads-per-unit, scaled 1-3 "proportional to value" as asked:**
+Two ways to define "value" per unit — pick one before building:
+
+| Unit | Topics | Tiered-by-position (simple) | Chunk-count-weighted (closer to actual content) |
+|---|---|---|---|
+| 1 | 4  | 1 | 1 |
+| 2 | 4  | 1 | 1 |
+| 3 | 4  | 1 | 1 |
+| 4 | 4  | 2 | 1 |
+| 5 | 6  | 2 | 1 |
+| 6 | 14 | 2 | 3 |
+| 7 | 6  | 3 | 2 |
+| 8 | 6  | 3 | 2 |
+
+- **Tiered-by-position**: units 1-3 = 1 ad, 4-6 = 2 ads, 7-8 = 3 ads.
+  Simple, predictable, easy to implement. Total for the whole 8-unit
+  course: **15 ads**.
+- **Chunk-count-weighted**: scaled off each unit's real chunk count
+  (actual content volume, not just topic count) rather than position.
+  More honest ("bigger unit = more ads"), but Unit 6 alone (14 topics,
+  by far the largest) would dominate — worth deciding if that's fair
+  or needs a cap. Total for the whole course: **~12 ads**.
+  Recommend **tiered-by-position** to start — simpler to reason about
+  and to explain to the user up front ("early units: 1 ad. late units:
+  3 ads."); can move to chunk-weighted later if position-based feels
+  arbitrary in practice.
+
+**Contract, logging, and the anti-skip penalty (as specified):**
+- A **separate, more serious contract** from the existing "Trainee
+  Enrollment Contract" gimmick (`library.js`'s `showContractModal`) —
+  that one is deliberately jokey ("legally binding in no jurisdiction
+  whatsoever"); this one needs to actually say, in plain terms: ads are
+  the price of entry, 1-3 per unit scaled to the unit, no complaining,
+  no refund/skip path once agreed. Full contract copy: **write later,
+  not drafted yet** — flagged so it isn't forgotten, not attempted here
+  since you said "not now."
+- **Every ad view/skip logged**, per your "total accounting" ask. Not
+  starting from scratch: a downloaded copy of this project at
+  `Downloads/Dojo-Gamify-Learn-main/admin/` already has an
+  `admin/logger.js` + a documented "Telemetry & Live Event Logger"
+  module (intercepts `Dojo.Bus` events, exports logs) that doesn't
+  exist in this working copy — worth checking whether that's meant to
+  be ported in, since it may already do most of what ad-logging needs.
+  Separate decision from the ad-rental feature itself; see the
+  question below.
+- **Anti-skip penalty**: closing/skipping an ad before it completes
+  adds **+1 ad owed** next time (a debt, not a retry of the same ad) —
+  matches what you asked ("наебал и закрыл — вернётся с долгом на +1").
+- **Token rewards halved** on this path specifically — `COURSE_TOKEN_REWARD`
+  (10) and the `UNIT_TOKEN_REWARD` table (units 3/5, currently 4/8) would
+  need an ad-rental variant paying half. Money and XP rewards NOT
+  mentioned as halved in the request — left full-rate here; **confirm
+  that's intentional** (Tokens are the "you'd normally pay real money
+  for this" currency, so only dampening that one makes sense to me,
+  but flagging since it wasn't explicit either way).
+
+**Not decided, needs you before this becomes buildable:**
+1. Tiered-by-position vs chunk-weighted ad counts (recommend tiered).
+2. Whether to port `admin/logger.js` in for the logging requirement, or
+   build ad-logging fresh.
+3. Contract copy (serious version) — not drafted.
+4. Confirm money/XP rewards stay full-rate, only Tokens halve.
+
 ## Live bug reports — resolved since last check-in
 - **"Quotes stopped showing up after a unit"** — traced to the review
   result screens (flashcards + custom deck), which always cleared the

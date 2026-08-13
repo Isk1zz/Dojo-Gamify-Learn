@@ -2519,5 +2519,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, startFinalQuiz, libraryTotals, resumeAt, startNextDueReview, openDeckBuilder, renderDeckBuilder, openFlashcardsHub, flashcardsSummary });
+  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, startFinalQuiz, libraryTotals, resumeAt, startNextDueReview, openDeckBuilder, renderDeckBuilder, openFlashcardsHub, flashcardsSummary, CONFIDENCE });
 })();

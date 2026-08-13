@@ -107,9 +107,19 @@
 
     const body = document.getElementById("stats-body");
 
-    // Build topic rows, grouped by unit
-    let topicRowsHtml = "";
-    ALL_TOPICS.forEach(t => {
+    // Grouped by self-rated confidence classification (the same
+    // struggling/still-learning/have-an-idea/know-this-well scale the
+    // flashcard deck builder's "Filter by confidence" already uses —
+    // see library.js's CONFIDENCE), not by unit. Old view was a flat
+    // "U1, U2, U3..." list; that answers "what did I cover" but not
+    // "what actually needs work," which is the question this screen
+    // exists for (see the weak-spots section above it). A topic takes
+    // its WORST rated chunk, not an average — one shaky chunk in an
+    // otherwise-solid topic is still worth surfacing, same philosophy
+    // as DB.getWeakSpots. Topics with no flashcard review yet have no
+    // rating at all and land in their own bucket rather than being
+    // silently dropped or miscounted as "struggling."
+    function topicRowHtml(t) {
       const ts = stats.topicStats[t.id];
       let scoreHtml;
       if (ts && ts.bestScore > 0) {
@@ -118,12 +128,39 @@
       } else {
         scoreHtml = `<span class="stats-topic-score none">—</span>`;
       }
-      topicRowsHtml += `
+      return `
         <div class="stats-topic-row">
-          <span class="stats-topic-name">U${t.unit} · ${t.icon} ${t.title}</span>
+          <span class="stats-topic-name">${t.icon} ${t.title}</span>
           ${scoreHtml}
         </div>`;
+    }
+
+    const CONFIDENCE = Dojo.CONFIDENCE || [];
+    const buckets = CONFIDENCE.map(c => ({ ...c, topics: [] }));
+    const unrated = [];
+    ALL_TOPICS.forEach(t => {
+      let worst = null;
+      t.chunks.forEach((c, idx) => {
+        const lvl = DB.getChunkConfidence(t.id, idx);
+        if (lvl !== undefined && (worst === null || lvl < worst)) worst = lvl;
+      });
+      if (worst === null) { unrated.push(t); return; }
+      const bucket = buckets.find(b => b.level === worst);
+      if (bucket) bucket.topics.push(t);
     });
+
+    let topicRowsHtml = "";
+    buckets.forEach(b => {
+      if (!b.topics.length) return;
+      topicRowsHtml += `
+        <div class="stats-section-title">${b.icon} ${b.label} (${b.topics.length})</div>
+        <div class="stats-topic-list">${b.topics.map(topicRowHtml).join("")}</div>`;
+    });
+    if (unrated.length) {
+      topicRowsHtml += `
+        <div class="stats-section-title">◌ Not yet reviewed (${unrated.length})</div>
+        <div class="stats-topic-list">${unrated.map(topicRowHtml).join("")}</div>`;
+    }
 
     // "What should I study now?" is the only question a learner
     // actually has, and none of the numbers above answer it. All of
@@ -189,10 +226,7 @@
         </div>
       </div>
 
-      <div class="stats-section-title">Topic Exam Scores (All Units)</div>
-      <div class="stats-topic-list">
-        ${topicRowsHtml}
-      </div>
+      ${topicRowsHtml}
     `;
 
     body.querySelectorAll(".weak-row").forEach(row => {
