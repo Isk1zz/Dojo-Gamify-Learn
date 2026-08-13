@@ -6,18 +6,28 @@
 //
 // ---- How the ladder was sized ----
 //
-// The ceiling is 10,000 XP at Nobel Laureate — every rung's threshold
-// doubled from the original ladder by explicit request (the grind felt
-// too quick; ranks were landing faster than the studying that earned
-// them). The GAPS still widen the same way relative to each other
-// (120, 180, 220 ... 920, 980 now), just scaled up.
+// The ceiling is 50,000 XP at Nobel Laureate — 5x the previous 10,000
+// ceiling, by explicit request once the ladder was checked against
+// this app's ACTUAL content: one full course completion (141 chunks,
+// every topic exam, the Final Quiz) only nets ~2,300 XP at a realistic
+// ~90% average score, so the old 10,000 ceiling needed something like
+// 4-5 courses' worth of content to ever reach — with exactly one
+// course existing, "top of the ladder" was functionally unreachable,
+// not just a long climb. Raising the ceiling doesn't fix that by
+// itself; see the review-XP note below, which is the other half of
+// the same fix. The GAPS still widen the same way relative to each
+// other, just scaled up 5x along with everything else.
 //
 //   15 min  ~= 5 chunks
-//   1 chunk  = 5-7 XP, so ~30 XP on a normal day
+//   1 chunk  = 5-7 XP, so ~30 XP on a normal NEW-content day
 //
-// At that pace: Lead Investigator around day 213, Program Director
-// around day 241, Nobel Laureate around day 333 — about double the
-// original day-counts, which is the point of doubling the thresholds.
+// At a flat 30 XP/day of pure new content, Nobel Laureate lands around
+// day 1,667 — but that number assumes nobody ever reviews, which was
+// never realistic and is even less so now that review pays properly
+// (see library.js's REVIEW_XP_PER_CARD): once the one course's content
+// is exhausted, daily income shifts to review sessions instead of
+// stopping, so real day-counts run faster than this pure-new-content
+// figure once someone's past the first course.
 //
 // Gaps widen deliberately: early ranks land fast enough to feel like
 // something is happening, late ones slowly enough that Nobel Laureate
@@ -52,25 +62,25 @@
 
 const RANKS = [
   { n: 1,  xp: 0,     name: "Lab Intern",               abbr: "INT",  reward: { bgStripe: "diagonal" } },
-  { n: 2,  xp: 120,   name: "Research Assistant I",     abbr: "RA1",  reward: { bgStripe: "crosshatch" } },
-  { n: 3,  xp: 300,   name: "Research Assistant II",    abbr: "RA2",  reward: { bgStripe: "herringbone" } },
-  { n: 4,  xp: 520,   name: "Lab Technician",           abbr: "TCH",  reward: { theme: "sakura" } },
-  { n: 5,  xp: 780,   name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
-  { n: 6,  xp: 1080,  name: "Research Coordinator",     abbr: "CRD",  reward: { tokens: 100 } },
-  { n: 7,  xp: 1420,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
-  { n: 8,  xp: 1800,  name: "Lab Manager",              abbr: "MGR",  reward: { tokens: 50 } },
-  { n: 9,  xp: 2220,  name: "Senior Lab Manager",       abbr: "SLM",  reward: { bgStripe: "lattice" } },
-  { n: 10, xp: 2680,  name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
-  { n: 11, xp: 3180,  name: "Director of Operations",   abbr: "DOP",  reward: { tokens: 150 } },
-  { n: 12, xp: 3720,  name: "Master Technician",        abbr: "MTC",  reward: { tokens: 75 } },
-  { n: 13, xp: 4300,  name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
-  { n: 14, xp: 4940,  name: "Postdoctoral Researcher",  abbr: "PDR",  reward: { bgStripe: "origami" } },
-  { n: 15, xp: 5640,  name: "Project Lead",             abbr: "PL",   reward: { tokens: 200 } },
-  { n: 16, xp: 6400,  name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
-  { n: 17, xp: 7220,  name: "Program Director",         abbr: "PD",   reward: { tokens: 100 } },
-  { n: 18, xp: 8100,  name: "Senior Program Director",  abbr: "SPD",  reward: { tokens: 120 } },
-  { n: 19, xp: 9020,  name: "Vice President of R&D",    abbr: "VP",   reward: { theme: "fuji" } },
-  { n: 20, xp: 10000, name: "Nobel Laureate",           abbr: "NL",   reward: { theme: "kirigami" } }
+  { n: 2,  xp: 600,   name: "Research Assistant I",     abbr: "RA1",  reward: { bgStripe: "crosshatch" } },
+  { n: 3,  xp: 1500,  name: "Research Assistant II",    abbr: "RA2",  reward: { bgStripe: "herringbone" } },
+  { n: 4,  xp: 2600,  name: "Lab Technician",           abbr: "TCH",  reward: { theme: "sakura" } },
+  { n: 5,  xp: 3900,  name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
+  { n: 6,  xp: 5400,  name: "Research Coordinator",     abbr: "CRD",  reward: { tokens: 100 } },
+  { n: 7,  xp: 7100,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
+  { n: 8,  xp: 9000,  name: "Lab Manager",              abbr: "MGR",  reward: { tokens: 50 } },
+  { n: 9,  xp: 11100, name: "Senior Lab Manager",       abbr: "SLM",  reward: { bgStripe: "lattice" } },
+  { n: 10, xp: 13400, name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
+  { n: 11, xp: 15900, name: "Director of Operations",   abbr: "DOP",  reward: { tokens: 150 } },
+  { n: 12, xp: 18600, name: "Master Technician",        abbr: "MTC",  reward: { tokens: 75 } },
+  { n: 13, xp: 21500, name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
+  { n: 14, xp: 24700, name: "Postdoctoral Researcher",  abbr: "PDR",  reward: { bgStripe: "origami" } },
+  { n: 15, xp: 28200, name: "Project Lead",             abbr: "PL",   reward: { tokens: 200 } },
+  { n: 16, xp: 32000, name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
+  { n: 17, xp: 36100, name: "Program Director",         abbr: "PD",   reward: { tokens: 100 } },
+  { n: 18, xp: 40500, name: "Senior Program Director",  abbr: "SPD",  reward: { tokens: 120 } },
+  { n: 19, xp: 45100, name: "Vice President of R&D",    abbr: "VP",   reward: { theme: "fuji" } },
+  { n: 20, xp: 50000, name: "Nobel Laureate",           abbr: "NL",   reward: { theme: "kirigami" } }
 ];
 
 // Empty since the life-sim (the last thing that used a feature gate —

@@ -52,12 +52,15 @@
   // with XP instead of money/Tokens on request, since XP is the one
   // thing shop/ranks.js's ladder pacing already accounts for scaling
   // (see its header comment) rather than a currency to balance.
-  const UNIT_XP_REWARD = { 4: 40, 8: 80 };
+  // 120/240, not 40/80 — scaled up 3x alongside chunk XP (see
+  // finishChunk's comment) so a full course lands at a meaningful slice
+  // of the ladder instead of ~5% of it.
+  const UNIT_XP_REWARD = { 4: 120, 8: 240 };
   const COURSE_TOKEN_REWARD = 40;
   // Separate from FINAL_QUIZ_XP_BASE below, which scales with score and
   // pays out on every attempt — this is a flat, ONE-TIME bonus for the
-  // first genuine pass, on top of that.
-  const FINAL_QUIZ_COMPLETION_XP = 100;
+  // first genuine pass, on top of that. 200, not 100 — scaled up 2x.
+  const FINAL_QUIZ_COMPLETION_XP = 200;
 
   const unitRewardKey = id => `unit_reward_${id}`;
   const courseRewardKey = id => `course_reward_${id}`;
@@ -1359,10 +1362,14 @@
     // (only on an actual topic pass), see the comment there for why.
     Bus.emit("chunk:completed", { topicId: topic.id, chunkIdx: state.currentChunk });
 
-    // 5-7 XP per chunk. Retries don't pay again — otherwise deliberately
-    // failing would be the fastest way to farm it.
+    // 15-21 XP per chunk (was 5-7 — scaled up 3x alongside the rank
+    // ladder's 5x, see shop/ranks.js's header comment; a full course
+    // was landing at ~5% of the ceiling even after the ladder alone
+    // moved, which read as stingy for content that's genuinely most of
+    // an afternoon's work). Retries don't pay again — otherwise
+    // deliberately failing would be the fastest way to farm it.
     if (!state.inRetry) {
-      const gain = 5 + Math.floor(Math.random() * 3);
+      const gain = 15 + Math.floor(Math.random() * 7);
       state.topicCharge = (state.topicCharge || 0) + gain;
       awardCharge(gain, originEl);
     }
@@ -1616,7 +1623,8 @@
   // one — there's no chunk-walking session to scale off (this can be
   // taken cold, any time), so the reward has to stand on its own. Sized
   // roughly like a strong topic exam finish, not a whole course's worth.
-  const FINAL_QUIZ_XP_BASE = 40;
+  // 120, not 40 — scaled up 3x alongside chunk XP, see that comment.
+  const FINAL_QUIZ_XP_BASE = 120;
 
   function showFinalQuizResults() {
     state.lastReviewMode = "final-quiz";
@@ -2251,10 +2259,19 @@
   // 2.5s is generous (a real "I know this instantly" case still clears
   // it) while catching a rushed tap-through.
   const MIN_CARD_MS = 2500;
-  // What a fully genuine (every card knew, none rushed) review pays —
-  // deliberately small, on the order of one chunk, since a review isn't
-  // new learning.
-  const REVIEW_XP_BASE = 5;
+  // Per genuinely-known card (real timing, not rushed) — deliberately
+  // less than a chunk's own 15-21 XP, since a review isn't new
+  // learning, but PER CARD, not a flat session cap. Used to be a flat
+  // REVIEW_XP_BASE (5) applied to a whole session regardless of size —
+  // a 4-card single-topic review and a 50-card custom deck spanning
+  // every unit paid the exact same 5 XP, which made review strictly
+  // WORSE value the more of it you did. That's backwards for the one
+  // activity meant to carry a "long run" habit once the one-time
+  // course content is finished — flagged live as "way too poor" and
+  // traced to this. Scaling per card instead means reviewing MORE
+  // pays MORE, same as original learning already works. 6, not 2 —
+  // scaled up 3x alongside chunk XP, staying proportionally under it.
+  const REVIEW_XP_PER_CARD = 6;
 
   // Shared by both finish functions — writes every chunk's LAST rating
   // this session into DB.recordChunkConfidence. A chunkKey-format map
@@ -2311,10 +2328,11 @@
     scoreEl.textContent = `${pct}%`;
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
 
-    // Small and reward-eligibility-gated (see genuineKnown above) — a
-    // review isn't new learning, and it must not be a faster source of
-    // XP than actually studying the topic was.
-    const bonus = Math.round(REVIEW_XP_BASE * (genuineKnown / total));
+    // Per genuinely-known card (see genuineKnown above) — a review
+    // isn't new learning, and per-card stays well under a chunk's own
+    // 5-7 XP, so it must not be a faster source of XP than actually
+    // studying the topic was.
+    const bonus = genuineKnown * REVIEW_XP_PER_CARD;
     const bonusEl = document.getElementById("result-charge");
     if (bonusEl) {
       if (bonus > 0) {
@@ -2363,7 +2381,12 @@
     scoreEl.textContent = `${pct}%`;
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
 
-    const bonus = Math.round(REVIEW_XP_BASE * (genuineKnown / total));
+    // Per genuinely-known card, not a flat session cap — a 50-card
+    // deck spanning every unit used to pay the exact same 5 XP as a
+    // 4-card single-topic review, making review strictly worse value
+    // the more of it you did. Now scales with actual volume reviewed,
+    // same as original learning already does per chunk.
+    const bonus = genuineKnown * REVIEW_XP_PER_CARD;
     const bonusEl = document.getElementById("result-charge");
     if (bonusEl) {
       if (bonus > 0) {

@@ -1,5 +1,38 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 36 — XP economy rebalance: review pay fixed, ladder + course XP scaled up
+
+- [x] **Root cause of "way too poor" traced and fixed, not just the
+      big numbers.** Review XP was a flat `REVIEW_XP_BASE` (5) applied
+      to a WHOLE session regardless of size — a 4-card single-topic
+      review and a 50-card custom deck spanning every unit paid the
+      exact same 5 XP, making review strictly worse value the more of
+      it you did. That's backwards for the one activity meant to carry
+      a "long run" habit once the one-time course content is finished.
+      Replaced with `REVIEW_XP_PER_CARD`, paid per genuinely-known card
+      (real timing, not rushed) in both `finishFlashcards` and
+      `finishCustomDeck` — reviewing more now pays more, same as
+      original learning already worked.
+- [x] **Rank ladder scaled 5x** (`shop/ranks.js`): Nobel Laureate
+      10,000 → 50,000 XP, every rung's threshold and the gaps between
+      them scaled proportionally. The old ceiling needed ~4-5 courses'
+      worth of content to ever reach with exactly one course existing
+      — "top of the ladder" was functionally unreachable, not just a
+      long climb. Header comment rewritten with the actual math instead
+      of the old "double the original" framing.
+- [x] **In-course XP scaled up 3x to match** (`library.js`): chunk XP
+      15-21 (was 5-7), Final Quiz base 120 (was 40), Final Quiz
+      one-time completion bonus 200 (was 100, 2x not 3x — it's already
+      a distinct "big deal" spike), Unit 4/8 XP rewards 120/240 (was
+      40/80), `REVIEW_XP_PER_CARD` 6 (was the old flat-5 logic,
+      replaced above). One full course completion now nets ~6,870 XP
+      at a realistic ~90% average score — 13.7% of the new ceiling,
+      up from ~4.6% of the old one even before the ladder moved.
+- [x] **Verified live**: ladder confirmed at the new 50,000 ceiling
+      with rank 6 at 5,400 XP; a real chunk completion granted 18 XP
+      (within the new 15-21 range); all four in-course constants
+      confirmed present in the served file.
+
 ## Batch 35 — Filled the 4 remaining blank rank rungs with Token rewards
 
 - [x] **Ranks 8, 12, 17, 18 (Lab Manager, Master Technician, Program
