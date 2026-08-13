@@ -5,6 +5,28 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## TOP OF STACK — Firebase backend port
+Moved to the top per your call. Full plan for Firebase (Auth +
+Firestore), accounts, and the legal pack exists as its own doc:
+docs/BACKEND-ROADMAP.md. Two things in it need YOUR decision before any
+code starts:
+1. **Which "register in Diia" you actually mean** — registering a
+   business entity, joining Дія.City, or integrating Diia.ID for
+   identity verification. Three different projects with different
+   requirements; pick one before spending money.
+2. **Whether identity documents are really needed** (recommend: no —
+   see Flag 2 in the doc). Also read Flag 1 on keeping the Arcade's
+   currency separated from real money, which is currently doing real
+   legal work by accident and shouldn't be merged casually.
+Also note: Cloud Functions needs the paid Blaze plan, which is the one
+real "free tier" caveat — the doc lists three ways around it.
+
+**Flagging, not fixing silently:** the older "Blocked on the backend"
+section below still says **Supabase**, not Firebase — that predates
+this decision. Left as-is since I don't know if that was a separate
+call (maybe Supabase for something specific) or just stale wording;
+confirm which and I'll reconcile it.
+
 ## Ready to build, no blockers
 Nothing right now — Tokens (earn, spend, Token Shop, course-price gating,
 see BACKLOG.md) is done. Real-money purchases stay a labeled demo stub
@@ -101,6 +123,26 @@ cache-first strategy can pin a broken build.
   (both the empty template). Harmless, but the local copy is redundant.
 
 ## Still open — needs your input
+- **Flashcard confidence rating ("I know this well" etc.) — checked as
+  requested, works correctly.** Verified live: rated a chunk, finished
+  the review, confirmed `DB.getChunkConfidence` stored it; re-reviewed
+  the same chunk with a different rating, confirmed it overwrote
+  cleanly. Along the way found a small, separate edge case: the rating
+  buttons don't disable themselves the instant they're clicked, so a
+  fast double-tap inside the ~320ms transition to the next card could
+  register two answers against the same card (double-counts toward the
+  session total/XP, and the second tap's rating wins). Minor, only hits
+  on unusually fast taps — flagging, not fixing unless you want it.
+- **Opera: rotate slider (Star lobby) rendered with broken styling.**
+  Root cause: the slider only used CSS `accent-color`, which tints the
+  thumb and filled portion in Chromium but leaves the *track* drawn by
+  the browser's own native theme — Opera's default track apparently
+  renders as a light bar against this dark, tightly-cornered control.
+  Fixed by fully resetting the control (`appearance: none`) and drawing
+  the track/thumb ourselves for both WebKit and Gecko engines, so it no
+  longer depends on any browser's native skin. Couldn't verify in real
+  Opera specifically (not available as an engine here), so **please
+  confirm on your end** that it now looks right.
 - **Token icon renders as silver on the phone screenshot, gold on
   laptop.** Very likely a platform emoji-rendering difference (🪙 is
   drawn by the OS's own emoji font, not CSS), not a code bug. Fix would
@@ -190,21 +232,6 @@ actually help distribution, as opposed to the strategy work above.
 feature, it's that there is one course and no distribution channel. #1
 and #2 above are the only items here that pay off *before* those two
 problems are solved.
-
-## Backend port — roadmap written, see docs/BACKEND-ROADMAP.md
-Full plan for Firebase (Auth + Firestore), accounts, and the legal pack
-now exists as its own doc. Two things in it need YOUR decision before
-any code starts:
-1. **Which "register in Diia" you actually mean** — registering a
-   business entity, joining Дія.City, or integrating Diia.ID for
-   identity verification. Three different projects with different
-   requirements; pick one before spending money.
-2. **Whether identity documents are really needed** (recommend: no —
-   see Flag 2 in the doc). Also read Flag 1 on keeping the Arcade's
-   currency separated from real money, which is currently doing real
-   legal work by accident and shouldn't be merged casually.
-Also note: Cloud Functions needs the paid Blaze plan, which is the one
-real "free tier" caveat — the doc lists three ways around it.
 
 ## Long-term roadmap (later — needs the account/backend question settled first)
 - Finish out the web app, then port to iOS and Android.

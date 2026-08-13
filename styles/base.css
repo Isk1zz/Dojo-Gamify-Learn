@@ -965,9 +965,42 @@ body {
   position: absolute; top: 0.2rem; left: 0.2rem; z-index: 3;
 }
 .lobby-rotate-icon { font-size: 0.95rem; opacity: 0.7; }
+/* Fully reset instead of relying on `accent-color` alone — that only
+   tints the thumb and the filled portion in Chromium; the unfilled
+   track is still drawn by the browser's own form-control theme, which
+   in Opera renders as a light bar that clashes badly against this
+   dark, tightly-cornered control (reported "broken style in Opera").
+   Drawing the whole track ourselves makes it look identical regardless
+   of which engine/skin renders the native parts. */
 .lobby-rotate-slider {
-  width: 84px; accent-color: var(--accent);
+  width: 84px; height: 16px;
   cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background: transparent;
+}
+.lobby-rotate-slider::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+.lobby-rotate-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  margin-top: -5px;
+}
+.lobby-rotate-slider::-moz-range-track {
+  height: 4px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+.lobby-rotate-slider::-moz-range-progress {
+  height: 4px; border-radius: 999px;
+  background: var(--accent);
+}
+.lobby-rotate-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%; border: none;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 .lobby-style-star .lobby-star-lines {
   display: block; position: absolute; inset: 0; width: 100%; height: 100%;

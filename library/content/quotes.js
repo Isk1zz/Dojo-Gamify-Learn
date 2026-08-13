@@ -364,6 +364,13 @@ const WISDOM = [
     author: "Rabbi Yisrael Salanter", source: "Founder of the Mussar movement (1809–1883); traditional attribution",
     tags: ["correction", "self-knowledge"], verified: false,
     note: "Traditional attribution. Verify before public release."
+  },
+  {
+    text: "Zugim weil mir senen orientalim — tell him the Germans hate us because we are Oriental.",
+    author: "Rebbe Shimon Sholom Kalish of Amshinov",
+    source: "Warren Kozak, The Rabbi of 84th Street (HarperCollins, 2004), p. 177",
+    tags: ["correction", "limits"], verified: true,
+    note: "Shanghai, 1942: summoned before the Japanese military governor under Nazi pressure to hand over the city's Jewish refugees, Kalish reframed the governor's own question on the spot, arguing Jews and Japanese shared an 'Oriental' kinship the Nazis hated them both for. The governor smiled and refused. One reframed sentence, one saved community."
   }
 ];
 

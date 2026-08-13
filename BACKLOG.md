@@ -1,5 +1,48 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 45 — Opera slider fix, flashcard-confidence check, new quote
+
+- [x] **"Star lobby's rotate slider has broken styling in Opera."** The
+      slider only used CSS `accent-color`, which tints the thumb and
+      the filled portion in Chromium but leaves the *track* drawn by
+      the browser's own native form-control theme — plausible that
+      Opera's default track renders as a light bar against this dark,
+      tightly-cornered control (`.lobby-rotate-control` sits at
+      `top/left: 0.2rem`, only 84px wide). Fixed by fully resetting the
+      control (`appearance: none`, transparent native background) and
+      hand-drawing the track/thumb for both WebKit
+      (`::-webkit-slider-runnable-track/-thumb`) and Gecko
+      (`::-moz-range-track/-progress/-thumb`), so it no longer depends
+      on any engine's native skin. Couldn't verify in real Opera itself
+      (not available as an engine in this environment) — confirmed the
+      reset applies via computed styles instead; **needs your
+      confirmation** it actually looks right on your end.
+- [x] **Checked, not a bug: flashcard confidence classification.**
+      Verified live that `DB.recordChunkConfidence`/`getChunkConfidence`
+      correctly remember a chunk's rating and correctly overwrite it on
+      a later re-review with a different answer — two full review
+      passes over the same topic, second pass's rating replaced the
+      first's in the DB both times. Found one small, separate edge
+      case along the way: the confidence buttons don't disable
+      themselves the instant they're clicked, so tapping fast enough
+      (inside the ~320ms transition to the next card) can register a
+      second answer against the still-displayed card. Logged to
+      UPDATESTACK.md, not fixed — only hits unusually fast taps.
+- [x] **Added a new quote to the wisdom pool** (57 → 58), from a
+      Wikipedia link you supplied: Rebbe Shimon Sholom Kalish of
+      Amshinov's reframe to the Japanese military governor of Shanghai
+      in 1942 ("Zugim weil mir senen orientalim..."), sourced to Warren
+      Kozak's *The Rabbi of 84th Street* (2004), p. 177 — verified via
+      the article's own citation, not just the Wikipedia summary.
+      Tagged `["correction", "limits"]`. `library.js`'s "~6 per module
+      against a pool of 57" comment updated to 58 to match.
+- [x] **Reprioritized UPDATESTACK.md**: moved the Firebase backend-port
+      roadmap to a new "TOP OF STACK" section at the very top, per your
+      call. Flagged (not silently fixed) that the older "Blocked on the
+      backend" section still says Supabase, not Firebase — unclear if
+      that's a separate earlier decision or stale wording; asked you to
+      confirm before reconciling it.
+
 ## Batch 44 — Wisdom quotes now show on review results too
 
 - [x] **Reported as "quotes stopped showing up after a unit."** Not a

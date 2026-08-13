@@ -1588,7 +1588,7 @@
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
 
     // The reward lands on finishing a TOPIC, not a chunk. One quote per
-    // topic means ~6 per module against a pool of 57, so nothing repeats
+    // topic means ~6 per module against a pool of 58, so nothing repeats
     // and finishing a topic stays worth something.
     // Topic bonus: what the chunks earned, multiplied by how the exam
     // went. 0% -> x0.7, 100% -> x1.5. Rewards finishing well without
