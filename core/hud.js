@@ -190,6 +190,40 @@
     burstConfetti(document.getElementById("streak-chip"));
   }
 
+  // ---- Save-failure warning ----
+  // data/db.js's save() catches quota exhaustion (and Safari private
+  // mode) and emits "db:saveFailed" rather than throwing — but until
+  // now NOTHING listened to it, so a full disk meant progress silently
+  // stopped persisting while the user kept studying and lost the lot.
+  // The plumbing existed; this is the missing last mile.
+  //
+  // Deliberately NOT the 2.6s auto-dismiss the celebration toasts use:
+  // losing work is not a thing to mention in passing. This one stays
+  // until it's dismissed by hand. Throttled to one visible warning at a
+  // time, because save() can fail on every subsequent write and a
+  // stack of identical panics helps nobody.
+  let saveWarningOpen = false;
+  function warnSaveFailed() {
+    if (saveWarningOpen) return;
+    const layer = document.getElementById("streak-toast-layer");
+    if (!layer) return;
+    saveWarningOpen = true;
+    const toast = document.createElement("div");
+    toast.className = "streak-toast save-failed";
+    toast.innerHTML =
+      `<span>\u{26A0}\u{FE0F}</span>`
+      + `<span><strong>Progress isn't saving.</strong><br>`
+      + `Device storage is full or unavailable — recent work may be lost. `
+      + `Free up space, then reload.</span>`
+      + `<button class="save-failed-x" type="button" aria-label="Dismiss">✕</button>`;
+    layer.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add("in"));
+    toast.querySelector(".save-failed-x").addEventListener("click", () => {
+      toast.classList.remove("in");
+      setTimeout(() => { toast.remove(); saveWarningOpen = false; }, 350);
+    });
+  }
+
   // Unit/course completion rewards (library.js's checkCompletionRewards)
   // — same toast layer and confetti burst as the streak celebration
   // above, just aimed at whichever wallet chip the reward actually
@@ -342,5 +376,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { renderCharge, awardCharge, flyBolt, checkRankUp, renderStreak, celebrateStreak, celebrateReward, moneyBurst, burstConfetti, renderVitals });
+  Object.assign(Dojo, { renderCharge, awardCharge, flyBolt, checkRankUp, renderStreak, celebrateStreak, celebrateReward, warnSaveFailed, moneyBurst, burstConfetti, renderVitals });
 })();

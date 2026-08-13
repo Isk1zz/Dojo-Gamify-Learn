@@ -1,5 +1,46 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 42 — Security/robustness audit; fixed silent data loss on full storage
+
+- [x] **Fixed a real user-facing data-loss bug found during the audit.**
+      `data/db.js`'s `save()` already caught quota exhaustion (and
+      Safari private mode) and emitted `"db:saveFailed"` instead of
+      throwing — with a comment claiming "the Bus event lets the UI
+      warn." Nothing listened to it, and no caller checked `save()`'s
+      return value either. So on a full device, progress silently
+      stopped persisting while the user kept studying and lost the lot:
+      the one failure mode in an offline-first app that actually
+      destroys someone's work. The plumbing existed; this connected the
+      missing last mile — `core/hud.js`'s `warnSaveFailed` + a listener
+      in `core/boot.js`.
+      Deliberately unlike the celebration toasts it shares a layer
+      with: red not streak-orange, squared not pill-shaped, multi-line,
+      and it never auto-dismisses (losing work shouldn't flash by in
+      2.6s). Throttled to one visible warning at a time, since `save()`
+      fails on every subsequent write and a stack of identical panics
+      helps nobody.
+      **Verified live** by monkey-patching `localStorage.setItem` to
+      throw a real `QuotaExceededError`: warning appears on the first
+      failed write, 3 further failures still produce exactly 1 toast,
+      and the dismiss button clears it.
+- [x] **Audited and documented, no code change needed:** XSS via the
+      profile name (the only user-controlled string) is properly
+      guarded — every render path uses `.textContent`, verified across
+      every name-bearing template literal. `load()` already try/catches
+      corrupt JSON and falls back rather than bricking.
+- [x] **Findings logged to UPDATESTACK.md rather than silently
+      "fixed":** the client-side-only paywall (architectural, not a
+      bug), the publicly-readable `adminaccount` string in deployed
+      `db.js`, and old cheat codes still present in git history (inert
+      on the live site, since `codes.js` is never served — proper fix
+      needs a history rewrite, deliberately not done unilaterally).
+- [x] **Cleanup assessed and deliberately declined:** the dead life-sim
+      profile fields and empty `FEATURES`/`TAB_GATE`/`COMING` objects
+      look like easy deletions but are respectively protected by a
+      documented "migrations never drop a field" invariant and
+      documented as extension seams. Removing either trades a real
+      contract for a few bytes.
+
 ## Batch 41 — Star lobby back to default: found and fixed the real mobile bug this time
 
 - [x] **"Arcade" → "Arcades"** renamed in the two spots that still said

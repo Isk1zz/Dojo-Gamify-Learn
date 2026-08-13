@@ -748,6 +748,28 @@ body {
 }
 .streak-toast.in { transform: translateY(0); opacity: 1; }
 
+/* Save-failure warning (core/hud.js's warnSaveFailed). Deliberately
+   unlike the celebration toasts it shares a layer with: squared off
+   rather than pill-shaped, red rather than streak-orange, wraps to
+   multiple lines, and carries its own dismiss button because it never
+   auto-hides. Losing progress should not look like a confetti popup. */
+.streak-toast.save-failed {
+  align-items: flex-start; gap: 0.55rem;
+  max-width: min(340px, calc(100vw - 2rem));
+  padding: 0.7rem 0.85rem; border-radius: var(--radius-sm);
+  border-color: rgba(239, 68, 68, 0.55);
+  background: var(--bg-surface);
+  font-weight: 500; line-height: 1.4; text-align: left;
+  white-space: normal;
+}
+.streak-toast.save-failed strong { color: #fca5a5; font-weight: 700; }
+.save-failed-x {
+  margin-left: auto; flex: none; padding: 0 0.15rem;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font: inherit; font-size: 0.85rem; line-height: 1;
+}
+.save-failed-x:hover { color: var(--text); }
+
 /* Bar height changed 2.1rem -> 2.3rem overall (shrunk to 1.9rem for the
    collapse, then grown to 2.3rem to fit a bigger rank-insignia icon);
    .vitals-strip's `top` tracks the same value, so this keeps the same

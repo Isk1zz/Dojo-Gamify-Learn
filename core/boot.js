@@ -92,6 +92,13 @@
   Bus.on("wallet:changed", () => Dojo.renderVitals && Dojo.renderVitals());
   Bus.on("tokens:changed", () => Dojo.renderVitals && Dojo.renderVitals());
 
+  // data/db.js emits this when localStorage rejects a write (quota
+  // exhausted, Safari private mode). It was emitted but never listened
+  // to, so progress could silently stop persisting mid-session with no
+  // indication — the one failure mode in an offline-first app that
+  // actually loses a user's work. See core/hud.js's warnSaveFailed.
+  Bus.on("db:saveFailed", () => Dojo.warnSaveFailed && Dojo.warnSaveFailed());
+
   // Free Tokens, event-driven off the SAME rank-up crossing that already
   // fires (core/hud.js's checkRankUp emits this on every XP-earning
   // action, but only actually FIRES when a rank boundary is crossed).
