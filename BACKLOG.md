@@ -33,10 +33,23 @@
       id="btn-lobby-hub-flashcards">`, wired in `core/boot.js`, styled
       with proper hover/focus feedback in `styles/base.css`. `STAR_ORDER`
       back to the original 6. Classic/Cards untouched — Flashcards stays
-      a normal tile there, this was Star-specific. Verified live: exactly
-      6 evenly-spaced ring tiles, hub button correctly opens the deck
-      builder, Classic mode still shows Flashcards as tile #4 in DOM
-      order.
+      a normal tile there, this was Star-specific.
+
+      **Follow-up, reported live right after:** the regular Flashcards
+      tile was still drawing a second, larger circle exactly on top of
+      the hub. Root cause: `showLobby()`'s `tile()` helper sets that
+      tile's `display:flex` via **inline style** before
+      `layoutLobbyRadial` ever runs, and an inline style beats any
+      external stylesheet rule regardless of selector specificity — a
+      CSS-only attempt to hide it (`.lobby-style-star
+      #btn-lobby-flashcards { display: none; }`) did nothing. Fixed at
+      the same layer that caused it: `layoutLobbyRadial` (`core/
+      lobby.js`) now explicitly hides that tile itself when laying out
+      Star, restored for free next time `showLobby` runs in a non-star
+      style since `tile()` sets its display on every call regardless.
+      Verified live: single small hub circle, no overlap, hub click
+      still opens the deck builder, Classic mode still shows the normal
+      Flashcards tile.
 - [x] **Roadmap checkmark + green bubble, 20% smaller.** Scoped to
       completed nodes only (`.roadmap-node.completed .roadmap-bubble`
       in `styles/library.css`) — 64px→51px, 1.6rem→1.28rem font-size.

@@ -131,6 +131,18 @@
       return;
     }
 
+    // Flashcards lives in the hub in this topology, not on the ring —
+    // its regular tile is still in the DOM (Classic/Cards need it) and
+    // showLobby's tile() helper already set it to display:flex via
+    // inline style before this function ever runs, which no external
+    // stylesheet rule can override. With no --tx/--ty it would fall
+    // back to dead-center and land right on top of the hub. Hidden
+    // explicitly here instead; restored for free next time showLobby
+    // runs in a non-star style, since tile() sets its display on every
+    // call regardless of what this function last did to it.
+    const hubOnlyTile = document.getElementById("btn-lobby-flashcards");
+    if (hubOnlyTile) hubOnlyTile.style.display = "none";
+
     const tiles = STAR_ORDER
       .map(id => document.getElementById(id))
       .filter(el => el && el.style.display !== "none");
