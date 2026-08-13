@@ -34,6 +34,14 @@ until there's a payment account to wire a Payment Link to — that's a
 you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 
 ## Live bug reports — resolved since last check-in
+- **Admin & Telemetry Suite ported and live** (Ctrl+Shift+A / F2, or
+  profile dropdown → "🛡️ Admin & Logs"). Wasn't a bug report, but
+  worth flagging here since it's new capability, not a stack item —
+  full account in BACKLOG.md Batch 47, including a real bug found and
+  fixed during the port (every rank name in the panel rendered as
+  literal "undefined" from a field-name mismatch) and what was
+  deliberately NOT built (ban/warning enforcement outside the panel
+  itself — banning currently only sets a flag, nothing checks it yet).
 - **"Quotes stopped showing up after a unit"** — traced to the review
   result screens (flashcards + custom deck), which always cleared the
   quote by original design. Fixed to pool tags and show a quote there
@@ -123,6 +131,15 @@ cache-first strategy can pin a broken build.
   (both the empty template). Harmless, but the local copy is redundant.
 
 ## Still open — needs your input
+- **Admin panel: ban/warning enforcement isn't built.** Right now
+  banning or warning a user (via the new Admin Suite) only sets a flag
+  in their profile — nothing outside the admin panel itself checks
+  `isBanned` or shows unread warnings. ADMIN.md (as ported) describes a
+  full-screen suspension overlay and an acknowledgment modal for this,
+  but that enforcement code wasn't part of what was ported. Worth
+  building if you actually plan to use moderation for anything real;
+  skippable if this panel is just for your own dev/test use. Confirm
+  before I build it — it's a real (if small) feature, not a bug fix.
 - **Flashcard confidence rating ("I know this well" etc.) — checked as
   requested, works correctly.** Verified live: rated a chunk, finished
   the review, confirmed `DB.getChunkConfidence` stored it; re-reviewed
