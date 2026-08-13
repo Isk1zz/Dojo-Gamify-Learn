@@ -42,7 +42,15 @@ The `admin` branch provides an administrative and moderation suite:
 
 - 🔍 **Inspect User**: Opens the User Details modal showing complete learning history, wallet balances, SM-2 queue, warnings history, and raw profile JSON.
 - 👑 **Grant / Revoke Admin**: Toggles `isAdmin` flag on any profile. Admin profiles have gold `👑 ADMIN` indicators.
-- 🚫 **Ban / Unban User**: Toggles `isBanned` flag with a custom reason. If an active profile is banned, the application displays a full-screen **Account Suspended** overlay blocking gameplay/learning until unbanned.
+- 🚫 **Ban / Unban User**: Ban is a full, irreversible WIPE (2026-08-14
+  change, by explicit request) — progress, XP, wallet, Tokens and
+  Tickets all reset to a fresh profile's defaults, with a confirm
+  dialog stating this before it happens. Name, account creation date,
+  and warning history survive the wipe; `isAdmin` is forced off.
+  Unbanning only clears the `isBanned` flag on the now-empty account —
+  it does not and cannot restore what was wiped. (Older note, no
+  longer accurate: this used to be a soft lockout with a suspension
+  overlay; it isn't anymore.)
 - ⚠️ **Send Warning Notice**: Dispatches an official administrative warning (`warnings: [{ id, message, issuedAt, read }]`). The next time the user enters, an **Administrative Notice** modal displays the warning with an acknowledgment button.
 - 🚪 **Force Logout (Kick)**: Terminates the active session (`activeProfileId: null`) and redirects to the landing/profile login screen.
 - 👤 **Switch Active Profile**: Instantly switches current session to the selected profile.

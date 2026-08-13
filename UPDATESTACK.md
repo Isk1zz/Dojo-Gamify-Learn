@@ -131,15 +131,16 @@ cache-first strategy can pin a broken build.
   (both the empty template). Harmless, but the local copy is redundant.
 
 ## Still open — needs your input
-- **Admin panel: ban/warning enforcement isn't built.** Right now
-  banning or warning a user (via the new Admin Suite) only sets a flag
-  in their profile — nothing outside the admin panel itself checks
-  `isBanned` or shows unread warnings. ADMIN.md (as ported) describes a
-  full-screen suspension overlay and an acknowledgment modal for this,
-  but that enforcement code wasn't part of what was ported. Worth
-  building if you actually plan to use moderation for anything real;
-  skippable if this panel is just for your own dev/test use. Confirm
-  before I build it — it's a real (if small) feature, not a bug fix.
+- **Admin panel: warning notices still don't reach the user.** Settled
+  the bigger half of this — per your call, Ban is now a full
+  irreversible account WIPE (progress/XP/wallet/Tokens/Tickets all
+  reset, confirm dialog before it fires), not a soft lockout, so there
+  is no "suspended" state left to enforce — the wipe IS the
+  enforcement. What's still genuinely unbuilt: warnings
+  (`DB.addWarning`) are recorded but nothing ever shows them to the
+  warned user — ADMIN.md describes an acknowledgment modal on next
+  entry that isn't implemented. Confirm if you want that built, or if
+  warnings are just an internal moderation note for now.
 - **Flashcard confidence rating ("I know this well" etc.) — checked as
   requested, works correctly.** Verified live: rated a chunk, finished
   the review, confirmed `DB.getChunkConfidence` stored it; re-reviewed

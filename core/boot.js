@@ -81,6 +81,7 @@
     Dojo.applyTheme(DB.getTheme());
     if (Dojo.applyBgStripe) Dojo.applyBgStripe(DB.getBgStripe());
     if (Dojo.applyHints) Dojo.applyHints(DB.getHintsEnabled());
+    if (Dojo.applySoundEnabled) Dojo.applySoundEnabled(DB.getSoundEnabled());
     Dojo.renderCharge();
     Dojo.updateProfileBadge();
     if (Dojo.renderVitals) Dojo.renderVitals();
@@ -136,6 +137,7 @@
   Dojo.applyTheme(DB.getTheme());
   if (Dojo.applyBgStripe) Dojo.applyBgStripe(DB.getBgStripe());
   if (Dojo.applyHints) Dojo.applyHints(DB.getHintsEnabled());
+  if (Dojo.applySoundEnabled) Dojo.applySoundEnabled(DB.getSoundEnabled());
   Dojo.renderCharge();
   if (Dojo.renderStreak) Dojo.renderStreak();
   Dojo.updateProfileBadge();

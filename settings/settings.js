@@ -35,6 +35,7 @@
     const locked = lockedThemes.length;
     const lobbyStyle = DB.getLobbyStyle ? DB.getLobbyStyle() : "classic";
     const hintsOn = DB.getHintsEnabled ? DB.getHintsEnabled() : true;
+    const soundOn = DB.getSoundEnabled ? DB.getSoundEnabled() : true;
     const currentStripe = DB.getBgStripe ? DB.getBgStripe() : "none";
 
     const swatch = t => `
@@ -159,6 +160,14 @@
         </label>
       </div>
       <div class="settings-section">
+        <div class="stats-section-title">\u{1F50A} Sound</div>
+        <p class="settings-hint">Short synthesized click/answer/reward sounds across the app — no audio files, generated on the fly.</p>
+        <label class="hint-toggle-row">
+          <input type="checkbox" id="sound-toggle" ${soundOn ? "checked" : ""} />
+          <span>Sound effects</span>
+        </label>
+      </div>
+      <div class="settings-section">
         <div class="stats-section-title">\u{1F511} Unlock code</div>
         <p class="settings-hint">See <code>docs/CHEATCODES.md</code>.</p>
         <div class="admin-row">
@@ -263,6 +272,13 @@
     if (hintsToggle) hintsToggle.addEventListener("change", () => {
       DB.setHintsEnabled(hintsToggle.checked);
       if (Dojo.applyHints) Dojo.applyHints(hintsToggle.checked);
+    });
+
+    const soundToggle = document.getElementById("sound-toggle");
+    if (soundToggle) soundToggle.addEventListener("change", () => {
+      DB.setSoundEnabled(soundToggle.checked);
+      if (Dojo.applySoundEnabled) Dojo.applySoundEnabled(soundToggle.checked);
+      if (soundToggle.checked && Dojo.sfx) Dojo.sfx.click();
     });
 
     body.querySelectorAll("[data-bg-stripe]").forEach(btn => {

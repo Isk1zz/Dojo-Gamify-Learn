@@ -1,5 +1,50 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 48 — Ban is now a full account wipe; synthesized UI sound effects
+
+- [x] **Ban redefined as a total, irreversible account wipe**, by
+      explicit request (superseding the open "ban enforcement" question
+      from Batch 47/UPDATESTACK). `DB.setBannedStatus(id, true, reason)`
+      now replaces the target's entire profile with a fresh
+      `defaultProfile`, preserving only name/createdAt/warnings and
+      forcing `isAdmin` off — progress, XP, wallet, Tokens and Tickets
+      all reset to zero. Unbanning only clears the `isBanned` flag; the
+      wipe itself is not reversible, by design. Added a `confirm()`
+      dialog with the wipe stated plainly before either ban button
+      (table row + inspector modal) fires, since this got meaningfully
+      more destructive than the flag-toggle it replaced. This also
+      quietly resolves the earlier "no suspension overlay" gap — a
+      wipe needs no lockout UI to enforce, there's nothing left to be
+      locked out of.
+      **Verified live**: gave a test profile XP/wallet/Tokens/a
+      completed topic, banned it, confirmed everything reset to zero
+      while name/createdAt survived; confirmed unban only clears the
+      flag (data stays wiped); confirmed the confirm() dialog's Cancel
+      path leaves the target profile completely untouched.
+- [x] **Added synthesized UI sound effects** (`core/sfx.js`, new file)
+      — click/correct/wrong/reward, built from raw Web Audio API
+      oscillator tones, not audio files. This was raised once before
+      and shelved (`core/hud.js`'s `moneyBurst` comment, `games/GAMES.md`)
+      because the SFX pack under consideration needed a purchased
+      Envato Elements license nobody had — that blocker was specifically
+      about SOURCED assets, so generating tones in-browser sidesteps it
+      entirely rather than waiting on a license. Wired: click rides the
+      SAME delegated pointerdown listener the click-ripple effect
+      already uses (`core/core.js`) so every existing ripple-triggering
+      element gets a sound for free; correct/wrong fire on exam-question
+      submit and flashcard confidence answers; reward fires whenever
+      `awardCharge` actually grants XP (`core/hud.js`). New
+      `soundEnabled` profile field + Settings toggle, mirroring the
+      existing Hints toggle exactly; applied on boot and on profile
+      switch. Deliberately kept to four sounds, quiet (gain 0.03-0.06)
+      — this plays on nearly every click app-wide, so it has to sit in
+      the background, not announce itself.
+      **Verified live**: confirmed `Dojo.sfx` exposes all four
+      functions and none throw; confirmed a real click (not a direct
+      function call) fires cleanly with no console errors; confirmed
+      the Settings toggle persists via `DB.getSoundEnabled` and that
+      muting makes `Dojo.sfx.click()` a silent no-op instead of erroring.
+
 ## Batch 47 — Token Shop rebuild, Patron tiers + XP multiplier, Admin suite ported
 
 - [x] **Token Shop rebuilt end to end.** Course price cut 250 → 100

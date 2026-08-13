@@ -56,6 +56,7 @@ const DB = (() => {
       // and fixed, not before.
       lobbyStyle: "star", // "classic" | "cards" | "star" — "star" rearranges the tiles, the other two are re-skins
       hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
+      soundEnabled: true,    // mutes core/sfx.js's synthesized UI sounds app-wide
       bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
       unitsUnlocked: false,  // bypasses the "finish the previous unit" prereq — see the unlockallunits code
 
@@ -507,12 +508,33 @@ const DB = (() => {
     return true;
   }
 
+  // A ban here isn't a lockout — it's a full wipe, by explicit request.
+  // Banning resets every field to a fresh profile's defaults (same
+  // shape `defaultProfile` produces) except identity (name, createdAt)
+  // and the moderation trail (warnings), which survive so the record
+  // of what happened isn't erased along with the progress. isAdmin is
+  // forced off too — a banned admin account makes no sense. This is
+  // irreversible by design: unbanning only clears the isBanned FLAG
+  // (letting them use the now-empty account again), it does not and
+  // cannot restore what was wiped.
   function setBannedStatus(id, isBanned, reason) {
     const db = load();
     const p = db.profiles[id];
     if (!p) return false;
-    p.isBanned = !!isBanned;
-    p.banReason = isBanned ? (reason || "") : "";
+    if (isBanned) {
+      const fresh = defaultProfile(p.name);
+      db.profiles[id] = {
+        ...fresh,
+        createdAt: p.createdAt,
+        warnings: p.warnings || [],
+        isBanned: true,
+        banReason: reason || "",
+        isAdmin: false
+      };
+    } else {
+      p.isBanned = false;
+      p.banReason = "";
+    }
     save(db);
     return true;
   }
@@ -1116,6 +1138,19 @@ const DB = (() => {
     save(db);
   }
 
+  function getSoundEnabled() {
+    const p = getActiveProfile();
+    return !p || p.soundEnabled !== false;
+  }
+
+  function setSoundEnabled(on) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.soundEnabled = !!on;
+    save(db);
+  }
+
   function getBgStripe() {
     const p = getActiveProfile();
     return (p && p.bgStripe) || "none";
@@ -1495,6 +1530,8 @@ const DB = (() => {
     setLobbyStyle,
     getHintsEnabled,
     setHintsEnabled,
+    getSoundEnabled,
+    setSoundEnabled,
     getBgStripe,
     setBgStripe,
     getAvatar,

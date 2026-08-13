@@ -337,7 +337,11 @@
   function awardCharge(amount, originEl) {
     const before = DB.getXp();
     const gained = DB.addXp(amount);
-    if (gained > 0) { flyBolt(originEl, gained); revealBar(3200); }
+    if (gained > 0) {
+      flyBolt(originEl, gained);
+      revealBar(3200);
+      if (Dojo.sfx) Dojo.sfx.reward();
+    }
     checkRankUp(before, DB.getXp());
     renderCharge();
     return gained;

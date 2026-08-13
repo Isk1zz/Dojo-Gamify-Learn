@@ -1524,6 +1524,7 @@
       submitBtn.addEventListener("click", () => {
         if (state.examAnswers[idx] === null) return;
         state.examSubmitted[idx] = true;
+        if (Dojo.sfx) { if (state.examAnswers[idx] === q.correct) Dojo.sfx.correct(); else Dojo.sfx.wrong(); }
         renderExamQuestion();
       });
     }
@@ -2273,6 +2274,7 @@
       void cardEl.offsetWidth;
       cardEl.classList.add(knew ? "fc-correct" : "fc-wrong");
     }
+    if (Dojo.sfx) { if (knew) Dojo.sfx.correct(); else Dojo.sfx.wrong(); }
     state.flashResults.push(knew);
     state.flashTimings.push(Date.now() - state.flashCardShownAt);
     state.flashConfidence = state.flashConfidence || {};

@@ -402,7 +402,7 @@
               <button class="admin-btn-pill btn-toggle-admin ${u.isAdmin ? 'danger' : 'success'}" data-uid="${u.id}" title="${u.isAdmin ? 'Revoke Admin' : 'Grant Admin'}">
                 ${u.isAdmin ? '👑 -' : '👑 +'}
               </button>
-              <button class="admin-btn-pill btn-toggle-ban ${u.isBanned ? 'success' : 'danger'}" data-uid="${u.id}" title="${u.isBanned ? 'Unban user' : 'Ban user'}">
+              <button class="admin-btn-pill btn-toggle-ban ${u.isBanned ? 'success' : 'danger'}" data-uid="${u.id}" title="${u.isBanned ? 'Unban user' : 'Ban user (wipes their account)'}">
                 ${u.isBanned ? '🔓 Unban' : '🚫 Ban'}
               </button>
               <button class="admin-btn-pill btn-warn-user" data-uid="${u.id}" title="Send warning notice">⚠️</button>
@@ -654,10 +654,11 @@
           DB.setBannedStatus(uid, false, "");
           showBanner(`User "${u.name}" unbanned.`, "success");
         } else {
+          if (!confirm(`Ban "${u.name}"? This WIPES the account — all progress, XP, wallet, Tokens and Tickets reset to zero, permanently. This cannot be undone.`)) return;
           const reason = prompt("Enter ban reason:", "Violation of Dojo guidelines");
           if (reason !== null) {
             DB.setBannedStatus(uid, true, reason);
-            showBanner(`User "${u.name}" banned.`, "warn");
+            showBanner(`User "${u.name}" banned — account wiped.`, "warn");
           }
         }
         openUserInspector(uid);
@@ -833,11 +834,12 @@
             renderAdmin();
             showBanner(`User "${u.name}" unbanned.`, "success");
           } else {
+            if (!confirm(`Ban "${u.name}"? This WIPES the account — all progress, XP, wallet, Tokens and Tickets reset to zero, permanently. This cannot be undone.`)) return;
             const reason = prompt(`Enter ban reason for "${u.name}":`, "Violation of community standards");
             if (reason !== null) {
               DB.setBannedStatus(uid, true, reason);
               renderAdmin();
-              showBanner(`User "${u.name}" has been banned.`, "warn");
+              showBanner(`User "${u.name}" has been banned — account wiped.`, "warn");
             }
           }
         };

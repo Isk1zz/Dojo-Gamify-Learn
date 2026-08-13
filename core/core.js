@@ -180,6 +180,7 @@ const Router = (() => {
 document.addEventListener("pointerdown", e => {
   const btn = e.target.closest && e.target.closest(".btn-primary, .btn-ghost, .shop-btn, .lobby-tile, .quiz-opt");
   if (!btn) return;
+  if (Dojo.sfx) Dojo.sfx.click();
   const rect = btn.getBoundingClientRect();
   const ripple = document.createElement("span");
   ripple.className = "click-ripple";
