@@ -166,6 +166,35 @@ Required regardless of Diia, the moment you have accounts + payments:
       which is where Diia registration comes in.
 - [ ] **DPA with Google** — accept Firebase's data-processing terms.
 
+### DECIDED (2026-08-13): Diia scope = (a) + (c)
+
+Answered by the owner: **(a) register a business entity via Diia**, and
+**(c) integrate Diia.ID / Diia.Signature for identity verification**.
+Дія.City (b) is NOT in scope.
+
+What each half implies, to pick up next session:
+
+**(a) Entity registration** — this is the prerequisite for everything in
+Phase 5: you need a legal entity to be the named data controller, to
+take payments, and to sign a DPA with Google. Straightforward; an
+accountant handles it. Decide ФОП vs TOV with them (tax treatment of
+digital sales to non-UA customers is the deciding factor).
+
+**(c) Diia.ID integration** — this is the bigger one, and it interacts
+directly with Flag 2 below. Integrating government identity
+verification means you WILL be handling verified identity data, which
+is exactly the liability escalation Flag 2 warns about. Before building
+it, answer: **what does the app actually do differently for a
+Diia-verified user vs. an unverified one?** If there's no concrete
+answer, this is cost and risk with no product benefit. If the answer is
+"age-gate the Arcade," re-read Flag 1 first — that's a signal about the
+product's direction, not just a feature.
+
+Also note (c) is a partner/API integration with a government service,
+not a library you can just npm install — expect an application process
+and technical requirements set by them, on their timeline. Treat it as
+a dependency with lead time, not a sprint task.
+
 ### Ukraine / Diia — what I can and can't tell you
 
 Honestly: **I'm not a reliable source on current Ukrainian regulatory
