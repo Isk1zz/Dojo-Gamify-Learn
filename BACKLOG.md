@@ -1,5 +1,61 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 33 — Unit/course completion rewards (Asphalt-Legends-style track), Final Quiz lock, Career/Flashcards fixes
+
+- [x] **Unit and course completion rewards**, styled as a mobile-racing-
+      game career reward track (Asphalt Legends and similar): visible
+      chips riding on the unit roadmap nodes themselves, not silent
+      balance changes. Final amounts: Unit 1 $30, Unit 2 $20, Unit 3
+      🪙15, Unit 4 ⭐40 XP, Unit 5 🪙30, Unit 6 $100, Unit 7 $50, Unit 8
+      ⭐80 XP, course complete 🪙40 (a gold trophy chest at the end of
+      the roadmap spine). Every unit now carries SOME reward — units 4
+      and 8 were the two with nothing, filled with XP specifically
+      since that's the one currency shop/ranks.js's pacing already
+      accounts for scaling, not a balance to weigh against real money.
+      Granted exactly once via the same inventory-string dedup pattern
+      as game unlocks/stake tiers/course ownership
+      (`library.js`'s `checkCompletionRewards`, hooked in right after
+      `DB.markTopicComplete`). A toast + confetti burst
+      (`core/hud.js`'s new `celebrateReward`) fires from whichever chip
+      the reward actually landed in.
+- [x] **Final Quiz locked until every unit is complete** — confirmed
+      explicitly before building, since it reverses this app's usual
+      "no hard locks" rule (PROJECT.md §5). Everything else in the
+      Library stays unlocked; a cumulative exam covering all 8 units is
+      the one deliberate exception. Shows "🔒 Locked — finish every
+      unit first" and is unclickable until then.
+- [x] **Final Quiz first-pass XP bonus** (+100, one-time) — separate
+      from the existing per-attempt scaled bonus, which still pays out
+      on every attempt regardless. Dedup'd off `finalQuiz.completedAt`,
+      which `data/db.js` already only ever sets once.
+- [x] **Fixed a real bug found from a live Career screenshot**: the
+      reward column only ever checked `reward.theme`/`reward.bgStripe`,
+      so every Token-rewarding rank (6/11/15) showed a blank dash
+      instead of its reward. `shop/shop.js` now also checks
+      `reward.tokens`.
+- [x] **Fixed Career screen's mobile layout** — the 4-column rank-row
+      grid had no mobile fallback; badge+reward-column minimum widths
+      alone summed past a 375px screen before the name got any room,
+      pushing reward text off the right edge (matches a live
+      screenshot exactly). Stacks to badge+name / xp / reward across
+      three rows under 480px instead of one cramped row. Also tightened
+      the wallet/Token chip strip's mobile padding as a safety margin.
+- [x] **Fixed a real gating hole**: `openFlashcardsHub` always grabbed
+      `COURSES[0]` with no ownership check, so pricing `intro-cs`
+      (Batch 29) left a side door straight into its flashcard content
+      for anyone who hadn't bought it. Now shows an empty/prompt state
+      for an unowned course — buy right there (same modal Library
+      uses, `showCourseBuyModal` now takes an optional `onUnlocked`
+      callback) — and lands directly in the real deck builder the
+      moment it's bought, no need to back out through Library.
+- [x] **Verified live, full loop**: reward chips render correct
+      amounts/icons for all 8 units in both Map and List view; Career's
+      Token rewards display; Final Quiz correctly locked with all units
+      incomplete and unlocks once they are; mobile Career layout fits
+      at 375px with long rank names and 4-digit balances; Flashcards
+      void state shows for an unowned course, buying through it lands
+      straight in the working deck builder.
+
 ## Batch 32 — Mobile XP bar overflow fixed
 
 - [x] **The expanded charge bar (rank icon + name + nickname + track +

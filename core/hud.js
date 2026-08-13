@@ -190,6 +190,31 @@
     burstConfetti(document.getElementById("streak-chip"));
   }
 
+  // Unit/course completion rewards (library.js's checkCompletionRewards)
+  // — same toast layer and confetti burst as the streak celebration
+  // above, just aimed at whichever wallet chip the reward actually
+  // landed in ($ for a money reward, 🪙 for a Token one, the rank chip
+  // for XP), so the burst visually originates from where the balance
+  // actually changed.
+  function celebrateReward(label, reward) {
+    const layer = document.getElementById("streak-toast-layer");
+    if (!layer) return;
+    const icon = reward.type === "money" ? "\u{1F4B0}" : reward.type === "tokens" ? "\u{1FA99}" : "⭐";
+    const amountText = reward.type === "money" ? `$${reward.amount}`
+      : reward.type === "tokens" ? `${reward.amount} Tokens` : `${reward.amount} XP`;
+    const toast = document.createElement("div");
+    toast.className = "streak-toast";
+    toast.innerHTML = `<span>${icon}</span><span>${label}: +${amountText}</span>`;
+    layer.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add("in"));
+    setTimeout(() => {
+      toast.classList.remove("in");
+      setTimeout(() => toast.remove(), 350);
+    }, 2600);
+    const burstSelector = reward.type === "money" ? ".vital-wallet" : reward.type === "tokens" ? ".vital-tokens" : "#rank-chip";
+    burstConfetti(document.querySelector(burstSelector));
+  }
+
   const CONFETTI_COLORS = ["#f97316", "#f43f5e", "#eab308", "#22c55e", "#3b82f6", "#a855f7"];
 
   // Small CSS-only burst from the streak badge — no canvas, no library,
@@ -317,5 +342,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { renderCharge, awardCharge, flyBolt, checkRankUp, renderStreak, celebrateStreak, moneyBurst, burstConfetti, renderVitals });
+  Object.assign(Dojo, { renderCharge, awardCharge, flyBolt, checkRankUp, renderStreak, celebrateStreak, celebrateReward, moneyBurst, burstConfetti, renderVitals });
 })();

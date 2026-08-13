@@ -106,6 +106,10 @@
   border-bottom: 1px solid var(--border);
   font-size: 0.72rem;
 }
+@media (max-width: 420px) {
+  .vitals-strip { padding: 0.35rem 0.6rem; gap: 0.5rem; }
+  .vital-wallet, .vital-tokens { padding: 0.2rem 0.4rem; }
+}
 .v-track {
   width: 46px; height: 5px; border-radius: 999px; overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
@@ -174,6 +178,25 @@
 .rr-xp { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); }
 .rr-reward { font-size: 0.76rem; color: var(--text-dim); min-width: 140px; text-align: right; }
 .rr-blank { color: var(--text-muted); opacity: 0.5; }
+
+/* The 4-column single-row grid (badge/name/xp/reward) never had a
+   mobile fallback — badge(54px) + reward's own 140px min-width + gaps
+   alone summed past a 375px screen before the name column got any
+   room at all, so a long rank name pushed the reward text off the
+   right edge entirely. Reported live ("career size doesn't fit full
+   mobile screen") with a screenshot showing exactly that. Stacks to
+   two rows instead of one on narrow screens: badge+name on top,
+   xp+reward below it, each free to use the full width. */
+@media (max-width: 480px) {
+  .rank-row {
+    grid-template-columns: 40px 1fr; grid-template-rows: auto auto auto;
+    row-gap: 0.15rem; padding: 0.5rem 0.6rem;
+  }
+  .rr-badge { grid-column: 1; grid-row: 1; }
+  .rr-name { grid-column: 2; grid-row: 1; }
+  .rr-xp { grid-column: 2; grid-row: 2; text-align: left; }
+  .rr-reward { grid-column: 2; grid-row: 3; min-width: 0; text-align: left; font-size: 0.7rem; }
+}
 
 .shop-card.locked .shop-card-preview { filter: grayscale(0.7) brightness(0.6); }
 .scp-lock {

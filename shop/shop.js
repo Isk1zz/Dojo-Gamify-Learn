@@ -84,12 +84,17 @@
       const stripe = r.reward && r.reward.bgStripe
         ? (BG_STRIPES.find(s => s.id === r.reward.bgStripe) || {}).name
         : null;
-      // A rung only ever hands out one reward today, but both are checked
-      // rather than assuming \u2014 a future rung with both should show both,
-      // not silently drop one.
+      const tokens = r.reward && r.reward.tokens ? r.reward.tokens : null;
+      // A rung only ever hands out one reward today, but all three are
+      // checked rather than assuming \u2014 a future rung with more than
+      // one should show all of them, not silently drop one. tokens was
+      // added after theme/bgStripe and this list wasn't updated with
+      // it, so every Token-rewarding rank showed a blank dash instead
+      // of its reward \u2014 caught live from a Career screenshot.
       const rewardLabel = [
         theme ? `\u{1F3A8} ${theme}` : null,
-        stripe ? `\u{1F9F5} ${stripe}` : null
+        stripe ? `\u{1F9F5} ${stripe}` : null,
+        tokens ? `\u{1FA99} ${tokens} Tokens` : null
       ].filter(Boolean).join(" \u00b7 ");
 
       const row = document.createElement("div");

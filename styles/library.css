@@ -221,6 +221,16 @@
   text-transform: uppercase; letter-spacing: 0.5px;
 }
 .topic-badge.mastered { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: var(--green); }
+/* List-view twin of .roadmap-reward-chip — same milestone-reward
+   language, just inline with the rest of a unit card's meta badges
+   instead of riding on a roadmap node. */
+.topic-badge.reward-badge {
+  font-family: var(--mono); background: var(--accent-glow);
+  border-color: var(--border-accent); color: var(--accent-light);
+}
+.topic-badge.reward-badge.claimed {
+  background: var(--bg-surface); border-color: var(--border); color: var(--text-dim); opacity: 0.7;
+}
 
 /* ── List/Map toggle ── */
 .topic-view-toggle { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
@@ -359,6 +369,51 @@
   text-shadow: 0 0 4px var(--bg-deep), 0 0 8px var(--bg-deep);
 }
 
+/* Milestone reward chip — "career track" styling (Asphalt Legends and
+   similar racing games' reward path), a badge riding on the unit node
+   itself rather than the reward being a silent number change
+   elsewhere. Positioned upper-right of the bubble, out of the way of
+   the topic satellite dots ringing the rest of the node. */
+.roadmap-reward-chip {
+  position: absolute; left: 0; top: 0; z-index: 3;
+  transform: translate(16px, -40px);
+  padding: 0.15rem 0.4rem; border-radius: 999px;
+  background: var(--bg-surface); border: 1px solid var(--accent-light);
+  color: var(--accent-light); font-family: var(--mono); font-weight: 700; font-size: 0.62rem;
+  box-shadow: 0 0 8px var(--accent-glow);
+  pointer-events: none; white-space: nowrap;
+}
+/* Claimed stays visible (a milestone already passed is still part of
+   the track's story) but goes inert — same "dim, don't hide" treatment
+   .roadmap-node.completed gives the ring around it. */
+.roadmap-reward-chip.claimed {
+  opacity: 0.4; border-color: var(--border); color: var(--text-dim); box-shadow: none;
+}
+
+/* The course-completion chest at the end of the path — bigger and
+   gold-toned so it reads as the run's actual finish line, not just
+   another stop. */
+.roadmap-chest {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%);
+  width: 72px; height: 72px; border-radius: 50%; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 0.1rem;
+  background: var(--bg-card); border: 2px solid rgba(234,179,8,0.55);
+  box-shadow: 0 0 16px rgba(234,179,8,0.3);
+  font-size: 1.5rem;
+}
+.roadmap-chest.claimed { opacity: 0.5; border-color: var(--border); box-shadow: none; }
+.roadmap-chest-amount {
+  font-family: var(--mono); font-weight: 700; font-size: 0.62rem; color: #eab308;
+}
+.roadmap-chest.claimed .roadmap-chest-amount { color: var(--text-dim); }
+.roadmap-chest-label {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, 44px);
+  width: 130px; text-align: center; pointer-events: none;
+  font-size: 0.76rem; font-weight: 700; color: var(--text-dim); line-height: 1.25;
+  text-shadow: 0 0 4px var(--bg-deep), 0 0 8px var(--bg-deep);
+}
+
 .roadmap-chunk-dot {
   position: absolute; left: 0; top: 0; z-index: 1; padding: 0;
   width: 11px; height: 11px; border-radius: 50%;
@@ -376,6 +431,9 @@
   .roadmap-label { width: 108px; transform: translate(-50%, 56px); font-size: 0.7rem; }
   .roadmap-cards-btn { transform: translate(16px, 16px); }
   .roadmap-cluster-ring { width: 100px; height: 100px; }
+  .roadmap-reward-chip { transform: translate(12px, -34px); font-size: 0.58rem; }
+  .roadmap-chest { width: 60px; height: 60px; font-size: 1.25rem; }
+  .roadmap-chest-label { width: 108px; transform: translate(-50%, 38px); font-size: 0.7rem; }
 }
 
 /* ============================================
@@ -851,6 +909,10 @@
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 .deck-builder-entry:hover { border-color: var(--accent); color: var(--text); background: var(--accent-glow); }
+.deck-builder-entry.locked {
+  cursor: not-allowed; opacity: 0.55; border-color: rgba(239,68,68,0.4);
+}
+.deck-builder-entry.locked:hover { border-color: rgba(239,68,68,0.55); color: var(--text-dim); background: var(--bg-card); }
 .deck-builder-entry-sub { font-size: 0.74rem; font-weight: 400; color: var(--text-muted); }
 
 .deck-builder-body { padding: 1.5rem; max-width: 900px; margin: 0 auto; }

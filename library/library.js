@@ -35,6 +35,90 @@
     };
   }
 
+  // ---- Unit & course completion rewards ----
+  // Milestone rewards along the same roadmap spine already drawn for
+  // units — a style pass modeled on mobile racing games' career reward
+  // tracks (Asphalt Legends and similar): visible chips ON the path
+  // itself, not a silent number change. Granted exactly once per unit
+  // or course, same inventory-string dedup pattern game unlocks/
+  // stake-cap tiers/course ownership already use — see games/games.js's
+  // header comment on that pattern.
+  //
+  // Deliberately NOT every unit at the same value — see the chat that
+  // scoped this for which units carry which reward and why.
+  const UNIT_MONEY_REWARD = { 1: 30, 2: 20, 6: 100, 7: 50 };
+  const UNIT_TOKEN_REWARD = { 3: 15, 5: 30 };
+  // Units 4 and 8 were the two with no completion reward at all — filled
+  // with XP instead of money/Tokens on request, since XP is the one
+  // thing shop/ranks.js's ladder pacing already accounts for scaling
+  // (see its header comment) rather than a currency to balance.
+  const UNIT_XP_REWARD = { 4: 40, 8: 80 };
+  const COURSE_TOKEN_REWARD = 40;
+  // Separate from FINAL_QUIZ_XP_BASE below, which scales with score and
+  // pays out on every attempt — this is a flat, ONE-TIME bonus for the
+  // first genuine pass, on top of that.
+  const FINAL_QUIZ_COMPLETION_XP = 100;
+
+  const unitRewardKey = id => `unit_reward_${id}`;
+  const courseRewardKey = id => `course_reward_${id}`;
+
+  function unitReward(unitId) {
+    if (UNIT_MONEY_REWARD[unitId]) return { type: "money", amount: UNIT_MONEY_REWARD[unitId] };
+    if (UNIT_TOKEN_REWARD[unitId]) return { type: "tokens", amount: UNIT_TOKEN_REWARD[unitId] };
+    if (UNIT_XP_REWARD[unitId]) return { type: "xp", amount: UNIT_XP_REWARD[unitId] };
+    return null;
+  }
+  const unitRewardClaimed = id => DB.getInventory().includes(unitRewardKey(id));
+  const courseRewardClaimed = id => DB.getInventory().includes(courseRewardKey(id));
+  // Shared by both reward badges (roadmap chip + list-view badge) so
+  // adding a reward type only ever means updating one function.
+  function rewardLabel(reward) {
+    if (reward.type === "money") return `$${reward.amount}`;
+    if (reward.type === "tokens") return `\u{1FA99}${reward.amount}`;
+    return `⭐${reward.amount}`;
+  }
+
+  // Called right after a topic completes (showExamResults — the only
+  // place DB.markTopicComplete runs) — checks whether that topic just
+  // finished ITS unit, and whether that unit just finished the whole
+  // course, granting each reward exactly once.
+  function checkCompletionRewards(topicId) {
+    const unit = UNITS.find(u => (UNIT_TOPICS[u.id] || []).some(t => t.id === topicId));
+    if (!unit) return;
+    const completedTopics = DB.getCompletedTopics();
+    const unitTopics = UNIT_TOPICS[unit.id];
+    if (!unitTopics.every(t => completedTopics.has(t.id))) return;
+
+    if (!unitRewardClaimed(unit.id)) {
+      const reward = unitReward(unit.id);
+      if (reward) {
+        DB.addInventory(unitRewardKey(unit.id));
+        if (reward.type === "money") {
+          DB.addMoney(reward.amount);
+          Bus.emit("wallet:changed", { delta: reward.amount, reason: "unit-reward" });
+        } else if (reward.type === "tokens") {
+          DB.addTokens(reward.amount);
+          Bus.emit("tokens:changed", { delta: reward.amount, reason: "unit-reward" });
+        } else {
+          awardCharge(reward.amount, null);
+        }
+        if (Dojo.celebrateReward) Dojo.celebrateReward(unit.title, reward);
+      }
+    }
+
+    const course = COURSES.find(c => c.units.includes(unit.id));
+    if (course && !courseRewardClaimed(course.id)) {
+      const courseUnits = course.units.map(id => UNITS.find(u2 => u2.id === id)).filter(Boolean);
+      const courseDone = courseUnits.every(u2 => UNIT_TOPICS[u2.id].every(t => completedTopics.has(t.id)));
+      if (courseDone) {
+        DB.addInventory(courseRewardKey(course.id));
+        DB.addTokens(COURSE_TOKEN_REWARD);
+        Bus.emit("tokens:changed", { delta: COURSE_TOKEN_REWARD, reason: "course-reward" });
+        if (Dojo.celebrateReward) Dojo.celebrateReward(`${course.title} complete`, { type: "tokens", amount: COURSE_TOKEN_REWARD });
+      }
+    }
+  }
+
   function renderCourseSelect() {
     const body = document.getElementById("course-select-body");
     body.innerHTML = "";
@@ -220,7 +304,7 @@
   // not discoverable). This shows the course's own structure and a buy
   // button right where the course was clicked; the Token Shop is now
   // only where you go to buy MORE Tokens, not to buy a course itself.
-  function showCourseBuyModal(course) {
+  function showCourseBuyModal(course, onUnlocked) {
     const overlay = document.getElementById("course-buy-modal");
     if (!overlay) { Router.go("token-shop"); return; }
     const unitList = course.units
@@ -258,7 +342,7 @@
         if (Dojo.buyCourse && Dojo.buyCourse(course.id)) {
           overlay.style.display = "none";
           if (Dojo.renderVitals) Dojo.renderVitals();
-          renderCourseSelect();
+          if (onUnlocked) onUnlocked(); else renderCourseSelect();
         }
       });
     }
@@ -308,21 +392,29 @@
     // (below units, either view), not right next to the unit picker —
     // moved there on request so it reads as "after you've worked
     // through the units" rather than competing with them for the first
-    // thing you see. Never locked (no hard locks — PROJECT.md §5), just
-    // an honest nudge via the subtitle if it hasn't been attempted or
-    // the course isn't done yet.
+    // thing you see.
+    //
+    // Locked until every unit is complete — a deliberate reversal of
+    // this app's usual "no hard locks" rule (PROJECT.md §5), confirmed
+    // explicitly before building rather than assumed. Everything else
+    // in the Library stays unlocked; this is the one exception, because
+    // a CUMULATIVE exam covering all 8 units genuinely doesn't mean
+    // anything taken early.
     const addFinalQuizEntry = () => {
       if (typeof FINAL_QUIZ_QUESTIONS === "undefined" || !FINAL_QUIZ_QUESTIONS.length) return;
       const allDone = unitsToShow.every(u => UNIT_TOPICS[u.id].every(t => completedTopics.has(t.id)));
       const fq = DB.getFinalQuiz();
-      const sub = fq.attempts
-        ? `Best: ${fq.bestScore}%${fq.completedAt ? " · passed" : ""}`
-        : (allDone ? "All units complete — ready when you are" : "Cumulative, all 8 units — usable any time");
+      const sub = !allDone
+        ? "Locked — finish every unit first"
+        : fq.attempts
+          ? `Best: ${fq.bestScore}%${fq.completedAt ? " · passed" : ""}`
+          : "All units complete — ready when you are";
       const quizBtn = document.createElement("button");
-      quizBtn.className = "deck-builder-entry";
+      quizBtn.className = `deck-builder-entry${allDone ? "" : " locked"}`;
       quizBtn.type = "button";
-      quizBtn.innerHTML = `\u{1F393} Final Quiz <span class="deck-builder-entry-sub">${sub}</span>`;
-      quizBtn.addEventListener("click", startFinalQuiz);
+      if (!allDone) quizBtn.disabled = true;
+      quizBtn.innerHTML = `${allDone ? "\u{1F393}" : "\u{1F512}"} Final Quiz <span class="deck-builder-entry-sub">${sub}</span>`;
+      if (allDone) quizBtn.addEventListener("click", startFinalQuiz);
       body.appendChild(quizBtn);
     };
 
@@ -346,6 +438,13 @@
       const prereqDone = i === 0 || DB.getUnitsUnlocked() || UNIT_TOPICS[unitsToShow[i - 1].id].every(t => completedTopics.has(t.id));
       const isAhead = pct < 100 && !prereqDone;
 
+      const reward = unitReward(u.id);
+      const rewardBadge = reward
+        ? `<span class="topic-badge reward-badge${unitRewardClaimed(u.id) ? " claimed" : ""}">
+             ${rewardLabel(reward)}
+           </span>`
+        : "";
+
       const card = document.createElement("div");
       card.className = `topic-card${isAhead ? " ahead" : ""}`;
       if (isAhead) card.setAttribute("data-explain", `Locked — finish “${unitsToShow[i - 1].title}” first.`);
@@ -359,6 +458,7 @@
           <span>${pct}% complete</span>
           ${pct === 100 ? '<span class="topic-badge mastered">✓ Mastered</span>' : ""}
           ${isAhead ? '<span class="topic-badge ahead-badge">\u{1F512} Locked</span>' : ""}
+          ${rewardBadge}
         </div>
       `;
       if (isAhead) {
@@ -400,15 +500,25 @@
       points.push({ u, i, x: xPct, y });
       y += ROADMAP_ROW;
     });
+
+    // The course-completion chest — the track's actual finish line, one
+    // more stop past the last unit. Only drawn when unitsToShow is a
+    // real course's full unit list (state.currentCourse set), not the
+    // "every course's units at once" fallback renderUnitSelect uses
+    // when no course is selected.
+    const course = COURSES.find(c => c.id === state.currentCourse);
+    const chestPoint = course ? { x: 50, y } : null;
+    if (chestPoint) y += ROADMAP_ROW * 0.7;
     wrap.style.height = `${y}px`;
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("class", "roadmap-spine");
     svg.setAttribute("viewBox", `0 0 100 ${y}`);
     svg.setAttribute("preserveAspectRatio", "none");
-    let d = `M${points[0].x},${points[0].y} `;
-    for (let i = 1; i < points.length; i++) {
-      const p0 = points[i - 1], p1 = points[i];
+    const spinePoints = chestPoint ? [...points, chestPoint] : points;
+    let d = `M${spinePoints[0].x},${spinePoints[0].y} `;
+    for (let i = 1; i < spinePoints.length; i++) {
+      const p0 = spinePoints[i - 1], p1 = spinePoints[i];
       const midY = (p0.y + p1.y) / 2;
       d += `C${p0.x},${midY} ${p1.x},${midY} ${p1.x},${p1.y} `;
     }
@@ -430,6 +540,17 @@
         ? `Locked — finish “${unitsToShow[i - 1].title}” first.`
         : "";
 
+      // Milestone reward chip — the "career track" styling: a small
+      // badge riding on the node itself showing what this unit pays
+      // out, dimmed once claimed rather than disappearing (a claimed
+      // milestone is still part of the story of the track, same reason
+      // a completed node keeps its ring instead of going bare).
+      const reward = unitReward(u.id);
+      const rewardChip = reward ? `
+        <div class="roadmap-reward-chip${unitRewardClaimed(u.id) ? " claimed" : ""}">
+          ${rewardLabel(reward)}
+        </div>` : "";
+
       const node = document.createElement("div");
       node.className = `roadmap-node${isCompleted ? " completed" : ""}${isCurrent ? " current" : ""}${isAhead ? " ahead" : ""}`;
       node.style.left = `${x}%`;
@@ -439,6 +560,7 @@
         <button class="roadmap-bubble" title="${u.title}"${explain ? ` data-explain="${explain}"` : ""}>
           <span class="roadmap-bubble-inner">${isCompleted ? "✓" : isAhead ? "\u{1F512}" : u.icon}</span>
         </button>
+        ${rewardChip}
         <div class="roadmap-label">${u.title}</div>
       `;
 
@@ -471,6 +593,22 @@
       }
       wrap.appendChild(node);
     });
+
+    if (chestPoint && course) {
+      const claimed = courseRewardClaimed(course.id);
+      const chestNode = document.createElement("div");
+      chestNode.style.position = "absolute";
+      chestNode.style.left = `${chestPoint.x}%`;
+      chestNode.style.top = `${chestPoint.y}px`;
+      chestNode.innerHTML = `
+        <div class="roadmap-chest${claimed ? " claimed" : ""}" title="${course.title} complete">
+          <span>\u{1F3C6}</span>
+          <span class="roadmap-chest-amount">\u{1FA99}${COURSE_TOKEN_REWARD}</span>
+        </div>
+        <div class="roadmap-chest-label">Course complete</div>
+      `;
+      wrap.appendChild(chestNode);
+    }
   }
 
   function selectUnit(unitId) {
@@ -1401,6 +1539,7 @@
     DB.scheduleReview(topic.id, Math.max(0, Math.min(5, Math.round(pct / 20))));
     if (passed) {
       DB.markTopicComplete(topic.id);
+      checkCompletionRewards(topic.id);
       // A completed TOPIC is what counts as a "day" for the streak now
       // — moved off finishChunk, which fired once per chunk and let a
       // single sitting through one topic register as several days'
@@ -1487,6 +1626,11 @@
     const pct = Math.round((correct / total) * 100);
     const passed = pct >= 80;
 
+    // Checked BEFORE recordFinalQuizResult mutates completedAt — that
+    // field is set once, on the first passing attempt, and never again
+    // (see data/db.js), which makes it the exact dedup signal a
+    // one-time completion bonus needs.
+    const isFirstPass = passed && !DB.getFinalQuiz().completedAt;
     DB.recordFinalQuizResult(correct, total, passed);
     Bus.emit("final-quiz:finished", { correct, total, passed });
 
@@ -1506,7 +1650,15 @@
     const bonusEl = document.getElementById("result-charge");
     if (bonusEl) {
       const granted = awardCharge(bonus, scoreEl);
-      bonusEl.innerHTML = `<span class="charge-award">⚡ +${granted} XP <span class="ca-mult">(&times;${mult.toFixed(2)} for ${pct}%)</span></span>`;
+      let html = `<span class="charge-award">⚡ +${granted} XP <span class="ca-mult">(&times;${mult.toFixed(2)} for ${pct}%)</span></span>`;
+      // One-time completion bonus, on top of the scaled per-attempt one
+      // above — separate from it because this one only ever fires once,
+      // the first time the Final Quiz is actually passed.
+      if (isFirstPass) {
+        const completionGranted = awardCharge(FINAL_QUIZ_COMPLETION_XP, scoreEl);
+        html += `<br><span class="charge-award">\u{1F393} +${completionGranted} XP <span class="ca-mult">first Final Quiz pass</span></span>`;
+      }
+      bonusEl.innerHTML = html;
     }
 
     // No per-topic wisdom quote — a cumulative quiz doesn't belong to
@@ -1589,6 +1741,29 @@
     state.deckBuilderFromLobby = true;
     const backBtn = document.getElementById("btn-back-deckbuilder");
     if (backBtn) backBtn.textContent = "← Lobby";
+
+    // A priced, unowned course used to fall straight through into the
+    // deck builder anyway — openFlashcardsHub always grabbed COURSES[0]
+    // with no ownership check, so pricing intro-cs (Batch 29) silently
+    // opened a side door around the Library's own buy gate. Shows an
+    // empty/prompt state instead: buy right here (same modal the
+    // Library uses), and land straight in the deck builder the moment
+    // it's bought — no need to back out and re-enter through Library.
+    if (Dojo.ownsCourse && !Dojo.ownsCourse(course.id)) {
+      const body = document.getElementById("deck-builder-body");
+      if (body) {
+        body.innerHTML = `
+          <div class="deck-builder-intro" style="text-align:center; padding: 3rem 1rem;">
+            <div style="font-size:2.4rem; margin-bottom:0.75rem;">${course.icon}</div>
+            <p style="margin-bottom:1rem;">Flashcards are built from ${course.title}'s content — unlock the course to start reviewing.</p>
+            <button id="flashcards-void-buy" class="btn-primary">View & buy — 🪙 ${course.priceTokens}</button>
+          </div>`;
+        const buyBtn = document.getElementById("flashcards-void-buy");
+        if (buyBtn) buyBtn.addEventListener("click", () => showCourseBuyModal(course, openFlashcardsHub));
+      }
+      showScreen("deck-builder");
+      return;
+    }
     openDeckBuilder();
   }
 
@@ -1596,6 +1771,7 @@
   // compute it in lobby.js" rule every other tile follows.
   function flashcardsSummary() {
     if (!COURSES.length) return null;
+    if (Dojo.ownsCourse && !Dojo.ownsCourse(COURSES[0].id)) return "🔒 Buy a course to unlock";
     const completed = DB.getCompletedChunks();
     let total = 0;
     Object.values(completed).forEach(set => { total += set ? set.size : 0; });
