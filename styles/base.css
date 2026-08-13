@@ -678,6 +678,23 @@ body {
   color: var(--text-dim); min-width: 52px; text-align: right;
 }
 
+/* Nothing here ever shrank or wrapped on a narrow screen — the bar is a
+   fixed-width row (left:0;right:0) but its children (icon + rank name +
+   profile nickname + track + value) were never capped, so a long rank
+   name ("Senior Research Coordinator") plus the expanded track pushed
+   the XP value off the right edge of the viewport entirely, reported
+   live as "mobile version's xp bar doesn't fit fully". Nickname is
+   secondary info (visible in Career/Settings too) so it's the first
+   thing to go; the track shrinks as a second line of defense for a
+   still-long rank name. */
+@media (max-width: 420px) {
+  .hud-nickname { display: none; }
+  .rank-name { max-width: 92px; overflow: hidden; text-overflow: ellipsis; }
+  .charge-track { width: 64px; }
+  .charge-bar { gap: 0.4rem; padding: 0 0.6rem; }
+  .charge-expand { gap: 0.4rem; }
+}
+
 /* ── Streak badge ──
    Pinned to the far right of the charge bar (margin-left:auto — it's the
    only item after .charge-expand, so it always lands at the end of the

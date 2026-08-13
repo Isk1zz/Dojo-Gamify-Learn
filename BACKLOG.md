@@ -1,5 +1,19 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 32 — Mobile XP bar overflow fixed
+
+- [x] **The expanded charge bar (rank icon + name + nickname + track +
+      XP value) had no mobile handling at all** — nothing shrank or
+      wrapped on a narrow screen, so a long rank name plus the track
+      pushed the XP value off the right edge of the viewport, reported
+      live ("mobile version's xp bar doesn't fit fully"). Fixed with a
+      420px media query: nickname hidden (secondary info, still visible
+      in the Career line), rank name truncates with an ellipsis past
+      92px, track narrows 100px → 64px, bar/expand gaps tighten.
+      Verified live with the worst realistic case (longest rank name,
+      "Senior Research Coordinator," plus a long nickname) at 375px —
+      fits with room to spare, "30/380 → MGR" fully visible.
+
 ## Batch 31 — Fixed the real "can't buy the course" blocker
 
 - [x] **Found the actual bug behind "I still can't buy the course"**
