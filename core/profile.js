@@ -46,6 +46,18 @@
     DB.createProfile(name);
     hideProfileModal();
     updateProfileBadge();
+    // The lobby behind this modal is already painted — btn-start's own
+    // handler (core/boot.js) calls showLobby() BEFORE this modal even
+    // opens, using DB.getLobbyStyle()'s no-active-profile fallback,
+    // since there was no profile yet to read a real style from. That
+    // paint (wrong lobby style, "Welcome." instead of the real name,
+    // stale wallet/XP) used to sit there PERMANENTLY once this modal
+    // closed — nothing here ever repainted it. Every brand-new user's
+    // very first real screen was stale until they navigated away and
+    // back. Full profile:changed broadcast, not just showLobby(), so
+    // theme/bgStripe/hints all repaint against the fresh profile too.
+    if (Dojo.Bus) Dojo.Bus.emit("profile:changed");
+    if (Dojo.showLobby) Dojo.showLobby();
   });
 
   document.getElementById("profile-name-input").addEventListener("keydown", (e) => {

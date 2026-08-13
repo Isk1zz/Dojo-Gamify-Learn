@@ -12,6 +12,14 @@ until there's a payment account to wire a Payment Link to — that's a
 you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 
 ## Live bug reports — resolved since last check-in
+- "First ever opening of the website uses cards layout not a star
+  topology" — real bug, not a defaults/cache issue: profile creation
+  never repainted the lobby behind the modal, so the pre-profile
+  fallback paint (classic/stacked-list, "Welcome.") stuck permanently
+  on every brand-new user's first screen. Fixed in Batch 43
+  (`core/profile.js`'s save handler now emits `profile:changed` +
+  calls `showLobby()`), verified live with a true clean-slate
+  first-visit simulation.
 - Star lobby "broken" on phone — the FIRST report of this really was a
   stale-cache artifact (Batch 30). A LATER report of the same symptom
   turned out to be a real bug the cache fix didn't touch: fonts loading

@@ -1,5 +1,33 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 43 — Fixed first-ever-visit lobby never repainting after profile creation
+
+- [x] **Real bug, reported as "first ever opening of the website uses
+      cards layout not a star topology."** Root cause was not the
+      default (`defaultProfile().lobbyStyle` was already correctly
+      `"star"`) and not a caching issue — it was a missing repaint.
+      `core/boot.js`'s `btn-start` handler paints the lobby once,
+      *before* the profile modal even opens, using
+      `DB.getLobbyStyle()`'s no-active-profile fallback (`"classic"`,
+      stacked-list) since there's no real profile yet to read a style
+      from. `core/profile.js`'s `btn-profile-save` handler then created
+      the real profile but never repainted anything behind the modal —
+      so that first, fallback-styled paint (wrong layout, "Welcome."
+      instead of the real name, stale wallet/XP) sat there permanently
+      once the modal closed. Every brand-new user's actual first screen
+      was stale until they navigated away and back.
+      Fixed by emitting a full `profile:changed` broadcast (not just
+      re-running `showLobby()`) plus an explicit `showLobby()` call
+      right after `DB.createProfile()`, so theme/bgStripe/hints repaint
+      against the fresh profile too, matching how profile-switching
+      already behaves in `renderDropdown()`.
+      **Verified live**: cleared localStorage + unregistered the
+      service worker + cleared the Cache API to simulate a true
+      first-ever visit, clicked through the real landing → name-modal →
+      save flow. Confirmed the lobby now shows "Welcome back,
+      RealFirstUser." and the correct star-ring tile layout immediately,
+      with no navigation-away-and-back needed.
+
 ## Batch 42 — Security/robustness audit; fixed silent data loss on full storage
 
 - [x] **Fixed a real user-facing data-loss bug found during the audit.**
