@@ -1,5 +1,43 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 30 — Service worker cache version bumped for the first time all session
+
+- [x] **`sw.js`'s `CACHE_VERSION` bumped `cs-dojo-v2` → `cs-dojo-v3`** —
+      it had NOT been touched once across this entire session's ~15
+      commits, despite the stale-while-revalidate strategy meaning a
+      returning device keeps serving whatever it cached until the
+      service worker's own bytes change and it's told to update (see
+      `sw.js`'s own "Updating" comment — even then, only on a full
+      close-and-reopen, not a plain refresh). Live bug reports came in
+      today (Star lobby broken on phone, Kirigami+stripes "a mess") for
+      things that were reproducibly ALREADY FIXED in the current code
+      when tested fresh — strong evidence the reports were against a
+      stale cached build, not the real current state. This is the fix
+      for that class of report going forward, not a fix for any one bug.
+- [x] **Audited both reported issues against current code before
+      concluding "stale cache," not assuming it:**
+      - Star (radial) lobby on a 375px mobile viewport: reproduced
+        clean, all 6 tiles distinct, no overlap.
+      - Kirigami + background stripes: `core/theme.js`'s `stripeCssFor`
+        suppresses the stripe layer for any theme whose `bg` is a
+        repeating pattern — checked `shop/themes.js` directly, confirmed
+        Kirigami, Terminal AND Ronin all match that check (Ronin wasn't
+        named in the original comment but its `bg` does contain a
+        repeating-gradient layer too), and light themes (Paper, Frost)
+        get the stripe recolored dark instead of suppressed. All 7
+        striped/themed combinations check out.
+- [x] **Logged, not fixed, three items needing your input** (see
+      UPDATESTACK.md): whether "bought on phone, didn't unlock" means
+      same-device (real bug) or cross-device (expected — no accounts,
+      no sync) or is also stale-cache; a scoped "preview + inline buy"
+      UX idea for locked course cards; whether the Token icon's
+      silver-on-phone/gold-on-laptop difference (a platform emoji-font
+      rendering difference, not CSS) is worth swapping for a custom SVG.
+- [x] **Logged marketing/growth asks** (hype-topic research, a
+      marketing model, a promo plan) as their own non-engineering
+      section — flagged so they're not lost, explicitly not something
+      with a code deliverable to just start building.
+
 ## Batch 29 — Intro to CS priced at 1000 Tokens (the Token gate's first real use)
 
 - [x] **`intro-cs` now costs 🪙 1000** (`priceTokens: 1000` on its

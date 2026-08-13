@@ -31,7 +31,7 @@
 // open-the-file property is not being traded away for this.
 // ================================================
 
-const CACHE_VERSION = "cs-dojo-v2";
+const CACHE_VERSION = "cs-dojo-v3";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
