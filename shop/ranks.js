@@ -39,6 +39,15 @@
 // `reward: null` is a deliberate blank, not an oversight. Ranks without
 // a reward still rank up and still show on the ladder; fill them in as
 // there is something worth giving.
+//
+// ---- Token rewards specifically (7 ranks: 6, 8, 11, 12, 15, 17, 18) ----
+// Sized so the ladder's free Tokens can never fully cover a course on
+// their own: 100+50+150+75+200+100+120 = 795, short of the 1000-Token
+// price on the one course that exists (shop/tokens.js). Ranking up
+// stays worth celebrating without turning into a grind-instead-of-buy
+// path around the Token Shop — every free-Token profile still needs at
+// least one real purchase (or the demo stub, today) to actually get in.
+// Re-check this sum if either the ladder or a course price changes.
 // ================================================
 
 const RANKS = [
@@ -49,17 +58,17 @@ const RANKS = [
   { n: 5,  xp: 780,   name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
   { n: 6,  xp: 1080,  name: "Research Coordinator",     abbr: "CRD",  reward: { tokens: 100 } },
   { n: 7,  xp: 1420,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
-  { n: 8,  xp: 1800,  name: "Lab Manager",              abbr: "MGR",  reward: null },
+  { n: 8,  xp: 1800,  name: "Lab Manager",              abbr: "MGR",  reward: { tokens: 50 } },
   { n: 9,  xp: 2220,  name: "Senior Lab Manager",       abbr: "SLM",  reward: { bgStripe: "lattice" } },
   { n: 10, xp: 2680,  name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
   { n: 11, xp: 3180,  name: "Director of Operations",   abbr: "DOP",  reward: { tokens: 150 } },
-  { n: 12, xp: 3720,  name: "Master Technician",        abbr: "MTC",  reward: null },
+  { n: 12, xp: 3720,  name: "Master Technician",        abbr: "MTC",  reward: { tokens: 75 } },
   { n: 13, xp: 4300,  name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
   { n: 14, xp: 4940,  name: "Postdoctoral Researcher",  abbr: "PDR",  reward: { bgStripe: "origami" } },
   { n: 15, xp: 5640,  name: "Project Lead",             abbr: "PL",   reward: { tokens: 200 } },
   { n: 16, xp: 6400,  name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
-  { n: 17, xp: 7220,  name: "Program Director",         abbr: "PD",   reward: null },
-  { n: 18, xp: 8100,  name: "Senior Program Director",  abbr: "SPD",  reward: null },
+  { n: 17, xp: 7220,  name: "Program Director",         abbr: "PD",   reward: { tokens: 100 } },
+  { n: 18, xp: 8100,  name: "Senior Program Director",  abbr: "SPD",  reward: { tokens: 120 } },
   { n: 19, xp: 9020,  name: "Vice President of R&D",    abbr: "VP",   reward: { theme: "fuji" } },
   { n: 20, xp: 10000, name: "Nobel Laureate",           abbr: "NL",   reward: { theme: "kirigami" } }
 ];

@@ -1,5 +1,19 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 35 — Filled the 4 remaining blank rank rungs with Token rewards
+
+- [x] **Ranks 8, 12, 17, 18 (Lab Manager, Master Technician, Program
+      Director, Senior Program Director) now grant 50/75/100/120
+      Tokens** — the last 4 blank rungs on the ladder. Sized
+      deliberately: total free Tokens across all 7 Token-rewarding
+      ranks (100+50+150+75+200+100+120 = 795) stays under the
+      1000-Token price of the one course that exists, so ranking up
+      alone can never fully cover a course — every free-Token profile
+      still needs at least one real purchase (or today's demo stub) to
+      actually get in. Documented in `shop/ranks.js` with a note to
+      re-check the sum if the ladder or a course price ever changes.
+      Verified live: all 4 rows now show their Token reward correctly.
+
 ## Batch 34 — Rank tier colors
 
 - [x] **Rank abbreviation badges now color-coded by tier** — four even
