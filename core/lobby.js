@@ -212,6 +212,36 @@
     }).join("");
   }
 
+  // Re-measures and repositions the ring after the container's actual
+  // size can have changed out from under the ONE-TIME measurement
+  // showLobby's layoutLobbyRadial call took. Two real triggers this
+  // fixes, neither reproducible on a fast local dev server, which is
+  // why this shipped broken on a real phone but never here: (1)
+  // index.html loads Google Fonts over the network with
+  // `display=swap` — text renders in a fallback font first, then
+  // reflows once Inter/JetBrains Mono actually arrive, and a slow
+  // mobile connection is exactly where that gap is widest; (2) mobile
+  // Safari/Chrome resize the visual viewport as the address bar
+  // collapses/expands on scroll, which layoutLobbyRadial's one-shot
+  // getBoundingClientRect never sees happen. Guarded to only act while
+  // the lobby is the active screen and Star is the equipped style —
+  // free to call liberally, it's a no-op otherwise.
+  function relayoutIfStarLobbyActive() {
+    const lobbyEl = document.getElementById("lobby");
+    if (!lobbyEl || !lobbyEl.classList.contains("active")) return;
+    if (DB.getLobbyStyle() !== "star") return;
+    layoutLobbyRadial("star", starAngle);
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(relayoutIfStarLobbyActive);
+  }
+  let resizeDebounce = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeDebounce);
+    resizeDebounce = setTimeout(relayoutIfStarLobbyActive, 120);
+  });
+
   // ---- seam: what this branch offers to everyone else ----
   Object.assign(Dojo, { showLobby });
 })();

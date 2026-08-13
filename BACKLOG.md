@@ -1,5 +1,37 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 41 — Star lobby back to default: found and fixed the real mobile bug this time
+
+- [x] **"Arcade" → "Arcades"** renamed in the two spots that still said
+      the singular (`games.js`'s section title, the landing page's
+      feature bullet) — the lobby tile and topbar already said "Arcades".
+- [x] **Actually found the mobile Star-lobby bug, instead of blaming
+      cache again.** Every earlier check reproduced clean locally, which
+      pointed at something environment-specific rather than the code —
+      confirmed live: `index.html` loads Google Fonts over the network
+      with `display=swap`, and `layoutLobbyRadial` measures the
+      container's size exactly ONCE, synchronously, when the lobby
+      renders. On a fast/cached local dev connection that measurement
+      is already final; on a real phone's first load, the font swap
+      (and mobile Safari/Chrome's address-bar-driven viewport resize)
+      both happen AFTER that one-shot measurement, leaving tile
+      positions stale relative to where the container actually
+      settles. Fixed with `core/lobby.js`'s new
+      `relayoutIfStarLobbyActive`, hooked to both `document.fonts.ready`
+      and a debounced `window resize` listener, guarded to no-op unless
+      the lobby is active and Star is equipped.
+- [x] **Lobby default flipped back to Star** (`data/db.js`), explicitly
+      only once the layout-drift bug above was actually found and
+      fixed — confirmed with the requester first since it reversed an
+      earlier documented decision (Cards had been made default this
+      same session).
+- [x] **Verified live**: a manually-dispatched `resize` event correctly
+      triggers the debounced relayout and snaps tile positions back to
+      match the container's real current size (167.6px → 187.2px →
+      167.6px across three width changes); click hit-testing confirmed
+      still correct on the settings tile after a relayout; a completely
+      fresh profile now opens on Star with no overlap, no artifacts.
+
 ## Batch 40 — Final Quiz anti-farming: daily XP cap + minimum-time floor
 
 - [x] **Closed a real farming hole**: the Final Quiz's per-attempt

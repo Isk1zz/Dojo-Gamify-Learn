@@ -46,11 +46,15 @@ const DB = (() => {
       chargeSpent: 0,        // lifetime spent in the shop
       ownedThemes: [],       // premium theme ids bought; free themes are never listed
       theme: "indigo",       // colour theme id
-      // "cards" is the default look now — "classic" and "star" both stay
-      // fully pickable in Settings, this only changes what a brand-new
-      // profile starts on. Existing profiles keep whatever they already
-      // have saved; this line only ever runs once, at profile creation.
-      lobbyStyle: "cards", // "classic" | "cards" | "star" — a re-skin of the Lobby tiles, not a rearrangement
+      // "star" is the default look now (was "cards") — "classic" and
+      // "cards" both stay fully pickable in Settings, this only changes
+      // what a brand-new profile starts on. Existing profiles keep
+      // whatever they already have saved; this line only ever runs once,
+      // at profile creation. Reversed back to Star only once the mobile
+      // layout-drift bug (font-load/viewport-resize reflow, see
+      // core/lobby.js's relayoutIfStarLobbyActive) was actually found
+      // and fixed, not before.
+      lobbyStyle: "star", // "classic" | "cards" | "star" — "star" rearranges the tiles, the other two are re-skins
       hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
       bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
       unitsUnlocked: false,  // bypasses the "finish the previous unit" prereq — see the unlockallunits code

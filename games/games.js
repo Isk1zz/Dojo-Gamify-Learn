@@ -335,7 +335,7 @@
         </p>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F3B0} Arcade</div>
+        <div class="stats-section-title">\u{1F3B0} Arcades</div>
         <div class="shop-grid" id="games-grid"></div>
       </div>`;
 
