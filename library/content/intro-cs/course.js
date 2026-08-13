@@ -129,6 +129,10 @@
     subtitle: "Networks, programming and emerging technologies",
     icon: "\u{1F4BB}",
     available: true,
+    // 1000 -- ~$21 real-world, one pack size above the smallest (see
+    // shop/tokens.js's bonus badges). Locks the only course behind the
+    // Token Shop's demo buyPack() until real payment exists.
+    priceTokens: 1000,
     units
   });
 })();

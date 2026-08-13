@@ -1,5 +1,30 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 29 — Intro to CS priced at 1000 Tokens (the Token gate's first real use)
+
+- [x] **`intro-cs` now costs 🪙 1000** (`priceTokens: 1000` on its
+      manifest) — the first time the Token pricing gate built in Batch
+      25 actually applies to anything. Priced against the smallest pack
+      that actually covers it (the $11.99/654-Token pack falls short,
+      so $20.99/1234-Token is the real floor) — ~$21 effective,
+      between Udemy's real sale price and Anki's $25 flat fee.
+- [x] **Flagged and confirmed before building:** pricing the only
+      course that exists creates a real lockout risk — a brand-new
+      profile has 0 XP, so the free rank-up Token rewards (ranks
+      6/11/15) can't help someone get IN, since those only pay out
+      AFTER you're already earning XP inside a course. Confirmed this
+      is accepted for now (Tokens are meant to be real-money-first;
+      the Token Shop's `buyPack()` demo stub is the actual "way in"
+      until real payment exists) rather than silently shipping a
+      dead-end. The rank-up Token rewards themselves stay — confirmed
+      NOT to be removed, they're just not what unlocks a first course.
+- [x] **Verified live, full loop:** fresh profile confirmed 0 Tokens /
+      doesn't own the course; Library card renders locked (red border,
+      "🪙 1000" badge, hover tooltip); clicking it routes to the Token
+      Shop; bought the $20.99 pack (0→1234 Tokens); bought the course
+      from the Priced Courses section (1234→234 Tokens); `ownsCourse`
+      flipped to `true`; Library re-rendered with the lock fully gone.
+
 ## Batch 28 — Final Quiz button moved to the bottom of the unit list
 
 - [x] **Final Quiz entry moved from right-after-"Build a Custom Deck"
