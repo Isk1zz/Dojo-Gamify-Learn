@@ -21,6 +21,15 @@ just "what's still owed."
 Nothing right now — both items from the last "ready to build" batch are
 done (Final Quiz content + `unlockallunits`, see BACKLOG.md).
 
+## New asks, not yet scoped (flagged, needs a decision first)
+- XP-farming / bot-prevention on Final Quiz retries — no anti-abuse check
+  exists yet on repeated attempts.
+- Lock the Final Quiz until all topics AND all units are passed. Note:
+  this reverses the "no hard locks" call the Final Quiz was just built
+  under — confirm before building.
+- Move the Final Quiz entry button from the top to the bottom of the
+  unit-select list (currently listed first).
+
 ## Blocked on the backend (Supabase — assigned, nothing built)
 - Career weekly XP ladder.
 - Wallet "bank": deposits + 3 stocks (tied to the black market's live

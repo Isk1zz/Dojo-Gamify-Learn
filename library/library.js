@@ -1830,10 +1830,10 @@
   // requeue logic below and the deck builder's category filter both key
   // off. Worst first, matching how they read left-to-right as buttons.
   const CONFIDENCE = [
-    { level: 0, id: "difficult",      label: "Difficult",     icon: "\u{1F616}" },
-    { level: 1, id: "still-learning", label: "Still learning", icon: "\u{1F4D6}" },
-    { level: 2, id: "has-idea",       label: "Has an idea",   icon: "\u{1F4A1}" },
-    { level: 3, id: "known-best",     label: "Known best",    icon: "✅" }
+    { level: 0, id: "difficult",      label: "I'm struggling",    icon: "\u{1F616}" },
+    { level: 1, id: "still-learning", label: "I'm still learning", icon: "\u{1F4D6}" },
+    { level: 2, id: "has-idea",       label: "I have an idea",    icon: "\u{1F4A1}" },
+    { level: 3, id: "known-best",     label: "I know this well",  icon: "✅" }
   ];
 
   function buildFlashDeck(topic) {
