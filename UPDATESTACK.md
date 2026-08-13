@@ -11,65 +11,29 @@ see BACKLOG.md) is done. Real-money purchases stay a labeled demo stub
 until there's a payment account to wire a Payment Link to — that's a
 you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 
-## Live bug reports — to re-verify after the cache-version bump
-Batch 30 (see BACKLOG.md) bumped `sw.js`'s `CACHE_VERSION` for the first
-time all session — every fix below this point may already be live on
-GitHub Pages but invisible on a device that visited before, since the
-service worker's stale-while-revalidate strategy keeps serving an old
-build until it's told a new one exists. **After this deploys, fully close
-the tab/PWA and reopen it once** (a plain refresh isn't enough — see
-`sw.js`'s own "Updating" comment) before re-checking any of these:
-- Star lobby "broken" on phone (tiles overlapping) — reproduced on a
-  375px mobile viewport with the CURRENT code and it renders correctly
-  (clean 6-tile ring, no overlap). Strong suspect for stale cache, not a
-  live bug — please re-test after the hard reopen above.
-- Kirigami + background stripes "creating a mess" — `core/theme.js`'s
-  `stripeCssFor` already suppresses the stripe layer entirely for any
-  theme whose own `bg` is a repeating pattern (confirmed Kirigami,
-  Terminal, AND Ronin all match), and recolors the stripe dark on light
-  themes (Paper, Frost) for contrast. Checked all 7 striped-and-themed
-  combinations in the data — the fix is already in place. Also a strong
-  stale-cache suspect.
+## Live bug reports — resolved since last check-in
+- Star lobby "broken" on phone, and Kirigami+stripes "a mess" — both
+  confirmed stale-cache artifacts (Batch 30's `CACHE_VERSION` bump);
+  code was already correct. Fixed for good going forward.
+- "Bought the course, couldn't unlock it" — real bug found: clicking a
+  locked course redirected to the Token Shop where the actual buy
+  button lived in a separate section further down the page. Fixed with
+  a buy-inline modal on the course card itself (Batch 31); Token Shop
+  no longer lists courses at all now.
+- Mobile XP bar overflow, Career screen mobile overflow, Flashcards
+  bypassing course ownership, Sources-box crowding the phase button —
+  all found and fixed (Batches 32/33/37).
 
-## Live bug reports — needs your input, not just a re-test
-- **"Even after I bought the course I couldn't unlock it (phone &
-  laptop)."** Two different explanations, and which one applies changes
-  what (if anything) needs fixing:
-  1. If you bought it on your PHONE and expected it to show unlocked on
-     your LAPTOP too — that's the offline/no-account architecture
-     working as designed, not a bug. Every device has its own separate
-     local save (see the landing-page copy and the long-term roadmap
-     entry below) — there is nowhere for a purchase to sync TO yet.
-  2. If it stayed locked on the SAME device you bought it on — that's a
-     real bug, and the likely cause is the stale-cache issue above (you
-     may have bought it under an old JS bundle that predates some
-     Tokens-related fix). Re-test after the hard reopen; tell me if it
-     still fails on one device and I'll dig into that specifically.
-- **Clicking a locked course should offer to preview its structure, and
-  buy inline if affordable** — right now clicking a locked course card
-  just routes straight to the Token Shop (`library/library.js`'s
-  `renderCourseSelect`). Scoped idea, not yet built: a small
-  preview/modal showing the course's unit list, with a "Buy for 🪙 N"
-  button right there if the balance covers it, instead of forcing a
-  screen change to browse away and come back. Needs a design pass
-  before building — how much structure to reveal (unit titles only, or
-  topic counts too?) and where the modal lives.
+## Still open — needs your input
 - **Token icon renders as silver on the phone screenshot, gold on
-  laptop.** This is very likely a platform emoji-rendering difference
-  (🪙 is drawn by the OS's own emoji font — iOS Apple Color Emoji vs.
-  Windows/Chrome's — not something CSS controls), not a code bug. If
-  exact cross-platform color consistency matters, the fix is swapping
-  the emoji for a custom inline SVG coin icon everywhere Tokens are
-  shown (`core/hud.js`, `shop/tokens.js`, `library/library.js`) — a
-  real but small chunk of work. Confirm whether that's worth doing
+  laptop.** Very likely a platform emoji-rendering difference (🪙 is
+  drawn by the OS's own emoji font, not CSS), not a code bug. Fix would
+  be swapping the emoji for a custom inline SVG coin icon everywhere
+  Tokens are shown — real but small work. Confirm it's worth doing
   before I build it.
-
-## New asks, not yet scoped (flagged, needs a decision first)
-- XP-farming / bot-prevention on Final Quiz retries — no anti-abuse check
-  exists yet on repeated attempts.
-- Lock the Final Quiz until all topics AND all units are passed. Note:
-  this reverses the "no hard locks" call the Final Quiz was just built
-  under — confirm before building.
+- **XP-farming / bot-prevention on Final Quiz retries** — no anti-abuse
+  check exists yet on repeated attempts. (The OTHER Final Quiz ask —
+  locking it until every unit is complete — is done, Batch 33.)
 
 ## Blocked on the backend (Supabase — assigned, nothing built)
 - Career weekly XP ladder.
