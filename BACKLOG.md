@@ -1,5 +1,32 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 44 — Wisdom quotes now show on review results too
+
+- [x] **Reported as "quotes stopped showing up after a unit."** Not a
+      regression: `pickQuote`/`quoteHtml` and every topic-mastery-exam
+      result path were tested directly against all 8 units and every
+      topic in the course (57-quote pool, tag-matching, fallback logic)
+      with no error or gap found anywhere, and a full live click-through
+      of a real unit-completing exam rendered its quote correctly.
+      Confirmed with you that the actual gap was by original design:
+      `finishFlashcards` (single-topic spaced-repetition review) and
+      `finishCustomDeck` (multi-topic custom deck review) both always
+      cleared `#result-wisdom` outright — reviews never showed a quote,
+      exams always did. Once you're deep enough into a course to have
+      due reviews, that split reads as "quotes stopped."
+      Fixed by pooling `wisdomTags` the same way the exam path does:
+      `finishFlashcards` flatMaps `state.flashTopic.chunks` directly
+      (it's a single real topic); `finishCustomDeck` looks each card's
+      chunk back up via `ALL_TOPICS` by `topicId`/`chunkIdx`, since deck
+      cards only carry those ids, not the chunk object itself.
+      **Verified live**: completed a topic exam (unit 1, all 4 topics,
+      including the unit-completing one) — quote shown. Ran a real
+      single-topic flashcard review — quote shown ("Watered!" screen).
+      Built and ran a real 6-card custom deck spanning two topics —
+      quote shown ("Deck Cleared!" screen). The Final Quiz result screen
+      is untouched and intentionally stays quote-free — it's cumulative
+      across all 8 units, so no single tag pool honestly applies.
+
 ## Batch 43 — Fixed first-ever-visit lobby never repainting after profile creation
 
 - [x] **Real bug, reported as "first ever opening of the website uses

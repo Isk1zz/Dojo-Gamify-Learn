@@ -12,6 +12,11 @@ until there's a payment account to wire a Payment Link to — that's a
 you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
 
 ## Live bug reports — resolved since last check-in
+- **"Quotes stopped showing up after a unit"** — traced to the review
+  result screens (flashcards + custom deck), which always cleared the
+  quote by original design. Fixed to pool tags and show a quote there
+  too, same as topic exams. Full details + live verification in
+  BACKLOG.md Batch 44.
 - "First ever opening of the website uses cards layout not a star
   topology" — real bug, not a defaults/cache issue: profile creation
   never repainted the lobby behind the modal, so the pre-profile

@@ -2373,8 +2373,15 @@
         bonusEl.innerHTML = "";
       }
     }
+    // Same reward as a fresh topic pass — a review is still "you sat
+    // with this topic and it stuck," and skipping the quote here was
+    // the one place that made finishing a topic's review feel worth
+    // less than finishing it the first time.
     const wisdomEl = document.getElementById("result-wisdom");
-    if (wisdomEl) wisdomEl.innerHTML = "";
+    if (wisdomEl) {
+      const tags = topic.chunks.flatMap(c => c.wisdomTags || []);
+      wisdomEl.innerHTML = quoteHtml(pickQuote(tags));
+    }
 
     showScreen("exam-result");
     if (Dojo.burstConfetti) Dojo.burstConfetti(document.getElementById("result-icon"));
@@ -2427,8 +2434,19 @@
         bonusEl.innerHTML = "";
       }
     }
+    // Deck cards only carry topicId/chunkIdx (see buildCustomDeck), not
+    // the chunk object itself, so the tag pool is looked back up
+    // through ALL_TOPICS rather than flatMapped straight off the deck
+    // the way a single-topic review can.
     const wisdomEl = document.getElementById("result-wisdom");
-    if (wisdomEl) wisdomEl.innerHTML = "";
+    if (wisdomEl) {
+      const tags = deck.flatMap(card => {
+        const t = ALL_TOPICS.find(x => x.id === card.topicId);
+        const c = t && t.chunks[card.chunkIdx];
+        return (c && c.wisdomTags) || [];
+      });
+      wisdomEl.innerHTML = quoteHtml(pickQuote(tags));
+    }
 
     showScreen("exam-result");
     if (Dojo.burstConfetti) Dojo.burstConfetti(document.getElementById("result-icon"));
