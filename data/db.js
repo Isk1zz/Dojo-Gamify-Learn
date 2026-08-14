@@ -55,6 +55,12 @@ const DB = (() => {
       // core/lobby.js's relayoutIfStarLobbyActive) was actually found
       // and fixed, not before.
       lobbyStyle: "star", // "classic" | "cards" | "star" — "star" rearranges the tiles, the other two are re-skins
+      // How the Star topology wires its nodes: "spokes" (hub-and-spoke,
+      // the original) or "hexagram" (two overlapping triangles through
+      // alternating tiles). Hexagram needs exactly 6 visible tiles to
+      // be a real hexagram — core/lobby.js falls back to spokes when
+      // the Resume tile makes it 7. See layoutLobbyRadial.
+      starLinks: "spokes",
       hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
       soundEnabled: true,    // mutes core/sfx.js's synthesized UI sounds app-wide
       bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
@@ -1123,6 +1129,19 @@ const DB = (() => {
     save(db);
   }
 
+  function getStarLinks() {
+    const p = getActiveProfile();
+    return (p && p.starLinks) || "spokes";
+  }
+
+  function setStarLinks(id) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.starLinks = id;
+    save(db);
+  }
+
   // Defaults to true (undefined reads as "on") so an already-migrated
   // profile that predates this field never silently loses its hints.
   function getHintsEnabled() {
@@ -1528,6 +1547,8 @@ const DB = (() => {
     setTheme,
     getLobbyStyle,
     setLobbyStyle,
+    getStarLinks,
+    setStarLinks,
     getHintsEnabled,
     setHintsEnabled,
     getSoundEnabled,

@@ -1,5 +1,48 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 50 — Spark-count dial, and a Magen David link mode for the Star ring
+
+- [x] **Second dial: spark count, mirrored across the Y axis from the
+      wind dial.** Yellow (`--yellow`, matching the amber already in the
+      spark palette) so two identically-styled sliders side by side
+      don't read as one control split in half. 0–5, default 1. Mirrored
+      properly, not just moved: it sits at the opposite end of the row
+      AND has its icon/slider order reversed, so the pair reads as one
+      reflected control. Measured live at 20px from its edge against the
+      wind dial's 20px from the other — symmetric to the pixel.
+      Sparks are spaced evenly around the orbit and each is offset one
+      whole colour-step along the palette, so five sparks show five
+      different colours rather than five copies of one. The offset is
+      applied in REVOLUTIONS rather than degrees, which matters because
+      the colour phase runs through `Math.abs()` — a raw degree offset
+      would fold the wrong way once the accumulator goes negative.
+      Count is read off the dial each frame, exactly like the rotate
+      slider's velocity: no state, nothing to persist or reset.
+- [x] **Magen David link mode — asked as "is it possible", and the two
+      triples named were exactly right.** With Resume hidden the ring is
+      6 tiles at 60°, so alternating nodes give
+      Library–Garden–Statistics and Career–Settings–Arcades: a true
+      hexagram, not an approximation. Added as a **Settings option**
+      ("Star links": Spokes / Star of David, new `starLinks` profile
+      field) rather than replacing the spokes, since it was asked for
+      as a separate test.
+      **It needs exactly six nodes to be a hexagram.** With the Resume
+      tile visible the ring is 7, and joining every-other node there
+      walks one 7-pointed path instead of closing two triangles — so
+      that case falls back to spokes rather than drawing something
+      lopsided and calling it a Star of David.
+      **Verified live by identifying which tiles each drawn line
+      actually connects** (nearest-node lookup against the rendered
+      coordinates, not by reading the code back): the six edges came out
+      as Garden–Library, Garden–Statistics, Library–Statistics and
+      Career–Settings, Arcades–Settings, Arcades–Career — precisely the
+      two triples requested. 7-tile fallback confirmed to emit 7 spokes
+      all starting on the hub rim.
+- [x] **Checked at 699 / 375 / 320px**: dials never overlap (57px apart
+      even at 320px), stay above the brand, and
+      `documentElement.scrollWidth === innerWidth` at every width. Both
+      dials hide together in Classic and Cards.
+
 ## Batch 49 — Star lobby: orbit ring with a geared counter-rotating spark
 
 - [x] **Added an orbit ring around the Star constellation, with a spark

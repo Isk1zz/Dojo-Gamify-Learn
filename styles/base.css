@@ -964,7 +964,7 @@ body {
 .lobby-style-star .lt-title {
   font-size: 0.72rem; line-height: 1.2; font-weight: 600;
 }
-.lobby-star-lines, .lobby-hub, .lobby-rotate-control { display: none; }
+.lobby-star-lines, .lobby-hub, .lobby-dials { display: none; }
 /* Rotate control — a velocity dial, not a position dial. Centered on 0
    (no spin); drag either way to set how fast the ring turns, in
    degrees/second. core/lobby.js's starSpinTick reads the slider every
@@ -983,10 +983,23 @@ body {
    breakpoint. `.is-star` is toggled by core/lobby.js's showLobby
    because the element is no longer a descendant of .lobby-style-star,
    so the old descendant selector can't reach it. */
-.lobby-rotate-control.is-star {
-  display: flex; align-items: center; justify-content: flex-start;
-  gap: 0.4rem; margin: 0 0 0.75rem;
+.lobby-dials.is-star {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.75rem; margin: 0 0 0.75rem;
 }
+.lobby-rotate-control, .lobby-spark-control {
+  display: flex; align-items: center; gap: 0.4rem;
+}
+/* The spark dial is the wind dial mirrored, so it gets its own colour
+   rather than the theme accent — two identically-styled sliders side by
+   side would read as one control split in half. Yellow matches the
+   amber already in core/lobby.js's spark palette. */
+.lobby-spark-slider::-webkit-slider-thumb {
+  background: var(--yellow);
+  box-shadow: 0 0 0 3px var(--yellow-glow);
+}
+.lobby-spark-slider::-moz-range-thumb { background: var(--yellow); box-shadow: 0 0 0 3px var(--yellow-glow); }
+.lobby-spark-slider::-moz-range-progress { background: var(--yellow); }
 .lobby-rotate-icon { font-size: 0.95rem; opacity: 0.7; }
 /* Fully reset instead of relying on `accent-color` alone — that only
    tints the thumb and the filled portion in Chromium; the unfilled

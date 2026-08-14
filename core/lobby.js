@@ -35,11 +35,11 @@
       actionsEl.classList.toggle("lobby-style-cards", style === "cards");
       actionsEl.classList.toggle("lobby-style-star", style === "star");
     }
-    // The rotate control sits above the brand, outside .lobby-actions
-    // (see index.html) — so it can't be shown/hidden by a descendant
+    // The dials sit above the brand, outside .lobby-actions (see
+    // index.html) — so they can't be shown/hidden by a descendant
     // selector on the style class above. Toggled directly instead.
-    const rotateEl = document.getElementById("lobby-rotate-control");
-    if (rotateEl) rotateEl.classList.toggle("is-star", style === "star");
+    const dialsEl = document.getElementById("lobby-dials");
+    if (dialsEl) dialsEl.classList.toggle("is-star", style === "star");
 
     // Streak now lives as a persistent top-right badge (core/hud.js's
     // renderStreak), not a lobby-only line — it needs to be visible from
@@ -180,8 +180,13 @@
     return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",")})`;
   }
 
-  function sparkColorAt(totalDeg) {
-    const revs = Math.abs(totalDeg) / 360;
+  // `phaseSteps` offsets a spark whole colour-steps along the sequence,
+  // so a ring of sparks shows several palette colours at once instead
+  // of N copies of the same one. Added in REVOLUTIONS, not degrees, so
+  // it can't interact with the abs() below the way a raw degree offset
+  // would once totalDeg goes negative.
+  function sparkColorAt(totalDeg, phaseSteps) {
+    const revs = Math.abs(totalDeg) / 360 + (phaseSteps || 0) * REVS_PER_COLOR;
     const step = Math.floor(revs / REVS_PER_COLOR);
     const within = revs - step * REVS_PER_COLOR;
     // Hold the colour for 6 revolutions, then cross-fade over the 7th —
@@ -217,21 +222,32 @@
   // ring turns, and three cheap circles cost nothing on a phone where
   // a re-parsed filter would.
   function orbitSparkMarkup(cx, cy, orbitR) {
-    const color = sparkColorAt(sparkDeg);
+    // Count comes straight off the dial each frame, exactly like the
+    // rotate slider's velocity — no state, nothing to persist or reset.
+    const dial = document.getElementById("lobby-spark-slider");
+    const count = dial ? parseInt(dial.value, 10) : 1;
+    if (!count || count < 1) return "";
+
     const at = deg => {
       const a = (-90 + deg) * Math.PI / 180;
       return [cx + orbitR * Math.cos(a), cy + orbitR * Math.sin(a)];
     };
+
     let out = "";
-    for (let k = 5; k >= 1; k--) {
-      const [tx, ty] = at(sparkDeg - sparkDir * k * 3.4);
-      out += `<circle cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="${(2.5 - k * 0.36).toFixed(2)}" fill="${color}" opacity="${(0.32 - k * 0.05).toFixed(3)}"/>`;
+    for (let s = 0; s < count; s++) {
+      // Evenly spaced around the ring, each one colour-step apart.
+      const lead = sparkDeg + s * (360 / count);
+      const color = sparkColorAt(sparkDeg, s);
+      for (let k = 5; k >= 1; k--) {
+        const [tx, ty] = at(lead - sparkDir * k * 3.4);
+        out += `<circle cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="${(2.5 - k * 0.36).toFixed(2)}" fill="${color}" opacity="${(0.32 - k * 0.05).toFixed(3)}"/>`;
+      }
+      const [sx, sy] = at(lead);
+      out += `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="8.5" fill="${color}" opacity="0.14"/>` +
+             `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="4.6" fill="${color}" opacity="0.4"/>` +
+             `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="2.3" fill="${color}"/>`;
     }
-    const [sx, sy] = at(sparkDeg);
-    return out +
-      `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="8.5" fill="${color}" opacity="0.14"/>` +
-      `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="4.6" fill="${color}" opacity="0.4"/>` +
-      `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="2.3" fill="${color}"/>`;
+    return out;
   }
 
   // Star's own tile order — Career/Garden and Settings/Arcade sit
@@ -321,13 +337,40 @@
     const hubEl = document.getElementById("btn-lobby-hub-flashcards");
     const hubR = ((hubEl && hubEl.offsetWidth) || 66) / 2 + 4;
 
-    const spokes = tiles.map((_, i) => {
+    const nodeAt = i => {
       const a = (-90 + rot + i * (360 / n)) * Math.PI / 180;
-      const cos = Math.cos(a), sin = Math.sin(a);
-      const x1 = cx + hubR * cos, y1 = cy + hubR * sin;
-      const x = cx + r * cos, y = cy + r * sin;
-      return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
-    }).join("");
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    };
+    const line = (x1, y1, x2, y2) =>
+      `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
+
+    // Hexagram: two triangles through alternating nodes — with the
+    // Resume tile hidden the ring is exactly 6 tiles at 60°, so
+    // {0,2,4} and {1,3,5} are Library/Garden/Statistics and
+    // Career/Settings/Arcades. That's a true Magen David, not an
+    // approximation of one. It needs SIX nodes to be one, though: when
+    // Resume is visible the ring is 7 and connecting every-other node
+    // walks a single 7-pointed path instead of closing two triangles,
+    // so that case falls back to spokes rather than drawing something
+    // lopsided and calling it a hexagram.
+    const wantHexagram = DB.getStarLinks && DB.getStarLinks() === "hexagram";
+    let links;
+    if (wantHexagram && n === 6) {
+      links = [0, 1].map(offset =>
+        [0, 1, 2].map(k => {
+          const [x1, y1] = nodeAt(offset + k * 2);
+          const [x2, y2] = nodeAt(offset + ((k + 1) % 3) * 2);
+          return line(x1, y1, x2, y2);
+        }).join("")
+      ).join("");
+    } else {
+      links = tiles.map((_, i) => {
+        const a = (-90 + rot + i * (360 / n)) * Math.PI / 180;
+        const cos = Math.cos(a), sin = Math.sin(a);
+        const [x2, y2] = nodeAt(i);
+        return line(cx + hubR * cos, cy + hubR * sin, x2, y2);
+      }).join("");
+    }
 
     // offsetWidth, not getBoundingClientRect().width — a hovered tile
     // carries a scale(1.1), and measuring that would make the whole
@@ -338,7 +381,7 @@
 
     svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
     // Track first so the spokes and the spark both sit above it.
-    svg.innerHTML = orbitTrackMarkup(cx, cy, orbitR) + spokes + orbitSparkMarkup(cx, cy, orbitR);
+    svg.innerHTML = orbitTrackMarkup(cx, cy, orbitR) + links + orbitSparkMarkup(cx, cy, orbitR);
   }
 
   // Re-measures and repositions the ring after the container's actual

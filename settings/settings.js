@@ -110,6 +110,35 @@
         <span class="sw-name">${name}</span>
       </button>`;
 
+    // Same 6 dots as starPreview, wired the other way: each node joined
+    // to the one two places around, which closes two triangles.
+    const hexPreview = () => {
+      const n = 6, r = 15, cx = 22, cy = 22;
+      const pt = i => {
+        const d = (-90 + i * (360 / n)) * Math.PI / 180;
+        return [cx + r * Math.cos(d), cy + r * Math.sin(d)];
+      };
+      let out = "";
+      for (let i = 0; i < n; i++) {
+        const [x1, y1] = pt(i), [x2, y2] = pt((i + 2) % n);
+        const len = Math.hypot(x2 - x1, y2 - y1);
+        const deg = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+        out += `<span class="rp-line" style="left:${x1.toFixed(1)}px;top:${y1.toFixed(1)}px;width:${len.toFixed(1)}px;transform:rotate(${deg.toFixed(1)}deg);"></span>`;
+      }
+      for (let i = 0; i < n; i++) {
+        const [x, y] = pt(i);
+        out += `<span class="rp-dot" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;"></span>`;
+      }
+      return `<span class="style-preview-radial">${out}</span>`;
+    };
+
+    const starLinks = DB.getStarLinks ? DB.getStarLinks() : "spokes";
+    const linkSwatch = (id, name) => `
+      <button class="style-swatch${id === starLinks ? " active" : ""}" data-star-links="${id}">
+        ${id === "hexagram" ? hexPreview() : starPreview()}
+        <span class="sw-name">${name}</span>
+      </button>`;
+
     body.innerHTML = `
       <div class="settings-section">
         <div class="stats-section-title">\u{1F3A8} Colour theme</div>
@@ -141,6 +170,14 @@
           ${lobbyStyleSwatch("classic", "Classic", "classic")}
           ${lobbyStyleSwatch("cards", "Cards", "cards")}
           ${lobbyStyleSwatch("star", "Star", "star")}
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="stats-section-title">\u{1F517} Star links</div>
+        <p class="settings-hint">How the Star layout wires its tiles together. Star of David joins every other tile into two triangles — it needs exactly six tiles, so it falls back to spokes while the Resume tile is showing.</p>
+        <div class="lobby-style-grid">
+          ${linkSwatch("spokes", "Spokes")}
+          ${linkSwatch("hexagram", "Star of David")}
         </div>
       </div>
       <div class="settings-section">
@@ -287,6 +324,14 @@
         DB.setBgStripe(id);
         if (Dojo.applyBgStripe) Dojo.applyBgStripe(id);
         body.querySelectorAll(".stripe-swatch").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+
+    body.querySelectorAll("[data-star-links]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        DB.setStarLinks(btn.getAttribute("data-star-links"));
+        body.querySelectorAll("[data-star-links]").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
       });
     });

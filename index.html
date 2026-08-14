@@ -153,9 +153,19 @@
              there. Sitting in normal flow above everything also means
              it can't collide with the ring at any width, which pinning
              it to a corner never guaranteed. -->
-        <div class="lobby-rotate-control" id="lobby-rotate-control">
-          <span class="lobby-rotate-icon" aria-hidden="true">&#127744;</span>
-          <input type="range" id="lobby-rotate-slider" class="lobby-rotate-slider" min="-60" max="60" value="0" step="1" aria-label="Spin the star layout" />
+        <div class="lobby-dials" id="lobby-dials">
+          <div class="lobby-rotate-control" id="lobby-rotate-control">
+            <span class="lobby-rotate-icon" aria-hidden="true">&#127744;</span>
+            <input type="range" id="lobby-rotate-slider" class="lobby-rotate-slider" min="-60" max="60" value="0" step="1" aria-label="Spin the star layout" />
+          </div>
+          <!-- Mirrored across the Y axis from the wind dial: it sits at
+               the opposite end of the row AND its icon/slider order is
+               reversed, so the pair reads as one reflected control
+               rather than two dials that happen to be on one line. -->
+          <div class="lobby-spark-control" id="lobby-spark-control">
+            <input type="range" id="lobby-spark-slider" class="lobby-rotate-slider lobby-spark-slider" min="0" max="5" value="1" step="1" aria-label="Number of orbiting sparks" />
+            <span class="lobby-rotate-icon" aria-hidden="true">&#10024;</span>
+          </div>
         </div>
         <div class="lobby-brand">Dojo<span class="accent">&#36947;&#22580;</span></div>
         <p class="lobby-welcome" id="lobby-welcome">Welcome back.</p>
