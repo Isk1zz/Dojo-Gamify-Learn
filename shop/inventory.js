@@ -14,10 +14,13 @@
 // and equipping in Settings are the same operation, so the two can
 // never disagree about what's equipped.
 //
-// Locked entries are deliberately NOT listed. Settings already shows
-// locked themes with the rank needed, which is the right place for
-// "what's coming"; an inventory that lists things you don't have isn't
-// an inventory.
+// Unowned entries DO appear, as vacant slots showing what it takes to
+// fill them. That reverses an earlier call here ("an inventory that
+// lists things you don't have isn't an inventory") on request — the
+// argument against it was real but the argument for it is stronger:
+// a slot you can see is empty is the only thing that tells you a set
+// is incomplete. Rank-locked items still say the rank; shop items say
+// the price and take you to the Shop.
 // ================================================
 
 (() => {
@@ -88,22 +91,38 @@
         equip: id => DB.setStarLinks(id)
       });
 
+      // Both colour slots draw from ONE owned pool (buy a palette once
+      // in the Shop, wear it on either), so they're built from the same
+      // helper. Unowned palettes still appear — as vacant slots showing
+      // their price, which is what makes the inventory read as "here's
+      // the set and here's what's missing" instead of quietly hiding
+      // that anything else exists.
+      const FLAGS = Dojo.HEX_FLAGS || {};
+      const MODES = Dojo.HEX_FLAG_MODES || {};
+      const LABELS = Dojo.HEX_FLAG_LABELS || {};
+      const paletteItems = current => Object.keys(MODES).map(id => {
+        const first = FLAGS[(MODES[id] || [])[0]];
+        const owned = !Dojo.ownsPalette || Dojo.ownsPalette(id);
+        return {
+          id, name: LABELS[id] || id,
+          swatch: first ? `background:${first.bar}` : null,
+          equipped: owned && id === current,
+          locked: !owned,
+          price: Dojo.paletteCost ? Dojo.paletteCost(id) : 0
+        };
+      });
+
       if (linksNow === "hexagram") {
-        const flagsNow = DB.getHexFlags ? DB.getHexFlags() : "combined";
-        const FLAGS = Dojo.HEX_FLAGS || {};
-        const MODES = Dojo.HEX_FLAG_MODES || {};
-        const LABELS = Dojo.HEX_FLAG_LABELS || {};
         out.push({
           key: "flags", icon: "\u{1F38C}", title: "Star of David colours",
-          items: Object.keys(MODES).map(id => {
-            const first = FLAGS[(MODES[id] || [])[0]];
-            return {
-              id, name: LABELS[id] || id,
-              swatch: first ? `background:${first.bar}` : null,
-              equipped: id === flagsNow
-            };
-          }),
+          items: paletteItems(DB.getHexFlags ? DB.getHexFlags() : "combined"),
           equip: id => DB.setHexFlags(id)
+        });
+      } else {
+        out.push({
+          key: "spokes", icon: "\u{1F517}", title: "Spoke colours",
+          items: paletteItems(DB.getSpokeFlags ? DB.getSpokeFlags() : "combined"),
+          equip: id => DB.setSpokeFlags(id)
         });
       }
     }
@@ -132,35 +151,38 @@
     if (!body) return;
 
     const rows = slots();
-    const total = rows.reduce((n, s) => n + s.items.length, 0);
+    const total = rows.reduce((n, s) => n + s.items.filter(i => !i.locked).length, 0);
+    const vacant = rows.reduce((n, s) => n + s.items.filter(i => i.locked).length, 0);
 
     body.innerHTML = `
       <div class="shop-wallet">
-        <div class="sw-balance">\u{1F392} ${total} unlocked</div>
+        <div class="sw-balance">\u{1F392} ${total} unlocked${vacant ? ` · ${vacant} vacant` : ""}</div>
         <p class="settings-hint" style="margin:0.6rem 0 0;">
-          Everything you own and can equip. Tap anything to put it on — it
-          takes effect straight away, same as equipping it in Settings.
-          Locked items aren't listed here; Settings shows those with the
-          rank they need.
+          Everything you own and can equip — tap anything to put it on, it
+          takes effect straight away. Greyed slots are vacant: tap one to
+          go to the Shop and fill it.
         </p>
-        <button id="btn-inventory-shop" class="btn-ghost" style="margin-top:0.9rem;">\u{1F396} Open Shop (Career)</button>
+        <button id="btn-inventory-shop" class="btn-ghost" style="margin-top:0.9rem;">\u{1F6D2} Open Shop</button>
       </div>
       ${rows.map(s => `
         <div class="settings-section">
           <div class="stats-section-title">${s.icon} ${s.title}</div>
           <div class="inv-grid">
             ${s.items.map(it => `
-              <button type="button" class="inv-chip${it.equipped ? " equipped" : ""}"
-                      data-slot="${s.key}" data-id="${it.id}">
+              <button type="button" class="inv-chip${it.equipped ? " equipped" : ""}${it.locked ? " vacant" : ""}"
+                      data-slot="${s.key}" data-id="${it.id}"${it.locked ? ' data-locked="1"' : ""}
+                      title="${it.locked ? `Locked — ${it.price} in the Shop` : it.name}">
                 <span class="inv-swatch"${it.swatch ? ` style="${it.swatch}"` : ""}>${it.glyph || ""}</span>
                 <span class="inv-name">${it.name}</span>
                 ${it.equipped ? `<span class="inv-on">✓</span>` : ""}
+                ${it.locked ? `<span class="inv-lock">$${it.price}</span>` : ""}
               </button>`).join("")}
           </div>
         </div>`).join("")}`;
 
     body.querySelectorAll(".inv-chip").forEach(btn => {
       btn.addEventListener("click", () => {
+        if (btn.hasAttribute("data-locked")) { Router.go("store", { cat: "palettes" }); return; }
         const slot = rows.find(s => s.key === btn.getAttribute("data-slot"));
         if (!slot) return;
         slot.equip(btn.getAttribute("data-id"));
@@ -170,7 +192,7 @@
     });
 
     const shopBtn = body.querySelector("#btn-inventory-shop");
-    if (shopBtn) shopBtn.addEventListener("click", () => Router.go("shop"));
+    if (shopBtn) shopBtn.addEventListener("click", () => Router.go("store", { cat: "palettes" }));
 
     showScreen("inventory");
   }

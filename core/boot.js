@@ -27,6 +27,7 @@
     shop:           () => Dojo.renderShop,
     games:          () => Dojo.renderGames,
     inventory:      () => Dojo.renderInventory,
+    store:          () => Dojo.renderStore,
     settings:       () => Dojo.renderSettings
   };
 
@@ -45,7 +46,7 @@
   on("btn-start", () => { Dojo.checkProfile(); Dojo.showLobby(); });
 
   on("btn-lobby-courses",  () => Router.go("course-select"));
-  on("btn-token-shop",     () => Router.go("token-shop"));
+  on("btn-token-shop",     () => Router.go("store", { cat: "packs" }));
   on("btn-back-token-shop", () => Router.go("course-select"));
   on("btn-lobby-garden",   () => Router.go("garden"));
   on("btn-lobby-shop",     () => Router.go("shop"));
@@ -55,6 +56,7 @@
   // is unchanged on purpose — see index.html).
   on("btn-lobby-stats",    () => Router.go("inventory"));
   on("btn-back-inventory", () => Router.go("lobby"));
+  on("btn-back-store",     () => Router.go("lobby"));
   on("btn-lobby-flashcards", () => Dojo.openFlashcardsHub && Dojo.openFlashcardsHub());
   // Star layout's hub button — Flashcards' home in that topology only
   // (see core/lobby.js's STAR_ORDER comment). Inert in Classic/Cards,

@@ -65,6 +65,9 @@ const DB = (() => {
       // (Ukraine + Israel), "ukraine", "israel" or "usa". Only read
       // when starLinks is "hexagram". See core/lobby.js's HEX_FLAGS.
       hexFlags: "combined",
+      // Spokes carry their own colour choice, independent of the
+      // hexagram's — they're sold as two separate things.
+      spokeFlags: "combined",
       hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
       soundEnabled: true,    // mutes core/sfx.js's synthesized UI sounds app-wide
       bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
@@ -1151,6 +1154,19 @@ const DB = (() => {
     return (p && p.hexFlags) || "combined";
   }
 
+  function getSpokeFlags() {
+    const p = getActiveProfile();
+    return (p && p.spokeFlags) || "combined";
+  }
+
+  function setSpokeFlags(id) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.spokeFlags = id;
+    save(db);
+  }
+
   function setHexFlags(id) {
     const db = load();
     const p = db.profiles[db.activeProfileId];
@@ -1568,6 +1584,8 @@ const DB = (() => {
     setStarLinks,
     getHexFlags,
     setHexFlags,
+    getSpokeFlags,
+    setSpokeFlags,
     getHintsEnabled,
     setHintsEnabled,
     getSoundEnabled,

@@ -225,5 +225,75 @@
     showScreen("token-shop");
   }
 
-  Object.assign(Dojo, { renderTokenShop, ownsCourse, buyCourse, PATRON_TIERS });
+
+  // ---- Panes for the unified Shop (shop/store.js) ----
+  // The store owns the screen and the left-hand category nav; the pack
+  // and tier DATA lives here, so it hands back markup rather than
+  // letting the store restate prices it doesn't own.
+  function tokenPacksPane() {
+    return `
+      <div class="settings-section">
+        <div class="stats-section-title">🪙 Token packs</div>
+        <p class="settings-hint">Buying is a DEMO — packs credit instantly, no real payment happens yet.</p>
+        <div class="shop-grid">
+          ${TOKEN_PACKS.map(pack => {
+            const bonus = bonusPct(pack);
+            return `
+              <div class="shop-card">
+                <div class="shop-card-preview game-preview">
+                  <span class="gp-icon">🪙</span>
+                  ${bonus > 0 ? `<span class="pack-bonus-badge">+${bonus}%</span>` : ""}
+                </div>
+                <div class="shop-card-body">
+                  <div class="shop-name">${pack.tokens} Tokens</div>
+                  <div class="shop-tagline">${bonus > 0 ? `${bonus}% more per $ than the smallest pack` : "Demo purchase — no real payment"}</div>
+                  <button class="shop-btn buy" data-pack="${pack.id}">${pack.priceLabel} (demo)</button>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }
+
+  function patronPane() {
+    const cur = DB.getPatronTier ? DB.getPatronTier() : 0;
+    return `
+      <div class="settings-section">
+        <div class="stats-section-title">⭐ Support the Dojo</div>
+        <p class="settings-hint">The Dojo stays cheap on purpose. If it's worked for you and you want to help keep it that way for everyone else, pick a tier — a thank-you star next to your name and a permanent XP boost. No real billing yet, and a tier can only go up.</p>
+        <div class="shop-grid">
+          ${PATRON_TIERS.map(t => {
+            const owned = cur >= t.tier;
+            return `
+              <div class="shop-card">
+                <div class="shop-card-preview game-preview">
+                  <span class="gp-icon profile-patron-star tier-${t.tier}">${t.star}</span>
+                  <span class="pack-bonus-badge">${t.xpBonus}</span>
+                </div>
+                <div class="shop-card-body">
+                  <div class="shop-name">${t.label}</div>
+                  <div class="shop-tagline">${t.range} — ${t.desc}</div>
+                  <button class="shop-btn buy" data-tier="${t.tier}" ${owned ? "disabled" : ""}>${owned ? "Current tier" : "Choose (demo)"}</button>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }
+
+  function bindTokenPane(root, rerender) {
+    root.querySelectorAll("[data-pack]").forEach(btn => {
+      btn.addEventListener("click", () => { if (buyPack(btn.getAttribute("data-pack"))) rerender(); });
+    });
+    root.querySelectorAll("[data-tier]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (choosePatronTier(parseInt(btn.getAttribute("data-tier"), 10))) {
+          rerender();
+          if (Dojo.updateProfileBadge) Dojo.updateProfileBadge();
+        }
+      });
+    });
+  }
+
+  Object.assign(Dojo, { renderTokenShop, ownsCourse, buyCourse, PATRON_TIERS, tokenPacksPane, patronPane, bindTokenPane });
 })();

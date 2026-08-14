@@ -1052,3 +1052,45 @@
 @media (max-width: 500px) {
   .contract-card { padding: 1.5rem; }
 }
+
+/* ── Stats: per-course disclosure ──
+   The topic list used to be one flat 48-row dump ("an ingredient
+   pile"). Each course is now a closed <details> you open on demand,
+   with the confidence grouping living inside it. */
+.stats-course {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-card); margin-bottom: 0.6rem; overflow: hidden;
+}
+/* Deliberately does NOT set display on <summary>; the flex row lives on
+   a span inside it. Setting display directly on a summary is the kind
+   of thing engines have historically disagreed about, and the inner
+   span is layout-equivalent with none of that exposure.
+   NOTE: the collapse itself could NOT be verified in the dev preview
+   pane — a bare <details> with no author CSS doesn't collapse there
+   either, so that environment simply doesn't implement the element.
+   This is standard markup and the app already relies on <details> in
+   two other places (.legal-block, .sources-label); it wants a check in
+   a real browser. */
+.stats-course-head {
+  padding: 0.75rem 0.9rem; cursor: pointer;
+  font-size: 0.9rem; font-weight: 700; list-style: none;
+}
+.stats-course-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+}
+.stats-course-head::-webkit-details-marker { display: none; }
+/* Own marker, so the triangle sits where we want and rotates with the
+   disclosure state rather than relying on each engine's default glyph. */
+.stats-course-row::after {
+  content: "▸"; color: var(--text-muted); flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.stats-course[open] .stats-course-row::after { transform: rotate(90deg); }
+.stats-course-head:hover { background: var(--bg-card-hover); }
+.stats-course-meta { font-size: 0.76rem; font-weight: 500; color: var(--text-dim); }
+.stats-course-body { padding: 0 0.9rem 0.8rem; }
+.stats-bucket-title {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--text-dim);
+  margin: 0.8rem 0 0.4rem;
+}

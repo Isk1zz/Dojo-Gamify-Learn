@@ -245,3 +245,53 @@
 }
 .inv-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .inv-on { color: var(--accent); font-weight: 700; }
+
+/* ============================================
+   Unified Shop (shop/store.js)
+   ============================================ */
+/* Categories down the left, pane on the right. Collapses to a
+   horizontal scroller under 620px rather than stacking a tall nav above
+   the goods — on a phone the aisles should cost one swipe, not a
+   screenful before you see anything for sale. */
+.store-layout { display: grid; grid-template-columns: 190px 1fr; gap: 1rem; align-items: start; }
+.store-nav {
+  display: flex; flex-direction: column; gap: 0.9rem;
+  padding: 0.8rem; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--bg-card);
+  position: sticky; top: 0.5rem;
+}
+.store-nav-group { display: flex; flex-direction: column; gap: 0.3rem; }
+.store-nav-title {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.15rem;
+}
+.store-nav-btn {
+  display: flex; align-items: center; gap: 0.45rem;
+  padding: 0.45rem 0.55rem; border-radius: var(--radius-xs);
+  border: 1px solid transparent; background: transparent;
+  color: var(--text-dim); font: inherit; font-size: 0.82rem;
+  cursor: pointer; text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.store-nav-btn:hover { background: var(--bg-card-hover); color: var(--text); }
+.store-nav-btn.active {
+  background: var(--accent-glow); border-color: var(--border-accent); color: var(--text);
+}
+.store-nav-icon { flex-shrink: 0; }
+@media (max-width: 620px) {
+  .store-layout { grid-template-columns: 1fr; }
+  .store-nav { position: static; flex-direction: row; overflow-x: auto; gap: 1rem; }
+  .store-nav-group { flex-direction: row; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+  .store-nav-title { margin-bottom: 0; white-space: nowrap; }
+  .store-nav-btn { white-space: nowrap; }
+}
+/* Vacant slot: visibly an empty place in a set, not a disabled control —
+   it stays tappable (it takes you to the Shop), so it must not read as
+   dead. Dashed border says "something belongs here". */
+.inv-chip.vacant {
+  border-style: dashed; opacity: 0.6;
+  background: transparent;
+}
+.inv-chip.vacant:hover { opacity: 1; border-color: var(--accent); }
+.inv-chip.vacant .inv-swatch { filter: grayscale(1); }
+.inv-lock { font-size: 0.72rem; color: var(--green); font-weight: 700; }

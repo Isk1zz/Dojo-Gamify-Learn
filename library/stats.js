@@ -140,31 +140,61 @@
     }
 
     const CONFIDENCE = Dojo.CONFIDENCE || [];
-    const buckets = CONFIDENCE.map(c => ({ ...c, topics: [] }));
-    const unrated = [];
-    ALL_TOPICS.forEach(t => {
-      let worst = null;
-      t.chunks.forEach((c, idx) => {
-        const lvl = DB.getChunkConfidence(t.id, idx);
-        if (lvl !== undefined && (worst === null || lvl < worst)) worst = lvl;
-      });
-      if (worst === null) { unrated.push(t); return; }
-      const bucket = buckets.find(b => b.level === worst);
-      if (bucket) bucket.topics.push(t);
-    });
 
-    let topicRowsHtml = "";
-    buckets.forEach(b => {
-      if (!b.topics.length) return;
-      topicRowsHtml += `
-        <div class="stats-section-title">${b.icon} ${b.label} (${b.topics.length})</div>
-        <div class="stats-topic-list">${b.topics.map(topicRowHtml).join("")}</div>`;
-    });
-    if (unrated.length) {
-      topicRowsHtml += `
-        <div class="stats-section-title">◌ Not yet reviewed (${unrated.length})</div>
-        <div class="stats-topic-list">${unrated.map(topicRowHtml).join("")}</div>`;
+    // Bucket a given set of topics by their worst-rated chunk.
+    function bucketise(topics) {
+      const buckets = CONFIDENCE.map(c => ({ ...c, topics: [] }));
+      const unrated = [];
+      topics.forEach(t => {
+        let worst = null;
+        t.chunks.forEach((c, idx) => {
+          const lvl = DB.getChunkConfidence(t.id, idx);
+          if (lvl !== undefined && (worst === null || lvl < worst)) worst = lvl;
+        });
+        if (worst === null) { unrated.push(t); return; }
+        const b = buckets.find(x => x.level === worst);
+        if (b) b.topics.push(t);
+      });
+      let html = "";
+      buckets.forEach(b => {
+        if (!b.topics.length) return;
+        html += `<div class="stats-bucket-title">${b.icon} ${b.label} (${b.topics.length})</div>
+          <div class="stats-topic-list">${b.topics.map(topicRowHtml).join("")}</div>`;
+      });
+      if (unrated.length) {
+        html += `<div class="stats-bucket-title">◌ Not yet reviewed (${unrated.length})</div>
+          <div class="stats-topic-list">${unrated.map(topicRowHtml).join("")}</div>`;
+      }
+      return html;
     }
+
+    // One collapsed row per COURSE, opened on demand — reported as "an
+    // ingredient pile": every topic in the app was dumped into one flat
+    // list, so a 48-row wall was the first thing you met. The
+    // confidence grouping still exists, but now it lives INSIDE a
+    // course you chose to open. Built per course rather than
+    // hard-coding the only one that exists today, so a second course
+    // needs no change here. <details> rather than a JS accordion: the
+    // open/closed state, the keyboard behaviour and the disclosure
+    // triangle all come free and correct from the browser.
+    const completedSet = DB.getCompletedTopics();
+    const courses = (typeof COURSES !== "undefined" ? COURSES : []);
+    const topicRowsHtml = courses.map(c => {
+      const topics = c.units.flatMap(id => (UNIT_TOPICS[id] || []));
+      if (!topics.length) return "";
+      const done = topics.filter(t => completedSet.has(t.id)).length;
+      const pct = topics.length ? Math.round((done / topics.length) * 100) : 0;
+      return `
+        <details class="stats-course">
+          <summary class="stats-course-head">
+            <span class="stats-course-row">
+              <span class="stats-course-title">${c.icon} ${c.title}</span>
+              <span class="stats-course-meta">${done}/${topics.length} mastered · ${pct}%</span>
+            </span>
+          </summary>
+          <div class="stats-course-body">${bucketise(topics)}</div>
+        </details>`;
+    }).join("");
 
     // "What should I study now?" is the only question a learner
     // actually has, and none of the numbers above answer it. All of
