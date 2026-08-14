@@ -1,5 +1,50 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 51 — Spark stepper buttons; Ukraine/Israel flag colours on the hexagram
+
+- [x] **Replaced the spark slider with +/− buttons.** Better control for
+      this range anyway: a 6-stop slider needs pixel-accurate dragging
+      to land on a value, while a button is a button on any input
+      device. Count moved from "read the input's value each frame" to a
+      module variable, since buttons have no value to read back. Buttons
+      disable at 0 and 5 rather than silently ignoring clicks, and the
+      stepper repaints immediately instead of waiting for the next spin
+      frame — `starSpinTick` only redraws while the ring is actually
+      turning, so at rest the buttons would otherwise have looked dead.
+      Tap target grows 22px → 32px under 420px: fine for a mouse, too
+      small for a fingertip, and this is the one control here you press
+      repeatedly. Only the box grows, not the glyph.
+      **Verified live**: clicked past both ends — clamps at 5 and 0 with
+      the right button disabled each time, 0 leaves the bare ring with
+      no sparks, and one + recovers to 1.
+- [x] **Hexagram edges are now thick and flag-coloured** — Ukraine
+      (blue over yellow) on the Library/Garden/Statistics triangle,
+      Israel (blue-white-blue) on Career/Settings/Arcades. Solid and
+      4.5px wide against the thin dashed spokes, since this mode is a
+      statement rather than wiring.
+      **Real bug caught during this, worth recording**: the gradients
+      were first applied as `stroke="url(#…)"`, an SVG *presentation
+      attribute* — which loses to any stylesheet rule, and the generic
+      `.lobby-star-lines line` rule sets `stroke` to the theme accent.
+      Both flags rendered silently in the theme colour and looked
+      merely "washed out" rather than broken. Fixed by moving the paint
+      to an inline `style`, which does outrank a stylesheet rule.
+      Gradients use `userSpaceOnUse` spanning the figure rather than the
+      default `objectBoundingBox`: a straight line's bounding box is
+      flat in one axis, and gradients across a zero-height box are
+      undefined behaviour that renders differently per engine. Spanning
+      real coordinates also means every edge samples the same flag, so
+      each triangle reads as one whole flag instead of six separately
+      shaded sticks.
+      Each edge is drawn twice — a wider dark backing stroke under the
+      coloured one — because these are fixed national colours that
+      can't recolour per theme, and the white band of the Israeli flag
+      would otherwise vanish on light themes. Confirmed legible on
+      Frost. All backings are emitted before all coloured edges so the
+      triangles interleave cleanly at their crossings.
+- [x] **Checked at 375 / 320px**: dials never overlap (47px apart even
+      at 320px), 32px tap targets, no horizontal overflow at either.
+
 ## Batch 50 — Spark-count dial, and a Magen David link mode for the Star ring
 
 - [x] **Second dial: spark count, mirrored across the Y axis from the

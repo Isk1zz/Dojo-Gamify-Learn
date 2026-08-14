@@ -990,16 +990,26 @@ body {
 .lobby-rotate-control, .lobby-spark-control {
   display: flex; align-items: center; gap: 0.4rem;
 }
-/* The spark dial is the wind dial mirrored, so it gets its own colour
-   rather than the theme accent — two identically-styled sliders side by
-   side would read as one control split in half. Yellow matches the
-   amber already in core/lobby.js's spark palette. */
-.lobby-spark-slider::-webkit-slider-thumb {
-  background: var(--yellow);
-  box-shadow: 0 0 0 3px var(--yellow-glow);
+/* Stepper, not a slider: the range is 0-5, and a 6-stop slider is a
+   worse control than two buttons at that size — the thumb needs
+   pixel-accurate dragging to hit a value, while a button is a button on
+   any input device. Yellow, matching the amber already in
+   core/lobby.js's spark palette, so it reads as a different control
+   from the theme-accented wind dial beside it. */
+.lobby-spark-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; padding: 0; border-radius: 50%;
+  border: 1px solid var(--yellow); background: var(--yellow-glow);
+  color: var(--yellow); font: inherit; font-size: 0.95rem; line-height: 1;
+  cursor: pointer; transition: background 0.15s ease, transform 0.15s ease;
 }
-.lobby-spark-slider::-moz-range-thumb { background: var(--yellow); box-shadow: 0 0 0 3px var(--yellow-glow); }
-.lobby-spark-slider::-moz-range-progress { background: var(--yellow); }
+.lobby-spark-btn:hover { background: var(--yellow); color: var(--bg-deep); }
+.lobby-spark-btn:active { transform: scale(0.92); }
+.lobby-spark-btn:disabled { opacity: 0.35; cursor: default; transform: none; }
+.lobby-spark-count {
+  min-width: 1.1rem; text-align: center;
+  font-family: var(--mono); font-size: 0.85rem; color: var(--yellow);
+}
 .lobby-rotate-icon { font-size: 0.95rem; opacity: 0.7; }
 /* Fully reset instead of relying on `accent-color` alone — that only
    tints the thumb and the filled portion in Chromium; the unfilled
@@ -1066,6 +1076,21 @@ body {
   fill: none; stroke: var(--border-accent); stroke-width: 1.5;
   stroke-dasharray: 1.5 7; stroke-linecap: round; opacity: 0.7;
 }
+/* Hexagram edges: solid, thick and flag-coloured, deliberately unlike
+   the thin dashed spokes — this mode is a statement, not wiring.
+   Colours are fixed national ones (they'd mean nothing recoloured per
+   theme), which is exactly why each edge is drawn twice: `hex-back` is
+   a wider dark stroke underneath, so the white band in the Israeli
+   gradient stays visible on light themes like Paper and Frost, where
+   white-on-cream would otherwise vanish. */
+.lobby-style-star .lobby-star-lines line.hex-back {
+  stroke: rgba(0, 0, 0, 0.55); stroke-width: 7;
+  stroke-linecap: round; stroke-dasharray: none; opacity: 0.5;
+}
+.lobby-style-star .lobby-star-lines line.hex-edge {
+  stroke-width: 4.5; stroke-linecap: round;
+  stroke-dasharray: none; opacity: 0.95;
+}
 .lobby-style-star .lobby-hub {
   display: flex; align-items: center; justify-content: center;
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -1083,6 +1108,11 @@ body {
   box-shadow: 0 0 30px var(--accent-glow-strong);
 }
 @media (max-width: 420px) {
+  /* Bigger hit area on touch: 22px is fine for a mouse and too small
+     for a fingertip, and this is the one control here you tap
+     repeatedly. Only the tappable box grows — the glyph stays the same
+     size, so the row's visual weight doesn't change. */
+  .lobby-spark-btn { width: 32px; height: 32px; }
   .lobby-style-star { --lobby-radius: 122px; height: 340px; }
   .lobby-style-star .lobby-tile { width: 92px; height: 92px; }
   .lobby-style-star .lt-icon { font-size: 1.35rem; }

@@ -174,6 +174,12 @@
   let sparkDir = -1;   // sign of last motion; picks which side the tail trails on
   let gearRatio = 0.7; // recomputed from the measured radii on every layout pass
 
+  // Stepper state, 0-5. Held here rather than read off an input the way
+  // the rotate velocity is, because the +/- buttons that replaced the
+  // slider have no value of their own to read back.
+  const SPARK_MAX = 5;
+  let sparkCount = 1;
+
   function mixHex(a, b, t) {
     const rgb = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
     const A = rgb(a), B = rgb(b);
@@ -222,11 +228,8 @@
   // ring turns, and three cheap circles cost nothing on a phone where
   // a re-parsed filter would.
   function orbitSparkMarkup(cx, cy, orbitR) {
-    // Count comes straight off the dial each frame, exactly like the
-    // rotate slider's velocity — no state, nothing to persist or reset.
-    const dial = document.getElementById("lobby-spark-slider");
-    const count = dial ? parseInt(dial.value, 10) : 1;
-    if (!count || count < 1) return "";
+    const count = sparkCount;
+    if (count < 1) return "";
 
     const at = deg => {
       const a = (-90 + deg) * Math.PI / 180;
@@ -341,8 +344,18 @@
       const a = (-90 + rot + i * (360 / n)) * Math.PI / 180;
       return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
     };
-    const line = (x1, y1, x2, y2) =>
-      `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
+    const line = (x1, y1, x2, y2, cls, extra) =>
+      `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"` +
+      `${cls ? ` class="${cls}"` : ""}${extra ? ` ${extra}` : ""}/>`;
+
+    // Measured here rather than just before painting, because the
+    // hexagram's flag gradients below need the figure's real extent to
+    // span. offsetWidth, not getBoundingClientRect().width — a hovered
+    // tile carries a scale(1.1), and measuring that would make the
+    // whole orbit jump outward whenever the pointer rests on a tile.
+    const tileHalf = (tiles[0] ? tiles[0].offsetWidth : 112) / 2;
+    const orbitR = orbitRadiusFor(box, cx, r, tileHalf);
+    gearRatio = orbitR > 0 ? (r / orbitR) * SPARK_STEPUP : SPARK_STEPUP;
 
     // Hexagram: two triangles through alternating nodes — with the
     // Resume tile hidden the ring is exactly 6 tiles at 60°, so
@@ -356,13 +369,50 @@
     const wantHexagram = DB.getStarLinks && DB.getStarLinks() === "hexagram";
     let links;
     if (wantHexagram && n === 6) {
-      links = [0, 1].map(offset =>
-        [0, 1, 2].map(k => {
-          const [x1, y1] = nodeAt(offset + k * 2);
-          const [x2, y2] = nodeAt(offset + ((k + 1) % 3) * 2);
-          return line(x1, y1, x2, y2);
-        }).join("")
-      ).join("");
+      // Two flags, one per triangle. Painted with userSpaceOnUse
+      // gradients spanning the figure top-to-bottom rather than
+      // objectBoundingBox ones: a straight line's bounding box is flat
+      // in one axis, and a bounding-box gradient across a zero-height
+      // box is undefined behaviour that renders differently per engine.
+      // Spanning real coordinates instead means every edge samples the
+      // same flag, so the two triangles read as whole flags rather than
+      // six independently-shaded sticks.
+      const y0 = (cy - orbitR).toFixed(1), y1g = (cy + orbitR).toFixed(1);
+      const defs =
+        `<defs>` +
+        `<linearGradient id="hexUA" gradientUnits="userSpaceOnUse" x1="0" y1="${y0}" x2="0" y2="${y1g}">` +
+          `<stop offset="0%" stop-color="#0057B7"/><stop offset="48%" stop-color="#0057B7"/>` +
+          `<stop offset="52%" stop-color="#FFD700"/><stop offset="100%" stop-color="#FFD700"/>` +
+        `</linearGradient>` +
+        `<linearGradient id="hexIL" gradientUnits="userSpaceOnUse" x1="0" y1="${y0}" x2="0" y2="${y1g}">` +
+          `<stop offset="0%" stop-color="#0038B8"/><stop offset="22%" stop-color="#0038B8"/>` +
+          `<stop offset="34%" stop-color="#F4F7FB"/><stop offset="66%" stop-color="#F4F7FB"/>` +
+          `<stop offset="78%" stop-color="#0038B8"/><stop offset="100%" stop-color="#0038B8"/>` +
+        `</linearGradient>` +
+        `</defs>`;
+
+      // Triangle 0 = Library/Garden/Statistics, triangle 1 =
+      // Career/Settings/Arcades — see the comment above.
+      const edges = [0, 1].map(offset => {
+        const grad = offset === 0 ? "hexUA" : "hexIL";
+        return [0, 1, 2].map(k => {
+          const [ax, ay] = nodeAt(offset + k * 2);
+          const [bx, by] = nodeAt(offset + ((k + 1) % 3) * 2);
+          return { ax, ay, bx, by, grad };
+        });
+      }).flat();
+
+      // Every backing stroke first, then every coloured edge — so the
+      // two triangles interleave cleanly at their crossings instead of
+      // one triangle's dark backing cutting across the other's colour.
+      links = defs +
+        edges.map(e => line(e.ax, e.ay, e.bx, e.by, "hex-back")).join("") +
+        // Inline STYLE, not a stroke="" attribute: a presentation
+        // attribute loses to any stylesheet rule, and the generic
+        // `.lobby-star-lines line` rule above sets stroke to the theme
+        // accent — which silently repainted both flags in the theme
+        // colour when this was first written as an attribute.
+        edges.map(e => line(e.ax, e.ay, e.bx, e.by, "hex-edge", `style="stroke:url(#${e.grad})"`)).join("");
     } else {
       links = tiles.map((_, i) => {
         const a = (-90 + rot + i * (360 / n)) * Math.PI / 180;
@@ -371,13 +421,6 @@
         return line(cx + hubR * cos, cy + hubR * sin, x2, y2);
       }).join("");
     }
-
-    // offsetWidth, not getBoundingClientRect().width — a hovered tile
-    // carries a scale(1.1), and measuring that would make the whole
-    // orbit jump outward whenever the pointer rests on a tile.
-    const tileHalf = (tiles[0] ? tiles[0].offsetWidth : 112) / 2;
-    const orbitR = orbitRadiusFor(box, cx, r, tileHalf);
-    gearRatio = orbitR > 0 ? (r / orbitR) * SPARK_STEPUP : SPARK_STEPUP;
 
     svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
     // Track first so the spokes and the spark both sit above it.
@@ -404,6 +447,31 @@
     if (DB.getLobbyStyle() !== "star") return;
     layoutLobbyRadial("star", starAngle);
   }
+
+  // ---- Spark stepper ----
+  // Repaints immediately rather than waiting for the next spin frame,
+  // so the buttons still respond when the ring is parked at velocity 0
+  // (starSpinTick only redraws while the slider is off centre).
+  function renderSparkCount() {
+    const label = document.getElementById("lobby-spark-count");
+    const minus = document.getElementById("lobby-spark-minus");
+    const plus = document.getElementById("lobby-spark-plus");
+    if (label) label.textContent = sparkCount;
+    if (minus) minus.disabled = sparkCount <= 0;
+    if (plus) plus.disabled = sparkCount >= SPARK_MAX;
+    relayoutIfStarLobbyActive();
+  }
+
+  function stepSparks(delta) {
+    sparkCount = Math.max(0, Math.min(SPARK_MAX, sparkCount + delta));
+    renderSparkCount();
+  }
+
+  const minusBtn = document.getElementById("lobby-spark-minus");
+  const plusBtn = document.getElementById("lobby-spark-plus");
+  if (minusBtn) minusBtn.addEventListener("click", () => stepSparks(-1));
+  if (plusBtn) plusBtn.addEventListener("click", () => stepSparks(1));
+  renderSparkCount();
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(relayoutIfStarLobbyActive);

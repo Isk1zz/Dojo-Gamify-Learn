@@ -163,7 +163,9 @@
                reversed, so the pair reads as one reflected control
                rather than two dials that happen to be on one line. -->
           <div class="lobby-spark-control" id="lobby-spark-control">
-            <input type="range" id="lobby-spark-slider" class="lobby-rotate-slider lobby-spark-slider" min="0" max="5" value="1" step="1" aria-label="Number of orbiting sparks" />
+            <button type="button" class="lobby-spark-btn" id="lobby-spark-minus" aria-label="Fewer sparks">&minus;</button>
+            <span class="lobby-spark-count" id="lobby-spark-count" aria-live="polite">1</span>
+            <button type="button" class="lobby-spark-btn" id="lobby-spark-plus" aria-label="More sparks">+</button>
             <span class="lobby-rotate-icon" aria-hidden="true">&#10024;</span>
           </div>
         </div>
