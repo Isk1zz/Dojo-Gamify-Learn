@@ -89,7 +89,12 @@
   // Garden has to carry you there. Charge can never buy one.
   //
   // The order here is the order the cards appear in.
-  const UNLOCK_PRICE = { crash: 75, hilo: 150, mines: 200, blackjack: 300 };
+  // Emptied when the casino games were removed. catalogue() is driven
+  // by THIS table, not by which files registered — so leaving the four
+  // ids here would have kept showing them as "planned, coming soon",
+  // which is the opposite of removing them. Add an id back here (plus a
+  // register() call) and the Arcade lights up again unchanged.
+  const UNLOCK_PRICE = {};
 
   // ---- Remembered stake ----
   // Every game's box used to reset to 5 after every round, so anyone
@@ -262,9 +267,11 @@
 
   function gamesSummary() {
     const t = DB.getTickets();
-    if (!games.length) return "Games not built yet";
+    if (!games.length) return "Empty for now — new games coming";
     if (!games.some(g => isUnlocked(g.id))) {
-      const cheapest = Math.min(...Object.values(UNLOCK_PRICE));
+      const prices = Object.values(UNLOCK_PRICE);
+      if (!prices.length) return "Empty for now — new games coming";
+      const cheapest = Math.min(...prices);
       return `$${DB.getWallet()} \u00b7 unlock a game from $${cheapest}`;
     }
     return t
@@ -318,6 +325,26 @@
 
   function renderGamesTab(body) {
     if (!body) return;
+
+    // The casino games (Crash, Hi-Lo, Mines, Blackjack) were removed on
+    // request — the Arcade shell, tickets, stake caps and the $ economy
+    // all stay, so whatever replaces them plugs into the same register()
+    // seam with no rework. Until then this is deliberately empty and
+    // says so, rather than rendering a bare wallet card that reads as a
+    // loading failure.
+    if (!catalogue().length) {
+      body.innerHTML = `
+        <div class="shop-wallet">
+          <div class="sw-balance">$${DB.getWallet()}</div>
+          <p class="settings-hint" style="margin:0.6rem 0 0;">
+            The Arcade is empty right now. The casino games have been
+            removed; what replaces them is still being designed. Your
+            wallet, tickets and unlocks are untouched.
+          </p>
+        </div>`;
+      return;
+    }
+
     const tickets = DB.getTickets();
 
     body.innerHTML = `
