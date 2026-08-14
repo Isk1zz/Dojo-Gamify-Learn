@@ -1,5 +1,27 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 52 — Hexagram flag colours are now a Settings choice
+
+- [x] **Added "Star of David colours" to Settings**: Combined (Ukraine
+      on one triangle, Israel on the other — the pair it shipped with),
+      Ukraine, Israel, USA. New `hexFlags` profile field, default
+      `combined`. Flags are a single table in `core/lobby.js`
+      (`HEX_FLAGS`) exported for Settings to read, so each flag is
+      defined once — a colour tweak can't leave the Settings swatch
+      showing something the ring no longer paints. Each palette carries
+      both its SVG `stops` and a CSS `bar` equivalent, which is what
+      lets the swatches be real miniature hexagrams in their own flag
+      colours rather than generic squares.
+      **Verified live**: all four modes emit the right gradient pairs
+      (combined → UA + IL, the rest → the same flag twice), clicking a
+      swatch persists and the lobby repaints from it, and Spokes mode
+      emits zero gradients and zero hexagram edges so the setting is
+      inert unless Star of David is actually selected.
+      **Assumption worth confirming**: "Combined" was read as Ukraine +
+      Israel (the existing look). Three flags can't split across two
+      triangles, so USA isn't in that mix — say if you meant something
+      else by it.
+
 ## Batch 51 — Spark stepper buttons; Ukraine/Israel flag colours on the hexagram
 
 - [x] **Replaced the spark slider with +/− buttons.** Better control for

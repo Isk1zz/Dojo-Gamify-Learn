@@ -153,6 +153,39 @@
   //
   // Both derive from one accumulator, so the whole effect is a pure
   // function of how far the menu has been turned. Nothing to persist.
+  // ---- Hexagram flag palettes ----
+  // `stops` paint the SVG gradients; `bar` is the CSS equivalent so the
+  // Settings swatches can show the same flag without duplicating the
+  // colours there. Bands are given a couple of percent of overlap so
+  // the boundary reads as a crisp edge rather than a smeared fade —
+  // these are flags, not a sunset.
+  const HEX_FLAGS = {
+    ukraine: {
+      name: "Ukraine",
+      stops: [[0, "#0057B7"], [48, "#0057B7"], [52, "#FFD700"], [100, "#FFD700"]],
+      bar: "linear-gradient(90deg,#0057B7 0 50%,#FFD700 50% 100%)"
+    },
+    israel: {
+      name: "Israel",
+      stops: [[0, "#0038B8"], [22, "#0038B8"], [34, "#F4F7FB"], [66, "#F4F7FB"], [78, "#0038B8"], [100, "#0038B8"]],
+      bar: "linear-gradient(90deg,#0038B8 0 24%,#F4F7FB 34% 66%,#0038B8 76% 100%)"
+    },
+    usa: {
+      name: "USA",
+      stops: [[0, "#3C3B6E"], [33, "#3C3B6E"], [37, "#FFFFFF"], [63, "#FFFFFF"], [67, "#B22234"], [100, "#B22234"]],
+      bar: "linear-gradient(90deg,#3C3B6E 0 33%,#FFFFFF 37% 63%,#B22234 67% 100%)"
+    }
+  };
+
+  // Which flag each of the two triangles wears. "Combined" is the pair
+  // the hexagram shipped with; the rest fly one flag on both triangles.
+  const HEX_FLAG_MODES = {
+    combined: ["ukraine", "israel"],
+    ukraine: ["ukraine", "ukraine"],
+    israel: ["israel", "israel"],
+    usa: ["usa", "usa"]
+  };
+
   const SPARK_COLORS = ["#38bdf8", "#a78bfa", "#f472b6", "#fbbf24", "#34d399"];
   const REVS_PER_COLOR = 7;
 
@@ -378,23 +411,19 @@
       // same flag, so the two triangles read as whole flags rather than
       // six independently-shaded sticks.
       const y0 = (cy - orbitR).toFixed(1), y1g = (cy + orbitR).toFixed(1);
-      const defs =
-        `<defs>` +
-        `<linearGradient id="hexUA" gradientUnits="userSpaceOnUse" x1="0" y1="${y0}" x2="0" y2="${y1g}">` +
-          `<stop offset="0%" stop-color="#0057B7"/><stop offset="48%" stop-color="#0057B7"/>` +
-          `<stop offset="52%" stop-color="#FFD700"/><stop offset="100%" stop-color="#FFD700"/>` +
-        `</linearGradient>` +
-        `<linearGradient id="hexIL" gradientUnits="userSpaceOnUse" x1="0" y1="${y0}" x2="0" y2="${y1g}">` +
-          `<stop offset="0%" stop-color="#0038B8"/><stop offset="22%" stop-color="#0038B8"/>` +
-          `<stop offset="34%" stop-color="#F4F7FB"/><stop offset="66%" stop-color="#F4F7FB"/>` +
-          `<stop offset="78%" stop-color="#0038B8"/><stop offset="100%" stop-color="#0038B8"/>` +
-        `</linearGradient>` +
-        `</defs>`;
+      const mode = (DB.getHexFlags && DB.getHexFlags()) || "combined";
+      const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.combined;
+      const defs = `<defs>` + pair.map((flagId, i) => {
+        const flag = HEX_FLAGS[flagId] || HEX_FLAGS.ukraine;
+        return `<linearGradient id="hexGrad${i}" gradientUnits="userSpaceOnUse" x1="0" y1="${y0}" x2="0" y2="${y1g}">` +
+          flag.stops.map(([off, col]) => `<stop offset="${off}%" stop-color="${col}"/>`).join("") +
+          `</linearGradient>`;
+      }).join("") + `</defs>`;
 
       // Triangle 0 = Library/Garden/Statistics, triangle 1 =
       // Career/Settings/Arcades — see the comment above.
       const edges = [0, 1].map(offset => {
-        const grad = offset === 0 ? "hexUA" : "hexIL";
+        const grad = `hexGrad${offset}`;
         return [0, 1, 2].map(k => {
           const [ax, ay] = nodeAt(offset + k * 2);
           const [bx, by] = nodeAt(offset + ((k + 1) % 3) * 2);
@@ -483,5 +512,7 @@
   });
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { showLobby });
+  // HEX_FLAGS is exported so settings/settings.js can paint its swatches
+  // from the same table the ring uses — one definition of each flag.
+  Object.assign(Dojo, { showLobby, HEX_FLAGS, HEX_FLAG_MODES });
 })();

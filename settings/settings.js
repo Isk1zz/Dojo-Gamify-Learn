@@ -111,8 +111,11 @@
       </button>`;
 
     // Same 6 dots as starPreview, wired the other way: each node joined
-    // to the one two places around, which closes two triangles.
-    const hexPreview = () => {
+    // to the one two places around, which closes two triangles. Edge i
+    // belongs to triangle {0,2,4} when i is even and {1,3,5} when odd,
+    // which is what lets each triangle be painted its own flag here the
+    // same way core/lobby.js paints the real one.
+    const hexPreview = (flagA, flagB) => {
       const n = 6, r = 15, cx = 22, cy = 22;
       const pt = i => {
         const d = (-90 + i * (360 / n)) * Math.PI / 180;
@@ -123,7 +126,8 @@
         const [x1, y1] = pt(i), [x2, y2] = pt((i + 2) % n);
         const len = Math.hypot(x2 - x1, y2 - y1);
         const deg = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-        out += `<span class="rp-line" style="left:${x1.toFixed(1)}px;top:${y1.toFixed(1)}px;width:${len.toFixed(1)}px;transform:rotate(${deg.toFixed(1)}deg);"></span>`;
+        const paint = i % 2 === 0 ? flagA : flagB;
+        out += `<span class="rp-line" style="left:${x1.toFixed(1)}px;top:${y1.toFixed(1)}px;width:${len.toFixed(1)}px;transform:rotate(${deg.toFixed(1)}deg);${paint ? `background:${paint};height:2px;` : ""}"></span>`;
       }
       for (let i = 0; i < n; i++) {
         const [x, y] = pt(i);
@@ -132,10 +136,27 @@
       return `<span class="style-preview-radial">${out}</span>`;
     };
 
+    // Read from core/lobby.js rather than restating the palettes — one
+    // definition of each flag, so a colour tweak there can't leave the
+    // Settings swatch showing a flag the ring no longer paints.
+    const FLAGS = Dojo.HEX_FLAGS || {};
+    const FLAG_MODES = Dojo.HEX_FLAG_MODES || {};
+    const hexFlags = DB.getHexFlags ? DB.getHexFlags() : "combined";
+    const flagSwatch = (id, name) => {
+      const pair = FLAG_MODES[id] || [];
+      const barOf = k => (FLAGS[pair[k]] || {}).bar || "";
+      return `
+        <button class="style-swatch${id === hexFlags ? " active" : ""}" data-hex-flags="${id}">
+          ${hexPreview(barOf(0), barOf(1))}
+          <span class="sw-name">${name}</span>
+        </button>`;
+    };
+
     const starLinks = DB.getStarLinks ? DB.getStarLinks() : "spokes";
     const linkSwatch = (id, name) => `
       <button class="style-swatch${id === starLinks ? " active" : ""}" data-star-links="${id}">
         ${id === "hexagram" ? hexPreview() : starPreview()}
+
         <span class="sw-name">${name}</span>
       </button>`;
 
@@ -178,6 +199,16 @@
         <div class="lobby-style-grid">
           ${linkSwatch("spokes", "Spokes")}
           ${linkSwatch("hexagram", "Star of David")}
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="stats-section-title">\u{1F3F3}️ Star of David colours</div>
+        <p class="settings-hint">Which flag each of the two triangles wears. Combined flies Ukraine on one and Israel on the other; the rest fly one flag on both. Only applies while Star links is set to Star of David.</p>
+        <div class="lobby-style-grid">
+          ${flagSwatch("combined", "Combined")}
+          ${flagSwatch("ukraine", "Ukraine")}
+          ${flagSwatch("israel", "Israel")}
+          ${flagSwatch("usa", "USA")}
         </div>
       </div>
       <div class="settings-section">
@@ -324,6 +355,14 @@
         DB.setBgStripe(id);
         if (Dojo.applyBgStripe) Dojo.applyBgStripe(id);
         body.querySelectorAll(".stripe-swatch").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+
+    body.querySelectorAll("[data-hex-flags]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        DB.setHexFlags(btn.getAttribute("data-hex-flags"));
+        body.querySelectorAll("[data-hex-flags]").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
       });
     });

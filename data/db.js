@@ -61,6 +61,10 @@ const DB = (() => {
       // be a real hexagram — core/lobby.js falls back to spokes when
       // the Resume tile makes it 7. See layoutLobbyRadial.
       starLinks: "spokes",
+      // Which flag(s) the hexagram's two triangles wear — "combined"
+      // (Ukraine + Israel), "ukraine", "israel" or "usa". Only read
+      // when starLinks is "hexagram". See core/lobby.js's HEX_FLAGS.
+      hexFlags: "combined",
       hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
       soundEnabled: true,    // mutes core/sfx.js's synthesized UI sounds app-wide
       bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
@@ -1142,6 +1146,19 @@ const DB = (() => {
     save(db);
   }
 
+  function getHexFlags() {
+    const p = getActiveProfile();
+    return (p && p.hexFlags) || "combined";
+  }
+
+  function setHexFlags(id) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.hexFlags = id;
+    save(db);
+  }
+
   // Defaults to true (undefined reads as "on") so an already-migrated
   // profile that predates this field never silently loses its hints.
   function getHintsEnabled() {
@@ -1549,6 +1566,8 @@ const DB = (() => {
     setLobbyStyle,
     getStarLinks,
     setStarLinks,
+    getHexFlags,
+    setHexFlags,
     getHintsEnabled,
     setHintsEnabled,
     getSoundEnabled,
