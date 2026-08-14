@@ -215,3 +215,33 @@
   position: absolute; inset: 0; display: flex; align-items: center;
   justify-content: center; font-size: 1.5rem;
 }
+
+/* ============================================
+   Inventory (shop/inventory.js)
+   ============================================ */
+/* Deliberately a denser grid than the Settings swatches: this screen
+   lists everything owned across every category at once, so the chips
+   have to stay small enough that a full inventory is still one glance
+   rather than a scroll marathon. */
+.inv-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 0.5rem;
+}
+.inv-chip {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 0.6rem; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-card);
+  color: var(--text); font: inherit; font-size: 0.8rem;
+  cursor: pointer; text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.inv-chip:hover { border-color: var(--border-accent); background: var(--bg-card-hover); transform: translateY(-1px); }
+.inv-chip.equipped { border-color: var(--accent); background: var(--accent-glow); }
+.inv-swatch {
+  width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); background: var(--bg-surface);
+  font-size: 0.85rem; line-height: 1;
+}
+.inv-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inv-on { color: var(--accent); font-weight: 700; }

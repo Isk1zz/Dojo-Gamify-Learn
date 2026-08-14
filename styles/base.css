@@ -1083,6 +1083,13 @@ body {
    a wider dark stroke underneath, so the white band in the Israeli
    gradient stays visible on light themes like Paper and Frost, where
    white-on-cream would otherwise vanish. */
+/* Neon spokes: thicker and solid so the glow has something to sit on —
+   the colour and its drop-shadow come from the equipped flag, set
+   inline by core/lobby.js (inline style, not a stroke attribute — see
+   the note on the hexagram edges below for why that distinction bites). */
+.lobby-style-star .lobby-star-lines line.spoke-neon {
+  stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: none; opacity: 0.85;
+}
 .lobby-style-star .lobby-star-lines line.hex-back {
   stroke: rgba(0, 0, 0, 0.55); stroke-width: 7;
   stroke-linecap: round; stroke-dasharray: none; opacity: 0.5;

@@ -142,13 +142,16 @@
     const FLAGS = Dojo.HEX_FLAGS || {};
     const FLAG_MODES = Dojo.HEX_FLAG_MODES || {};
     const hexFlags = DB.getHexFlags ? DB.getHexFlags() : "combined";
-    const flagSwatch = (id, name) => {
+    // Label comes from core/lobby.js's table so the name and the flags
+    // it shows can't drift apart.
+    const FLAG_LABELS = Dojo.HEX_FLAG_LABELS || {};
+    const flagSwatch = id => {
       const pair = FLAG_MODES[id] || [];
       const barOf = k => (FLAGS[pair[k]] || {}).bar || "";
       return `
         <button class="style-swatch${id === hexFlags ? " active" : ""}" data-hex-flags="${id}">
           ${hexPreview(barOf(0), barOf(1))}
-          <span class="sw-name">${name}</span>
+          <span class="sw-name">${FLAG_LABELS[id] || id}</span>
         </button>`;
     };
 
@@ -202,13 +205,10 @@
         </div>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F3F3}️ Star of David colours</div>
+        <div class="stats-section-title">\u{1F38C} Star of David colours</div>
         <p class="settings-hint">Which flag each of the two triangles wears. Combined flies Ukraine on one and Israel on the other; the rest fly one flag on both. Only applies while Star links is set to Star of David.</p>
         <div class="lobby-style-grid">
-          ${flagSwatch("combined", "Combined")}
-          ${flagSwatch("ukraine", "Ukraine")}
-          ${flagSwatch("israel", "Israel")}
-          ${flagSwatch("usa", "USA")}
+          ${Object.keys(FLAG_MODES).map(id => flagSwatch(id)).join("")}
         </div>
       </div>
       <div class="settings-section">

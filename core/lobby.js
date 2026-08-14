@@ -161,19 +161,30 @@
   // these are flags, not a sunset.
   const HEX_FLAGS = {
     ukraine: {
-      name: "Ukraine",
+      name: "Ukraine", emoji: "🇺🇦",
       stops: [[0, "#0057B7"], [48, "#0057B7"], [52, "#FFD700"], [100, "#FFD700"]],
       bar: "linear-gradient(90deg,#0057B7 0 50%,#FFD700 50% 100%)"
     },
     israel: {
-      name: "Israel",
+      name: "Israel", emoji: "🇮🇱",
       stops: [[0, "#0038B8"], [22, "#0038B8"], [34, "#F4F7FB"], [66, "#F4F7FB"], [78, "#0038B8"], [100, "#0038B8"]],
       bar: "linear-gradient(90deg,#0038B8 0 24%,#F4F7FB 34% 66%,#0038B8 76% 100%)"
     },
+    // Three even bands of blue/white/red is the FRENCH flag, which is
+    // exactly what the first version read as. The US flag's actual
+    // signature is a small navy canton against many thin red-and-white
+    // stripes — so: navy confined to the top fifth, then alternating
+    // red/white banding for the rest. Reads as Old Glory rather than
+    // the Tricolore at a glance, which is the whole point.
     usa: {
-      name: "USA",
-      stops: [[0, "#3C3B6E"], [33, "#3C3B6E"], [37, "#FFFFFF"], [63, "#FFFFFF"], [67, "#B22234"], [100, "#B22234"]],
-      bar: "linear-gradient(90deg,#3C3B6E 0 33%,#FFFFFF 37% 63%,#B22234 67% 100%)"
+      name: "USA", emoji: "🇺🇸",
+      stops: [
+        [0, "#3C3B6E"], [20, "#3C3B6E"],
+        [20, "#B22234"], [33, "#B22234"], [33, "#FFFFFF"], [46, "#FFFFFF"],
+        [46, "#B22234"], [59, "#B22234"], [59, "#FFFFFF"], [72, "#FFFFFF"],
+        [72, "#B22234"], [100, "#B22234"]
+      ],
+      bar: "linear-gradient(90deg,#3C3B6E 0 20%,#B22234 20% 33%,#FFFFFF 33% 46%,#B22234 46% 59%,#FFFFFF 59% 72%,#B22234 72% 100%)"
     }
   };
 
@@ -184,6 +195,16 @@
     ukraine: ["ukraine", "ukraine"],
     israel: ["israel", "israel"],
     usa: ["usa", "usa"]
+  };
+
+  // Display labels, built from each mode's own flags so a mode can't be
+  // labelled with a flag it doesn't actually fly. "Combined" is spelled
+  // out as the two countries it mixes rather than left abstract.
+  const HEX_FLAG_LABELS = {
+    combined: "🇺🇦+🇮🇱 Ukr+Isr",
+    ukraine: "🇺🇦 Ukraine",
+    israel: "🇮🇱 Israel",
+    usa: "🇺🇸 USA"
   };
 
   const SPARK_COLORS = ["#38bdf8", "#a78bfa", "#f472b6", "#fbbf24", "#34d399"];
@@ -443,11 +464,25 @@
         // colour when this was first written as an attribute.
         edges.map(e => line(e.ax, e.ay, e.bx, e.by, "hex-edge", `style="stroke:url(#${e.grad})"`)).join("");
     } else {
+      // Spokes pick up the flag palette too, as a neon glow: each spoke
+      // takes one colour from the equipped flag(s) and carries a soft
+      // drop-shadow in that same colour. Uses the SAME palette table as
+      // the hexagram, so switching flags in Settings restyles both
+      // modes rather than only one of them.
+      const mode = (DB.getHexFlags && DB.getHexFlags()) || "combined";
+      const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.combined;
+      // Distinct colours across the flag(s), duplicates dropped — the
+      // Israeli flag is only two colours, so cycling its raw stop list
+      // would give three near-identical blues in a row.
+      const palette = [...new Set(pair.flatMap(id => (HEX_FLAGS[id] || {}).stops || [])
+        .map(s => s[1]))];
       links = tiles.map((_, i) => {
         const a = (-90 + rot + i * (360 / n)) * Math.PI / 180;
         const cos = Math.cos(a), sin = Math.sin(a);
         const [x2, y2] = nodeAt(i);
-        return line(cx + hubR * cos, cy + hubR * sin, x2, y2);
+        const col = palette.length ? palette[i % palette.length] : null;
+        return line(cx + hubR * cos, cy + hubR * sin, x2, y2, "spoke-neon",
+          col ? `style="stroke:${col};filter:drop-shadow(0 0 4px ${col})"` : "");
       }).join("");
     }
 
@@ -514,5 +549,5 @@
   // ---- seam: what this branch offers to everyone else ----
   // HEX_FLAGS is exported so settings/settings.js can paint its swatches
   // from the same table the ring uses — one definition of each flag.
-  Object.assign(Dojo, { showLobby, HEX_FLAGS, HEX_FLAG_MODES });
+  Object.assign(Dojo, { showLobby, HEX_FLAGS, HEX_FLAG_MODES, HEX_FLAG_LABELS });
 })();

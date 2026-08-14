@@ -84,9 +84,9 @@
   // `xpBonus` here is just the matching display label, kept in sync by
   // hand since it's copy, not logic.
   const PATRON_TIERS = [
-    { tier: 1, id: "supporter", label: "Supporter", range: "$5–$10/mo", star: "⭐",
+    { tier: 1, id: "supporter", label: "Supporter", range: "$5–$15/mo", star: "⭐",
       xpBonus: "+50% XP", desc: "A small thank-you star next to your name, and +50% XP on everything you earn." },
-    { tier: 2, id: "patron", label: "Patron", range: "$10–$25/mo", star: "⭐",
+    { tier: 2, id: "patron", label: "Patron", range: "$15–$20/mo", star: "⭐",
       xpBonus: "+75% XP", desc: "A brighter star — you're covering more than just your own seat — and +75% XP." },
     { tier: 3, id: "contributor", label: "Contributor", range: "$25+/mo", star: "🎖️",
       xpBonus: "×2 XP", desc: "The top tier — named as a Contributor, not just another star colour — and double XP." }

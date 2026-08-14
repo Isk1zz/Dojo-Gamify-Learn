@@ -71,7 +71,8 @@
       <div class="settings-section">
         <div class="stats-section-title">\u{1F396} Ranks</div>
         <div class="rank-ladder" id="rank-ladder"></div>
-      </div>`;
+      </div>
+      <div id="shop-stats"></div>`;
 
     // ---- Rank ladder ----
     const ladder = body.querySelector("#rank-ladder");
@@ -108,6 +109,13 @@
           : `<span class="rr-blank">\u2014</span>`}</span>`;
       ladder.appendChild(row);
     });
+
+    // Statistics merged into Career: the lobby tile that used to open
+    // the stats modal is now Inventory, so this screen is where the
+    // numbers live. Rendered by library/stats.js into our container
+    // rather than duplicated here — one implementation, two hosts (the
+    // profile modal still shows the same block).
+    if (Dojo.renderStats) Dojo.renderStats(body.querySelector("#shop-stats"));
 
     showScreen("shop");
   }

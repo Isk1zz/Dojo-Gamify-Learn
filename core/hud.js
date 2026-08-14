@@ -129,8 +129,10 @@
     const activeEl = document.querySelector(".screen.active");
     if (activeEl && WALLET_HIDDEN_SCREENS.has(activeEl.id)) { strip.style.display = "none"; return; }
     strip.style.display = "flex";
-    strip.innerHTML = `<span id="vital-wallet-chip" class="vital-wallet"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`
-      + `<span id="vital-tokens-chip" class="vital-tokens"><span class="vw-icon">🪙</span>${DB.getTokens()}</span>`;
+    const moneyTip = "Earned from the Garden's daily dividends and Arcade wins. Spent to unlock Arcade games and place stakes. — tap to open the Shop";
+    const tokenTip = "Earned free from rank-ups, or bought in the Token Shop. Spent to unlock courses. Never converts to or from $ money. — tap to open the Token Shop";
+    strip.innerHTML = `<span id="vital-wallet-chip" class="vital-wallet" role="button" tabindex="0" title="${moneyTip}"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`
+      + `<span id="vital-tokens-chip" class="vital-tokens" role="button" tabindex="0" title="${tokenTip}"><span class="vw-icon">🪙</span>${DB.getTokens()}</span>`;
   }
 
   // Tap the wallet, get a one-line reminder of what it's for. Same
@@ -166,9 +168,20 @@
     pop.style.top = `${r.bottom + 6}px`;
     pop.style.right = `${window.innerWidth - r.right}px`;
   }
+  // The chips are now doors, not labels: $ opens Career (the Shop) and
+  // 🪙 opens the Token Shop. The explanatory popover they used to open
+  // moved to `title` on each chip — the text is still one hover away,
+  // but a currency badge that goes to the place you spend that currency
+  // is worth more than a badge that describes itself.
   document.addEventListener("click", e => {
     const chip = e.target.closest && e.target.closest(".vital-wallet, .vital-tokens");
-    if (chip) { toggleWalletPopover(chip); return; }
+    if (chip) {
+      hideWalletPopover();
+      const R = Dojo.Router;
+      if (!R) return;
+      R.go(chip.classList.contains("vital-tokens") ? "token-shop" : "shop");
+      return;
+    }
     if (e.target.closest && !e.target.closest("#wallet-popover")) hideWalletPopover();
   });
 

@@ -222,11 +222,15 @@
             </span>
             <span class="arrow">&rarr;</span>
           </button>
+          <!-- id stays btn-lobby-stats: core/lobby.js's STAR_ORDER and
+               the ring layout key off it, and renaming it would be a
+               rename for its own sake. Statistics moved into Career;
+               this slot is Inventory now. -->
           <button id="btn-lobby-stats" class="lobby-tile subtle">
-            <span class="lt-icon">&#128202;</span>
+            <span class="lt-icon">&#127890;</span>
             <span class="lt-body">
-              <span class="lt-title">Statistics</span>
-              <span class="lt-sub">Progress, badges, weak spots, exam scores</span>
+              <span class="lt-title">Inventory</span>
+              <span class="lt-sub">Everything you've unlocked, ready to equip</span>
             </span>
             <span class="arrow">&rarr;</span>
           </button>
@@ -398,6 +402,15 @@
       <div class="flashcard-body" id="flashcard-body"></div>
     </section>
 
+    <!-- ====== Inventory (shop/inventory.js) ====== -->
+    <section id="inventory" class="screen">
+      <div class="topbar">
+        <button id="btn-back-inventory" class="btn-ghost">&larr; Lobby</button>
+        <h2 class="topbar-title">Your <span class="accent">Inventory</span></h2>
+      </div>
+      <div class="topic-map-body" id="inventory-body"></div>
+    </section>
+
     <!-- ====== Admin & Telemetry Suite (admin/admin.js) ======
          No topbar of its own — renderAdmin() builds its full header
          (title, tabs, back button) straight into #admin-body, same
@@ -462,6 +475,7 @@
   <script src="garden/garden.js"></script>
   <script src="shop/shop.js"></script>
   <script src="shop/tokens.js"></script>
+  <script src="shop/inventory.js"></script>
   <script src="games/games.js"></script>
   <script src="games/crash.js"></script>
   <script src="games/hilo.js"></script>

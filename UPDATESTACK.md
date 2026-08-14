@@ -27,6 +27,34 @@ this decision. Left as-is since I don't know if that was a separate
 call (maybe Supabase for something specific) or just stale wording;
 confirm which and I'll reconcile it.
 
+## NEW IDEA — user forum with $-funded reputation (noted only, nothing built)
+Raised 2026-08-14, explicitly "don't mind this for now just denote".
+
+The shape as described: a forum where users earn **reputation**, and
+reputation comes from **other users spending their `$` on you** — the
+money converts into rep rather than transferring as money. Rep then
+drives **post ranking** (bringing posts up), plus other changes not yet
+specified.
+
+Not designed, not scoped, nothing written. Three things to think
+through before it ever gets built, flagged now while it's cheap:
+1. **This is the first feature that would make one user's actions
+   affect another user's state**, which every existing system in this
+   app deliberately avoids — it's why everything works offline on
+   localStorage. A forum is not portable to the current architecture at
+   all; it hard-requires the backend (docs/BACKEND-ROADMAP.md) plus
+   moderation, which the admin panel only half-covers today.
+2. **`$` gaining an exit path changes the Arcade's legal position.**
+   BACKEND-ROADMAP.md's Flag 1 records that the Arcade is currently
+   safe specifically because `$` is earned in-app, can't be bought, and
+   can't leave. "Spend `$` on another user" is a transfer — it makes
+   `$` worth acquiring for reasons outside the games. Re-read that flag
+   before designing the economics, not after.
+3. **Paid-for reputation ranks posts**, which means whoever spends most
+   is most visible. Worth deciding early whether that's the intent (a
+   tip-jar signal) or an accident (pay-to-win visibility), because it's
+   very hard to walk back once people have paid into it.
+
 ## Ready to build, no blockers
 Nothing right now — Tokens (earn, spend, Token Shop, course-price gating,
 see BACKLOG.md) is done. Real-money purchases stay a labeled demo stub

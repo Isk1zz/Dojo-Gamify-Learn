@@ -26,6 +26,7 @@
     garden:         () => Dojo.renderGarden,
     shop:           () => Dojo.renderShop,
     games:          () => Dojo.renderGames,
+    inventory:      () => Dojo.renderInventory,
     settings:       () => Dojo.renderSettings
   };
 
@@ -50,7 +51,10 @@
   on("btn-lobby-shop",     () => Router.go("shop"));
   on("btn-lobby-games",    () => Router.go("games"));
   on("btn-lobby-settings", () => Router.go("settings"));
-  on("btn-lobby-stats",    () => Dojo.showStatsModal());
+  // Statistics merged into Career; this tile is Inventory now (its id
+  // is unchanged on purpose — see index.html).
+  on("btn-lobby-stats",    () => Router.go("inventory"));
+  on("btn-back-inventory", () => Router.go("lobby"));
   on("btn-lobby-flashcards", () => Dojo.openFlashcardsHub && Dojo.openFlashcardsHub());
   // Star layout's hub button — Flashcards' home in that topology only
   // (see core/lobby.js's STAR_ORDER comment). Inert in Classic/Cards,

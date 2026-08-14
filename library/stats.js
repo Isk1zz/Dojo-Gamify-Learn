@@ -101,11 +101,15 @@
       </div>`;
   }
 
-  function renderStats() {
+  // `target` lets Career host this same block (Statistics was merged
+  // into Career — see shop/shop.js). Defaults to the profile modal's
+  // body so every existing no-arg caller keeps working unchanged.
+  function renderStats(target) {
     const stats = DB.getStats();
     if (!stats) return;
 
-    const body = document.getElementById("stats-body");
+    const body = target || document.getElementById("stats-body");
+    if (!body) return;
 
     // Grouped by self-rated confidence classification (the same
     // struggling/still-learning/have-an-idea/know-this-well scale the
