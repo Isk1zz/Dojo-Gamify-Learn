@@ -35,6 +35,11 @@
       actionsEl.classList.toggle("lobby-style-cards", style === "cards");
       actionsEl.classList.toggle("lobby-style-star", style === "star");
     }
+    // The rotate control sits above the brand, outside .lobby-actions
+    // (see index.html) — so it can't be shown/hidden by a descendant
+    // selector on the style class above. Toggled directly instead.
+    const rotateEl = document.getElementById("lobby-rotate-control");
+    if (rotateEl) rotateEl.classList.toggle("is-star", style === "star");
 
     // Streak now lives as a persistent top-right badge (core/hud.js's
     // renderStreak), not a lobby-only line — it needs to be visible from
@@ -80,6 +85,7 @@
     if (Dojo.renderVitals) Dojo.renderVitals();
     showScreen("lobby");
     starAngle = 0;
+    sparkDeg = 0;
     layoutLobbyRadial(style, starAngle);
     if (style === "star") startStarSpin(); else stopStarSpin();
   }
@@ -116,6 +122,10 @@
     const velocity = parseFloat(slider.value) || 0; // degrees/second
     if (velocity !== 0) {
       starAngle = (starAngle + velocity * dt) % 360;
+      // Counter-rotation, geared down by the radius ratio the last
+      // layout pass measured — see the orbit block above.
+      sparkDeg -= velocity * dt * gearRatio;
+      sparkDir = velocity > 0 ? -1 : 1;
       layoutLobbyRadial("star", starAngle);
     }
     starSpinHandle = requestAnimationFrame(starSpinTick);
@@ -124,6 +134,104 @@
   function startStarSpin() {
     stopStarSpin();
     starSpinHandle = requestAnimationFrame(starSpinTick);
+  }
+
+  // ---- Orbit ring + spark (Star topology only) ----
+  // A dotted track drawn around the whole constellation with a single
+  // spark travelling along it. Two things keep this from being arbitrary
+  // decoration — both fall out of geometry that already exists:
+  //
+  //  * The spark runs COUNTER to the menu, at the real gear ratio
+  //    between the two circles. Meshed gears share a tangential speed
+  //    (v = wR), so w_spark = w_menu * (r_menu / r_orbit): the bigger
+  //    wheel turns slower, exactly like a small gear driving a big one.
+  //    Nothing here is hand-tuned — move either radius and the ratio
+  //    follows, because it IS the ratio, not a number picked to look
+  //    like one.
+  //  * Its colour advances one step every 7 full revolutions, eased
+  //    across the last of those 7 so it reads as a morph, not a switch.
+  //
+  // Both derive from one accumulator, so the whole effect is a pure
+  // function of how far the menu has been turned. Nothing to persist.
+  const SPARK_COLORS = ["#38bdf8", "#a78bfa", "#f472b6", "#fbbf24", "#34d399"];
+  const REVS_PER_COLOR = 7;
+
+  // A 3:1 step-up stage on top of the true radius ratio. Pure 1:1
+  // tangential coupling is the honest two-gear answer, but it reads as
+  // sluggish precisely BECAUSE it's correct — the bigger wheel turns
+  // slower, so the spark crawled while the menu swept past it. A
+  // compound train with a step-up stage is still a real mechanism, so
+  // this multiplies the ratio rather than replacing it with a made-up
+  // constant: move either radius and the spark still responds
+  // proportionally, it just runs three stages faster.
+  const SPARK_STEPUP = 3;
+
+  // Deliberately NOT starAngle: that one wraps at 360 (it only ever
+  // feeds trig, where the wrap is free), and a wrapped counter can't
+  // answer "how many revolutions have you done" — which is the whole
+  // basis of the colour step below.
+  let sparkDeg = 0;
+  let sparkDir = -1;   // sign of last motion; picks which side the tail trails on
+  let gearRatio = 0.7; // recomputed from the measured radii on every layout pass
+
+  function mixHex(a, b, t) {
+    const rgb = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    const A = rgb(a), B = rgb(b);
+    return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",")})`;
+  }
+
+  function sparkColorAt(totalDeg) {
+    const revs = Math.abs(totalDeg) / 360;
+    const step = Math.floor(revs / REVS_PER_COLOR);
+    const within = revs - step * REVS_PER_COLOR;
+    // Hold the colour for 6 revolutions, then cross-fade over the 7th —
+    // a fade spread across all 7 would never actually BE any of the
+    // palette colours, just a permanent slow rainbow.
+    const t = within <= REVS_PER_COLOR - 1 ? 0 : within - (REVS_PER_COLOR - 1);
+    const eased = t * t * (3 - 2 * t);
+    return mixHex(
+      SPARK_COLORS[step % SPARK_COLORS.length],
+      SPARK_COLORS[(step + 1) % SPARK_COLORS.length],
+      eased
+    );
+  }
+
+  // Where the track can sit without ever costing the page a horizontal
+  // scrollbar. Outside the tiles when the box allows it; clamped to
+  // whatever slack the viewport actually has when it doesn't (at 375px
+  // the tiles already reach the container's own edge, and narrower
+  // still overruns it). Vertical bleed needs no clamp — the SVG is
+  // absolutely positioned and overflow:visible, so a few px past the
+  // box costs nothing and the page scrolls that way anyway.
+  function orbitRadiusFor(box, cx, r, tileHalf) {
+    const slackX = Math.max(0, (document.documentElement.clientWidth - box.width) / 2 - 12);
+    return Math.max(r * 0.5, Math.min(r + tileHalf + 10, cx + slackX));
+  }
+
+  function orbitTrackMarkup(cx, cy, orbitR) {
+    return `<circle class="lobby-orbit-ring" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${orbitR.toFixed(1)}"/>`;
+  }
+
+  // Drawn as plain concentric circles rather than a blur filter or a
+  // CSS drop-shadow: this is rebuilt every animation frame while the
+  // ring turns, and three cheap circles cost nothing on a phone where
+  // a re-parsed filter would.
+  function orbitSparkMarkup(cx, cy, orbitR) {
+    const color = sparkColorAt(sparkDeg);
+    const at = deg => {
+      const a = (-90 + deg) * Math.PI / 180;
+      return [cx + orbitR * Math.cos(a), cy + orbitR * Math.sin(a)];
+    };
+    let out = "";
+    for (let k = 5; k >= 1; k--) {
+      const [tx, ty] = at(sparkDeg - sparkDir * k * 3.4);
+      out += `<circle cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="${(2.5 - k * 0.36).toFixed(2)}" fill="${color}" opacity="${(0.32 - k * 0.05).toFixed(3)}"/>`;
+    }
+    const [sx, sy] = at(sparkDeg);
+    return out +
+      `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="8.5" fill="${color}" opacity="0.14"/>` +
+      `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="4.6" fill="${color}" opacity="0.4"/>` +
+      `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="2.3" fill="${color}"/>`;
   }
 
   // Star's own tile order — Career/Garden and Settings/Arcade sit
@@ -204,12 +312,33 @@
       el.style.setProperty("--ty", `${y}px`);
     });
 
-    svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
-    svg.innerHTML = tiles.map((_, i) => {
+    // Spokes start on the hub's RIM, not at the dead-centre point they
+    // all used to converge on — every line met in one spot behind the
+    // Flashcards button, which read as a knot rather than a hub. Each
+    // one now leaves the circle at the bearing of its own tile, so the
+    // attachment points sit evenly around the hub and orbit it as the
+    // ring turns (they're derived from the same angle as the tile).
+    const hubEl = document.getElementById("btn-lobby-hub-flashcards");
+    const hubR = ((hubEl && hubEl.offsetWidth) || 66) / 2 + 4;
+
+    const spokes = tiles.map((_, i) => {
       const a = (-90 + rot + i * (360 / n)) * Math.PI / 180;
-      const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
-      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      const cos = Math.cos(a), sin = Math.sin(a);
+      const x1 = cx + hubR * cos, y1 = cy + hubR * sin;
+      const x = cx + r * cos, y = cy + r * sin;
+      return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
     }).join("");
+
+    // offsetWidth, not getBoundingClientRect().width — a hovered tile
+    // carries a scale(1.1), and measuring that would make the whole
+    // orbit jump outward whenever the pointer rests on a tile.
+    const tileHalf = (tiles[0] ? tiles[0].offsetWidth : 112) / 2;
+    const orbitR = orbitRadiusFor(box, cx, r, tileHalf);
+    gearRatio = orbitR > 0 ? (r / orbitR) * SPARK_STEPUP : SPARK_STEPUP;
+
+    svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+    // Track first so the spokes and the spark both sit above it.
+    svg.innerHTML = orbitTrackMarkup(cx, cy, orbitR) + spokes + orbitSparkMarkup(cx, cy, orbitR);
   }
 
   // Re-measures and repositions the ring after the container's actual

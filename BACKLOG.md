@@ -1,5 +1,76 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+## Batch 49 — Star lobby: orbit ring with a geared counter-rotating spark
+
+- [x] **Added an orbit ring around the Star constellation, with a spark
+      travelling along it.** Drawn into the SVG that already carries the
+      spokes (`#lobby-star-lines`), so it inherits that element's
+      existing measure/resize/relayout path for free rather than adding
+      a second thing to keep in sync.
+      **The spark's motion is the real gear ratio, not a look-alike.**
+      Meshed gears share a tangential speed (v = wR), so
+      w_spark = w_menu × (r_menu / r_orbit) — the bigger wheel turns
+      slower. Move either radius and the ratio follows, because it *is*
+      the ratio. On top of that sits a **3:1 step-up stage** (requested
+      after seeing it live: pure 1:1 coupling reads as sluggish
+      precisely because it's correct — the spark crawled while the menu
+      swept past). A compound train with a step-up stage is still a real
+      mechanism, so the multiplier scales the ratio rather than
+      replacing it with an arbitrary constant.
+      **Colour advances one step every 7 revolutions**, held for 6 and
+      cross-faded (smoothstep) across the 7th — fading over all 7 would
+      never actually BE any palette colour, just a permanent slow
+      rainbow. Counted off an unwrapped accumulator, deliberately not
+      `starAngle`, which wraps at 360 and therefore cannot answer "how
+      many revolutions."
+      **Verified live, measured not eyeballed**: an in-page rAF sampler
+      accumulating unwrapped deltas gave a spark/menu ratio of 2.154
+      against an expected (168/234)×3 = 2.154, in the opposite
+      direction. Colour sampling over 1502 frames found 126 distinct
+      in-between colours forming a clean emerald→cyan ramp, confirming
+      the transition is a genuine blend and not a hard switch.
+- [x] **Spokes now leave the hub's rim instead of its centre point.**
+      Every line used to converge on one pixel behind the Flashcards
+      hub, which read as a knot rather than a hub (you marked this up
+      on a screenshot). Each spoke now departs the hub circle at its own
+      tile's bearing, so the attachment points sit evenly around the rim
+      and orbit it as the ring turns. Radius is read from the hub's own
+      `offsetWidth`, so it tracks the smaller mobile hub automatically
+      (66px desktop → 37 rim radius, 54px mobile → 31) with no second
+      breakpoint to maintain.
+- [x] **Moved the rotate control out of the ring box entirely**, to
+      top-left above the brand. The new orbit ring passes straight
+      through the corner it was pinned to, and on a phone the gap
+      between the welcome line and the ring is only ~27px for a 20px
+      control — nowhere to tuck it. Now a normal flow row above the
+      title, which is why it's overlap-proof: there is no viewport
+      width at which a row above the heading can collide with the ring
+      below it, whereas a pinned corner has to be re-verified per
+      breakpoint. Since it's no longer a descendant of
+      `.lobby-style-star`, visibility moved from that descendant
+      selector to an `is-star` class toggled in `showLobby` — no
+      `:has()`, which isn't safe to rely on across the browser range
+      this app targets.
+- [x] **Layout safety, since "must not break on any device/browser" was
+      the explicit constraint.** The tiles already reach past the
+      container box (desktop r 168 + half a 112px tile = 224, against a
+      220px half-height), so an orbit outside them cannot fit inside the
+      box. Handled by direction: the SVG is `overflow: visible` so the
+      ring may bleed a few px VERTICALLY (free — the element is
+      absolutely positioned and pointer-events:none, so overflow costs
+      no layout), while the radius is clamped in JS against the real
+      measured viewport slack HORIZONTALLY, which is the direction that
+      could otherwise cost a scrollbar. Uses `offsetWidth` rather than
+      `getBoundingClientRect()` for the tile measurement, or a hovered
+      tile's `scale(1.1)` would make the whole orbit jump outward.
+      **Verified at 699px / 375px / 320px**: ring sits outside the tiles
+      at the first two (234 / 175.5 vs reaches of 224 / 168) and clamps
+      gracefully behind them at 320px where the tiles already overrun
+      the container. `documentElement.scrollWidth === innerWidth` at all
+      three — no horizontal overflow introduced anywhere. Classic and
+      Cards styles confirmed to still clear the SVG completely (0
+      children), so nothing leaks into the other two layouts.
+
 ## Batch 48 — Ban is now a full account wipe; synthesized UI sound effects
 
 - [x] **Ban redefined as a total, irreversible account wipe**, by

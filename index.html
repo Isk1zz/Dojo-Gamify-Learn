@@ -145,14 +145,22 @@
     <!-- ====== Lobby ====== -->
     <section id="lobby" class="screen">
       <div class="lobby-inner">
+        <!-- Above the brand, not inside .lobby-actions where it used to
+             live: the orbit ring core/lobby.js draws now passes exactly
+             through the top-left corner the control was pinned to, and
+             on a phone the gap between the welcome line and the ring is
+             only ~27px for a 20px control — no room to tuck it in
+             there. Sitting in normal flow above everything also means
+             it can't collide with the ring at any width, which pinning
+             it to a corner never guaranteed. -->
+        <div class="lobby-rotate-control" id="lobby-rotate-control">
+          <span class="lobby-rotate-icon" aria-hidden="true">&#127744;</span>
+          <input type="range" id="lobby-rotate-slider" class="lobby-rotate-slider" min="-60" max="60" value="0" step="1" aria-label="Spin the star layout" />
+        </div>
         <div class="lobby-brand">Dojo<span class="accent">&#36947;&#22580;</span></div>
         <p class="lobby-welcome" id="lobby-welcome">Welcome back.</p>
         <div class="lobby-actions" id="lobby-actions">
           <svg class="lobby-star-lines" id="lobby-star-lines" aria-hidden="true"></svg>
-          <div class="lobby-rotate-control" id="lobby-rotate-control">
-            <span class="lobby-rotate-icon" aria-hidden="true">&#127744;</span>
-            <input type="range" id="lobby-rotate-slider" class="lobby-rotate-slider" min="-60" max="60" value="0" step="1" aria-label="Spin the star layout" />
-          </div>
           <button id="btn-lobby-hub-flashcards" class="lobby-hub" type="button" aria-label="Flashcards"><span>&#128209;</span></button>
           <button id="btn-lobby-courses" class="lobby-tile primary">
             <span class="lt-icon">&#128218;</span>

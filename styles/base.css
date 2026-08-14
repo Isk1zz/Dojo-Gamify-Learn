@@ -975,9 +975,17 @@ body {
    spin each tile's icon/text sideways too, and un-rotating just the
    inner content is the same compound-transform hit-testing trap
    layoutLobbyRadial's own comment already documents fixing once. */
-.lobby-style-star .lobby-rotate-control {
-  display: flex; align-items: center; gap: 0.4rem;
-  position: absolute; top: 0.2rem; left: 0.2rem; z-index: 3;
+/* Lives above the brand in normal flow now, NOT pinned inside the ring
+   box — the orbit ring runs straight through the corner it used to sit
+   in. Flow rather than absolute positioning on purpose: there is no
+   width at which a centred row above the title can overlap the ring
+   below it, whereas any pinned corner has to be re-checked per
+   breakpoint. `.is-star` is toggled by core/lobby.js's showLobby
+   because the element is no longer a descendant of .lobby-style-star,
+   so the old descendant selector can't reach it. */
+.lobby-rotate-control.is-star {
+  display: flex; align-items: center; justify-content: flex-start;
+  gap: 0.4rem; margin: 0 0 0.75rem;
 }
 .lobby-rotate-icon { font-size: 0.95rem; opacity: 0.7; }
 /* Fully reset instead of relying on `accent-color` alone — that only
@@ -1026,9 +1034,24 @@ body {
 .lobby-style-star .lobby-star-lines {
   display: block; position: absolute; inset: 0; width: 100%; height: 100%;
   pointer-events: none; z-index: 1;
+  /* The orbit ring core/lobby.js draws sits just outside the tiles, and
+     the tiles already reach past this box vertically (r 168 + half a
+     112px tile = 224, against a 220px half-height). An svg clips to its
+     viewport by default, which would slice the top and bottom off the
+     ring. Safe to let it bleed: this element is absolutely positioned
+     and pointer-events:none, so overflow costs no layout — and the ring
+     is clamped HORIZONTALLY in JS against the real viewport width,
+     which is the direction that could otherwise cost a scrollbar. */
+  overflow: visible;
 }
 .lobby-style-star .lobby-star-lines line {
   stroke: var(--border-accent); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.55;
+}
+/* Finer dashes than the spokes above (1.5/7 vs 4/4) so the track reads
+   as a separate, quieter object rather than more of the same network. */
+.lobby-style-star .lobby-star-lines .lobby-orbit-ring {
+  fill: none; stroke: var(--border-accent); stroke-width: 1.5;
+  stroke-dasharray: 1.5 7; stroke-linecap: round; opacity: 0.7;
 }
 .lobby-style-star .lobby-hub {
   display: flex; align-items: center; justify-content: center;
