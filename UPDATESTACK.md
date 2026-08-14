@@ -55,6 +55,29 @@ through before it ever gets built, flagged now while it's cheap:
    tip-jar signal) or an accident (pay-to-win visibility), because it's
    very hard to walk back once people have paid into it.
 
+## NOT YET BUILT from the 2026-08-14 restructure ask
+Everything else from that message shipped (see BACKLOG.md). These two
+did not, and are deliberately parked rather than half-done:
+
+- **US theme: eagles flying around + stars in the top-left corner, each
+  separately purchasable.** Not started. It's a bigger piece than it
+  sounds: it needs (a) an animation layer over the lobby, which hits
+  the exact per-theme overlay-conflict already documented under the
+  Weather VFX item below — the lobby is already carrying a theme `bg`
+  plus a `bgStripe`, and three themes suppress the stripe entirely
+  because two patterns fight; (b) two new purchasable inventory items,
+  which means extending the `$`/inventory model to cosmetic decorations
+  (today it only holds courses, avatars, themes, stripes); (c) a
+  decision on whether these are US-flag-only or general decorations.
+  Worth scoping together with Weather VFX, since both are "animated
+  decoration over the lobby" and would share the same layer.
+- **Windows shows country-flag emoji as letter pairs, not flags.** The
+  new 🇺🇦/🇮🇱/🇺🇸 labels render as "UA"/"IL"/"US" on Windows because
+  Windows ships no flag glyphs — verified in the live preview, it's an
+  OS font gap, not a code bug. Same class of problem as the silver-vs-
+  gold Token icon already logged below. Real fix is small inline SVG
+  flags instead of emoji; say the word and I'll swap them.
+
 ## Ready to build, no blockers
 Nothing right now — Tokens (earn, spend, Token Shop, course-price gating,
 see BACKLOG.md) is done. Real-money purchases stay a labeled demo stub
