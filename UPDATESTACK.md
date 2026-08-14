@@ -55,6 +55,32 @@ through before it ever gets built, flagged now while it's cheap:
    tip-jar signal) or an accident (pay-to-win visibility), because it's
    very hard to walk back once people have paid into it.
 
+## ARCADE IS EMPTY — needs a new game set designed
+Casino games (Crash, Hi-Lo, Mines, Blackjack) removed 2026-08-14 on
+request. The shell is intact and waiting: tickets (7 per 6h), stake
+caps, the Upgrades tab, the `$` economy and the `register()` seam all
+still work, so a replacement plugs in without touching any of it.
+
+**What this changed beyond the games themselves — worth knowing before
+the next economy decision:**
+- **The gambling-shaped exposure is gone.** `docs/BACKEND-ROADMAP.md`'s
+  Flag 1 said the Arcade was only safe because `$` (staked) and Tokens
+  (real-money-bought) never convert. With nothing to wager on, that
+  constraint is much weaker — which means the **"buy `$` with Tokens"
+  exchange rate you asked about is now a reasonable thing to build**,
+  where before I advised against it. It stops being reasonable again
+  the moment a wagering game returns, so decide the games first and the
+  exchange second, not the other way round.
+- **Age-gating pressure drops too** (Flag 2), which matters if Diia.ID
+  ever happens.
+
+**Suggested direction, not built:** keep the loop (spend `$`, take a
+risk, win `$`) but wrap it in study formats rather than casino ones —
+a timed recall sprint, a "double or nothing" on a review session, a
+streak wager. Same dopamine, no licensing exposure, and it finally ties
+the Arcade to the thing the app is actually for. Needs a real design
+pass.
+
 ## NOT YET BUILT from the 2026-08-14 restructure ask
 Everything else from that message shipped (see BACKLOG.md). These two
 did not, and are deliberately parked rather than half-done:
@@ -83,6 +109,31 @@ Nothing right now — Tokens (earn, spend, Token Shop, course-price gating,
 see BACKLOG.md) is done. Real-money purchases stay a labeled demo stub
 until there's a payment account to wire a Payment Link to — that's a
 you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
+
+## Shipped 2026-08-14 (detail in BACKLOG.md)
+Shop/Inventory/economy rework, in one run:
+- **Unified Shop** (`shop/store.js`) — three aisles: 🪙 Token packs ·
+  🎨 Custom Shop · 💜 Support the Dojo. Wallet chip opens it on `$`,
+  token chip on 🪙. The standalone Token Shop screen was deleted (its
+  duplicated panes had already gone stale once).
+- **Inventory** (`shop/inventory.js`) — tree on the left (Layout /
+  Style / Colour theme), item grid, drag-a-tile-onto-the-slot to equip
+  (click still works — drag doesn't exist on touch), live lobby preview
+  bottom-right.
+- **Sold with `$`:** layouts (Classic 200 / Cards 250 / Star of David
+  350; Star free), base themes (rose+jade 500, violet 400,
+  sepia+ember 250, ice 100, slate 50; Indigo Night + Frost free),
+  palettes (300/300/400; Mixtape free). Awarded themes are listed but
+  never sold — they show the rank instead.
+- **Patron tiers now do something real:** −10/−20/−30% off every course
+  price, applied through one helper used wherever the price is both
+  shown AND charged.
+- **Statistics** merged into Career, with an "All courses" + per-course
+  menu instead of one flat 48-row list.
+- Two bugs of mine caught by verification and fixed: layouts were
+  purchasable but equipping them was ungated (Inventory handed out what
+  the Shop sold), and a CSS truncation silently deleted the Shop's
+  sidebar styles.
 
 ## Live bug reports — resolved since last check-in
 - **Admin & Telemetry Suite ported and live** (Ctrl+Shift+A / F2, or
@@ -181,6 +232,27 @@ cache-first strategy can pin a broken build.
 - **`settings/codes.js` and `codes.example.js` are byte-identical**
   (both the empty template). Harmless, but the local copy is redundant.
 
+## Still open — needs your input (2026-08-14 batch)
+- **"Flags in shop should be fixed" — I need one detail before I touch
+  it.** The palette cards in Custom Shop currently show each flag as a
+  full-bleed gradient bar. I don't know which part you meant: the card
+  ART (bar vs. a proper flag shape), the EMOJI (Windows renders 🇺🇦/🇮🇱/🇺🇸
+  as the letter pairs UA/IL/US — an OS font gap, not a code bug), or the
+  ORDER. Say which and it's quick.
+- **Preview for things you don't own yet.** Awarded (rank-locked) themes
+  preview on click in the Inventory. Unbought LAYOUTS and unbought BASE
+  themes don't — they route to the Shop instead. Making those preview
+  too is small; confirm you want click-to-preview rather than
+  click-to-shop for them, since it can't be both.
+- **New background-stripe shapes.** Asked for ideas, not yet drafted.
+  Current set: diagonal, cross-hatch, herringbone, lattice, origami —
+  all rank rewards, none sold. Two open questions: do new ones stay
+  rank-earned or go in the Custom Shop, and how many do you want?
+- **Buy `$` with Tokens (exchange rate).** Now viable — see the Arcade
+  section above for why it wasn't before. Needs a rate, and a decision
+  on whether it's one-way (Tokens → `$` only, which I'd recommend so
+  real money can never flow backwards out of the app).
+
 ## Still open — needs your input
 - **Admin panel: warning notices still don't reach the user.** Settled
   the bigger half of this — per your call, Ban is now a full
@@ -224,7 +296,7 @@ cache-first strategy can pin a broken build.
   Tokens are shown — real but small work. Confirm it's worth doing
   before I build it.
 
-## Blocked on the backend (Supabase — assigned, nothing built)
+## Blocked on the backend (Supabase — see the Firebase note at the top; one of these two labels is stale)
 - Career weekly XP ladder.
 - Wallet "bank": deposits + 3 stocks (tied to the black market's live
   economy per your call — also blocked on that design).
