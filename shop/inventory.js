@@ -47,7 +47,7 @@
     const ownedPremium = (Dojo.PREMIUM_THEMES || [])
       .filter(t => Dojo.themeUnlocked && Dojo.themeUnlocked(t.id));
     out.push({
-      key: "theme", icon: "\u{1F3A8}", title: "Colour themes",
+      key: "theme", group: "theme", icon: "\u{1F3A8}", title: "Colour themes",
       items: freeThemes.concat(ownedPremium).map(t => ({
         id: t.id, name: t.name,
         swatch: `background:${t.swatch}`,
@@ -61,7 +61,7 @@
     const stripes = (Dojo.BG_STRIPES || [])
       .filter(s => Dojo.bgStripeUnlocked && Dojo.bgStripeUnlocked(s.id));
     out.push({
-      key: "stripe", icon: "\u{1F9F5}", title: "Background stripes",
+      key: "stripe", group: "style", icon: "\u{1F9F5}", title: "Background stripes",
       items: [{ id: "none", name: "None", swatch: null, equipped: stripeNow === "none" }]
         .concat(stripes.map(s => ({
           id: s.id, name: s.name, swatch: `background-image:${s.css}`, equipped: s.id === stripeNow
@@ -70,12 +70,22 @@
     });
 
     // ---- Lobby style ----
+    // Layouts became purchasable, so ownership has to gate EQUIPPING
+    // too — otherwise the shop sells what the inventory hands out free.
+    // (It did exactly that briefly: clicking an unowned layout here
+    // equipped it and left ownership false.)
+    const layoutPrice = id => ((Dojo.LAYOUTS || []).find(l => l.id === id) || {}).price || 0;
+    const ownsL = id => !Dojo.ownsLayout || Dojo.ownsLayout(id);
     const styleNow = DB.getLobbyStyle();
     out.push({
-      key: "lobby", icon: "\u{1F9E9}", title: "Lobby style",
+      key: "lobby", group: "layout", icon: "\u{1F9E9}", title: "Lobby style",
       items: [["classic", "Classic"], ["cards", "Cards"], ["star", "Star"]]
-        .map(([id, name]) => ({ id, name, swatch: null, equipped: id === styleNow })),
-      equip: id => DB.setLobbyStyle(id)
+        .map(([id, name]) => ({
+          id, name, swatch: null,
+          equipped: ownsL(id) && id === styleNow,
+          locked: !ownsL(id), price: layoutPrice(id)
+        })),
+      equip: id => { if (ownsL(id)) DB.setLobbyStyle(id); }
     });
 
     // ---- Star links + hexagram flags ----
@@ -85,10 +95,14 @@
     if (styleNow === "star") {
       const linksNow = DB.getStarLinks ? DB.getStarLinks() : "spokes";
       out.push({
-        key: "links", icon: "\u{1F517}", title: "Star links",
+        key: "links", group: "layout", icon: "\u{1F517}", title: "Star links",
         items: [["spokes", "Spokes"], ["hexagram", "Star of David"]]
-          .map(([id, name]) => ({ id, name, swatch: null, equipped: id === linksNow })),
-        equip: id => DB.setStarLinks(id)
+          .map(([id, name]) => ({
+            id, name, swatch: null,
+            equipped: ownsL(id) && id === linksNow,
+            locked: !ownsL(id), price: layoutPrice(id)
+          })),
+        equip: id => { if (ownsL(id)) DB.setStarLinks(id); }
       });
 
       // Both colour slots draw from ONE owned pool (buy a palette once
@@ -114,13 +128,13 @@
 
       if (linksNow === "hexagram") {
         out.push({
-          key: "flags", icon: "\u{1F38C}", title: "Star of David colours",
+          key: "flags", group: "style", icon: "\u{1F38C}", title: "Star of David colours",
           items: paletteItems(DB.getHexFlags ? DB.getHexFlags() : "combined"),
           equip: id => DB.setHexFlags(id)
         });
       } else {
         out.push({
-          key: "spokes", icon: "\u{1F517}", title: "Spoke colours",
+          key: "spokes", group: "style", icon: "\u{1F517}", title: "Spoke colours",
           items: paletteItems(DB.getSpokeFlags ? DB.getSpokeFlags() : "combined"),
           equip: id => DB.setSpokeFlags(id)
         });
@@ -133,7 +147,7 @@
       const equippedAvatar = DB.getAvatar ? DB.getAvatar() : null;
       const table = Dojo.AVATARS || [];
       out.push({
-        key: "avatar", icon: "\u{1F464}", title: "Avatars",
+        key: "avatar", group: "theme", icon: "\u{1F464}", title: "Avatars",
         items: owned.map(id => {
           const a = table.find(x => x.id === id);
           return { id, name: a ? a.name : id, glyph: a ? a.icon : "?", swatch: null,
@@ -146,49 +160,170 @@
     return out;
   }
 
+  // ---- Tree ----
+  // Three branches, as asked: what the lobby IS (layout), how it's
+  // dressed (style), and the app-wide palette (colour theme). Each
+  // branch holds the slots tagged with its group above, so adding a
+  // slot never means editing the tree.
+  const BRANCHES = [
+    { id: "layout", icon: "🧩", label: "Layout" },
+    { id: "style",  icon: "🎨", label: "Style" },
+    { id: "theme",  icon: "🌈", label: "Colour theme" }
+  ];
+  let activeSlot = null;
+
+  // ---- Live preview ----
+  // A miniature of the actual lobby, redrawn on every equip so you can
+  // see what a choice does before leaving the screen. Deliberately its
+  // own small geometry rather than a scaled clone of core/lobby.js's
+  // ring: that one measures a real container and drives real hit
+  // targets, and borrowing it for a 150px thumbnail would tie a
+  // decorative preview to layout code that has already had two
+  // pointer/measurement bugs.
+  function previewHtml() {
+    const style = DB.getLobbyStyle();
+    const links = DB.getStarLinks ? DB.getStarLinks() : "spokes";
+    const FLAGS = Dojo.HEX_FLAGS || {};
+    const MODES = Dojo.HEX_FLAG_MODES || {};
+    const paletteOf = mode => (MODES[mode] || []).map(id => FLAGS[id]).filter(Boolean);
+
+    if (style !== "star") {
+      const rows = style === "cards" ? 3 : 4;
+      return `<div class="inv-prev-stack${style === "cards" ? " cards" : ""}">${
+        Array.from({ length: rows }, () => `<span></span>`).join("")}</div>`;
+    }
+
+    const n = 6, r = 34, cx = 50, cy = 50;
+    const pt = i => {
+      const d = (-90 + i * (360 / n)) * Math.PI / 180;
+      return [cx + r * Math.cos(d), cy + r * Math.sin(d)];
+    };
+    let out = "";
+    if (links === "hexagram") {
+      const pair = paletteOf(DB.getHexFlags ? DB.getHexFlags() : "combined");
+      for (let i = 0; i < n; i++) {
+        const [x1, y1] = pt(i), [x2, y2] = pt((i + 2) % n);
+        const f = pair[i % 2] || pair[0];
+        const col = f ? f.stops[Math.floor(f.stops.length / 2)][1] : "#888";
+        out += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/>`;
+      }
+    } else {
+      const pal = paletteOf(DB.getSpokeFlags ? DB.getSpokeFlags() : "combined")
+        .flatMap(f => f.stops.map(x => x[1]));
+      const uniq = [...new Set(pal)];
+      for (let i = 0; i < n; i++) {
+        const [x, y] = pt(i);
+        const col = uniq.length ? uniq[i % uniq.length] : "#888";
+        out += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${col}" stroke-width="2" stroke-linecap="round" opacity="0.9"/>`;
+      }
+    }
+    for (let i = 0; i < n; i++) {
+      const [x, y] = pt(i);
+      out += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="var(--bg-card)" stroke="var(--border-accent)"/>`;
+    }
+    out += `<circle cx="${cx}" cy="${cy}" r="8" fill="var(--accent-glow)" stroke="var(--border-accent)"/>`;
+    return `<svg viewBox="0 0 100 100" class="inv-prev-svg">${out}</svg>`;
+  }
+
+
   function renderInventory() {
     const body = document.getElementById("inventory-body");
     if (!body) return;
 
     const rows = slots();
-    const total = rows.reduce((n, s) => n + s.items.filter(i => !i.locked).length, 0);
+    if (!rows.some(r => r.key === activeSlot)) activeSlot = rows.length ? rows[0].key : null;
+    const slot = rows.find(r => r.key === activeSlot);
+    const owned = rows.reduce((n, s) => n + s.items.filter(i => !i.locked).length, 0);
+
+    const tree = BRANCHES.map(b => {
+      const kids = rows.filter(r => r.group === b.id);
+      if (!kids.length) return "";
+      return `
+        <div class="inv-branch">
+          <div class="inv-branch-title">${b.icon} ${b.label}</div>
+          ${kids.map(k => `
+            <button type="button" class="inv-leaf${k.key === activeSlot ? " active" : ""}" data-slot-nav="${k.key}">
+              <span>${k.title}</span>
+              <span class="inv-leaf-count">${k.items.filter(i => !i.locked).length}</span>
+            </button>`).join("")}
+        </div>`;
+    }).join("");
+
+    const equipped = slot ? slot.items.find(i => i.equipped) : null;
+    const grid = slot ? slot.items.map(it => `
+      <button type="button" class="inv-tile${it.equipped ? " equipped" : ""}${it.locked ? " vacant" : ""}"
+              data-id="${it.id}"${it.locked ? ' data-locked="1"' : ' draggable="true"'}
+              title="${it.locked ? `Locked — $${it.price} in the Shop` : it.name}">
+        <span class="inv-tile-art"${it.swatch ? ` style="${it.swatch}"` : ""}>${it.glyph || ""}</span>
+        <span class="inv-tile-name">${it.name}</span>
+        ${it.equipped ? `<span class="inv-tile-on">✓</span>` : ""}
+        ${it.locked ? `<span class="inv-tile-lock">$${it.price}</span>` : ""}
+      </button>`).join("") : "";
 
     body.innerHTML = `
-      <div class="shop-wallet">
-        <div class="sw-balance">\u{1F392} ${total} unlocked</div>
-        <p class="settings-hint" style="margin:0.6rem 0 0;">
-          Everything you own and can equip — tap anything to put it on, it
-          takes effect straight away. Greyed slots are vacant: tap one to
-          go to the Shop and fill it.
-        </p>
-        <button id="btn-inventory-shop" class="btn-ghost" style="margin-top:0.9rem;">\u{1F6D2} Open Shop</button>
-      </div>
-      ${rows.map(s => `
-        <div class="settings-section">
-          <div class="stats-section-title">${s.icon} ${s.title}</div>
-          <div class="inv-grid">
-            ${s.items.map(it => `
-              <button type="button" class="inv-chip${it.equipped ? " equipped" : ""}${it.locked ? " vacant" : ""}"
-                      data-slot="${s.key}" data-id="${it.id}"${it.locked ? ' data-locked="1"' : ""}
-                      title="${it.locked ? `Locked — ${it.price} in the Shop` : it.name}">
-                <span class="inv-swatch"${it.swatch ? ` style="${it.swatch}"` : ""}>${it.glyph || ""}</span>
-                <span class="inv-name">${it.name}</span>
-                ${it.equipped ? `<span class="inv-on">✓</span>` : ""}
-                ${it.locked ? `<span class="inv-lock">$${it.price}</span>` : ""}
-              </button>`).join("")}
+      <div class="inv-layout">
+        <nav class="inv-tree">
+          <div class="inv-owned-count">🎒 ${owned} unlocked</div>
+          ${tree}
+          <button id="btn-inventory-shop" class="btn-ghost inv-shop-btn">🛒 Shop</button>
+        </nav>
+        <div class="inv-main">
+          <div class="inv-dropzone${equipped ? " filled" : ""}" id="inv-dropzone">
+            <div class="inv-dropzone-label">${slot ? slot.title : ""} — equipped</div>
+            <div class="inv-dropzone-slot">
+              ${equipped
+                ? `<span class="inv-tile-art"${equipped.swatch ? ` style="${equipped.swatch}"` : ""}>${equipped.glyph || ""}</span><span>${equipped.name}</span>`
+                : `<span class="inv-dropzone-hint">Drag something here to wear it</span>`}
+            </div>
           </div>
-        </div>`).join("")}`;
+          <div class="inv-tile-grid">${grid}</div>
+        </div>
+        <aside class="inv-preview" aria-label="Live lobby preview">
+          <div class="inv-preview-title">Preview</div>
+          <div class="inv-preview-art">${previewHtml()}</div>
+        </aside>
+      </div>`;
 
-    body.querySelectorAll(".inv-chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (btn.hasAttribute("data-locked")) { Router.go("store", { cat: "custom" }); return; }
-        const slot = rows.find(s => s.key === btn.getAttribute("data-slot"));
-        if (!slot) return;
-        slot.equip(btn.getAttribute("data-id"));
-        renderInventory();   // re-derive rather than patch: equipping a
-                             // lobby style can add or remove whole rows
-      });
+    body.querySelectorAll("[data-slot-nav]").forEach(btn => {
+      btn.addEventListener("click", () => { activeSlot = btn.getAttribute("data-slot-nav"); renderInventory(); });
     });
+
+    // Equip = click OR drag-onto-the-slot. Click stays first-class: drag
+    // is unavailable on touch without a bespoke pointer implementation,
+    // so making it the only way to equip would lock phones out entirely.
+    function apply(id, tile) {
+      if (!slot) return;
+      if (tile && tile.hasAttribute("data-locked")) { Router.go("store", { cat: "custom" }); return; }
+      slot.equip(id);
+      renderInventory();
+    }
+
+    body.querySelectorAll(".inv-tile").forEach(tile => {
+      tile.addEventListener("click", () => apply(tile.getAttribute("data-id"), tile));
+      tile.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", tile.getAttribute("data-id"));
+        e.dataTransfer.effectAllowed = "move";
+        tile.classList.add("dragging");
+      });
+      tile.addEventListener("dragend", () => tile.classList.remove("dragging"));
+    });
+
+    const zone = body.querySelector("#inv-dropzone");
+    if (zone) {
+      // preventDefault on dragover is what makes an element a valid drop
+      // target at all — without it the browser refuses the drop and the
+      // handler below never runs.
+      zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("over"); });
+      zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+      zone.addEventListener("drop", e => {
+        e.preventDefault();
+        zone.classList.remove("over");
+        const id = e.dataTransfer.getData("text/plain");
+        const it = slot && slot.items.find(x => x.id === id);
+        if (it && it.locked) { Router.go("store", { cat: "custom" }); return; }
+        if (id) apply(id, null);
+      });
+    }
 
     const shopBtn = body.querySelector("#btn-inventory-shop");
     if (shopBtn) shopBtn.addEventListener("click", () => Router.go("store", { cat: "custom" }));

@@ -219,32 +219,101 @@
 /* ============================================
    Inventory (shop/inventory.js)
    ============================================ */
-/* Deliberately a denser grid than the Settings swatches: this screen
-   lists everything owned across every category at once, so the chips
-   have to stay small enough that a full inventory is still one glance
-   rather than a scroll marathon. */
-.inv-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-  gap: 0.5rem;
+/* Tree on the left, item grid on the right, live preview pinned
+   bottom-right — the arrangement asked for, modelled on the reference
+   screenshot. Grid over list because these are objects you're picking
+   between, not settings you're reading. */
+.inv-layout { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: start; position: relative; }
+.inv-tree {
+  display: flex; flex-direction: column; gap: 0.85rem;
+  padding: 0.8rem; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--bg-card);
+  position: sticky; top: 0.5rem;
 }
-.inv-chip {
-  display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.5rem 0.6rem; border-radius: var(--radius-sm);
+.inv-owned-count { font-family: var(--mono); font-size: 0.9rem; color: var(--accent-light); font-weight: 700; }
+.inv-branch { display: flex; flex-direction: column; gap: 0.25rem; }
+.inv-branch-title {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.inv-leaf {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.4rem;
+  padding: 0.4rem 0.55rem; border-radius: var(--radius-xs);
+  border: 1px solid transparent; background: transparent;
+  color: var(--text-dim); font: inherit; font-size: 0.8rem; cursor: pointer; text-align: left;
+}
+.inv-leaf:hover { background: var(--bg-card-hover); color: var(--text); }
+.inv-leaf.active { background: var(--accent-glow); border-color: var(--border-accent); color: var(--text); }
+.inv-leaf-count { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); }
+.inv-shop-btn { margin-top: 0.2rem; justify-content: center; }
+
+.inv-main { min-width: 0; }
+.inv-tile-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 0.55rem;
+}
+.inv-tile {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  padding: 0.6rem 0.4rem; border-radius: var(--radius-sm);
   border: 1px solid var(--border); background: var(--bg-card);
-  color: var(--text); font: inherit; font-size: 0.8rem;
-  cursor: pointer; text-align: left;
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  color: var(--text); font: inherit; font-size: 0.72rem; cursor: grab; text-align: center;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
-.inv-chip:hover { border-color: var(--border-accent); background: var(--bg-card-hover); transform: translateY(-1px); }
-.inv-chip.equipped { border-color: var(--accent); background: var(--accent-glow); }
-.inv-swatch {
-  width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
+.inv-tile:hover { border-color: var(--border-accent); transform: translateY(-2px); }
+.inv-tile.equipped { border-color: var(--accent); background: var(--accent-glow); }
+.inv-tile.dragging { opacity: 0.4; cursor: grabbing; }
+.inv-tile.vacant { border-style: dashed; opacity: 0.55; cursor: pointer; background: transparent; }
+.inv-tile.vacant:hover { opacity: 1; border-color: var(--accent); }
+.inv-tile-art {
+  width: 38px; height: 38px; border-radius: 9px;
   display: inline-flex; align-items: center; justify-content: center;
   border: 1px solid var(--border); background: var(--bg-surface);
-  font-size: 0.85rem; line-height: 1;
+  font-size: 1.2rem; line-height: 1;
 }
-.inv-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.inv-on { color: var(--accent); font-weight: 700; }
+.inv-tile.vacant .inv-tile-art { filter: grayscale(1); }
+.inv-tile-name { line-height: 1.2; overflow: hidden; text-overflow: ellipsis; width: 100%; white-space: nowrap; }
+.inv-tile-on { position: absolute; top: 4px; right: 6px; color: var(--accent); font-weight: 700; }
+.inv-tile-lock { position: absolute; top: 4px; right: 5px; font-size: 0.65rem; color: var(--green); font-weight: 700; }
+
+/* Drop target for drag-to-equip. Click still equips — drag is an
+   addition, not a replacement, because it doesn't exist on touch. */
+.inv-dropzone {
+  border: 1px dashed var(--border-accent); border-radius: var(--radius);
+  padding: 0.7rem 0.85rem; margin-bottom: 0.75rem; background: var(--bg-card);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.inv-dropzone.over { border-color: var(--accent); background: var(--accent-glow); border-style: solid; }
+.inv-dropzone-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.4rem;
+}
+.inv-dropzone-slot { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; min-height: 40px; }
+.inv-dropzone-hint { color: var(--text-muted); font-weight: 400; font-size: 0.8rem; }
+
+/* Bottom-right, sticky, so it stays in view while you scroll the grid. */
+.inv-preview {
+  position: sticky; bottom: 1rem; margin-left: auto; width: 150px;
+  padding: 0.6rem; border: 1px solid var(--border-accent); border-radius: var(--radius);
+  background: var(--bg-card); box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  grid-column: 2; justify-self: end;
+}
+.inv-preview-title {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.4rem; text-align: center;
+}
+.inv-prev-svg { width: 100%; height: auto; display: block; }
+.inv-prev-stack { display: flex; flex-direction: column; gap: 5px; padding: 6px 2px; }
+.inv-prev-stack span {
+  height: 14px; border-radius: 4px;
+  background: var(--bg-surface); border: 1px solid var(--border-accent);
+}
+.inv-prev-stack.cards span { height: 18px; border-radius: 8px; background: var(--accent-glow); }
+
+@media (max-width: 620px) {
+  .inv-layout { grid-template-columns: 1fr; }
+  .inv-tree { position: static; }
+  .inv-preview { grid-column: 1; width: 130px; }
+}
 
 /* ============================================
    Unified Shop (shop/store.js)
@@ -278,6 +347,7 @@
   background: var(--accent-glow); border-color: var(--border-accent); color: var(--text);
 }
 .store-nav-icon { flex-shrink: 0; }
+.discount-badge { background: var(--green); color: #06231a; }
 @media (max-width: 620px) {
   .store-layout { grid-template-columns: 1fr; }
   .store-nav { position: static; flex-direction: row; overflow-x: auto; gap: 1rem; }
@@ -285,13 +355,3 @@
   .store-nav-title { margin-bottom: 0; white-space: nowrap; }
   .store-nav-btn { white-space: nowrap; }
 }
-/* Vacant slot: visibly an empty place in a set, not a disabled control —
-   it stays tappable (it takes you to the Shop), so it must not read as
-   dead. Dashed border says "something belongs here". */
-.inv-chip.vacant {
-  border-style: dashed; opacity: 0.6;
-  background: transparent;
-}
-.inv-chip.vacant:hover { opacity: 1; border-color: var(--accent); }
-.inv-chip.vacant .inv-swatch { filter: grayscale(1); }
-.inv-lock { font-size: 0.72rem; color: var(--green); font-weight: 700; }

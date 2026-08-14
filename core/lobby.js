@@ -232,7 +232,7 @@
   // the rotate velocity is, because the +/- buttons that replaced the
   // slider have no value of their own to read back.
   const SPARK_MAX = 5;
-  let sparkCount = 1;
+  let sparkCount = 3;
 
   function mixHex(a, b, t) {
     const rgb = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
