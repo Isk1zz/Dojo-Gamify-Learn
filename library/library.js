@@ -17,6 +17,10 @@
   const Bus = Dojo.Bus;
   const shuffled = (...a) => Dojo.shuffled(...a);
   const shuffleQuestion = (...a) => Dojo.shuffleQuestion(...a);
+  // Patron tiers discount course prices (shop/tokens.js). Read through
+  // this rather than course.priceTokens directly, so what's shown and
+  // what's charged can't disagree.
+  const coursePrice = c => (Dojo.coursePrice ? Dojo.coursePrice(c) : (c && c.priceTokens) || 0);
   const pickQuote = (...a) => Dojo.pickQuote(...a);
   const quoteHtml = (...a) => Dojo.quoteHtml(...a);
   const awardCharge = (...a) => Dojo.awardCharge(...a);
@@ -162,7 +166,7 @@
       // explanation below.
       card.className = `topic-card course-card${c.available && !locked ? "" : " ahead restricted"}`;
       if (!c.available) card.setAttribute("data-explain", "Not open yet — this course is still being built.");
-      else if (locked) card.setAttribute("data-explain", `Costs 🪙 ${c.priceTokens} — click to view & buy.`);
+      else if (locked) card.setAttribute("data-explain", `Costs 🪙 ${coursePrice(c)} — click to view & buy.`);
       card.innerHTML = `
         <div class="topic-num">${c.icon}</div>
         <div class="topic-title">${c.title}</div>
@@ -174,7 +178,7 @@
           <span>·</span>
           <span>${pct}% complete</span>
           ${!c.available ? '<span class="topic-badge ahead-badge">Coming soon</span>' : ""}
-          ${c.available && locked ? `<span class="topic-badge ahead-badge">🪙 ${c.priceTokens}</span>` : ""}
+          ${c.available && locked ? `<span class="topic-badge ahead-badge">🪙 ${coursePrice(c)}</span>` : ""}
         </div>
         <div class="course-progress"><div class="course-progress-fill" style="width:${pct}%"></div></div>
       `;
@@ -327,7 +331,7 @@
       .map(id => UNITS.find(u => u.id === id))
       .filter(Boolean);
     const tokens = DB.getTokens();
-    const afford = tokens >= course.priceTokens;
+    const afford = tokens >= coursePrice(course);
 
     overlay.style.display = "flex";
     overlay.innerHTML = `
@@ -344,8 +348,8 @@
         </div>
         <div class="chunk-actions">
           ${afford
-            ? `<button id="course-buy-confirm" class="btn-primary">Unlock for 🪙 ${course.priceTokens}</button>`
-            : `<button id="course-buy-getmore" class="btn-primary">Need 🪙 ${course.priceTokens - tokens} more — Token Shop</button>`}
+            ? `<button id="course-buy-confirm" class="btn-primary">Unlock for 🪙 ${coursePrice(course)}</button>`
+            : `<button id="course-buy-getmore" class="btn-primary">Need 🪙 ${coursePrice(course) - tokens} more — Token Shop</button>`}
         </div>
       </div>`;
 
@@ -1803,7 +1807,7 @@
           <div class="deck-builder-intro" style="text-align:center; padding: 3rem 1rem;">
             <div style="font-size:2.4rem; margin-bottom:0.75rem;">${course.icon}</div>
             <p style="margin-bottom:1rem;">Flashcards are built from ${course.title}'s content — unlock the course to start reviewing.</p>
-            <button id="flashcards-void-buy" class="btn-primary">View & buy — 🪙 ${course.priceTokens}</button>
+            <button id="flashcards-void-buy" class="btn-primary">View & buy — 🪙 ${coursePrice(course)}</button>
           </div>`;
         const buyBtn = document.getElementById("flashcards-void-buy");
         if (buyBtn) buyBtn.addEventListener("click", () => showCourseBuyModal(course, openFlashcardsHub));

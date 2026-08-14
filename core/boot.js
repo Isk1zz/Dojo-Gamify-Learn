@@ -20,7 +20,6 @@
   const SCREENS = {
     lobby:          () => Dojo.showLobby,
     "course-select":() => Dojo.renderCourseSelect,
-    "token-shop":   () => Dojo.renderTokenShop,
     "unit-select":  () => Dojo.renderUnitSelect,
     "topic-map":    () => Dojo.renderTopicMap,
     garden:         () => Dojo.renderGarden,
@@ -47,7 +46,6 @@
 
   on("btn-lobby-courses",  () => Router.go("course-select"));
   on("btn-token-shop",     () => Router.go("store", { cat: "packs" }));
-  on("btn-back-token-shop", () => Router.go("course-select"));
   on("btn-lobby-garden",   () => Router.go("garden"));
   on("btn-lobby-shop",     () => Router.go("shop"));
   on("btn-lobby-games",    () => Router.go("games"));

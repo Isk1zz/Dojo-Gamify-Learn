@@ -179,7 +179,7 @@
       hideWalletPopover();
       const R = Dojo.Router;
       if (!R) return;
-      R.go("store", { cat: chip.classList.contains("vital-tokens") ? "packs" : "palettes" });
+      R.go("store", { cat: chip.classList.contains("vital-tokens") ? "packs" : "custom" });
       return;
     }
     if (e.target.closest && !e.target.closest("#wallet-popover")) hideWalletPopover();

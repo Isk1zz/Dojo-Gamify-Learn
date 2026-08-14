@@ -152,11 +152,10 @@
 
     const rows = slots();
     const total = rows.reduce((n, s) => n + s.items.filter(i => !i.locked).length, 0);
-    const vacant = rows.reduce((n, s) => n + s.items.filter(i => i.locked).length, 0);
 
     body.innerHTML = `
       <div class="shop-wallet">
-        <div class="sw-balance">\u{1F392} ${total} unlocked${vacant ? ` · ${vacant} vacant` : ""}</div>
+        <div class="sw-balance">\u{1F392} ${total} unlocked</div>
         <p class="settings-hint" style="margin:0.6rem 0 0;">
           Everything you own and can equip — tap anything to put it on, it
           takes effect straight away. Greyed slots are vacant: tap one to
@@ -182,7 +181,7 @@
 
     body.querySelectorAll(".inv-chip").forEach(btn => {
       btn.addEventListener("click", () => {
-        if (btn.hasAttribute("data-locked")) { Router.go("store", { cat: "palettes" }); return; }
+        if (btn.hasAttribute("data-locked")) { Router.go("store", { cat: "custom" }); return; }
         const slot = rows.find(s => s.key === btn.getAttribute("data-slot"));
         if (!slot) return;
         slot.equip(btn.getAttribute("data-id"));
@@ -192,7 +191,7 @@
     });
 
     const shopBtn = body.querySelector("#btn-inventory-shop");
-    if (shopBtn) shopBtn.addEventListener("click", () => Router.go("store", { cat: "palettes" }));
+    if (shopBtn) shopBtn.addEventListener("click", () => Router.go("store", { cat: "custom" }));
 
     showScreen("inventory");
   }

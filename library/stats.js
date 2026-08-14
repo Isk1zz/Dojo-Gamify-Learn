@@ -104,11 +104,19 @@
   // `target` lets Career host this same block (Statistics was merged
   // into Career — see shop/shop.js). Defaults to the profile modal's
   // body so every existing no-arg caller keeps working unchanged.
+  // "All" plus one entry per course. Replaces an earlier <details>
+  // stack: a menu answers "show me THIS course" directly, and it also
+  // sidesteps <details>, whose collapse could not be verified in the
+  // dev preview (that pane doesn't implement the element at all).
+  let statsCourse = "all";
+  let statsHost = null;
+
   function renderStats(target) {
+    if (target) statsHost = target;
     const stats = DB.getStats();
     if (!stats) return;
 
-    const body = target || document.getElementById("stats-body");
+    const body = statsHost || document.getElementById("stats-body");
     if (!body) return;
 
     // Grouped by self-rated confidence classification (the same
@@ -179,22 +187,31 @@
     // triangle all come free and correct from the browser.
     const completedSet = DB.getCompletedTopics();
     const courses = (typeof COURSES !== "undefined" ? COURSES : []);
-    const topicRowsHtml = courses.map(c => {
-      const topics = c.units.flatMap(id => (UNIT_TOPICS[id] || []));
-      if (!topics.length) return "";
+    const topicsOf = c => c.units.flatMap(id => (UNIT_TOPICS[id] || []));
+    // A stale selection (course removed) must not render an empty
+    // screen — fall back to All rather than showing nothing.
+    if (statsCourse !== "all" && !courses.some(c => c.id === statsCourse)) statsCourse = "all";
+
+    const shown = statsCourse === "all"
+      ? courses.flatMap(topicsOf)
+      : topicsOf(courses.find(c => c.id === statsCourse) || { units: [] });
+    const doneShown = shown.filter(t => completedSet.has(t.id)).length;
+    const pctShown = shown.length ? Math.round((doneShown / shown.length) * 100) : 0;
+
+    const menuItem = (id, label, topics) => {
       const done = topics.filter(t => completedSet.has(t.id)).length;
-      const pct = topics.length ? Math.round((done / topics.length) * 100) : 0;
-      return `
-        <details class="stats-course">
-          <summary class="stats-course-head">
-            <span class="stats-course-row">
-              <span class="stats-course-title">${c.icon} ${c.title}</span>
-              <span class="stats-course-meta">${done}/${topics.length} mastered · ${pct}%</span>
-            </span>
-          </summary>
-          <div class="stats-course-body">${bucketise(topics)}</div>
-        </details>`;
-    }).join("");
+      return `<button type="button" class="stats-course-btn${id === statsCourse ? " active" : ""}" data-stats-course="${id}">
+        <span>${label}</span><span class="stats-course-meta">${done}/${topics.length}</span>
+      </button>`;
+    };
+
+    const topicRowsHtml = `
+      <div class="stats-course-menu">
+        ${menuItem("all", "📚 All courses", courses.flatMap(topicsOf))}
+        ${courses.map(c => menuItem(c.id, `${c.icon} ${c.title}`, topicsOf(c))).join("")}
+      </div>
+      <div class="stats-course-summary">${doneShown}/${shown.length} topics mastered · ${pctShown}%</div>
+      ${bucketise(shown)}`;
 
     // "What should I study now?" is the only question a learner
     // actually has, and none of the numbers above answer it. All of
@@ -262,6 +279,13 @@
 
       ${topicRowsHtml}
     `;
+
+    body.querySelectorAll("[data-stats-course]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        statsCourse = btn.getAttribute("data-stats-course");
+        renderStats();
+      });
+    });
 
     body.querySelectorAll(".weak-row").forEach(row => {
       row.addEventListener("click", () => {

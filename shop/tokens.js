@@ -92,6 +92,20 @@
       xpBonus: "×2 XP", desc: "The top tier — named as a Contributor, not just another star colour — and double XP." }
   ];
 
+  // Each tier makes courses genuinely cheaper — the "your contribution
+  // keeps content cheap" line has to be true of something, or it's just
+  // copy. Applied to the price everywhere it is shown AND charged (see
+  // coursePrice below), not only on the label.
+  const PATRON_COURSE_DISCOUNT = { 0: 0, 1: 0.10, 2: 0.20, 3: 0.30 };
+  function courseDiscount() {
+    return PATRON_COURSE_DISCOUNT[DB.getPatronTier ? DB.getPatronTier() : 0] || 0;
+  }
+  function coursePrice(course) {
+    const base = (course && course.priceTokens) || 0;
+    if (!base) return 0;
+    return Math.max(1, Math.round(base * (1 - courseDiscount())));
+  }
+
   function choosePatronTier(tier) {
     return DB.setPatronTier(tier);
   }
@@ -108,9 +122,10 @@
   function buyCourse(courseId) {
     const c = COURSES.find(x => x.id === courseId);
     if (!c || !c.priceTokens || ownsCourse(courseId)) return false;
-    if (!DB.spendTokens(c.priceTokens)) return false;
+    const price = coursePrice(c);
+    if (!DB.spendTokens(price)) return false;
     DB.addInventory(courseKey(courseId));
-    Dojo.Bus.emit("tokens:changed", { delta: -c.priceTokens, reason: "course-buy" });
+    Dojo.Bus.emit("tokens:changed", { delta: -price, reason: "course-buy" });
     return true;
   }
 
@@ -140,92 +155,6 @@
   // where it's clicked (library.js's showCourseBuyModal, via the
   // buyCourse/ownsCourse exported below), so this screen only needs to
   // sell what it's named after.
-  function renderTokenShop() {
-    const body = document.getElementById("token-shop-body");
-    if (!body) return;
-
-    body.innerHTML = `
-      <div class="shop-wallet">
-        <div class="sw-balance">🪙 ${DB.getTokens()}</div>
-        <p class="settings-hint" style="margin:0.6rem 0 0;">
-          Buying is a DEMO right now — packs credit instantly, no real
-          payment happens yet. Real checkout arrives once this becomes a
-          real product (see the long-term roadmap in the project notes).
-        </p>
-      </div>
-      <div class="settings-section">
-        <div class="stats-section-title">🪙 Token Packs</div>
-        <div class="shop-grid" id="token-packs-grid"></div>
-      </div>
-      <div class="settings-section">
-        <div class="stats-section-title">⭐ Support the Dojo</div>
-        <p class="settings-hint" style="margin:0 0 0.6rem;">
-          The Dojo stays cheap on purpose — courses priced to actually
-          be affordable, not to extract. If it's worked for you and you
-          want to help keep it that way for everyone else, pick a tier.
-          A thank-you star next to your name, nothing gated behind it.
-          Same demo note as above: no real billing yet, and a tier can
-          only go up, never down.
-        </p>
-        <div class="shop-grid" id="patron-tiers-grid"></div>
-      </div>
-    `;
-
-    const packGrid = body.querySelector("#token-packs-grid");
-    TOKEN_PACKS.forEach(pack => {
-      const bonus = bonusPct(pack);
-      const card = document.createElement("div");
-      card.className = "shop-card";
-      card.innerHTML = `
-        <div class="shop-card-preview game-preview">
-          <span class="gp-icon">🪙</span>
-          ${bonus > 0 ? `<span class="pack-bonus-badge">+${bonus}%</span>` : ""}
-        </div>
-        <div class="shop-card-body">
-          <div class="shop-name">${pack.tokens} Tokens</div>
-          <div class="shop-tagline">${bonus > 0 ? `${bonus}% more per $ than the smallest pack` : "Demo purchase — no real payment"}</div>
-          <button class="shop-btn buy" data-pack="${pack.id}">${pack.priceLabel} (demo)</button>
-        </div>`;
-      card.querySelector("button").addEventListener("click", () => {
-        if (buyPack(pack.id)) renderTokenShop();
-      });
-      packGrid.appendChild(card);
-    });
-
-    const currentTier = DB.getPatronTier ? DB.getPatronTier() : 0;
-    const tierGrid = body.querySelector("#patron-tiers-grid");
-    PATRON_TIERS.forEach(t => {
-      const owned = currentTier >= t.tier;
-      const card = document.createElement("div");
-      card.className = "shop-card";
-      card.innerHTML = `
-        <div class="shop-card-preview game-preview">
-          <span class="gp-icon profile-patron-star tier-${t.tier}">${t.star}</span>
-          <span class="pack-bonus-badge">${t.xpBonus}</span>
-        </div>
-        <div class="shop-card-body">
-          <div class="shop-name">${t.label}</div>
-          <div class="shop-tagline">${t.range} — ${t.desc}</div>
-          <button class="shop-btn buy" data-tier="${t.tier}" ${owned ? "disabled" : ""}>
-            ${owned ? "Current tier" : "Choose (demo)"}
-          </button>
-        </div>`;
-      const btn = card.querySelector("button");
-      if (!owned) {
-        btn.addEventListener("click", () => {
-          if (choosePatronTier(t.tier)) {
-            renderTokenShop();
-            if (Dojo.updateProfileBadge) Dojo.updateProfileBadge();
-          }
-        });
-      }
-      tierGrid.appendChild(card);
-    });
-
-    showScreen("token-shop");
-  }
-
-
   // ---- Panes for the unified Shop (shop/store.js) ----
   // The store owns the screen and the left-hand category nav; the pack
   // and tier DATA lives here, so it hands back markup rather than
@@ -259,8 +188,15 @@
     const cur = DB.getPatronTier ? DB.getPatronTier() : 0;
     return `
       <div class="settings-section">
-        <div class="stats-section-title">⭐ Support the Dojo</div>
-        <p class="settings-hint">The Dojo stays cheap on purpose. If it's worked for you and you want to help keep it that way for everyone else, pick a tier — a thank-you star next to your name and a permanent XP boost. No real billing yet, and a tier can only go up.</p>
+        <div class="stats-section-title">💜 Support the Dojo</div>
+        <p class="settings-hint">
+          Not a subscription and not a paywall — closer to a whip-round. The Dojo is priced to be
+          genuinely affordable, and supporters are what keeps it that way for people who can't pay.
+          <strong>Every tier makes courses permanently cheaper for you too</strong> — −10% / −20% / −30%
+          off every course price, applied wherever it's shown and charged. Plus a star by your name
+          and an XP boost. No real billing yet; a tier can only go up.
+        </p>
+        ${cur ? `<p class="settings-hint"><strong>Your discount: −${Math.round(courseDiscount() * 100)}% on every course.</strong></p>` : ""}
         <div class="shop-grid">
           ${PATRON_TIERS.map(t => {
             const owned = cur >= t.tier;
@@ -269,6 +205,7 @@
                 <div class="shop-card-preview game-preview">
                   <span class="gp-icon profile-patron-star tier-${t.tier}">${t.star}</span>
                   <span class="pack-bonus-badge">${t.xpBonus}</span>
+                  <span class="pack-bonus-badge discount-badge">−${Math.round((PATRON_COURSE_DISCOUNT[t.tier] || 0) * 100)}% courses</span>
                 </div>
                 <div class="shop-card-body">
                   <div class="shop-name">${t.label}</div>
@@ -295,5 +232,5 @@
     });
   }
 
-  Object.assign(Dojo, { renderTokenShop, ownsCourse, buyCourse, PATRON_TIERS, tokenPacksPane, patronPane, bindTokenPane });
+  Object.assign(Dojo, { ownsCourse, buyCourse, PATRON_TIERS, tokenPacksPane, patronPane, bindTokenPane, coursePrice, courseDiscount });
 })();

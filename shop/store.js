@@ -45,11 +45,37 @@
     return true;
   }
 
+  // ---- Layouts ----
+  // Star stays free and is never listed as purchasable: it's the
+  // default a new profile starts on, and a default nobody owns would
+  // mean a lobby that can't render itself. Everything else is bought.
+  const LAYOUTS = [
+    { id: "classic",  slot: "lobby", name: "Classic",       price: 200, icon: "📋",
+      desc: "The original stacked list." },
+    { id: "cards",    slot: "lobby", name: "Cards",         price: 250, icon: "🗃️",
+      desc: "Same tiles, softer card treatment." },
+    { id: "hexagram", slot: "links", name: "Star of David", price: 350, icon: "✡️",
+      desc: "Wires the Star's six tiles into two triangles." }
+  ];
+  const layoutKey = id => `layout_${id}`;
+  function ownsLayout(id) {
+    if (id === "star" || id === "spokes") return true;   // defaults, always yours
+    return DB.getInventory().includes(layoutKey(id));
+  }
+  function buyLayout(id) {
+    const l = LAYOUTS.find(x => x.id === id);
+    if (!l || ownsLayout(id)) return false;
+    if (!DB.spendMoney || !DB.spendMoney(l.price)) return false;
+    DB.addInventory(layoutKey(id));
+    Dojo.Bus.emit("wallet:changed", { delta: -l.price, reason: "layout-buy" });
+    return true;
+  }
+
   // ---- Categories ----
   const CATS = [
-    { id: "packs",    group: "tokens", icon: "\u{1FA99}", label: "Token packs" },
-    { id: "patron",   group: "tokens", icon: "⭐",    label: "Support the Dojo" },
-    { id: "palettes", group: "money",  icon: "\u{1F3A8}", label: "Star & spoke colours" }
+    { id: "packs",   group: "tokens",  icon: "\u{1FA99}", label: "Token packs" },
+    { id: "custom",  group: "money",   icon: "\u{1F3A8}", label: "Custom Shop" },
+    { id: "patron",  group: "support", icon: "\u{1F49C}", label: "Support the Dojo" }
   ];
 
   function navHtml() {
@@ -62,7 +88,8 @@
           </button>`).join("")}
       </div>`;
     return group("tokens", `\u{1FA99} Tokens · ${DB.getTokens()}`)
-         + group("money", `\u{1F4B5} Money · $${DB.getWallet()}`);
+         + group("money", `\u{1F4B5} Money · $${DB.getWallet()}`)
+         + group("support", `\u{1F49C} Support`);
   }
 
   // ---- Panes ----
@@ -73,7 +100,7 @@
     const wallet = DB.getWallet();
     return `
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F3A8} Star &amp; spoke colours</div>
+        <div class="stats-section-title">\u{1F3A8} Styles</div>
         <p class="settings-hint">Bought once, then equippable on EITHER the Star of David or the spokes — they're two separate slots in your Inventory, so one palette can dress both or you can mix them.</p>
         <div class="shop-grid">
           ${Object.keys(MODES).map(id => {
@@ -99,8 +126,38 @@
       </div>`;
   }
 
+  // Custom Shop = what the lobby LOOKS like: the layout itself, then
+  // the colours that dress it. Two sections in one aisle rather than
+  // two aisles, because you pick a layout once and then keep coming
+  // back for styles — they're the same errand.
+  function layoutsPane() {
+    const wallet = DB.getWallet();
+    return `
+      <div class="settings-section">
+        <div class="stats-section-title">\u{1F9E9} Layouts</div>
+        <p class="settings-hint">How the Lobby is arranged. Star is yours from the start and always free — these are the alternatives.</p>
+        <div class="shop-grid">
+          ${LAYOUTS.map(l => {
+            const owned = ownsLayout(l.id);
+            const afford = wallet >= l.price;
+            return `
+              <div class="shop-card">
+                <div class="shop-card-preview game-preview"><span class="gp-icon">${l.icon}</span></div>
+                <div class="shop-card-body">
+                  <div class="shop-name">${l.name}</div>
+                  <div class="shop-tagline">${owned ? "Owned — equip it in your Inventory." : l.desc}</div>
+                  <button class="shop-btn buy" data-layout="${l.id}" ${owned || !afford ? "disabled" : ""}>
+                    ${owned ? "Owned" : afford ? `Buy — $${l.price}` : `Need $${l.price - wallet} more`}
+                  </button>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }
+
   function paneHtml() {
-    if (activeCat === "palettes") return palettesPane();
+    if (activeCat === "custom") return layoutsPane() + palettesPane();
     // Token packs and patron tiers are shop/tokens.js's data — asked
     // for as markup rather than duplicated here.
     if (activeCat === "packs" && Dojo.tokenPacksPane) return Dojo.tokenPacksPane();
@@ -122,6 +179,9 @@
     body.querySelectorAll("[data-cat]").forEach(btn => {
       btn.addEventListener("click", () => { activeCat = btn.getAttribute("data-cat"); renderStore(); });
     });
+    body.querySelectorAll("[data-layout]").forEach(btn => {
+      btn.addEventListener("click", () => { if (buyLayout(btn.getAttribute("data-layout"))) renderStore(); });
+    });
     body.querySelectorAll("[data-palette]").forEach(btn => {
       btn.addEventListener("click", () => { if (buyPalette(btn.getAttribute("data-palette"))) renderStore(); });
     });
@@ -132,5 +192,5 @@
     showScreen("store");
   }
 
-  Object.assign(Dojo, { renderStore, ownsPalette, paletteCost });
+  Object.assign(Dojo, { renderStore, ownsPalette, paletteCost, ownsLayout, LAYOUTS });
 })();
