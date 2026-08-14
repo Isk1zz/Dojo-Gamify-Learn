@@ -201,7 +201,7 @@
   // labelled with a flag it doesn't actually fly. "Combined" is spelled
   // out as the two countries it mixes rather than left abstract.
   const HEX_FLAG_LABELS = {
-    combined: "🇺🇦+🇮🇱 Ukr+Isr",
+    combined: "🇺🇦+🇮🇱 Mixtape",
     ukraine: "🇺🇦 Ukraine",
     israel: "🇮🇱 Israel",
     usa: "🇺🇸 USA"

@@ -71,6 +71,59 @@
     return true;
   }
 
+  // ---- Base themes ----
+  // Indigo and Frost stay free (the two defaults, one dark one light,
+  // so a profile always has a usable pair). The rest are bought with $.
+  // Awarded themes are NOT here — they're rank rewards and can't be
+  // bought at any price; mixing them into a shop would imply otherwise.
+  const themeKey = id => `theme_${id}`;
+  function themePrice(id) {
+    const t = (Dojo.THEMES || []).find(x => x.id === id);
+    return (t && t.price) || 0;
+  }
+  function ownsTheme(id) {
+    if (!themePrice(id)) return true;                 // free tier
+    return DB.getInventory().includes(themeKey(id));
+  }
+  function buyTheme(id) {
+    if (ownsTheme(id)) return false;
+    const cost = themePrice(id);
+    if (!cost || !DB.spendMoney || !DB.spendMoney(cost)) return false;
+    DB.addInventory(themeKey(id));
+    Dojo.Bus.emit("wallet:changed", { delta: -cost, reason: "theme-buy" });
+    return true;
+  }
+
+  function themesPane() {
+    const wallet = DB.getWallet();
+    const now = DB.getTheme();
+    return `
+      <div class="settings-section">
+        <div class="stats-section-title">🌈 Colour themes</div>
+        <p class="settings-hint">Indigo Night and Frost are free — one dark, one light, so you always have a usable pair. Awarded themes aren't sold here at all; those come from rank.</p>
+        <div class="shop-grid">
+          ${(Dojo.THEMES || []).map(t => {
+            const owned = ownsTheme(t.id);
+            const cost = themePrice(t.id);
+            const afford = wallet >= cost;
+            return `
+              <div class="shop-card">
+                <div class="shop-card-preview" style="background:${t.card};display:flex;align-items:center;justify-content:center;">
+                  <span style="width:26px;height:26px;border-radius:50%;background:${t.swatch};"></span>
+                </div>
+                <div class="shop-card-body">
+                  <div class="shop-name">${t.name}</div>
+                  <div class="shop-tagline">${!cost ? "Free — always yours." : owned ? "Owned — equip it in your Inventory." : (t.mode === "light" ? "A light theme." : "A dark theme.")}</div>
+                  <button class="shop-btn buy" data-theme="${t.id}" ${owned || !afford ? "disabled" : ""}>
+                    ${!cost ? "Free" : owned ? (t.id === now ? "Equipped" : "Owned") : afford ? `Buy — ${cost}` : `Need ${cost - wallet} more`}
+                  </button>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }
+
   // ---- Categories ----
   const CATS = [
     { id: "packs",   group: "tokens",  icon: "\u{1FA99}", label: "Token packs" },
@@ -157,7 +210,7 @@
   }
 
   function paneHtml() {
-    if (activeCat === "custom") return layoutsPane() + palettesPane();
+    if (activeCat === "custom") return layoutsPane() + themesPane() + palettesPane();
     // Token packs and patron tiers are shop/tokens.js's data — asked
     // for as markup rather than duplicated here.
     if (activeCat === "packs" && Dojo.tokenPacksPane) return Dojo.tokenPacksPane();
@@ -179,6 +232,9 @@
     body.querySelectorAll("[data-cat]").forEach(btn => {
       btn.addEventListener("click", () => { activeCat = btn.getAttribute("data-cat"); renderStore(); });
     });
+    body.querySelectorAll("[data-theme]").forEach(btn => {
+      btn.addEventListener("click", () => { if (buyTheme(btn.getAttribute("data-theme"))) renderStore(); });
+    });
     body.querySelectorAll("[data-layout]").forEach(btn => {
       btn.addEventListener("click", () => { if (buyLayout(btn.getAttribute("data-layout"))) renderStore(); });
     });
@@ -192,5 +248,5 @@
     showScreen("store");
   }
 
-  Object.assign(Dojo, { renderStore, ownsPalette, paletteCost, ownsLayout, LAYOUTS });
+  Object.assign(Dojo, { renderStore, ownsPalette, paletteCost, ownsLayout, LAYOUTS, ownsTheme, themePrice });
 })();

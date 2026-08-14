@@ -355,3 +355,7 @@
   .store-nav-title { margin-bottom: 0; white-space: nowrap; }
   .store-nav-btn { white-space: nowrap; }
 }
+/* Theme tiles show the theme's CARD colour with its accent as a dot —
+   painting the tile in the raw accent made Frost (a light theme with a
+   blue accent) read as a solid blue block. Mirrors Settings. */
+.inv-dot { width: 16px; height: 16px; border-radius: 50%; display: block; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); }

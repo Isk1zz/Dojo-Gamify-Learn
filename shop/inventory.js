@@ -34,26 +34,48 @@
     const out = [];
 
     // ---- Colour themes ----
-    // Free themes are always owned; premium ones gate on
-    // Dojo.themeUnlocked — the same predicate Settings uses, rather
-    // than a second reading of the rank table that could drift from it.
-    // Dojo.THEMES, not a bare THEMES: shop/themes.js keeps its tables
-    // inside its IIFE and exposes them on the Dojo seam. A `typeof
-    // THEMES !== "undefined"` guard here silently rendered an empty
-    // themes row instead of failing loudly — caught by counting chips,
-    // not by reading the code.
+    // Two different gates, deliberately not merged: the base themes are
+    // BOUGHT with $ (Indigo and Frost stay free as the two defaults),
+    // while the awarded ones are earned by RANK and can't be bought at
+    // all. Both are listed — an awarded theme you haven't reached shows
+    // the rank it needs, so the ladder is visible from here.
     const themeNow = DB.getTheme();
-    const freeThemes = Dojo.THEMES || [];
-    const ownedPremium = (Dojo.PREMIUM_THEMES || [])
-      .filter(t => Dojo.themeUnlocked && Dojo.themeUnlocked(t.id));
+    const themeOwned = id => !Dojo.ownsTheme || Dojo.ownsTheme(id);
+    const themeItem = (t, awarded) => {
+      // Card colour behind a swatch dot, NOT the raw swatch as the whole
+      // tile: Frost is a LIGHT theme whose accent happens to be blue, so
+      // painting the tile with its accent showed a solid blue block for
+      // a white theme (reported). This mirrors what Settings does.
+      const unlocked = awarded
+        ? (Dojo.themeUnlocked ? Dojo.themeUnlocked(t.id) : false)
+        : themeOwned(t.id);
+      const rank = awarded && Dojo.Ranks && Dojo.Ranks.themeRank ? Dojo.Ranks.themeRank(t.id) : null;
+      return {
+        id: t.id,
+        name: t.name,
+        swatch: `background:${t.card || "var(--bg-surface)"}`,
+        glyph: `<span class="inv-dot" style="background:${t.swatch}"></span>`,
+        equipped: unlocked && t.id === themeNow,
+        locked: !unlocked,
+        // Awarded themes are earned, never sold — show the rank instead
+        // of a price so the two routes can't be confused.
+        price: awarded ? 0 : (t.price || 0),
+        req: !unlocked && awarded && rank ? `Rank ${rank.n}` : null,
+        preview: true
+      };
+    };
     out.push({
-      key: "theme", group: "theme", icon: "\u{1F3A8}", title: "Colour themes",
-      items: freeThemes.concat(ownedPremium).map(t => ({
-        id: t.id, name: t.name,
-        swatch: `background:${t.swatch}`,
-        equipped: t.id === themeNow
-      })),
-      equip: id => { DB.setTheme(id); Dojo.applyTheme(id); }
+      key: "theme", group: "theme", icon: "🎨", title: "Colour themes",
+      items: (Dojo.THEMES || []).map(t => themeItem(t, false)),
+      equip: id => { if (themeOwned(id)) { DB.setTheme(id); Dojo.applyTheme(id); } }
+    });
+    out.push({
+      key: "awarded", group: "theme", icon: "✨", title: "Awarded themes",
+      items: (Dojo.PREMIUM_THEMES || []).map(t => themeItem(t, true)),
+      equip: id => {
+        if (Dojo.themeUnlocked && Dojo.themeUnlocked(id)) { DB.setTheme(id); Dojo.applyTheme(id); }
+        else if (Dojo.previewTheme) Dojo.previewTheme(id);   // locked: preview only
+      }
     });
 
     // ---- Background stripes ----
@@ -253,11 +275,11 @@
     const grid = slot ? slot.items.map(it => `
       <button type="button" class="inv-tile${it.equipped ? " equipped" : ""}${it.locked ? " vacant" : ""}"
               data-id="${it.id}"${it.locked ? ' data-locked="1"' : ' draggable="true"'}
-              title="${it.locked ? `Locked — $${it.price} in the Shop` : it.name}">
+              title="${it.locked ? (it.req ? `Locked — reach ${it.req}` : `Locked — ${it.price} in the Shop`) : it.name}">
         <span class="inv-tile-art"${it.swatch ? ` style="${it.swatch}"` : ""}>${it.glyph || ""}</span>
         <span class="inv-tile-name">${it.name}</span>
         ${it.equipped ? `<span class="inv-tile-on">✓</span>` : ""}
-        ${it.locked ? `<span class="inv-tile-lock">$${it.price}</span>` : ""}
+        ${it.locked ? `<span class="inv-tile-lock">${it.req ? it.req : "$" + it.price}</span>` : ""}
       </button>`).join("") : "";
 
     body.innerHTML = `
