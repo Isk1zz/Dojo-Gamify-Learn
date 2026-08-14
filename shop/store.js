@@ -115,7 +115,7 @@
                   <div class="shop-name">${t.name}</div>
                   <div class="shop-tagline">${!cost ? "Free — always yours." : owned ? "Owned — equip it in your Inventory." : (t.mode === "light" ? "A light theme." : "A dark theme.")}</div>
                   <button class="shop-btn buy" data-theme="${t.id}" ${owned || !afford ? "disabled" : ""}>
-                    ${!cost ? "Free" : owned ? (t.id === now ? "Equipped" : "Owned") : afford ? `Buy — ${cost}` : `Need ${cost - wallet} more`}
+                    ${!cost ? "Free" : owned ? (t.id === now ? "Equipped" : "Owned") : afford ? `Buy — $${cost}` : `Need $${cost - wallet} more`}
                   </button>
                 </div>
               </div>`;

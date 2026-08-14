@@ -161,12 +161,12 @@
   // these are flags, not a sunset.
   const HEX_FLAGS = {
     ukraine: {
-      name: "Ukraine", emoji: "🇺🇦", price: 300,
+      name: "Ukraine", price: 300,
       stops: [[0, "#0057B7"], [48, "#0057B7"], [52, "#FFD700"], [100, "#FFD700"]],
       bar: "linear-gradient(90deg,#0057B7 0 50%,#FFD700 50% 100%)"
     },
     israel: {
-      name: "Israel", emoji: "🇮🇱", price: 300,
+      name: "Israel", price: 300,
       stops: [[0, "#0038B8"], [22, "#0038B8"], [34, "#F4F7FB"], [66, "#F4F7FB"], [78, "#0038B8"], [100, "#0038B8"]],
       bar: "linear-gradient(90deg,#0038B8 0 24%,#F4F7FB 34% 66%,#0038B8 76% 100%)"
     },
@@ -177,7 +177,7 @@
     // red/white banding for the rest. Reads as Old Glory rather than
     // the Tricolore at a glance, which is the whole point.
     usa: {
-      name: "USA", emoji: "🇺🇸", price: 400,
+      name: "USA", price: 400,
       stops: [
         [0, "#3C3B6E"], [20, "#3C3B6E"],
         [20, "#B22234"], [33, "#B22234"], [33, "#FFFFFF"], [46, "#FFFFFF"],
@@ -197,15 +197,26 @@
     usa: ["usa", "usa"]
   };
 
-  // Display labels, built from each mode's own flags so a mode can't be
-  // labelled with a flag it doesn't actually fly. "Combined" is spelled
-  // out as the two countries it mixes rather than left abstract.
+  // Plain-text labels — no flag emoji. Windows ships no colour flag
+  // glyphs at all; 🇺🇦/🇮🇱/🇺🇸 rendered as the bare letter pairs
+  // "UA"/"IL"/"US" (confirmed live, reported as "flags in shop are
+  // broken"). That's an OS font gap no CSS can fix, so the fix is not
+  // depending on the emoji existing — text only here, and a real drawn
+  // swatch (HEX_FLAG_CHIP below) wherever a visual is needed instead.
   const HEX_FLAG_LABELS = {
-    combined: "🇺🇦+🇮🇱 Mixtape",
-    ukraine: "🇺🇦 Ukraine",
-    israel: "🇮🇱 Israel",
-    usa: "🇺🇸 USA"
+    combined: "Mixtape (Ukraine + Israel)",
+    ukraine: "Ukraine",
+    israel: "Israel",
+    usa: "USA"
   };
+
+  // No drawn-chip helper here: every place that shows one of these
+  // labels (Settings' hexPreview, the Shop's card preview, Inventory's
+  // tile art and dropzone) already pairs it with a real colour swatch
+  // built from HEX_FLAGS' own `bar` gradient — the emoji in the label
+  // text was the only thing NOT backed by an actual drawn colour, and
+  // it's gone now. Adding a second chip next to text that already sits
+  // beside a swatch would just be visual noise.
 
   const SPARK_COLORS = ["#38bdf8", "#a78bfa", "#f472b6", "#fbbf24", "#34d399"];
   const REVS_PER_COLOR = 7;
