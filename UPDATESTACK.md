@@ -15,9 +15,10 @@ code starts:
    identity verification. Three different projects with different
    requirements; pick one before spending money.
 2. **Whether identity documents are really needed** (recommend: no —
-   see Flag 2 in the doc). Also read Flag 1 on keeping the Arcade's
-   currency separated from real money, which is currently doing real
-   legal work by accident and shouldn't be merged casually.
+   see Flag 2 in the doc). Flag 1 (keep the Arcade's currency separated
+   from real money) **no longer binds the way it did** — the casino
+   games were removed on 2026-08-14, so there is nothing to wager on;
+   see the Arcade section below before acting on either flag.
 Also note: Cloud Functions needs the paid Blaze plan, which is the one
 real "free tier" caveat — the doc lists three ways around it.
 
