@@ -144,6 +144,39 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Poke the moon: bats. Sun spin fixed. (2026-08-16)
+- **Sun spin direction fixed.** Poking swapped the rays' animation from
+  the idle turn to the burst, which restarts rotation at 0deg — so the
+  sun visibly jerked BACKWARDS before spinning. The rays now sit in two
+  nested groups: the outer holds the idle turn, the inner takes the
+  burst. They compose instead of replacing, so two turns are added on
+  top of wherever the idle rotation had reached.
+- **Poke the moon and a colony scatters out from behind it** — six bats
+  and, once per poke at a random position in the pack, the Batman
+  emblem. Outer div flies, inner svg flaps (the same two-element split
+  the feather and startled eagle use, because one element can't run two
+  transforms).
+- **"From behind the moon, not out of it"** — bats do NOT go in the fx
+  layer like every other effect. That layer sits above the app and
+  painted them ON TOP of the moon, which reads as erupting out of it.
+  They're inserted into the decoration layer BEFORE the moon in DOM
+  order, so its disc hides them until they clear the edge. Two traps
+  found doing it:
+  - `.fx-bat` had `z-index: 1`, and a positioned element with a z-index
+    paints above an auto-z-index sibling whatever the DOM order says —
+    which put them back in front. Removed.
+  - The layer's blanket `:where(#bg-decor-layer) > * { display: none }`
+    swallowed them: they spawned in the right place, in the right
+    order, invisible. Now `:not(.fx-bat)`.
+- **The moon overlapped the vitals chips** (moon top 64px, strip bottom
+  77px). The chips correctly won the click — they're UI — but that made
+  the moon's upper third un-pokeable and clicking it opened the Shop.
+  Measured and moved to 5.6rem; sun and the day/night switch share the
+  offset so all three stay stacked. Verified zero overlap.
+- Bats are slate-violet with a pale rim, not black: a true-black bat on
+  a night sky is realistic and invisible. The first pass rendered
+  `#17131f` and vanished a few px from the moon.
+
 ## Shop loses Money + Exchange; effects follow their cloud (2026-08-15)
 - **Two aisles removed.** The Custom Shop had nothing left to sell once
   every cosmetic went free, and the Exchange converted Tokens into `$`,

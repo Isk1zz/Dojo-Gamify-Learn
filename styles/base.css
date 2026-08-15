@@ -841,7 +841,11 @@ body {
    a bare `#bg-decor-layer > *` it scores (1,0,0) on the id and beats
    every reveal rule below (0,2,1), silently hiding all decorations
    even when their token is present. Caught live. */
-:where(#bg-decor-layer, #bg-decor-front) > * { display: none; }
+/* :not(.fx-bat) — bats are injected into this layer at runtime (behind
+   the moon, see shop/decor.js's spawnBehindMoon) and are not decorations
+   toggled by data-bg-decor, so this blanket hide would swallow them.
+   It did: they spawned correctly, in the right order, display:none. */
+:where(#bg-decor-layer, #bg-decor-front) > *:not(.fx-bat) { display: none; }
 html[data-bg-decor~="usa_stars"]  .decor-usa_stars,
 html[data-bg-decor~="usa_eagles"] .decor-usa_eagles,
 /* :not(.cloud-day) matters — the day-only six must stay hidden at night,
@@ -869,8 +873,14 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
    element rather than a filter glow so it can breathe on its own timing
    while the disc holds still. */
 /* overflow visible for the same reason as the sun below — the halo
-   breathes past the viewBox edge. */
-.decor-moon { position: absolute; top: 4rem; right: 2.5rem; width: 108px; height: 108px; overflow: visible; }
+   breathes past the viewBox edge.
+   top:5.6rem, not 4rem: at 4rem the disc overlapped the vitals strip
+   (which ends at ~77px), so the chips sat on top of the moon. The chips
+   correctly won the click — they're UI — but that made the moon's upper
+   third un-pokeable and clicking it opened the Shop instead. Measured,
+   then moved below the strip. The sun and the day/night switch share
+   this offset so the three stay stacked. */
+.decor-moon { position: absolute; top: 5.6rem; right: 2.5rem; width: 108px; height: 108px; overflow: visible; }
 .decor-moon .moon-disc  { fill: #eef0f6; }
 .decor-moon .moon-halo  { fill: #dbe4ff; opacity: 0.13; animation: moon-breathe 6.5s ease-in-out infinite; }
 .decor-moon .moon-craters circle { fill: #c3c8d8; opacity: 0.75; }
@@ -891,7 +901,7 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
    bloom via drop-shadow, a halo that pulses across a range you can
    actually perceive, and rays turning ~2.5x faster. */
 .decor-sun {
-  position: absolute; top: 4rem; right: 2.5rem; width: 108px; height: 108px;
+  position: absolute; top: 5.6rem; right: 2.5rem; width: 108px; height: 108px;
   /* An <svg> clips to its viewBox by default, and the halo scales past
      it (r44 -> r64 on the poke flare), so the flare was being sliced off
      square — "dashes into a square box and gets cut", reported. Nothing
@@ -920,7 +930,12 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
   0%, 100% { opacity: 0.22; transform: scale(0.95); transform-origin: 50% 50%; }
   50%      { opacity: 0.5;  transform: scale(1.14); transform-origin: 50% 50%; }
 }
-.decor-sun .sun-rays { fill: #f5a623; opacity: 0.8; transform-origin: 50% 50%; animation: sun-turn 18s linear infinite; }
+/* Idle turn lives on the OUTER group; the burst goes on the inner one.
+   Both clockwise, and because they compose rather than replace each
+   other the poke adds two turns on top of wherever the idle rotation
+   had got to — no jerk backwards to 0deg. */
+.decor-sun .sun-rays-idle { transform-origin: 50% 50%; animation: sun-turn 18s linear infinite; }
+.decor-sun .sun-rays { fill: #f5a623; opacity: 0.8; transform-origin: 50% 50%; }
 @keyframes sun-turn { to { transform: rotate(360deg); } }
 
 /* Poked: spins up like a fan for two turns and throws off more heat.
@@ -1315,13 +1330,56 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   .decor-usa_eagles, .decor-usa_eagles .wing,
   .decor-clouds, .decor-scene .sc-window,
   .decor-moon .moon-halo, .decor-sun, .decor-sun .sun-halo,
-  .decor-sun .sun-rays, .decor-sun .sun-disc { animation: none; }
+  .decor-sun .sun-rays, .decor-sun .sun-rays-idle, .decor-sun .sun-disc,
+  .fx-bat, .fx-bat svg { animation: none; }
   /* Reduced motion loses the pulse, so the sun keeps a STATIC bloom
      rather than reverting to the flat disc that was reported as not
      glowing at all. */
   .decor-sun { filter: drop-shadow(0 0 16px rgba(245, 170, 60, 0.6)); }
   .decor-usa_eagles { display: none; }
   .fx-flash { display: none; }
+}
+
+/* ---- Poke the moon: a colony scatters out from behind it ----
+   Two elements per bat, the pattern the feather and the startled eagle
+   both use: the outer div owns the flight path, the inner svg owns the
+   wingbeat. One element can't run two transforms without them fighting.
+   The flap is a vertical squash rather than drawn wing paths — at 22px
+   the silhouette change is all that reads, and it costs one keyframe. */
+/* Deliberately NO z-index. Bats are inserted before the moon in the
+   decoration layer so the moon's disc hides them until they clear it —
+   but a positioned element WITH a z-index paints above an auto-z-index
+   sibling whatever the DOM order says, which would have put them back
+   in front of the moon and undone the whole point. */
+.fx-bat {
+  position: absolute;
+  animation: fx-bat-fly 1.7s cubic-bezier(0.2, 0.5, 0.5, 1) forwards;
+}
+.fx-bat svg {
+  width: 100%; display: block;
+  animation: fx-bat-flap 0.22s ease-in-out infinite;
+  /* A true-black bat on a night sky is invisible, which is realistic and
+     useless — the first pass rendered #17131f and simply vanished a few
+     px from the moon. Lifted to a slate-violet and given a faint pale
+     rim, so it reads as moonlit rather than as a hole in the page. */
+  filter: drop-shadow(0 0 3px rgba(214, 220, 255, 0.45));
+}
+.fx-bat path { fill: #55496e; }
+/* The emblem is darker, larger and flap-free — it's an emblem, not an
+   animal, and flapping it would undercut the joke. */
+.fx-bat-logo svg { animation: none; filter: drop-shadow(0 0 5px rgba(230, 236, 255, 0.55)); }
+.fx-bat-logo path { fill: #2b2440; }
+@keyframes fx-bat-fly {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  12%  { opacity: 1; }
+  /* Slight rise before the fall out — bats leave a roost upward. */
+  35%  { transform: translate(calc(var(--bx) * 0.4), calc(var(--by) * 0.55)) scale(1) rotate(-6deg); }
+  80%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(0.85) rotate(4deg); }
+}
+@keyframes fx-bat-flap {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.45); }
 }
 
 /* Forum (forum/forum.js) — the reputation figure is the one number on
@@ -1552,7 +1610,7 @@ html[data-bg-scene="village"] .scene-village { display: block; }
    Shown in ALL lobby layouts (unlike .lobby-dials, which is star-only)
    — the sky isn't a property of the layout. */
 .lobby-daynight {
-  position: fixed; top: calc(4rem + 116px); right: 2.5rem; z-index: 4;
+  position: fixed; top: calc(5.6rem + 116px); right: 2.5rem; z-index: 4;
   display: flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; padding: 0; border-radius: 50%; cursor: pointer;
   background: var(--bg-card); border: 1px solid var(--border-accent);

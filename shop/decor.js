@@ -340,6 +340,85 @@
     spawn(heat, 1500);
   }
 
+  // ---- Moon ----
+  // Poke it and a colony scatters out from behind it. Mostly ordinary
+  // bats; one in the pack is the Batman emblem, as asked — rare enough
+  // that spotting it is the joke rather than the default.
+  const BAT_REAL = `<svg viewBox="0 0 44 22">
+      <path d="M22 7 Q 18.5 3.5, 15 5.5 Q 11 1.5, 5 3.5 Q 8 7, 6 11.5
+               Q 10.5 9.5, 14 12.5 Q 18 10.5, 22 14 Q 26 10.5, 30 12.5
+               Q 33.5 9.5, 38 11.5 Q 36 7, 39 3.5 Q 33 1.5, 29 5.5
+               Q 25.5 3.5, 22 7 Z"/>
+      <path d="M20 6.4 L19.2 2.8 L21.4 5.2 Z"/>
+      <path d="M24 6.4 L24.8 2.8 L22.6 5.2 Z"/>
+    </svg>`;
+  const BAT_LOGO = `<svg viewBox="0 0 60 22">
+      <path d="M30 3 L33 8.5 Q 39.5 4.5, 46 6.5 Q 43.5 10.5, 47.5 14
+               Q 39 12.5, 33 16.5 L30 20.5 L27 16.5 Q 21 12.5, 12.5 14
+               Q 16.5 10.5, 14 6.5 Q 20.5 4.5, 27 8.5 Z"/>
+    </svg>`;
+
+  // Bats come from BEHIND the moon, so they cannot live in the fx layer
+  // like every other effect: that sits above the app and would paint
+  // them ON TOP of the moon, which reads as them erupting out of it.
+  // They go into the decoration layer instead, inserted BEFORE the moon
+  // in DOM order — same stacking context, so the moon's disc covers them
+  // until they clear its edge. Start at the moon's centre and they are
+  // simply invisible until they emerge, which is the whole effect.
+  function spawnBehindMoon(node, ms, moonEl) {
+    const layer = moonEl.parentNode;
+    if (!layer) return node;
+    layer.insertBefore(node, moonEl);
+    setTimeout(() => node.remove(), ms);
+    return node;
+  }
+
+  function pokeMoon(el) {
+    if (el.dataset.busy) return;
+    el.dataset.busy = "1";
+    setTimeout(() => delete el.dataset.busy, 1800);
+    if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click();
+
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const n = 7;
+    // One logo per colony, at a random position in the pack.
+    const logoAt = Math.floor(Math.random() * n);
+
+    for (let i = 0; i < n; i++) {
+      const bat = document.createElement("div");
+      const isLogo = i === logoAt;
+      bat.className = `fx-bat${isLogo ? " fx-bat-logo" : ""}`;
+      bat.innerHTML = isLogo ? BAT_LOGO : BAT_REAL;
+
+      // Fan out across the lower hemisphere and outward — they come from
+      // BEHIND the moon, so they start hidden under it and scatter.
+      const spread = -150 + (300 / (n - 1)) * i + (Math.random() * 26 - 13);
+      const dist = 190 + Math.random() * 190;
+      const rad = spread * Math.PI / 180;
+      const size = isLogo ? 54 : 30 + Math.random() * 18;
+
+      bat.style.left = `${cx - size / 2}px`;
+      bat.style.top = `${cy - size / 4}px`;
+      bat.style.width = `${size}px`;
+      bat.style.setProperty("--bx", `${Math.cos(rad) * dist}px`);
+      bat.style.setProperty("--by", `${Math.sin(rad) * dist - 60}px`);
+      bat.style.animationDelay = `${Math.random() * 0.22}s`;
+      bat.style.animationDuration = `${1.5 + Math.random() * 0.7}s`;
+      const flap = bat.querySelector("svg");
+      if (flap) flap.style.animationDuration = `${0.16 + Math.random() * 0.12}s`;
+      spawnBehindMoon(bat, 2600, el);
+    }
+  }
+
+  function moonAt(x, y) {
+    const moon = document.querySelector(".decor-moon");
+    if (!moon || getComputedStyle(moon).display === "none") return null;
+    const r = moon.getBoundingClientRect();
+    return (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) ? moon : null;
+  }
+
   function sunAt(x, y) {
     const sun = document.querySelector(".decor-sun");
     if (!sun || getComputedStyle(sun).display === "none") return null;
@@ -435,6 +514,8 @@
       if (bird) { pokeEagle(bird); return; }
       const sun = sunAt(e.clientX, e.clientY);
       if (sun) { pokeSun(sun); return; }
+      const moon = moonAt(e.clientX, e.clientY);
+      if (moon) { pokeMoon(moon); return; }
       const cloud = cloudAt(e.clientX, e.clientY);
       if (cloud) poke(cloud);
     });
