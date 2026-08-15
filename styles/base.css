@@ -943,12 +943,15 @@ html[data-bg-decor~="moon"]       .decor-moon { display: block; }
    flat sheet sliding past: the big near cloud crosses fastest, the
    small far one crawls. Deliberately low-contrast — this sits behind
    the whole app and must never compete with card text. */
-/* The one decoration that takes input — the layer is pointer-events:
-   none, so this opts back in. Only reachable where no card overlaps it,
-   which is most of the background most of the time. */
-.decor-clouds { position: absolute; color: var(--text); pointer-events: auto; cursor: pointer; }
+/* Clouds are clickable, but they must NEVER capture a click: they float
+   above the app, so `pointer-events: auto` here meant a cloud drifting
+   over a menu ate the tap meant for it ("menu isn't opening what I need
+   if a cloud is passing by" — reported, and entirely self-inflicted).
+   They stay inert to the hit-tester; shop/decor.js instead watches for
+   clicks that hit NO interactive element and only then checks whether
+   one landed on a cloud. Real UI wins by construction, not by luck. */
+.decor-clouds { position: absolute; color: var(--text); pointer-events: none; }
 .decor-clouds g { fill: currentColor; }
-.decor-clouds:hover { filter: brightness(1.5); }
 .decor-clouds.cloud-poked { animation-play-state: paused; transform-origin: 50% 50%; }
 .decor-clouds.cloud-poked g { animation: cloud-squish 0.55s ease-out; }
 @keyframes cloud-squish {

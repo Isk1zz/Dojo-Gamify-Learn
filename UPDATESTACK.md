@@ -104,6 +104,27 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Clouds no longer eat clicks (2026-08-15) — self-inflicted, fixed
+Reported: "menu isn't opening what I need if a cloud is passing by."
+Entirely my doing. To make clouds pokeable I put them in a layer above
+the app with `pointer-events: auto`, which meant a cloud drifting over a
+control captured the tap meant for it. Decoration beat function — the
+wrong way round.
+
+Clouds are now `pointer-events: none` and can never intercept anything.
+`shop/decor.js` instead listens for clicks that hit NO interactive
+element (`button, a, input, …, [role="button"], [tabindex]`) and only
+then rect-tests whether one landed on a cloud. Real UI wins by
+construction rather than by luck, and poking still works anywhere you'd
+otherwise be clicking dead background.
+
+Verified both directions in one synchronous execution, so no timing
+ambiguity: a cloud parked over the Settings tile → Settings opens, zero
+effects; the same cloud over empty background → rain fires, screen
+unchanged. (An earlier "no effect" reading was just tool-call latency
+outliving a 700ms effect, not a failure — worth knowing before chasing
+it again.)
+
 ## Inventory → "Custom", and Settings stops duplicating it (2026-08-15)
 One surface per job: **Shop buys, Custom equips, Settings does
 behaviour.** Settings had carried a full second copy of the cosmetic

@@ -191,15 +191,37 @@
   // Bound once against the layer rather than per-cloud: the cloud
   // elements are static markup in index.html, but delegating means a
   // future cloud added there needs no wiring here.
-  // Delegated from the document, not a layer: the clouds moved into
-  // #bg-decor-front (above the app, so clicks reach them at all) while
-  // the rest of the decorations stayed in #bg-decor-layer, and binding
-  // to one specific layer meant silently binding to the wrong one.
+  // Anything the app itself might want the click for. If a click lands
+  // on one of these, the cloud never hears about it.
+  const INTERACTIVE = 'button, a, input, select, textarea, label, summary,' +
+    ' [role="button"], [tabindex], [data-slot-nav], [contenteditable="true"]';
+
+  // Clouds are pointer-events:none (see styles/base.css), so they can't
+  // intercept anything. Instead we take clicks that hit no control at
+  // all — dead background — and only then ask whether one landed on a
+  // cloud. Hit-tested by rect rather than by the browser, precisely so
+  // that a cloud drifting over a menu can never steal that menu's tap.
+  //
+  // The rect is the cloud's bounding box, which is a bit larger than the
+  // drawn shape. Forgiving in the harmless direction: the cost is a poke
+  // that lands slightly off the visible cloud, on a spot where clicking
+  // did nothing anyway.
+  function cloudAt(x, y) {
+    const clouds = document.querySelectorAll(".decor-clouds");
+    for (const c of clouds) {
+      if (getComputedStyle(c).display === "none") continue;
+      const r = c.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return c;
+    }
+    return null;
+  }
+
   function initClouds() {
     if (document.body.dataset.cloudsBound) return;
     document.body.dataset.cloudsBound = "1";
     document.addEventListener("click", e => {
-      const cloud = e.target.closest && e.target.closest(".decor-clouds");
+      if (e.target.closest && e.target.closest(INTERACTIVE)) return;
+      const cloud = cloudAt(e.clientX, e.clientY);
       if (cloud) poke(cloud);
     });
   }
