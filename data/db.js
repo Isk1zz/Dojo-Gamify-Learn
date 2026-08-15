@@ -774,7 +774,8 @@ const DB = (() => {
   // seconds. Caps how many attempts per REAL DAY earn that bonus; the quiz
   // itself is never blocked past the cap (no hard locks — PROJECT.md §5),
   // only the XP stops, same "the activity always works, the reward is
-  // what's rate-limited" shape games/games.js's Arcade tickets already use.
+  // what's rate-limited" shape the Arcade's tickets used before it
+  // became the Forum. The tickets themselves still live in this file.
   const FINAL_QUIZ_XP_ATTEMPTS_PER_DAY = 3;
 
   function recordFinalQuizResult(correct, total, passed) {
@@ -1371,7 +1372,7 @@ const DB = (() => {
   // ------------------------------------------------
   // Everything below is *storage only*. Prices, odds, payouts and
   // vital decay rates live in the branch that owns them (shop/,
-  // games/, story/), never here. db.js must stay boring.
+  // garden/, library/), never here. db.js must stay boring.
   // ================================================
 
   // ---- Reputation (was `$` money) ----

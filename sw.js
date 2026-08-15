@@ -31,7 +31,12 @@
 // open-the-file property is not being traded away for this.
 // ================================================
 
-const CACHE_VERSION = "cs-dojo-v3";
+// Bumped 2026-08-16: the Arcade branch (games.js, games.css) was deleted
+// and several files changed meaning. Stale-while-revalidate would have
+// refreshed the live ones eventually, but the DELETED ones would have
+// sat in the old cache indefinitely — nothing re-fetches a file that no
+// longer exists. Bumping drops the whole cache and starts clean.
+const CACHE_VERSION = "cs-dojo-v4";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

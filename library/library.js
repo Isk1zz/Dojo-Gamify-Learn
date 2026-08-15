@@ -44,9 +44,9 @@
   // units — a style pass modeled on mobile racing games' career reward
   // tracks (Asphalt Legends and similar): visible chips ON the path
   // itself, not a silent number change. Granted exactly once per unit
-  // or course, same inventory-string dedup pattern game unlocks/
-  // stake-cap tiers/course ownership already use — see games/games.js's
-  // header comment on that pattern.
+  // or course, same inventory-string dedup pattern course ownership
+  // and cosmetics already use — see shop/store.js for the live
+  // examples (the Arcade unlocks that established it are gone).
   //
   // Deliberately NOT every unit at the same value — see the chat that
   // scoped this for which units carry which reward and why.

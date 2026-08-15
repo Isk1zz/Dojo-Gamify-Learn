@@ -315,13 +315,14 @@
   }
 
   // ---- Money VFX ----
-  // Called from games.js's settle() — the one choke point every arcade
-  // payout already goes through — so every game gets this for free
-  // instead of each file rolling its own. "win" bursts a few coins up
+  // Was the Arcade's payout choke point; the Garden's dividend claim
+  // is the one caller left. Kept because a reward landing with no
+  // acknowledgement reads as a no-op. "win" bursts a few coins up
   // from the wallet badge; "loss" just gives the badge a quick red
-  // shake. Both are cheap CSS, no sound (see games/GAMES.md — the
-  // requested SFX packs need a purchased license this session doesn't
-  // have, so audio stays out of scope here).
+  // shake. Both are cheap CSS, no sound: the SFX packs considered at
+  // the time needed a purchased license this project does not have.
+  // (The Arcade that framed this is gone; the burst survives because
+  // Garden payouts still use it.)
   function moneyBurst(kind) {
     const wallet = document.querySelector(".vital-wallet");
     if (!wallet) return;

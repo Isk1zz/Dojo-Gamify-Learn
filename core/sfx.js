@@ -2,9 +2,9 @@
 // CS Dojo — CORE / sfx
 // ------------------------------------------------
 // Interface sound effects, synthesized with the Web Audio API rather
-// than shipped as audio files. The Arcade previously wanted a payout
+// than shipped as audio files. The since-removed Arcade wanted a payout
 // chime and a loss sound and shelved it (see core/hud.js's moneyBurst
-// comment, games/GAMES.md) because the SFX pack under consideration
+// comment) because the SFX pack under consideration
 // needed a purchased Envato Elements license this project doesn't
 // have. That blocker was specifically about SOURCED audio assets —
 // generating short tones in-browser needs no license and no files,
