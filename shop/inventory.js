@@ -1,10 +1,19 @@
 // ================================================
-// CS Dojo — SHOP / inventory
+// CS Dojo — SHOP / inventory  (the "Custom" screen)
 // ------------------------------------------------
 // Everything the profile OWNS and can equip, in one place: themes,
 // background stripes, lobby style, star links, hexagram flags,
-// avatars. It took the Statistics tile's slot in the lobby (Statistics
-// merged into Career — see shop/shop.js).
+// decorations, scenery, avatars. It took the Statistics tile's slot in
+// the lobby (Statistics merged into Career — see shop/shop.js).
+//
+// ---- Named "Custom" in the UI, `inventory` in the code ----
+// As of 2026-08-15 this is THE one place to equip anything: Settings
+// used to carry a duplicate set of the same controls, which is exactly
+// how paid themes became equippable for free from there — two screens
+// writing the same state, only one checking ownership. Shop buys,
+// Custom equips, Settings does behaviour. The route id, the file name
+// and the DOM ids stay `inventory`: renaming those is churn across
+// boot.js/index.html/CSS for no user-visible gain.
 //
 // ---- Why this doesn't own any of the data ----
 // Every slot below reads its catalogue from whichever branch already

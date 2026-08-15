@@ -9,18 +9,12 @@
   // ---- seam: everything this branch borrows from elsewhere ----
   // Late-bound on purpose. A branch may be loaded before the branch
   // it calls into, so these resolve at call time, not at load time.
-  const THEMES = Dojo.THEMES;
-  const PREMIUM_THEMES = Dojo.PREMIUM_THEMES;
-  const BG_STRIPES = Dojo.BG_STRIPES || [];
   const showScreen = Dojo.showScreen;
   const Router = Dojo.Router;
   const Bus = Dojo.Bus;
-  const applyTheme = (...a) => Dojo.applyTheme(...a);
-  // btn-back-lobby3 lives in the static topbar, outside #settings-body,
-  // so it survives every re-render — bind the preview-cleanup listener
-  // to it once, ever, instead of stacking a new one per visit.
-  let backBtnBound = false;
-  let previewing = false;
+  // THEMES / PREMIUM_THEMES / BG_STRIPES and the theme-preview state
+  // (backBtnBound, previewing) were dropped with the cosmetic sections —
+  // Custom owns all of that now, including its own preview + restore.
   const renderShop = (...a) => Dojo.renderShop(...a);
   const renderCharge = (...a) => Dojo.renderCharge(...a);
   const updateProfileBadge = (...a) => Dojo.updateProfileBadge(...a);
@@ -29,212 +23,22 @@
   // ---- Settings ----
   function renderSettings() {
     const body = document.getElementById("settings-body");
-    const current = DB.getTheme();
-    const owned = PREMIUM_THEMES.filter(t => Dojo.themeUnlocked(t.id));
-    const lockedThemes = PREMIUM_THEMES.filter(t => !Dojo.themeUnlocked(t.id));
-    const locked = lockedThemes.length;
-    const lobbyStyle = DB.getLobbyStyle ? DB.getLobbyStyle() : "classic";
     const hintsOn = DB.getHintsEnabled ? DB.getHintsEnabled() : true;
     const soundOn = DB.getSoundEnabled ? DB.getSoundEnabled() : true;
-    const currentStripe = DB.getBgStripe ? DB.getBgStripe() : "none";
 
-    const swatch = t => `
-      <button class="theme-swatch${t.id === current ? " active" : ""}"
-              data-theme="${t.id}" style="--sw:${t.swatch};--sw-bg:${t.card}">
-        <span class="sw-preview"><span class="sw-dot"></span></span>
-        <span class="sw-name">${t.name}</span>
-      </button>`;
-
-    // Locked themes get a preview instead of a select — clicking paints
-    // the app in that theme without unlocking or persisting anything
-    // (Dojo.previewTheme skips the rank gate on purpose). The rank
-    // needed comes from Dojo.Ranks.themeRank, same lookup the reward
-    // list elsewhere in the app uses.
-    const lockedSwatch = (t, req) => {
-      const r = req !== undefined
-        ? req
-        : (() => {
-            const rank = Dojo.Ranks && Dojo.Ranks.themeRank ? Dojo.Ranks.themeRank(t.id) : null;
-            return rank ? `Rank ${rank.n} · ${rank.abbr}` : "";
-          })();
-      return `
-      <button class="theme-swatch locked" data-preview-theme="${t.id}"
-              style="--sw:${t.swatch};--sw-bg:${t.card}">
-        <span class="sw-preview"><span class="sw-dot"></span><span class="sw-lock">\u{1F512}</span></span>
-        <span class="sw-name">${t.name}</span>
-        ${r ? `<span class="sw-req">${r}</span>` : ""}
-      </button>`;
-    };
-
-    // Base themes are BOUGHT now, so Settings has to respect ownership
-    // the same way the Inventory does. It didn't: this list rendered
-    // every base theme as selectable, which meant a $500 theme could be
-    // equipped for free from here while the Shop still charged for it —
-    // the same paywall hole layouts had. Unowned paid themes now fall
-    // through to lockedSwatch (preview only) with the price as the
-    // requirement label instead of a rank.
-    const ownsT = id => !Dojo.ownsTheme || Dojo.ownsTheme(id);
-    const baseSwatch = t => ownsT(t.id)
-      ? swatch(t)
-      : lockedSwatch(t, `$${Dojo.themePrice ? Dojo.themePrice(t.id) : 0} in the Shop`);
-
-    // Bars preview for classic/cards — "cards" just draws them elevated
-    // and rounded, so the thumbnail itself demonstrates the re-skin
-    // rather than describing it. Star gets a matching hub-and-spoke
-    // preview instead, built with the same angle formula core/lobby.js
-    // uses for the real tiles (six stand-ins, not the real tile count —
-    // this is just a thumbnail).
-    const barsPreview = cardLike => `
-      <span class="style-preview">
-        ${Array.from({ length: 3 }, () => `<span class="spb${cardLike ? " spb-card" : ""}"></span>`).join("")}
-      </span>`;
-    const starPreview = () => {
-      const n = 6, r = 15, cx = 22, cy = 22;
-      let dots = "";
-      for (let i = 0; i < n; i++) {
-        const deg = -90 + i * (360 / n);
-        const x = cx + r * Math.cos(deg * Math.PI / 180);
-        const y = cy + r * Math.sin(deg * Math.PI / 180);
-        dots += `<span class="rp-line" style="left:${cx}px;top:${cy}px;width:${r}px;transform:rotate(${deg}deg);"></span>`;
-        dots += `<span class="rp-dot" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;"></span>`;
-      }
-      return `<span class="style-preview-radial"><span class="rp-hub"></span>${dots}</span>`;
-    };
-    // Background stripes: a separate, rank-gated overlay independent of
-    // colour theme (see shop/themes.js's BG_STRIPES + shop/ranks.js's
-    // reward.bgStripe). "None" is always available and isn't in the
-    // data list, so it's synthesized here as the first swatch.
-    const stripeSwatch = s => {
-      const unlocked = Dojo.bgStripeUnlocked ? Dojo.bgStripeUnlocked(s.id) : false;
-      const r = Dojo.Ranks && Dojo.Ranks.bgStripeRank ? Dojo.Ranks.bgStripeRank(s.id) : null;
-      return `
-      <button class="style-swatch stripe-swatch${!unlocked ? " locked" : ""}${s.id === currentStripe ? " active" : ""}"
-              ${unlocked ? `data-bg-stripe="${s.id}"` : "disabled"}>
-        <span class="stripe-preview" style="background-image:${s.css};"></span>
-        <span class="sw-name">${s.name}${!unlocked ? " \u{1F512}" : ""}</span>
-        ${!unlocked && r ? `<span class="sw-req">Rank ${r.n} · ${r.abbr}</span>` : ""}
-      </button>`;
-    };
-    const noneStripeSwatch = `
-      <button class="style-swatch stripe-swatch${currentStripe === "none" ? " active" : ""}" data-bg-stripe="none">
-        <span class="stripe-preview"></span>
-        <span class="sw-name">None</span>
-      </button>`;
-
-    const lobbyStyleSwatch = (id, name, kind) => `
-      <button class="style-swatch${id === lobbyStyle ? " active" : ""}" data-lobby-style="${id}">
-        ${kind === "star" ? starPreview() : barsPreview(kind === "cards")}
-        <span class="sw-name">${name}</span>
-      </button>`;
-
-    // Same 6 dots as starPreview, wired the other way: each node joined
-    // to the one two places around, which closes two triangles. Edge i
-    // belongs to triangle {0,2,4} when i is even and {1,3,5} when odd,
-    // which is what lets each triangle be painted its own flag here the
-    // same way core/lobby.js paints the real one.
-    const hexPreview = (flagA, flagB) => {
-      const n = 6, r = 15, cx = 22, cy = 22;
-      const pt = i => {
-        const d = (-90 + i * (360 / n)) * Math.PI / 180;
-        return [cx + r * Math.cos(d), cy + r * Math.sin(d)];
-      };
-      let out = "";
-      for (let i = 0; i < n; i++) {
-        const [x1, y1] = pt(i), [x2, y2] = pt((i + 2) % n);
-        const len = Math.hypot(x2 - x1, y2 - y1);
-        const deg = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-        const paint = i % 2 === 0 ? flagA : flagB;
-        out += `<span class="rp-line" style="left:${x1.toFixed(1)}px;top:${y1.toFixed(1)}px;width:${len.toFixed(1)}px;transform:rotate(${deg.toFixed(1)}deg);${paint ? `background:${paint};height:2px;` : ""}"></span>`;
-      }
-      for (let i = 0; i < n; i++) {
-        const [x, y] = pt(i);
-        out += `<span class="rp-dot" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;"></span>`;
-      }
-      return `<span class="style-preview-radial">${out}</span>`;
-    };
-
-    // Read from core/lobby.js rather than restating the palettes — one
-    // definition of each flag, so a colour tweak there can't leave the
-    // Settings swatch showing a flag the ring no longer paints.
-    const FLAGS = Dojo.HEX_FLAGS || {};
-    const FLAG_MODES = Dojo.HEX_FLAG_MODES || {};
-    const hexFlags = DB.getHexFlags ? DB.getHexFlags() : "combined";
-    // Label comes from core/lobby.js's table so the name and the flags
-    // it shows can't drift apart.
-    const FLAG_LABELS = Dojo.HEX_FLAG_LABELS || {};
-    const flagSwatch = id => {
-      const pair = FLAG_MODES[id] || [];
-      const barOf = k => (FLAGS[pair[k]] || {}).bar || "";
-      return `
-        <button class="style-swatch${id === hexFlags ? " active" : ""}" data-hex-flags="${id}">
-          ${hexPreview(barOf(0), barOf(1))}
-          <span class="sw-name">${FLAG_LABELS[id] || id}</span>
-        </button>`;
-    };
-
-    const starLinks = DB.getStarLinks ? DB.getStarLinks() : "spokes";
-    const linkSwatch = (id, name) => `
-      <button class="style-swatch${id === starLinks ? " active" : ""}" data-star-links="${id}">
-        ${id === "hexagram" ? hexPreview() : starPreview()}
-
-        <span class="sw-name">${name}</span>
-      </button>`;
-
+    // Every cosmetic control that used to live here — colour theme,
+    // awarded themes, lobby style, star links, palettes, background
+    // stripes — now lives ONLY in Custom. Settings had become a second
+    // place to equip the same things Custom equips, which is exactly how
+    // paid themes ended up equippable for free from here: two screens
+    // writing the same state, only one of them checking ownership. One
+    // surface to buy (Shop), one to equip (Custom), and Settings keeps
+    // what it is actually for — how the app BEHAVES, not how it looks.
     body.innerHTML = `
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F3A8} Colour theme</div>
-        <p class="settings-hint">Changes the whole app, not just the accent.</p>
-        <div class="theme-grid">
-          ${THEMES.map(baseSwatch).join("")}
-        </div>
-      </div>
-      <div class="settings-section">
-        <div class="stats-section-title">\u2728 Awarded themes</div>
-        <p class="settings-hint">
-          ${owned.length
-            ? `${owned.length} unlocked.`
-            : "None unlocked yet."}
-          ${locked ? `${locked} more are waiting further up the rank ladder — tap one to preview it.` : "You have them all."}
-        </p>
-        ${owned.length ? `<div class="theme-grid">${owned.map(swatch).join("")}</div>` : ""}
-        ${locked ? `<div class="theme-grid" style="margin-top:${owned.length ? "0.7rem" : "0"};">${lockedThemes.map(lockedSwatch).join("")}</div>` : ""}
-        <div id="theme-preview-bar" class="theme-preview-bar" style="display:none;">
-          <span id="theme-preview-label"></span>
-          <button id="btn-restore-theme" class="btn-ghost">↩ Restore my theme</button>
-        </div>
-        <button id="btn-settings-shop" class="btn-ghost" style="margin-top:0.9rem;">\u{1F396} Open Career</button>
-      </div>
-      <div class="settings-section">
-        <div class="stats-section-title">\u{1F9E9} Lobby style</div>
-        <p class="settings-hint">A re-skin of the Lobby tiles — same six, same order, just a different look.</p>
-        <div class="lobby-style-grid">
-          ${lobbyStyleSwatch("classic", "Classic", "classic")}
-          ${lobbyStyleSwatch("cards", "Cards", "cards")}
-          ${lobbyStyleSwatch("star", "Star", "star")}
-        </div>
-      </div>
-      <div class="settings-section">
-        <div class="stats-section-title">\u{1F517} Star links</div>
-        <p class="settings-hint">How the Star layout wires its tiles together. Star of David joins every other tile into two triangles — it needs exactly six tiles, so it falls back to spokes while the Resume tile is showing.</p>
-        <div class="lobby-style-grid">
-          ${linkSwatch("spokes", "Spokes")}
-          ${linkSwatch("hexagram", "Star of David")}
-        </div>
-      </div>
-      <div class="settings-section">
-        <div class="stats-section-title">\u{1F38C} Star of David colours</div>
-        <p class="settings-hint">Which flag each of the two triangles wears. Combined flies Ukraine on one and Israel on the other; the rest fly one flag on both. Only applies while Star links is set to Star of David.</p>
-        <div class="lobby-style-grid">
-          ${Object.keys(FLAG_MODES).map(id => flagSwatch(id)).join("")}
-        </div>
-      </div>
-      <div class="settings-section">
-        <div class="stats-section-title">\u{1F9F5} Background stripes</div>
-        <p class="settings-hint">A subtle overlay pattern, layered under your colour theme. Earned by rank, separate from themes.</p>
-        <div class="lobby-style-grid">
-          ${noneStripeSwatch}
-          ${BG_STRIPES.map(stripeSwatch).join("")}
-        </div>
+        <div class="stats-section-title">🎨 Appearance</div>
+        <p class="settings-hint">Themes, lobby layout, colours, stripes, decorations and scenery all live in Custom now — one place to equip everything you own, instead of the same controls in two screens.</p>
+        <button id="btn-settings-custom" class="btn-ghost">🎒 Open Custom</button>
       </div>
       <div class="settings-section">
         <div class="stats-section-title">\u{1F4A1} Hints</div>
@@ -302,56 +106,6 @@
         </div>
       </div>`;
 
-    body.querySelectorAll(".theme-swatch:not(.locked)").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-theme");
-        DB.setTheme(id);
-        applyTheme(id);
-        body.querySelectorAll(".theme-swatch").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        hidePreviewBar();
-      });
-    });
-
-    // Locked themes: preview only, never selects or persists. The bar
-    // stays up until the user restores or picks a real (owned) theme —
-    // whichever comes first — so a preview never quietly outlives the
-    // visit.
-    const previewBar = document.getElementById("theme-preview-bar");
-    const previewLabel = document.getElementById("theme-preview-label");
-    function hidePreviewBar() {
-      previewing = false;
-      if (previewBar) previewBar.style.display = "none";
-    }
-    body.querySelectorAll("[data-preview-theme]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-preview-theme");
-        Dojo.previewTheme(id);
-        previewing = true;
-        if (previewBar && previewLabel) {
-          previewLabel.textContent = `Previewing "${btn.querySelector(".sw-name").textContent}"`;
-          previewBar.style.display = "flex";
-        }
-      });
-    });
-    const restoreBtn = document.getElementById("btn-restore-theme");
-    if (restoreBtn) restoreBtn.addEventListener("click", () => {
-      applyTheme(DB.getTheme());
-      hidePreviewBar();
-    });
-
-    // Leaving Settings mid-preview (the Lobby back button, not the
-    // restore button above) must not carry a never-bought theme along
-    // to the rest of the app — capture-phase so this runs before
-    // boot.js's own listener on the same button. Bound once, ever: this
-    // button lives outside #settings-body and survives every re-render.
-    const backBtn = document.getElementById("btn-back-lobby3");
-    if (backBtn && !backBtnBound) {
-      backBtnBound = true;
-      backBtn.addEventListener("click", () => {
-        if (previewing) { applyTheme(DB.getTheme()); previewing = false; }
-      }, true);
-    }
 
     const hintsToggle = document.getElementById("hints-toggle");
     if (hintsToggle) hintsToggle.addEventListener("change", () => {
@@ -366,43 +120,6 @@
       if (soundToggle.checked && Dojo.sfx) Dojo.sfx.click();
     });
 
-    body.querySelectorAll("[data-bg-stripe]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-bg-stripe");
-        DB.setBgStripe(id);
-        if (Dojo.applyBgStripe) Dojo.applyBgStripe(id);
-        body.querySelectorAll(".stripe-swatch").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-      });
-    });
-
-    body.querySelectorAll("[data-hex-flags]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        DB.setHexFlags(btn.getAttribute("data-hex-flags"));
-        body.querySelectorAll("[data-hex-flags]").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-      });
-    });
-
-    body.querySelectorAll("[data-star-links]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        DB.setStarLinks(btn.getAttribute("data-star-links"));
-        body.querySelectorAll("[data-star-links]").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-      });
-    });
-
-    body.querySelectorAll("[data-lobby-style]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-lobby-style");
-        DB.setLobbyStyle(id);
-        body.querySelectorAll("[data-lobby-style]").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        // Lobby reads DB.getLobbyStyle() itself next time it renders —
-        // nothing to push there now, same as a theme choice not
-        // repainting a screen you're not on.
-      });
-    });
 
 
     // Codes come from settings/codes.js, which is GITIGNORED and not
@@ -458,8 +175,8 @@
     if (applyBtn) applyBtn.addEventListener("click", applyCode);
     if (codeInput) codeInput.addEventListener("keydown", e => { if (e.key === "Enter") applyCode(); });
 
-    const shopBtn = document.getElementById("btn-settings-shop");
-    if (shopBtn) shopBtn.addEventListener("click", renderShop);
+    const customBtn = document.getElementById("btn-settings-custom");
+    if (customBtn) customBtn.addEventListener("click", () => Router.go("inventory"));
 
     const exp = document.getElementById("btn-export-2");
     if (exp) exp.addEventListener("click", () => DB.exportData());
@@ -468,7 +185,7 @@
       const file = e.target.files[0];
       if (!file) return;
       DB.importData(file).then(() => {
-        applyTheme(DB.getTheme());
+        Dojo.applyTheme(DB.getTheme());
         renderCharge();
         updateProfileBadge();
         showLobby();

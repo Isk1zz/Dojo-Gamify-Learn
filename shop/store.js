@@ -140,7 +140,7 @@
   }
 
   // A shop sells what you DON'T have. Everything already owned is
-  // filtered out of every pane below and lives in the Inventory instead
+  // filtered out of every pane below and lives in Custom instead
   // — a section whose stock is entirely bought renders as nothing at
   // all rather than as a wall of disabled "Owned" buttons you can't act
   // on. `section()` is the shared shape: no items left, no section.
@@ -188,7 +188,7 @@
     const wallet = DB.getWallet();
     return section(
       "\u{1F985} Lobby decorations",
-      "Layer over any theme or palette — switch each one on or off independently in your Inventory.",
+      "Layer over any theme or palette — switch each one on or off independently in Custom.",
       (Dojo.BG_DECORS || []).filter(d => !ownsDecor(d.id)).map(d =>
         card(`<div class="shop-card-preview game-preview"><span class="gp-icon">${d.icon}</span></div>`,
              d.name, d.desc, "data-decor", d.id, d.price, wallet))
@@ -253,7 +253,7 @@
     const wallet = DB.getWallet();
     return section(
       "\u{1F3A8} Styles",
-      "Bought once, then equippable on EITHER the Star of David or the spokes — they're two separate slots in your Inventory, so one palette can dress both or you can mix them.",
+      "Bought once, then equippable on EITHER the Star of David or the spokes — they're two separate slots in Custom, so one palette can dress both or you can mix them.",
       Object.keys(MODES).filter(id => !ownsPalette(id)).map(id => {
         const pair = MODES[id] || [];
         const first = FLAGS[pair[0]];
@@ -293,8 +293,8 @@
       return panes || `
         <div class="settings-section" style="text-align:center;">
           <div class="stats-section-title">\u{1F389} You own everything here</div>
-          <p class="settings-hint">Every layout, theme, style and scene is yours. Equip them from your Inventory.</p>
-          <button id="btn-store-inventory" class="btn-ghost">\u{1F392} Open Inventory</button>
+          <p class="settings-hint">Every layout, theme, style and scene is yours. Equip them from Custom.</p>
+          <button id="btn-store-inventory" class="btn-ghost">&#128218; Open Custom</button>
         </div>`;
     }
     // Token packs and patron tiers are shop/tokens.js's data — asked

@@ -104,6 +104,33 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Inventory → "Custom", and Settings stops duplicating it (2026-08-15)
+One surface per job: **Shop buys, Custom equips, Settings does
+behaviour.** Settings had carried a full second copy of the cosmetic
+controls — colour theme, awarded themes, lobby style, star links,
+palettes, background stripes — all writing the same state Custom writes.
+That duplication wasn't just clutter, it was the *cause* of the paid-
+theme paywall hole fixed earlier the same day: two screens writing the
+same state, only one of them checking ownership.
+
+- Settings now has a single **🎨 Appearance** section that links to
+  Custom, and keeps only what it's actually for: Hints, Sound, Unlock
+  code, Legal, Your data.
+- Verified nothing was lost: every cosmetic section that used to be in
+  Settings has a matching slot in Custom (Colour themes, Awarded themes,
+  Lobby style, Star links, Spoke/Star-of-David colours, Background
+  stripes), plus Decorations and Scenery which were never in Settings.
+  Zero `[data-theme]` / `[data-bg-stripe]` / `[data-lobby-style]` /
+  `[data-star-links]` / `[data-hex-flags]` / preview-bar nodes remain in
+  `#settings-body`.
+- ~230 lines of now-dead swatch builders and orphaned handlers deleted
+  from `settings/settings.js`, along with its theme-preview state
+  (`previewing`, `backBtnBound`) — Custom has its own preview + restore.
+- **Renamed in the UI only.** The lobby tile, the screen header and all
+  Shop copy say "Custom"; the route id, `shop/inventory.js`, and the
+  `#inventory` DOM ids stay as they are. Renaming those would be churn
+  across boot.js/index.html/CSS for no user-visible gain.
+
 ## Shipped 2026-08-15 (second batch)
 - **Warning notices now actually reach the user.** `DB.addWarning` has
   always recorded them and `admin/ADMIN.md` has always described an
