@@ -30,6 +30,7 @@
   const paletteKey = id => `palette_${id}`;
   function ownsPalette(id) {
     if (id === "combined") return true;
+    if (!paletteCost(id)) return true;                   // free tier
     return DB.getInventory().includes(paletteKey(id));
   }
   function paletteCost(id) {
@@ -50,16 +51,21 @@
   // default a new profile starts on, and a default nobody owns would
   // mean a lobby that can't render itself. Everything else is bought.
   const LAYOUTS = [
-    { id: "classic",  slot: "lobby", name: "Classic",       price: 200, icon: "📋",
+    { id: "classic",  slot: "lobby", name: "Classic",       price: 0, icon: "📋",
       desc: "The original stacked list." },
-    { id: "cards",    slot: "lobby", name: "Cards",         price: 250, icon: "🗃️",
+    { id: "cards",    slot: "lobby", name: "Cards",         price: 0, icon: "🗃️",
       desc: "Same tiles, softer card treatment." },
-    { id: "hexagram", slot: "links", name: "Star of David", price: 350, icon: "✡️",
+    { id: "hexagram", slot: "links", name: "Star of David", price: 0, icon: "✡️",
       desc: "Wires the Star's six tiles into two triangles." }
   ];
   const layoutKey = id => `layout_${id}`;
+  function layoutPrice(id) {
+    const l = LAYOUTS.find(x => x.id === id);
+    return (l && l.price) || 0;
+  }
   function ownsLayout(id) {
     if (id === "star" || id === "spokes") return true;   // defaults, always yours
+    if (!layoutPrice(id)) return true;                   // free tier
     return DB.getInventory().includes(layoutKey(id));
   }
   function buyLayout(id) {

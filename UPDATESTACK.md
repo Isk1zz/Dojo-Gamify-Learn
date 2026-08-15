@@ -56,7 +56,47 @@ through before it ever gets built, flagged now while it's cheap:
    tip-jar signal) or an accident (pay-to-win visibility), because it's
    very hard to walk back once people have paid into it.
 
-## ARCADE IS EMPTY — needs a new game set designed
+## DECIDED 2026-08-15: Arcade becomes a FORUM, Garden pays reputation
+Supersedes the "needs a new game set designed" section below — there
+will be no new game set. The Arcade tile becomes a **Forum**, and the
+Garden stops paying `$` and starts paying **reputation points** you
+spend on other people's posts.
+
+**The rule, as given:** you cannot spend reputation on yourself. Whoever
+posts and receives it goes up.
+
+That single rule is doing a lot of work and is worth stating plainly:
+it makes reputation a currency you can only ever give away, which is
+what stops it collapsing into "grind the Garden, inflate yourself". It
+also means reputation earned ≠ reputation held — a person's standing is
+what OTHERS gave them, and the Garden only mints the right to give.
+
+### Nothing here is buildable yet — one hard blocker
+A forum is inherently multi-user; this app is offline-first with
+`localStorage` as its only store and no server (static GitHub Pages).
+Posts, votes and reputation cannot cross between people without a
+backend. So this lands squarely on the **TOP OF STACK Firebase port** —
+it isn't a nice-to-have for the forum, it's a precondition. Anything
+built before then can only be a single-player mock, and a forum with no
+one else in it is worse than no forum.
+
+### Open questions before it can be designed properly
+- **What happens to `$` money?** With the Arcade gone AND every cosmetic
+  now free (below), `$` has no sink and no purpose left. Either it goes,
+  or the Garden keeps paying it for something not yet decided. Related:
+  the Tokens → `$` exchange becomes pointless if `$` buys nothing.
+- **Moderation.** Warnings/bans exist (admin/ADMIN.md) but were built for
+  a single-player app. A forum needs report flows, and the wipe-on-ban
+  behaviour needs re-examining when a user's posts are other people's
+  context.
+- **Abuse of the give-only rule.** Two accounts can still trade
+  reputation back and forth. Worth deciding whether that matters before
+  it's built, not after.
+- **Does the Garden still grow plants?** It currently means retention;
+  paying reputation from it needs the metaphor re-checked so watering a
+  plant and funding a stranger's post don't feel unrelated.
+
+## SUPERSEDED — Arcade game set (kept for the reasoning)
 Casino games (Crash, Hi-Lo, Mines, Blackjack) removed 2026-08-14 on
 request. The shell is intact and waiting: tickets (7 per 6h), stake
 caps, the Upgrades tab, the `$` economy and the `register()` seam all
@@ -103,6 +143,31 @@ now matters more than it did, not less:
 
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
+
+## All paid cosmetics are FREE (2026-08-15)
+Per "paid customs are to be set free" — every purchasable cosmetic is
+now price 0: base themes (Ember/Jade/Rose/Ice/Sepia/Violet/Slate),
+layouts (Classic/Cards/Star of David), flag palettes
+(Ukraine/Israel/USA) and scenery (River/Island). `ownsLayout` and
+`ownsPalette` gained the same "price 0 = always owned" tier that themes,
+decorations and scenery already had, so nothing needs buying to be
+equipped.
+
+Verified on a fresh `$0` profile with an empty inventory: every cosmetic
+unlocked, and the Custom Shop shows its "you own everything here" state
+with zero buy buttons.
+
+**Awarded themes were deliberately NOT freed.** They're rank rewards,
+not purchases — "paid customs set free" and "give away the things people
+earn" are different sentences, and freeing them would delete the only
+reason the rank ladder pays out anything cosmetic. They stay behind
+their ranks.
+
+**Consequence to settle:** `$` money now has no sink whatsoever — the
+Arcade is gone and nothing is for sale. See the Forum section at the top
+of this file; deciding what `$` is FOR (or removing it) is now an open
+question rather than a detail. The Tokens → `$` exchange has the same
+problem: it converts into a currency that currently buys nothing.
 
 ## Day = white theme, and a lobby switch (2026-08-15)
 - **Day now means a WHITE app, not just a bright sky.** Locked pair, per

@@ -169,12 +169,12 @@
   // these are flags, not a sunset.
   const HEX_FLAGS = {
     ukraine: {
-      name: "Ukraine", price: 300,
+      name: "Ukraine", price: 0,
       stops: [[0, "#0057B7"], [48, "#0057B7"], [52, "#FFD700"], [100, "#FFD700"]],
       bar: "linear-gradient(90deg,#0057B7 0 50%,#FFD700 50% 100%)"
     },
     israel: {
-      name: "Israel", price: 300,
+      name: "Israel", price: 0,
       stops: [[0, "#0038B8"], [22, "#0038B8"], [34, "#F4F7FB"], [66, "#F4F7FB"], [78, "#0038B8"], [100, "#0038B8"]],
       bar: "linear-gradient(90deg,#0038B8 0 24%,#F4F7FB 34% 66%,#0038B8 76% 100%)"
     },
@@ -185,7 +185,7 @@
     // red/white banding for the rest. Reads as Old Glory rather than
     // the Tricolore at a glance, which is the whole point.
     usa: {
-      name: "USA", price: 400,
+      name: "USA", price: 0,
       stops: [
         [0, "#3C3B6E"], [20, "#3C3B6E"],
         [20, "#B22234"], [33, "#B22234"], [33, "#FFFFFF"], [46, "#FFFFFF"],

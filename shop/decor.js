@@ -70,8 +70,8 @@
   // bring them back, once they're drawn to the same standard.
   const SCENES = [
     { id: "jungle",  name: "Jungle",  price: 0,   icon: "🌴", desc: "Dense canopy and hanging vines." },
-    { id: "river",   name: "River",   price: 250, icon: "🏞️", desc: "Still water with a far bank." },
-    { id: "island",  name: "Island",  price: 350, icon: "🏝️", desc: "A lone palm on a sandbar." }
+    { id: "river",   name: "River",   price: 0, icon: "🏞️", desc: "Still water with a far bank." },
+    { id: "island",  name: "Island",  price: 0, icon: "🏝️", desc: "A lone palm on a sandbar." }
   ];
 
   // ================================================
