@@ -144,6 +144,67 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## DECIDED 2026-08-16: reputation is a daily ALLOWANCE, not a balance
+
+Supersedes every earlier reputation note in this file, including the
+100:1 badge conversion and the Garden-pays-reputation model. Settled in
+discussion; **not built** — see "why not yet" at the end.
+
+### The model
+| Piece | Rule |
+|---|---|
+| Earning | **Nothing.** No Garden dividends, no accumulation |
+| Allowance | `5 + floor(rank / 5)` per day — R1 = 5, R10 = 7, R20 = 9 |
+| Banking | **None.** Expires nightly, use it or lose it |
+| Spending | Only on other people's posts. Never your own |
+| Receiving | Accumulates within a **season**, then resets |
+| Achievements | Seasonal thresholds pay **status, never currency** |
+
+### Why each piece is that way
+- **Allowance, not balance.** Proven design — Slashdot mod points are
+  exactly this. Reddit and HN don't pay you to upvote either.
+- **Garden stops paying.** Its dividends created a 44x spread between a
+  new and a mature garden (10/day vs ~440/day at 26 topics), so no flat
+  badge price could work at both ends. Worse, dividends gave a reason to
+  farm plants that has nothing to do with remembering anything — working
+  against the Garden's own purpose. Without them it goes back to being
+  purely retention made visible.
+- **Rank scales it, gently.** A flat allowance gives someone who has
+  never studied the same voice as a year-long user, which is odd in a
+  study app and free for lurkers. Rank is already "how much have you
+  studied", is 20 tiers deep and slow to move. **The spread is kept
+  under 2x on purpose** — recognition, not hierarchy. Scaling to 50/day
+  at the top would rebuild the spread we just deleted and hand the forum
+  to long-term users.
+- **Non-banking.** A banked allowance is a hoard, and seniority wins
+  again. Expiry is also what makes people read something *today*.
+- **Achievements pay status only.** If a seasonal achievement granted
+  badges or a bigger allowance, top receivers would gain more power to
+  boost each other and compound into an elite by season three. Same trap
+  as pay-for-visibility.
+- **Seasonal reset on received.** Makes standing recent rather than
+  historical, so old accounts don't permanently outrank newer ones.
+
+### Open, cheap to settle now, expensive later
+- **Collusion.** Two accounts trading daily allowances both hit seasonal
+  thresholds. Seasonal reset limits the damage but does not stop it.
+  Cheap fix if wanted: diminishing returns on repeat gifts to the same
+  person within a season.
+- **Existing `wallet` balances.** Profiles carry accumulated dividends.
+  Under an allowance model that stored number means nothing. Decide
+  deliberately: retire it, or pay it out once as a launch bonus. Do not
+  leave it sitting there looking authoritative — that field has already
+  meant three different things (money, then reputation, now nothing).
+
+### Why this is NOT built yet
+The allowance only does anything when there is someone else to give it
+to, and the Forum is blocked on accounts (`forum/FORUM.md`). Building
+the giving machinery now would produce a daily allowance, expiring
+nightly, spendable on nobody — and the self-spend rule has to be
+enforced server-side regardless, so the client half would need rewriting
+against the real backend anyway. This belongs in the same batch as
+accounts, not before them.
+
 ## Docs & protection overhaul — pieces 1-4 done, 5 open (2026-08-16)
 
 Requested: rethink the project files for the app as it actually is now,

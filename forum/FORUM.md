@@ -11,6 +11,12 @@ A place to post, and a currency you can only spend on other people.
 Garden  ──earns──▶  reputation  ──spend on──▶  someone else's post  ──▶  they go up
 ```
 
+ECONOMY (decided 2026-08-16, not built): reputation is a **daily
+allowance**, not a balance — `5 + floor(rank/5)` per day, expiring
+nightly, spent only on others. The Garden pays nothing. Received
+badges accumulate into a season; seasonal achievements pay status,
+never currency. Full reasoning in `UPDATESTACK.md`.
+
 ## The one rule
 
 **You cannot spend reputation on yourself.**
