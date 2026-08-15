@@ -1479,6 +1479,16 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   box-shadow: 0 0 0 1px var(--border-accent), 0 0 18px 3px var(--accent-glow);
   transform: translate(-50%, -50%);
 }
+/* Every tile in the ring is 112px, and must READ as 112px too. The
+   primary tile's filled --accent-glow disc made Library look bigger
+   than the rest (reported, and measured: all six are identical) — a
+   filled shape reads larger than an outlined one at the same geometry.
+   It keeps an accent RING instead, so it's still the obvious starting
+   point without appearing to outweigh its neighbours. */
+.lobby-style-star .lobby-tile.primary {
+  background: var(--bg-card);
+  box-shadow: 0 0 0 1.5px var(--accent), 0 0 18px 3px var(--accent-glow);
+}
 .lobby-style-star .lobby-tile:hover, .lobby-style-star .lobby-tile:focus-visible {
   z-index: 3;
   box-shadow: 0 0 0 1px var(--border-accent), 0 0 26px 5px var(--accent-glow-strong);

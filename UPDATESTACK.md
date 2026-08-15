@@ -104,6 +104,19 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Library tile "bigger than the rest" — it wasn't (2026-08-15)
+Measured all six ring tiles: every one is exactly 112x112. Library only
+LOOKED bigger because `.lobby-tile.primary` filled it with
+`--accent-glow` while the others stayed outlined, and a filled shape
+reads larger than an outlined one at identical geometry. Fixed by
+perception, not by geometry: in the Star layout the primary tile now
+keeps an accent RING instead of a filled disc, so it's still the obvious
+starting point without appearing to outweigh its neighbours.
+
+Worth remembering as a pattern — "X is bigger" was a real complaint about
+a real visual problem, but the size was never wrong, so resizing would
+have introduced an actual inconsistency while chasing a perceived one.
+
 ## Sky is its own scene now (2026-08-15)
 Day/night was derived from whether the equipped THEME was light or dark.
 That conflated two unrelated choices — which colours the app uses, and
