@@ -281,7 +281,7 @@ user-controlled string rendered — already go through `escapeHtml()` in
 `admin/admin.js` and `textContent` in `core/profile.js`. Warning notices
 were built the same way. No injection gap found in that surface.
 
-### Piece 5 — OPTIMIZATION, not started
+### Piece 5 — OPTIMIZATION: dead CSS done, rest assessed
 Deliberately left last so it is measured against a clean tree. Candidates,
 none yet verified:
 - `styles/` may hold rules for deleted screens (games.css is gone, but
@@ -292,6 +292,31 @@ none yet verified:
   helpers for a branch that no longer exists. The FIELD must stay
   (migrations never drop data); the dead *helpers* are the question.
 - `index.html` loads every branch script eagerly; nothing is deferred.
+
+
+**Done 2026-08-16:** 14 dead CSS rules removed (−34 lines), verified by
+rendering every screen afterwards rather than by grep alone. Two traps
+the audit had to survive are worth remembering for the next one:
+constructed names (`tier-${n}` means `.tier-2` looks dead), and treating
+docs as usage (a class only *discussed* in a .md looked alive — which is
+precisely how the `.flag-*` set hid).
+
+**Assessed and deliberately NOT done:**
+- **`data/db.js` story/ticket helpers.** The `storyProgress` FIELD must
+  stay — migrations never drop data, and that is a rule worth more than
+  the few lines saved. The helpers are genuinely unused, but they are
+  ~30 lines of a 1,700-line file and removing them changes no behaviour.
+  Low value, non-zero risk.
+- **Deferring script loads.** `index.html` loads ~30 files eagerly. On a
+  local/offline app served from cache this buys close to nothing, and it
+  would put the load-order contract (four bands, boot.js last) at risk
+  for an unmeasurable gain. Not worth it without a real measurement
+  showing a problem.
+
+**Conclusion: optimization is closed.** The remaining candidates cost
+more in risk than they return. The real performance characteristic of
+this app is that it is a static, cache-first PWA with no build step —
+that was the design decision that mattered, and it was made long ago.
 
 ### Still genuinely open (not doc debt)
 - **Reputation collusion:** two accounts can trade reputation back and
