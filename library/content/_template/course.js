@@ -82,7 +82,14 @@
 // reviews and the Garden are keyed on them, so a reused id silently
 // shares progress between two topics. registry.js checks and logs a
 // console error, but don't rely on that — pick fresh ids.
-// Units 6, 7 and 8 are taken by Intro to CS.
+// >>> UNIT IDS 1-8 ARE ALL TAKEN by Intro to CS. Start at 9. <<<
+//
+// This line used to say only 6, 7 and 8 were taken, which was true when
+// the course had three units and dangerously wrong once it grew to
+// eight. Reusing an id does not error - it silently shares progress,
+// reviews and Garden plants between two unrelated topics, and the
+// symptom would appear weeks later as a plant growing for a lesson
+// nobody studied. Verified 2026-08-16: intro-cs occupies 1 through 8.
 //
 // Note on answer keys: chunk-question OPTIONS are shuffled on entry to
 // the question phase, and exam questions and their options are shuffled
@@ -100,7 +107,7 @@ Content.course({
   available: true,          // false renders a locked "coming soon" card
   units: [
     {
-      id: 9,                // must not clash with 6, 7, 8
+      id: 9,                // first free id - 1-8 belong to intro-cs
       title: "Unit 9",
       subtitle: "<what this unit covers>",
       icon: "\u{1F4D0}",

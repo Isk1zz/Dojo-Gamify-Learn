@@ -357,7 +357,7 @@ Both are interpretive paraphrases still in copyright.
 ## 11. Current state
 
 **Content:** Units 6 (Networks, Internet, Security), 7 (Programming Fundamentals),
-8 (Machine Learning). 26 topics total. One course, "Intro to CS."
+8 (Emerging Technologies). 58 topics, 327 questions across 10 modules. One course, "Intro to CS."
 
 **Screens:** Landing → Lobby → Courses → Units → Topics → Lesson → Exam → Result,
 plus Garden, Career, Custom, Shop, Forum, Settings and Admin.
