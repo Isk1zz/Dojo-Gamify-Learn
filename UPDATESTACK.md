@@ -104,6 +104,39 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Sky polish round 2 (2026-08-15)
+- **Bird bolt fixed — "some tp, some natural" was a specificity bug.**
+  The clone kept its original classes, so `.decor-usa_eagles.eagle-2`
+  (0,2,0) and its `animation-duration: 23s` / `animation-delay: -9s`
+  longhands beat the shorthand in `.fx-eagle-rush` (0,1,0). That bird
+  began its 1.5s bolt already 9s in and simply vanished; eagle-1 had no
+  such override, hence one looked right and one teleported. The clone is
+  now stripped to a single class and `.fx-eagle-rush` carries complete
+  standalone styling. Verified both birds: 1.5s / 0s / clean class.
+  - Second teleport, same report: the real bird used to RESUME its loop
+    wherever it had got to, popping back mid-screen. It now restarts
+    from the beginning of its path (off-screen) with an inline
+    `animation-delay: 0s` to override the CSS stagger, so it flies back
+    in instead of reappearing.
+- **Low clouds now throw study emoji** — 60-odd of them (books, pens,
+  microscopes, timers, trophies), verified 46 distinct in 120 pokes.
+  Safe on Windows in a way 🇺🇦 was not: only regional-indicator pairs
+  lack glyphs there. Kept to single-codepoint emoji, no ZWJ sequences
+  (👩‍🏫 splits where unsupported) and nothing past Emoji 12. The drawn
+  hammer and flipped-U arch stay in the rotation as the odd one out.
+- **Poke the sun** and it spins up like a fan for two turns, the disc
+  runs hot (fill animates toward orange), the halo flares, and a heat
+  wave pushes outward past it. Higher specificity than the idle drift,
+  so it takes over and hands back cleanly.
+- **Day/night toggle** in the vitals strip. "Day" and "night" aren't a
+  separate setting — they're whether the equipped THEME is light or
+  dark, which already drives the sun/moon swap, the stars and the extra
+  clouds, so the toggle flips the theme and everything follows. Each
+  side remembers the last theme you were actually on: verified that
+  Jade → day → back returns to Jade, not to the default. Only owned
+  themes are eligible, so it can't become a back door onto a paid one
+  the way Settings once was.
+
 ## Birds, daytime sky, low-cloud gags (2026-08-15)
 - **Poke a bird.** A feather comes loose and drifts down (own fall +
   sway animations on nested elements — one element can't run two

@@ -884,6 +884,40 @@ html[data-bg-decor~="clouds"][data-theme-mode="light"] .decor-clouds.cloud-day {
 .decor-sun .sun-rays { fill: #f0ad3c; opacity: 0.55; transform-origin: 50% 50%; animation: sun-turn 44s linear infinite; }
 @keyframes sun-turn { to { transform: rotate(360deg); } }
 
+/* Poked: spins up like a fan for two turns and throws off more heat.
+   Higher specificity than the idle drift above, so it takes over
+   cleanly and hands back when the class comes off. */
+.decor-sun.sun-spun .sun-rays {
+  opacity: 0.85;
+  animation: sun-fanspin 1.5s cubic-bezier(0.15, 0.75, 0.2, 1) 1;
+}
+.decor-sun.sun-spun .sun-disc { animation: sun-heat 1.5s ease-out 1; }
+.decor-sun.sun-spun .sun-halo { animation: sun-halo-flare 1.5s ease-out 1; }
+@keyframes sun-fanspin { from { transform: rotate(0deg); } to { transform: rotate(720deg); } }
+@keyframes sun-heat {
+  0%   { fill: #f5b942; }
+  40%  { fill: #ff7a1f; }
+  70%  { fill: #ff9a2e; }
+  100% { fill: #f5b942; }
+}
+@keyframes sun-halo-flare {
+  0%   { opacity: 0.16; transform: scale(1); }
+  40%  { opacity: 0.42; transform: scale(1.3); }
+  100% { opacity: 0.16; transform: scale(1); }
+}
+
+/* The heat itself — a warm wave pushing outward past the disc. */
+.fx-heat {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,138,43,0.5) 0%, rgba(255,190,80,0.28) 45%, transparent 70%);
+  animation: fx-heat 1.5s ease-out forwards;
+}
+@keyframes fx-heat {
+  0%   { opacity: 0;    transform: scale(0.45); }
+  22%  { opacity: 0.95; }
+  100% { opacity: 0;    transform: scale(2.6); }
+}
+
 /* ---- Stars ----
    top: below the fixed header bar (#app > .screen's 2.8rem padding),
    not literal viewport y:0 — the header sits there on every screen and
@@ -1130,20 +1164,40 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   50%      { transform: rotate(26deg); }
 }
 
-.fx-eagle-rush { position: absolute; animation: fx-eagle-rush 1.2s cubic-bezier(0.3, 0, 0.7, 1) forwards; }
-.fx-eagle-rush .wing { animation-duration: 0.34s !important; }   /* panicked wingbeat */
+/* Complete standalone styling, NOT a variant of .decor-usa_eagles. The
+   clone is stripped to this one class because `.decor-usa_eagles.eagle-2`
+   is more specific and its animation-duration/-delay longhands were
+   overriding this rule's shorthand — that bird started its bolt 9s in
+   and vanished instead of flying. Nothing here may depend on the
+   decoration's own classes. */
+.fx-eagle-rush {
+  position: absolute; color: #6b5540; opacity: 0.9;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45));
+  animation: fx-eagle-rush 1.5s cubic-bezier(0.42, 0, 0.9, 1) forwards;
+}
+.fx-eagle-rush .wing, .fx-eagle-rush .eagle-body { fill: currentColor; }
+.fx-eagle-rush .eagle-tail, .fx-eagle-rush .eagle-head { fill: #f4f1ea; }
+.fx-eagle-rush .eagle-beak { fill: #f0b429; }
+.fx-eagle-rush .wing {
+  transform-box: view-box; transform-origin: 30px 15px;
+  animation: decor-flap 0.3s ease-in-out infinite;      /* panicked wingbeat */
+}
+.fx-eagle-rush .wing-r { animation-name: decor-flap-r; }
+/* Banks as it climbs rather than sliding flat off the edge. */
 @keyframes fx-eagle-rush {
-  0%   { opacity: 0.9; transform: translate(0, 0) scale(1); }
-  100% { opacity: 0;   transform: translate(var(--rush, 46vw), -26vh) scale(0.72); }
+  0%   { opacity: 0.95; transform: translate(0, 0) rotate(0deg) scale(1); }
+  25%  { opacity: 0.95; transform: translate(calc(var(--rush, 52vw) * 0.18), -4vh) rotate(var(--bank, -10deg)) scale(0.97); }
+  100% { opacity: 0;    transform: translate(var(--rush, 52vw), -30vh) rotate(var(--bank, -10deg)) scale(0.68); }
 }
 
 /* ---- Bottom clouds ---- */
 /* Something leaps out and drops back in. */
-.fx-bounce { position: absolute; width: 26px; margin-left: -13px; animation: fx-bounce 1.7s cubic-bezier(0.33, 0, 0.5, 1) forwards; }
-.fx-bounce svg { width: 100%; display: block; animation: fx-bounce-spin 1.7s ease-in-out; }
-.fx-bounce .bo-body  { fill: var(--accent-light); opacity: 0.9; }
-.fx-bounce .bo-eye   { fill: var(--bg-deep); }
-.fx-bounce .bo-mouth { stroke: var(--bg-deep); }
+.fx-bounce { position: absolute; margin-left: -14px; animation: fx-bounce 1.7s cubic-bezier(0.33, 0, 0.5, 1) forwards; }
+.fx-bounce .bo-emoji {
+  display: block; font-size: 1.65rem; line-height: 1;
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.35));
+  animation: fx-bounce-spin 1.7s ease-in-out;
+}
 @keyframes fx-bounce {
   0%   { opacity: 0; transform: translateY(6px) scale(0.6); }
   12%  { opacity: 1; }
@@ -1162,6 +1216,10 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 .fx-fly.from-left  { animation: fx-fly-r 1.5s linear forwards; }
 .fx-fly.from-right { animation: fx-fly-l 1.5s linear forwards; }
 .fx-fly .fx-prop { width: 100%; display: block; animation: fx-prop-spin 0.5s linear infinite; }
+.fx-fly .fx-prop-emoji {
+  font-size: 1.7rem; line-height: 1; text-align: center;
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.35));
+}
 .fx-fly .pr-head { fill: var(--accent); opacity: 0.85; }
 .fx-fly .pr-dark { fill: #8a7355; }
 @keyframes fx-prop-spin { to { transform: rotate(360deg); } }

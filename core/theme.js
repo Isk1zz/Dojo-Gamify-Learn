@@ -111,6 +111,43 @@
     document.documentElement.dataset.bgScene = id && id !== "none" ? id : "";
   }
 
+  // ---- Day / night toggle ----
+  // "Day" and "night" aren't a separate setting — they're whether the
+  // equipped THEME is light or dark, which is what already drives the
+  // sun/moon swap, the stars and the extra clouds. So this flips the
+  // theme, and everything downstream follows for free.
+  //
+  // Each side remembers the last theme you were actually on, so toggling
+  // to day and back returns you to YOUR dark theme rather than dumping
+  // you on the default. Only themes you own are eligible — this must not
+  // become a back door onto a paid theme (Settings already was one once).
+  let lastDark = null, lastLight = null;
+
+  function ownsThemeId(id) {
+    return !Dojo.ownsTheme || Dojo.ownsTheme(id);
+  }
+  function firstOwned(mode, fallback) {
+    const t = (THEMES || []).find(x => x.id !== fallback &&
+      (mode === "light" ? x.mode === "light" : x.mode !== "light") && ownsThemeId(x.id));
+    return t ? t.id : fallback;
+  }
+
+  function toggleDayNight() {
+    const cur = resolveTheme(DB.getTheme ? DB.getTheme() : "indigo");
+    const goingLight = cur.mode !== "light";
+    if (cur.mode === "light") lastLight = cur.id; else lastDark = cur.id;
+
+    let next = goingLight ? lastLight : lastDark;
+    // Indigo and Frost are the free defaults, so they're always a valid
+    // landing spot when there's no remembered theme.
+    if (!next || !ownsThemeId(next)) next = goingLight ? firstOwned("light", "frost") : firstOwned("dark", "indigo");
+
+    DB.setTheme(next);
+    applyTheme(next);
+    if (Dojo.renderVitals) Dojo.renderVitals();   // repaint the toggle's own icon
+    if (Dojo.Bus) Dojo.Bus.emit("theme:changed", { id: next });
+  }
+
   // Text was "deliberately not themed" (see core/CORE.md) for as long as
   // every theme was a dark background — a fixed light text color always
   // had contrast. A light theme breaks that assumption outright, so text
@@ -189,5 +226,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { applyTheme, previewTheme, resolveTheme, themeUnlocked, applyBgStripe, bgStripeUnlocked, applyBgDecors, applyScene, hexToRgb, shade });
+  Object.assign(Dojo, { applyTheme, previewTheme, resolveTheme, themeUnlocked, applyBgStripe, bgStripeUnlocked, applyBgDecors, applyScene, toggleDayNight, hexToRgb, shade });
 })();

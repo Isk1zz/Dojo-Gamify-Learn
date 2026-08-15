@@ -182,18 +182,30 @@
     return (r.top + r.height / 2) > window.innerHeight * 0.5;
   }
 
+  // What comes out of a low cloud: the app is a study app, so it rains
+  // stationery rather than novelty items.
+  //
+  // Country-flag emoji are the ONLY class that failed on Windows (the OS
+  // ships no glyph for regional-indicator pairs) — ordinary object emoji
+  // like these are fine, so this is safe where 🇺🇦 was not. Kept to
+  // widely-shipped single-codepoint emoji all the same: no ZWJ sequences
+  // (👩‍🏫 splits into two glyphs where the sequence isn't supported) and
+  // nothing newer than Emoji 12.
+  const STUDY_EMOJI = [
+    "📚", "📖", "📝", "✏️", "✒️", "🖊️", "🖍️", "📐", "📏", "📌", "📎", "🖇️",
+    "🔖", "📓", "📔", "📒", "📕", "📗", "📘", "📙", "📜", "📋", "🗒️", "🗓️",
+    "📅", "🗂️", "📁", "📊", "📈", "📉", "🔢", "🧮", "🎓", "🏫", "🧠", "💡",
+    "🔬", "🔭", "🧪", "⚗️", "🔍", "💻", "⌨️", "🖥️", "⌛", "⏳", "⏰", "☕",
+    "🍎", "🧩", "🏆", "🥇", "🎯", "✅", "❓", "❗", "⭐", "🚀", "💯", "🤓"
+  ];
+  const pickEmoji = () => STUDY_EMOJI[Math.floor(Math.random() * STUDY_EMOJI.length)];
+
   function bounceAt(rect) {
     const el = document.createElement("div");
     el.className = "fx-bounce";
-    el.style.left = `${rect.left + rect.width * (0.35 + Math.random() * 0.3)}px`;
+    el.style.left = `${rect.left + rect.width * (0.3 + Math.random() * 0.4)}px`;
     el.style.top = `${rect.top + rect.height * 0.35}px`;
-    el.innerHTML =
-      `<svg viewBox="0 0 24 24">
-         <circle class="bo-body" cx="12" cy="12" r="9"/>
-         <circle class="bo-eye" cx="9" cy="10" r="1.6"/>
-         <circle class="bo-eye" cx="15" cy="10" r="1.6"/>
-         <path class="bo-mouth" d="M8.5 15 Q 12 18, 15.5 15" fill="none" stroke-width="1.4" stroke-linecap="round"/>
-       </svg>`;
+    el.innerHTML = `<span class="bo-emoji">${pickEmoji()}</span>`;
     spawn(el, 1700);
   }
 
@@ -207,14 +219,19 @@
     const fromLeft = Math.random() < 0.5;
     el.classList.add(fromLeft ? "from-left" : "from-right");
     el.style.left = fromLeft ? `${rect.left - 90}px` : `${rect.right + 90}px`;
-    el.innerHTML = Math.random() < 0.5
-      ? `<svg viewBox="0 0 40 40" class="fx-prop">
-           <rect class="pr-dark" x="18" y="12" width="4" height="24" rx="1.6"/>
-           <rect class="pr-head" x="9" y="5" width="22" height="9" rx="2.4"/>
-         </svg>`
-      : `<svg viewBox="0 0 40 40" class="fx-prop">
-           <path class="pr-head" d="M8 34 L8 20 A 12 12 0 0 1 32 20 L32 34 L25 34 L25 20 A 5 5 0 0 0 15 20 L15 34 Z"/>
-         </svg>`;
+    // Mostly study emoji; the two drawn props (hammer, flipped-U arch)
+    // stay in the rotation as the occasional odd one out.
+    const roll = Math.random();
+    el.innerHTML = roll < 0.72
+      ? `<span class="fx-prop fx-prop-emoji">${pickEmoji()}</span>`
+      : roll < 0.86
+        ? `<svg viewBox="0 0 40 40" class="fx-prop">
+             <rect class="pr-dark" x="18" y="12" width="4" height="24" rx="1.6"/>
+             <rect class="pr-head" x="9" y="5" width="22" height="9" rx="2.4"/>
+           </svg>`
+        : `<svg viewBox="0 0 40 40" class="fx-prop">
+             <path class="pr-head" d="M8 34 L8 20 A 12 12 0 0 1 32 20 L32 34 L25 34 L25 20 A 5 5 0 0 0 15 20 L15 34 Z"/>
+           </svg>`;
     spawn(el, 1500);
   }
 
@@ -244,15 +261,66 @@
 
     // A clone does the bolting. Re-timing the real element's animation
     // mid-flight would fight the keyframes that own its transform.
+    //
+    // The clone is stripped down to ONE class on purpose. Keeping
+    // `.decor-usa_eagles.eagle-2` meant that rule's animation-duration
+    // (23s) and animation-delay (-9s) longhands beat the shorthand in
+    // `.fx-eagle-rush` on specificity, so eagle-2 started its 1.5s bolt
+    // already 9s in and simply vanished — "some tp, some natural",
+    // exactly as reported, since eagle-1 has no such override.
+    // `.fx-eagle-rush` carries its own complete styling instead.
     const ghost = el.cloneNode(true);
-    ghost.classList.add("fx-eagle-rush");
+    ghost.setAttribute("class", "fx-eagle-rush");
     ghost.style.cssText =
       `left:${rect.left}px; top:${rect.top}px; width:${rect.width}px; height:${rect.height}px;`;
-    ghost.style.setProperty("--rush", rect.left < window.innerWidth / 2 ? "-46vw" : "46vw");
-    spawn(ghost, 1200);
+    // Bolt away from the nearer edge, so it always exits the short way.
+    const leftward = rect.left < window.innerWidth / 2;
+    ghost.style.setProperty("--rush", leftward ? "-52vw" : "52vw");
+    ghost.style.setProperty("--bank", leftward ? "10deg" : "-10deg");
+    spawn(ghost, 1500);
 
+    // The real bird restarts from the BEGINNING of its path (off-screen)
+    // rather than resuming wherever its loop had got to — resuming is
+    // the other way a startled bird appeared to teleport, popping back
+    // into view mid-screen a moment after it fled. The inline delay
+    // overrides the negative stagger the CSS gives each bird.
     el.style.visibility = "hidden";
-    setTimeout(() => { el.style.visibility = ""; delete el.dataset.busy; }, 2600);
+    setTimeout(() => {
+      el.style.visibility = "";
+      el.style.animation = "none";
+      void el.offsetWidth;                 // reflow, so the restart takes
+      el.style.animation = "";
+      el.style.animationDelay = "0s";
+      delete el.dataset.busy;
+    }, 1600);
+  }
+
+  // ---- Sun ----
+  // Spin it like a fan and it puts out more heat. Two full turns, then
+  // it settles back to its idle drift.
+  function pokeSun(el) {
+    if (el.dataset.busy) return;
+    el.dataset.busy = "1";
+    el.classList.add("sun-spun");
+    setTimeout(() => { el.classList.remove("sun-spun"); delete el.dataset.busy; }, 1500);
+    if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click();
+
+    const rect = el.getBoundingClientRect();
+    const heat = document.createElement("div");
+    heat.className = "fx-heat";
+    const size = rect.width * 1.15;
+    heat.style.left = `${rect.left + rect.width / 2 - size / 2}px`;
+    heat.style.top = `${rect.top + rect.height / 2 - size / 2}px`;
+    heat.style.width = `${size}px`;
+    heat.style.height = `${size}px`;
+    spawn(heat, 1500);
+  }
+
+  function sunAt(x, y) {
+    const sun = document.querySelector(".decor-sun");
+    if (!sun || getComputedStyle(sun).display === "none") return null;
+    const r = sun.getBoundingClientRect();
+    return (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) ? sun : null;
   }
 
   function eagleAt(x, y) {
@@ -341,6 +409,8 @@
       // cloud would otherwise swallow every attempt to hit one.
       const bird = eagleAt(e.clientX, e.clientY);
       if (bird) { pokeEagle(bird); return; }
+      const sun = sunAt(e.clientX, e.clientY);
+      if (sun) { pokeSun(sun); return; }
       const cloud = cloudAt(e.clientX, e.clientY);
       if (cloud) poke(cloud);
     });

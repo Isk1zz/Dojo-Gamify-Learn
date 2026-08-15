@@ -157,6 +157,17 @@
 }
 .vw-icon { font-size: 0.85rem; }
 
+/* Day/night toggle — same pill as the currency chips so the strip reads
+   as one row of controls, but square-ish since it holds only an icon. */
+.vital-daynight {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; border-radius: 999px; cursor: pointer;
+  background: var(--bg-card); border: 1px solid var(--border);
+  font-size: 0.9rem; line-height: 1;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.vital-daynight:hover { transform: rotate(-18deg) scale(1.1); border-color: var(--border-accent); }
+
 /* The vitals strip sits under the charge bar, so screens start lower.
    Charge bar is now 2.3rem (was 2.1rem); shifted down by the same delta. */
 #app > .screen { padding-top: 4.5rem; }
