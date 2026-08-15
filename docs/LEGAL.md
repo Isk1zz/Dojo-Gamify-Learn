@@ -129,6 +129,11 @@ liability from hosting your own content.
   posts are other people's context.
 
 ### Trigger 3 — you take REAL money
+
+**Sequencing decided 2026-08-16: payments come AFTER the engine is
+finished.** Not before. Token packs stay a labelled demo stub until
+then, which is also what keeps triggers 3 and 4 switched off — no
+entity, no VAT, no merchant account needed while nothing is sold.
 Only when Token packs stop being a stub.
 - The simplest route by far is a **merchant of record** (Paddle,
   Lemon Squeezy, Gumroad). They sell to the customer, handle VAT in every
