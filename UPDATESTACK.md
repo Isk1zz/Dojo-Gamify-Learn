@@ -144,6 +144,31 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Shop loses Money + Exchange; effects follow their cloud (2026-08-15)
+- **Two aisles removed.** The Custom Shop had nothing left to sell once
+  every cosmetic went free, and the Exchange converted Tokens into `$`,
+  a currency that now buys nothing — a working conversion into a dead
+  end is worse than no conversion. ~190 lines of pane builders and buy
+  handlers deleted with them. The `ownsX`/`xPrice` helpers STAY: Custom
+  still asks them what's unlocked, they just all answer yes now.
+- **Cloud effects track their cloud.** Rain, lightning, rainbows and the
+  low-cloud gags used to spawn at the cloud's position and stay put
+  while it drifted off. I'd defended that as "what actually happens",
+  which was a rationalisation — it read as detached because it was.
+  They now follow by rewriting `left`/`top` each frame, NOT by applying
+  a transform: every effect already animates its own `transform`, so a
+  transform here would fight it; nothing touches left/top, so that
+  channel was free. Verified all four types move in step with their
+  cloud to the pixel. The fairy stays unanchored on purpose — she's
+  leaving.
+- **"First click switched to the same state" could NOT be reproduced**
+  on the current build, from either a stored-day cold start or a
+  wiped-storage true first launch; the first click flips correctly both
+  ways. It matches the desync fixed a few commits earlier
+  (`syncSkyToTheme` in `showLobby`), so it was most likely a cached
+  build. Flagged rather than "fixed" — there is no change here to
+  point at, and claiming one would be false.
+
 ## All paid cosmetics are FREE (2026-08-15)
 Per "paid customs are to be set free" — every purchasable cosmetic is
 now price 0: base themes (Ember/Jade/Rose/Ice/Sepia/Violet/Slate),

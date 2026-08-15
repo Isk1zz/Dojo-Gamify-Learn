@@ -110,66 +110,6 @@
     return DB.setPatronTier(tier);
   }
 
-  // ---- Exchange: Tokens -> $ ----
-  // One-way, on purpose. Both currencies are earnable for free (Tokens
-  // via rank-ups, `$` via Garden/quest rewards) as well as buyable, so
-  // this isn't a real-money bypass — but it still has to be a genuine
-  // SINK, not a free lane between the two shops, or Tokens would just
-  // become a second way to buy Custom Shop cosmetics at whatever rate
-  // is cheapest that day.
-  //
-  // Rate: 10 Tokens -> $1 (bumped 5x from an initial 50:1 draft, per
-  // request). Still checked against the worst real pack (the Starter,
-  // 100 Tokens/$3.99 = ~$0.04 per Token bought): converting those same
-  // 100 Tokens back nets $10, now BETTER than the $3.99 spent to get
-  // them — so this reads less as a pure loss-sink and more as a
-  // deliberately generous way to redirect spare Tokens into Custom Shop
-  // cosmetics. Still one-way only: no reverse `$` -> Tokens direction,
-  // same reasoning SHOP.md gives for keeping XP/money apart.
-  const TOKEN_EXCHANGE_RATE = 10; // Tokens per $1
-  function exchangeQuote(tokens) {
-    return Math.floor((tokens || 0) / TOKEN_EXCHANGE_RATE);
-  }
-  function exchangeTokens(tokens) {
-    const dollars = exchangeQuote(tokens);
-    if (!dollars) return false;
-    const cost = dollars * TOKEN_EXCHANGE_RATE;
-    if (!DB.spendTokens(cost)) return false;
-    DB.addMoney(dollars);
-    Dojo.Bus.emit("tokens:changed", { delta: -cost, reason: "exchange" });
-    Dojo.Bus.emit("wallet:changed", { delta: dollars, reason: "exchange" });
-    return true;
-  }
-
-  function exchangePane() {
-    const tokens = DB.getTokens();
-    const PRESETS = [50, 250, 1000];
-    return `
-      <div class="settings-section">
-        <div class="stats-section-title">\u{1F501} Exchange Tokens for $</div>
-        <p class="settings-hint">
-          One-way: Tokens become $ at a fixed rate (${TOKEN_EXCHANGE_RATE} Tokens = $1) —
-          a way to spend spare Tokens on Custom Shop cosmetics. $ never converts back.
-        </p>
-        <p class="settings-hint"><strong>You have ${tokens} Tokens.</strong></p>
-        <div class="shop-grid">
-          ${PRESETS.map(amount => {
-            const dollars = exchangeQuote(amount);
-            const afford = tokens >= amount;
-            return `
-              <div class="shop-card">
-                <div class="shop-card-preview game-preview"><span class="gp-icon">\u{1F501}</span></div>
-                <div class="shop-card-body">
-                  <div class="shop-name">${amount} Tokens → $${dollars}</div>
-                  <div class="shop-tagline">${afford ? "Converts instantly." : `Need ${amount - tokens} more Tokens.`}</div>
-                  <button class="shop-btn buy" data-exchange="${amount}" ${afford ? "" : "disabled"}>Exchange</button>
-                </div>
-              </div>`;
-          }).join("")}
-        </div>
-      </div>`;
-  }
-
   // ---- Course ownership ----
   const courseKey = id => `course_${id}`;
   function ownsCourse(courseId) {
@@ -290,12 +230,7 @@
         }
       });
     });
-    root.querySelectorAll("[data-exchange]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (exchangeTokens(parseInt(btn.getAttribute("data-exchange"), 10))) rerender();
-      });
-    });
   }
 
-  Object.assign(Dojo, { ownsCourse, buyCourse, PATRON_TIERS, tokenPacksPane, patronPane, exchangePane, bindTokenPane, coursePrice, courseDiscount });
+  Object.assign(Dojo, { ownsCourse, buyCourse, PATRON_TIERS, tokenPacksPane, patronPane, bindTokenPane, coursePrice, courseDiscount });
 })();

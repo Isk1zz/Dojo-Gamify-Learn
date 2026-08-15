@@ -118,16 +118,40 @@
     return el;
   }
 
-  // Effects are spawned at the cloud's CURRENT screen position and then
-  // left behind — the cloud keeps drifting out from over its own rain,
-  // which is what actually happens and costs nothing to allow.
-  function spawn(node, ms) {
+  // Effects TRACK the thing that produced them. They used to be spawned
+  // at the cloud's position and left behind, so the cloud drifted out
+  // from over its own rain — defended at the time as "what actually
+  // happens", which was a rationalisation: it reads as the effect being
+  // detached, because it is.
+  //
+  // Followed by rewriting left/top each frame rather than by applying a
+  // transform: every effect already uses `transform` for its OWN
+  // animation (rain drops fall, the rainbow scales, props spin), so a
+  // transform here would fight them. Nothing animates left/top, so
+  // that channel is free.
+  function spawn(node, ms, anchor) {
     fxLayer().appendChild(node);
-    setTimeout(() => node.remove(), ms);
+    let raf = null;
+    if (anchor) {
+      const start = anchor.getBoundingClientRect();
+      const l0 = parseFloat(node.style.left) || 0;
+      const t0 = parseFloat(node.style.top) || 0;
+      const follow = () => {
+        const r = anchor.getBoundingClientRect();
+        node.style.left = `${l0 + (r.left - start.left)}px`;
+        node.style.top = `${t0 + (r.top - start.top)}px`;
+        raf = requestAnimationFrame(follow);
+      };
+      raf = requestAnimationFrame(follow);
+    }
+    setTimeout(() => {
+      if (raf) cancelAnimationFrame(raf);
+      node.remove();
+    }, ms);
     return node;
   }
 
-  function rainAt(rect, drops, cls, ms) {
+  function rainAt(rect, drops, cls, ms, anchor) {
     const wrap = document.createElement("div");
     wrap.className = `fx-rain ${cls}`;
     wrap.style.left = `${rect.left}px`;
@@ -140,10 +164,10 @@
       d.style.setProperty("--fall", `${60 + Math.random() * 90}px`);
       wrap.appendChild(d);
     }
-    spawn(wrap, ms);
+    spawn(wrap, ms, anchor);
   }
 
-  function lightningAt(rect) {
+  function lightningAt(rect, anchor) {
     const flash = document.createElement("div");
     flash.className = "fx-flash";
     spawn(flash, 700);
@@ -153,7 +177,7 @@
     bolt.style.left = `${rect.left + rect.width * 0.45}px`;
     bolt.style.top = `${rect.bottom - 12}px`;
     bolt.innerHTML = `<svg viewBox="0 0 24 60"><path d="M14 0 L4 32 L11 32 L8 60 L20 24 L13 24 Z"/></svg>`;
-    spawn(bolt, 700);
+    spawn(bolt, 700, anchor);
   }
 
   // Concentric radial-gradient rings, not stroked SVG arcs. The first
@@ -163,13 +187,13 @@
   // here claiming they must stay distinct was simply wrong) and the
   // whole thing is faint. The band stops, blur and end-fade all live in
   // CSS; this only places it.
-  function rainbowAt(rect) {
+  function rainbowAt(rect, anchor) {
     const bow = document.createElement("div");
     bow.className = "fx-rainbow";
     bow.style.left = `${rect.left + rect.width * 0.5}px`;
     bow.style.top = `${rect.bottom - 4}px`;
     bow.innerHTML = `<span class="bow"></span>`;
-    spawn(bow, 5200);
+    spawn(bow, 5200, anchor);
   }
 
   // ---- Bottom clouds get their own outcomes ----
@@ -200,19 +224,19 @@
   ];
   const pickEmoji = () => STUDY_EMOJI[Math.floor(Math.random() * STUDY_EMOJI.length)];
 
-  function bounceAt(rect) {
+  function bounceAt(rect, anchor) {
     const el = document.createElement("div");
     el.className = "fx-bounce";
     el.style.left = `${rect.left + rect.width * (0.3 + Math.random() * 0.4)}px`;
     el.style.top = `${rect.top + rect.height * 0.35}px`;
     el.innerHTML = `<span class="bo-emoji">${pickEmoji()}</span>`;
-    spawn(el, 1700);
+    spawn(el, 1700, anchor);
   }
 
   // Two props, picked at random: a hammer, and the flipped-U arch. Both
   // drawn rather than emoji — the country-flag lesson (Windows ships no
   // glyph for plenty of things) applies to any decorative character.
-  function flythroughAt(rect) {
+  function flythroughAt(rect, anchor) {
     const el = document.createElement("div");
     el.className = "fx-fly";
     el.style.top = `${rect.top + rect.height * 0.45}px`;
@@ -232,7 +256,7 @@
         : `<svg viewBox="0 0 40 40" class="fx-prop">
              <path class="pr-head" d="M8 34 L8 20 A 12 12 0 0 1 32 20 L32 34 L25 34 L25 20 A 5 5 0 0 0 15 20 L15 34 Z"/>
            </svg>`;
-    spawn(el, 1500);
+    spawn(el, 1500, anchor);
   }
 
   // ---- Eagles ----
@@ -358,16 +382,16 @@
 
     // Low clouds skip the weather table entirely — see isBottomCloud.
     if (isBottomCloud(cloud)) {
-      if (Math.random() < 0.5) bounceAt(rect); else flythroughAt(rect);
+      if (Math.random() < 0.5) bounceAt(rect, cloud); else flythroughAt(rect, cloud);
       return;
     }
 
     switch (rollOutcome()) {
-      case "drizzle":    rainAt(rect, 8,  "light", 2600); break;
-      case "rain-light": rainAt(rect, 22, "light", 3000); break;
-      case "rain-heavy": rainAt(rect, 55, "heavy", 3400); break;
-      case "lightning":  lightningAt(rect); break;
-      case "rainbow":    rainbowAt(rect); break;
+      case "drizzle":    rainAt(rect, 8,  "light", 2600, cloud); break;
+      case "rain-light": rainAt(rect, 22, "light", 3000, cloud); break;
+      case "rain-heavy": rainAt(rect, 55, "heavy", 3400, cloud); break;
+      case "lightning":  lightningAt(rect, cloud); break;
+      case "rainbow":    rainbowAt(rect, cloud); break;
       case "fairy":      fairyFrom(cloud, rect); break;
     }
   }

@@ -456,7 +456,7 @@
     });
 
     const previewBuyBtn = body.querySelector("#inv-preview-buy");
-    if (previewBuyBtn) previewBuyBtn.addEventListener("click", () => Router.go("store", { cat: "custom" }));
+    if (previewBuyBtn) previewBuyBtn.addEventListener("click", () => Router.go("store", { cat: "packs" }));
     const previewClearBtn = body.querySelector("#inv-preview-clear");
     if (previewClearBtn) previewClearBtn.addEventListener("click", () => { clearPreview(); renderInventory(); });
 
@@ -476,7 +476,7 @@
     }
 
     const shopBtn = body.querySelector("#btn-inventory-shop");
-    if (shopBtn) shopBtn.addEventListener("click", () => Router.go("store", { cat: "custom" }));
+    if (shopBtn) shopBtn.addEventListener("click", () => Router.go("store", { cat: "packs" }));
 
     // Leaving mid-preview must not carry a never-bought theme out to the
     // rest of the app — same guard Settings uses on its own back button.
