@@ -189,6 +189,14 @@
            "repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 34px)"
     },
     {
+      // Rank 11 (Director of Operations) — a wider, shallower diamond
+      // than Lattice/Cross-hatch: 60deg/-60deg instead of 90deg/45deg,
+      // so it reads as its own shape rather than a bigger Lattice.
+      id: "trellis", name: "Trellis",
+      css: "repeating-linear-gradient(60deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 32px)," +
+           "repeating-linear-gradient(-60deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 32px)"
+    },
+    {
       // Rank 14 (Postdoctoral Researcher) — the most intricate one on
       // purpose (a diamond lattice plus a soft central vignette), since
       // it lands well past every other stripe reward.
@@ -196,6 +204,13 @@
       css: "repeating-linear-gradient(45deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 30px)," +
            "repeating-linear-gradient(-45deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 30px)," +
            "radial-gradient(ellipse 60% 45% at 50% 0%, rgba(255,255,255,0.05), transparent 65%)"
+    },
+    {
+      // Rank 17 (Program Director) — the one non-linear shape in the
+      // set: rays fanning out from center via repeating-conic-gradient,
+      // deliberately unlike every straight/crossed stripe before it.
+      id: "sunburst", name: "Sunburst",
+      css: "repeating-conic-gradient(from 0deg at 50% 0%, rgba(255,255,255,0.05) 0deg 3deg, transparent 3deg 18deg)"
     }
   ];
 
