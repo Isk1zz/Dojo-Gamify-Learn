@@ -144,6 +144,54 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Docs & protection overhaul — pieces 1-4 done, 5 open (2026-08-16)
+
+Requested: rethink the project files for the app as it actually is now,
+cut what is dead, improve protection and optimization, and make the
+plan documents state the real end goal.
+
+**Done and pushed:**
+1. **Dead weight** — deleted `games/` (held only GAMES.md: 426 lines on
+   four removed games and a `story/` folder that never existed). Wrote
+   `forum/FORUM.md`. Fixed 6 code comments pointing at deleted files.
+   Bumped SW cache to v4 — stale-while-revalidate never re-fetches a
+   DELETED file, so `games.js`/`games.css` would have sat cached forever.
+2. **Identity** — `README.md` and `PROJECT.md` rewritten around the three
+   loops (learn / retain / **contribute**, the third blocked on
+   accounts). Both had the wrong app name and a `git clone` URL pointing
+   at a repo that isn't this one.
+3. **Stale refs** — 18 lines across 6 docs describing the Arcade API, `$`
+   money, and the standalone Token Shop. `docs/ARCHITECTURE.md` mattered
+   most: it is the contract new work is written against.
+4. **Protection** — added `LICENSE` (all rights reserved, explicit).
+
+**Security spot-check (no action needed):** profile names — the one
+user-controlled string rendered — already go through `escapeHtml()` in
+`admin/admin.js` and `textContent` in `core/profile.js`. Warning notices
+were built the same way. No injection gap found in that surface.
+
+### Piece 5 — OPTIMIZATION, not started
+Deliberately left last so it is measured against a clean tree. Candidates,
+none yet verified:
+- `styles/` may hold rules for deleted screens (games.css is gone, but
+  `base.css`/`shop.css` may retain `.sw-*`, `.gp-*`, arcade-era classes).
+  **Verify against live DOM before deleting — a class can be built by a
+  template string and never appear in markup.**
+- `data/db.js` is ~1700 lines and holds `storyProgress` plus ticket
+  helpers for a branch that no longer exists. The FIELD must stay
+  (migrations never drop data); the dead *helpers* are the question.
+- `index.html` loads every branch script eagerly; nothing is deferred.
+
+### Still genuinely open (not doc debt)
+- **Reputation collusion:** two accounts can trade reputation back and
+  forth. The give-only rule does not prevent it. Decide before the Forum
+  ships, not after.
+- **Repo is public.** The licence records intent; it does not stop
+  copying. Going private is the only step that actually does.
+- `docs/BACKEND-ROADMAP.md` and `docs/CHANGELOG.md` were NOT swept in
+  piece 3 — they are historical logs, and rewriting history to match the
+  present would destroy their only value.
+
 ## Bats fly as a pack; Custom fixed for light themes (2026-08-16)
 - **Bats fly as a swarm, in a random direction each time.** They fanned
   across 300°, which read as an explosion rather than a colony leaving a
