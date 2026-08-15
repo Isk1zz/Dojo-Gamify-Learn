@@ -44,7 +44,7 @@
 
     body.innerHTML = `
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F3C5} Your reputation</div>
+        <div class="stats-section-title">\u{1F44F} Your reputation</div>
         <div class="forum-rep">${reputation()}</div>
         <p class="settings-hint">
           Earned in the Garden. It is not a score you keep — it is the right to

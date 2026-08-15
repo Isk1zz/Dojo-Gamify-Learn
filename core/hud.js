@@ -132,8 +132,14 @@
     // Reputation, not money — see data/db.js's getReputation. Same
     // stored number, new meaning: the Arcade it used to pay for is the
     // Forum now, and cosmetics are free, so `$` had nothing left to buy.
+    //
+    // 👏 rather than a medal: the app already had THREE medals — Career's
+    // lobby tile (🎖), the Contributor patron tier (🎖️) and this chip's
+    // first draft (🏅) — which are indistinguishable at chip size.
+    // Applause also says the right thing: this is credit you GIVE, not a
+    // trophy you hold. ⭐ is XP and 🪙 is Tokens, so those were out too.
     const moneyTip = "Reputation, earned in the Garden. Spent on other people's Forum posts — never on your own.";
-    const tokenTip = "Earned free from rank-ups, or bought in the Token Shop. Spent to unlock courses. Never converts to or from $ money. — tap to open the Token Shop";
+    const tokenTip = "Earned free from rank-ups, or bought in the Token Shop. Spent to unlock courses.";
     // Day/night toggle. Shows the state you'd switch TO, which is the
     // usual toggle idiom and the only thing that makes a single icon
     // unambiguous. It flips the SKY, which is its own setting and has
@@ -141,7 +147,7 @@
     // data/db.js's getSky.
     const isDay = (DB.getSky ? DB.getSky() : "night") === "day";
     const dnTip = isDay ? "Switch to night" : "Switch to day";
-    strip.innerHTML = `<span id="vital-wallet-chip" class="vital-wallet" role="button" tabindex="0" title="${moneyTip}"><span class="vw-icon">🏅</span>${DB.getReputation()}</span>`
+    strip.innerHTML = `<span id="vital-wallet-chip" class="vital-wallet" role="button" tabindex="0" title="${moneyTip}"><span class="vw-icon">👏</span>${DB.getReputation()}</span>`
       + `<span id="vital-tokens-chip" class="vital-tokens" role="button" tabindex="0" title="${tokenTip}"><span class="vw-icon">🪙</span>${DB.getTokens()}</span>`
       + `<button id="vital-daynight" class="vital-daynight" type="button" title="${dnTip}" aria-label="${dnTip}">${isDay ? "🌙" : "☀️"}</button>`;
 
@@ -176,7 +182,7 @@
       ? `<strong>🪙 ${DB.getTokens()}</strong><br>`
         + `Earned free from rank-ups, or bought in 🪙 Token Shop (Library). Spent `
         + `to unlock courses.`
-      : `<strong>🏅 ${DB.getReputation()}</strong><br>`
+      : `<strong>👏 ${DB.getReputation()}</strong><br>`
         + `Earned in the Garden. Spent on other people's Forum posts — `
         + `never on your own.`;
     const r = chip.getBoundingClientRect();
