@@ -295,7 +295,11 @@
 .inv-tile-art {
   width: 38px; height: 38px; border-radius: 9px;
   display: inline-flex; align-items: center; justify-content: center;
-  border: 1px solid var(--border); background: var(--bg-surface);
+  /* --bg-card-hover, not --bg-surface: surface sits only ~2% from
+     --bg-card, which reads on a dark theme and disappears completely on
+     a white one (the art squares were invisible on Frost). Hover is the
+     one token that steps far enough from card in BOTH directions. */
+  border: 1px solid var(--border); background: var(--bg-card-hover);
   font-size: 1.2rem; line-height: 1;
 }
 .inv-tile.vacant .inv-tile-art { filter: grayscale(1); }
@@ -323,6 +327,35 @@
   font-size: 0.78rem;
 }
 .inv-dropzone-chip .inv-tile-art { width: 20px; height: 20px; font-size: 0.9rem; }
+
+/* ---- Custom on a LIGHT theme ----
+   The dark themes carry this screen on glow: accent shadows and a card
+   that sits well above a near-black page. On white, all of that lands
+   on white and the screen goes flat — reported as "only the dark one
+   has colour vibes". Depth on a light surface comes from shadow and
+   from a tinted, not lighter, panel, so that's what these swap in.
+   Keyed off data-theme-mode (core/theme.js), not data-sky: the two are
+   locked together today, but a sky is a scene and this is a palette. */
+html[data-theme-mode="light"] .inv-tree,
+html[data-theme-mode="light"] .inv-tile,
+html[data-theme-mode="light"] .inv-dropzone {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 2px 10px rgba(15, 23, 42, 0.05);
+}
+html[data-theme-mode="light"] .inv-tree { background: var(--bg-surface); }
+/* The accent tints are mixed for a dark backdrop and wash out to almost
+   nothing over white — these carry the same hue at a strength that
+   actually registers. */
+html[data-theme-mode="light"] .inv-tile.equipped {
+  background: var(--accent-glow-strong); border-color: var(--accent);
+}
+html[data-theme-mode="light"] .inv-leaf.active {
+  background: var(--accent-glow-strong); color: var(--bg-deep); font-weight: 700;
+}
+html[data-theme-mode="light"] .inv-tile:hover {
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08), 0 6px 16px rgba(15, 23, 42, 0.10);
+}
+html[data-theme-mode="light"] .inv-preview { box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14); }
+html[data-theme-mode="light"] .inv-tile.vacant { background: var(--bg-card-hover); opacity: 0.75; }
 .inv-dropzone-hint { color: var(--text-muted); font-weight: 400; font-size: 0.8rem; }
 
 /* Bottom-right, sticky, so it stays in view while you scroll the grid. */

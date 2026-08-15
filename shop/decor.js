@@ -385,6 +385,10 @@
     const n = 7;
     // One logo per colony, at a random position in the pack.
     const logoAt = Math.floor(Math.random() * n);
+    // ONE heading for the whole swarm, re-rolled on every poke — the
+    // pack holds together (that's the point of a pack) but never leaves
+    // in the same direction twice.
+    const heading = Math.random() * 360;
 
     for (let i = 0; i < n; i++) {
       const bat = document.createElement("div");
@@ -392,20 +396,27 @@
       bat.className = `fx-bat${isLogo ? " fx-bat-logo" : ""}`;
       bat.innerHTML = isLogo ? BAT_LOGO : BAT_REAL;
 
-      // Fan out across the lower hemisphere and outward — they come from
-      // BEHIND the moon, so they start hidden under it and scatter.
-      const spread = -150 + (300 / (n - 1)) * i + (Math.random() * 26 - 13);
-      const dist = 190 + Math.random() * 190;
+      // A PACK, not a starburst. They used to fan across 300°, which
+      // read as an explosion — bats leaving a roost travel together.
+      // Everyone follows the swarm's heading with a narrow ±20°
+      // deviation, so the group stays legible as one flock while no two
+      // paths overlap exactly.
+      const spread = heading + (Math.random() * 40 - 20);
+      const dist = 300 + Math.random() * 120;
       const rad = spread * Math.PI / 180;
-      const size = isLogo ? 54 : 30 + Math.random() * 18;
+      const size = isLogo ? 50 : 26 + Math.random() * 12;
 
       bat.style.left = `${cx - size / 2}px`;
       bat.style.top = `${cy - size / 4}px`;
       bat.style.width = `${size}px`;
       bat.style.setProperty("--bx", `${Math.cos(rad) * dist}px`);
-      bat.style.setProperty("--by", `${Math.sin(rad) * dist - 60}px`);
-      bat.style.animationDelay = `${Math.random() * 0.22}s`;
-      bat.style.animationDuration = `${1.5 + Math.random() * 0.7}s`;
+      // Small vertical jitter rather than one shared arc: a flock has
+      // depth, and identical paths read as a copy-paste.
+      bat.style.setProperty("--by", `${Math.sin(rad) * dist - 20 - Math.random() * 50}px`);
+      // Staggered so they string out of the roost instead of leaving in
+      // one rank, which is the other half of reading as a pack.
+      bat.style.animationDelay = `${i * 0.07 + Math.random() * 0.08}s`;
+      bat.style.animationDuration = `${1.7 + Math.random() * 0.5}s`;
       const flap = bat.querySelector("svg");
       if (flap) flap.style.animationDuration = `${0.16 + Math.random() * 0.12}s`;
       spawnBehindMoon(bat, 2600, el);
@@ -527,5 +538,5 @@
     initClouds();
   }
 
-  Object.assign(Dojo, { BG_DECORS, SCENES, decorFace, pokeCloud: poke });
+  Object.assign(Dojo, { BG_DECORS, SCENES, decorFace, pokeCloud: poke, pokeMoon, pokeSun });
 })();

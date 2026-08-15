@@ -144,6 +144,32 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Bats fly as a pack; Custom fixed for light themes (2026-08-16)
+- **Bats fly as a swarm, in a random direction each time.** They fanned
+  across 300°, which read as an explosion rather than a colony leaving a
+  roost. Now one heading is rolled per poke and every bat follows it
+  with a ±20° deviation, staggered so they string out. Verified over six
+  pokes: six different headings, each swarm holding a 22–30° spread.
+- **The pale rim is gone.** It made them read as lit from within, which
+  nothing in the scene justifies. Visibility now comes from the fill
+  being a flat dusk-violet — lighter than the sky, no light source
+  implied. (True black was the first attempt and was invisible; a rim
+  was the second and was wrong. The fill alone is the answer.)
+- **Custom on light themes.** Reported as "only the dark one has colour
+  vibes", and the cause was concrete: `.inv-tile-art` separated itself
+  from the tile with `--bg-surface`, which sits ~2% from `--bg-card` —
+  legible on a dark theme, invisible on white. Switched to
+  `--bg-card-hover`, the one token that steps far enough in BOTH
+  directions. Light themes additionally get shadows for depth (a dark
+  theme leans on accent glow, which lands on white and vanishes), a
+  tinted tree panel, and the stronger accent tint for equipped/active
+  states.
+  - **`data-theme-mode` is back**, and this time it has a real consumer.
+    It was removed as dead when the sky stopped deriving from
+    light-vs-dark. Using `data-sky` for this instead would work only by
+    accident — the two are locked together today, but a sky is a scene
+    and this is a colour mode.
+
 ## Poke the moon: bats. Sun spin fixed. (2026-08-16)
 - **Sun spin direction fixed.** Poking swapped the rays' animation from
   the idle turn to the burst, which restarts rotation at 0deg — so the

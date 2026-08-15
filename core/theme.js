@@ -229,10 +229,16 @@
     root.setProperty("--bolt-glow", `rgba(${br}, ${bg_}, ${bb}, 0.55)`);
     root.setProperty("--bg-image", t.bg || "none");
 
-    // (A `data-theme-mode` attribute lived here briefly to drive the
-    // sun/moon swap off light-vs-dark. The sky is its own setting now —
-    // `data-sky`, see applySky — so nothing read it any more and it was
-    // removed rather than left looking load-bearing.)
+    // `data-theme-mode` is BACK, and this time it earns its keep. It was
+    // removed when the sky stopped being derived from light-vs-dark and
+    // nothing read it. Now the Custom screen does: several of its
+    // surfaces are separated by a 2% step between --bg-card and
+    // --bg-surface, which is legible on a dark theme and invisible on a
+    // white one, and fixing that needs a light-mode hook. Using
+    // `data-sky` for it would work only by accident — the two happen to
+    // be locked together today, but sky is a scene, not a colour mode.
+    document.documentElement.dataset.themeMode = t.mode === "light" ? "light" : "dark";
+
     const tx = t.mode === "light" ? LIGHT_TEXT : DARK_TEXT;
     root.setProperty("--text", tx.text);
     root.setProperty("--text-dim", tx.dim);

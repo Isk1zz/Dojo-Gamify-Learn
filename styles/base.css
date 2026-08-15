@@ -1355,20 +1355,21 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   position: absolute;
   animation: fx-bat-fly 1.7s cubic-bezier(0.2, 0.5, 0.5, 1) forwards;
 }
+/* No glow. A pale rim made them read as lit from within, which nothing
+   in the scene justifies — they're between the viewer and a night sky.
+   Visibility comes from the FILL being lighter than the sky instead: a
+   true-black bat is realistic and invisible (the first pass vanished a
+   few px from the moon), a rimmed one is visible and wrong. This is the
+   middle: a flat dusk-violet silhouette, no light source implied. */
 .fx-bat svg {
   width: 100%; display: block;
   animation: fx-bat-flap 0.22s ease-in-out infinite;
-  /* A true-black bat on a night sky is invisible, which is realistic and
-     useless — the first pass rendered #17131f and simply vanished a few
-     px from the moon. Lifted to a slate-violet and given a faint pale
-     rim, so it reads as moonlit rather than as a hole in the page. */
-  filter: drop-shadow(0 0 3px rgba(214, 220, 255, 0.45));
 }
-.fx-bat path { fill: #55496e; }
+.fx-bat path { fill: #423a56; }
 /* The emblem is darker, larger and flap-free — it's an emblem, not an
    animal, and flapping it would undercut the joke. */
-.fx-bat-logo svg { animation: none; filter: drop-shadow(0 0 5px rgba(230, 236, 255, 0.55)); }
-.fx-bat-logo path { fill: #2b2440; }
+.fx-bat-logo svg { animation: none; }
+.fx-bat-logo path { fill: #322a47; }
 @keyframes fx-bat-fly {
   0%   { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
   12%  { opacity: 1; }
