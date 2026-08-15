@@ -8,7 +8,7 @@ entirely different idea of what the fifth tile is for.
 A place to post, and a currency you can only spend on other people.
 
 ```
-Garden  ──earns──▶  reputation  ──spend on──▶  someone else's post  ──▶  they go up
+rank ──sets──▶ daily allowance ──spend on──▶ someone else's post ──▶ they go up
 ```
 
 ECONOMY (decided 2026-08-16, not built): reputation is a **daily
