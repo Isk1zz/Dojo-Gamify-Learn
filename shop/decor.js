@@ -172,6 +172,98 @@
     spawn(bow, 5200);
   }
 
+  // ---- Bottom clouds get their own outcomes ----
+  // Weather falling out of a cloud that sits BELOW the content reads
+  // backwards (rain going down from there lands off-screen). So low
+  // clouds do something else entirely: something leaps out and drops
+  // back in, or an object spins straight through.
+  function isBottomCloud(el) {
+    const r = el.getBoundingClientRect();
+    return (r.top + r.height / 2) > window.innerHeight * 0.5;
+  }
+
+  function bounceAt(rect) {
+    const el = document.createElement("div");
+    el.className = "fx-bounce";
+    el.style.left = `${rect.left + rect.width * (0.35 + Math.random() * 0.3)}px`;
+    el.style.top = `${rect.top + rect.height * 0.35}px`;
+    el.innerHTML =
+      `<svg viewBox="0 0 24 24">
+         <circle class="bo-body" cx="12" cy="12" r="9"/>
+         <circle class="bo-eye" cx="9" cy="10" r="1.6"/>
+         <circle class="bo-eye" cx="15" cy="10" r="1.6"/>
+         <path class="bo-mouth" d="M8.5 15 Q 12 18, 15.5 15" fill="none" stroke-width="1.4" stroke-linecap="round"/>
+       </svg>`;
+    spawn(el, 1700);
+  }
+
+  // Two props, picked at random: a hammer, and the flipped-U arch. Both
+  // drawn rather than emoji — the country-flag lesson (Windows ships no
+  // glyph for plenty of things) applies to any decorative character.
+  function flythroughAt(rect) {
+    const el = document.createElement("div");
+    el.className = "fx-fly";
+    el.style.top = `${rect.top + rect.height * 0.45}px`;
+    const fromLeft = Math.random() < 0.5;
+    el.classList.add(fromLeft ? "from-left" : "from-right");
+    el.style.left = fromLeft ? `${rect.left - 90}px` : `${rect.right + 90}px`;
+    el.innerHTML = Math.random() < 0.5
+      ? `<svg viewBox="0 0 40 40" class="fx-prop">
+           <rect class="pr-dark" x="18" y="12" width="4" height="24" rx="1.6"/>
+           <rect class="pr-head" x="9" y="5" width="22" height="9" rx="2.4"/>
+         </svg>`
+      : `<svg viewBox="0 0 40 40" class="fx-prop">
+           <path class="pr-head" d="M8 34 L8 20 A 12 12 0 0 1 32 20 L32 34 L25 34 L25 20 A 5 5 0 0 0 15 20 L15 34 Z"/>
+         </svg>`;
+    spawn(el, 1500);
+  }
+
+  // ---- Eagles ----
+  // Clicking one startles it: a feather comes loose and the bird bolts.
+  // The real element keeps running its own loop invisibly and reappears
+  // on its next pass, so the flight timing is never left out of sync.
+  function featherFrom(rect) {
+    const f = document.createElement("div");
+    f.className = "fx-feather";
+    f.style.left = `${rect.left + rect.width * 0.5}px`;
+    f.style.top = `${rect.top + rect.height * 0.6}px`;
+    f.innerHTML =
+      `<svg viewBox="0 0 20 44">
+         <path class="fe-vane" d="M10 1 Q 1 15, 5 29 Q 7.5 38, 10 43 Q 12.5 38, 15 29 Q 19 15, 10 1 Z"/>
+         <path class="fe-quill" d="M10 5 L 10 42" stroke-width="1" fill="none"/>
+       </svg>`;
+    spawn(f, 3400);
+  }
+
+  function pokeEagle(el) {
+    if (el.dataset.busy) return;
+    el.dataset.busy = "1";
+    const rect = el.getBoundingClientRect();
+    featherFrom(rect);
+    if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click();
+
+    // A clone does the bolting. Re-timing the real element's animation
+    // mid-flight would fight the keyframes that own its transform.
+    const ghost = el.cloneNode(true);
+    ghost.classList.add("fx-eagle-rush");
+    ghost.style.cssText =
+      `left:${rect.left}px; top:${rect.top}px; width:${rect.width}px; height:${rect.height}px;`;
+    ghost.style.setProperty("--rush", rect.left < window.innerWidth / 2 ? "-46vw" : "46vw");
+    spawn(ghost, 1200);
+
+    el.style.visibility = "hidden";
+    setTimeout(() => { el.style.visibility = ""; delete el.dataset.busy; }, 2600);
+  }
+
+  function eagleAt(x, y) {
+    for (const e of document.querySelectorAll(".decor-usa_eagles")) {
+      if (getComputedStyle(e).display === "none" || e.style.visibility === "hidden") continue;
+      const r = e.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return e;
+    }
+    return null;
+  }
+
   // The cloud itself fades out, the fairy is what was hiding in it, and
   // the cloud fades back once she's gone.
   function fairyFrom(cloud, rect) {
@@ -195,6 +287,12 @@
     cloud.classList.add("cloud-poked");
     setTimeout(() => cloud.classList.remove("cloud-poked"), 600);
     if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click();
+
+    // Low clouds skip the weather table entirely — see isBottomCloud.
+    if (isBottomCloud(cloud)) {
+      if (Math.random() < 0.5) bounceAt(rect); else flythroughAt(rect);
+      return;
+    }
 
     switch (rollOutcome()) {
       case "drizzle":    rainAt(rect, 8,  "light", 2600); break;
@@ -239,6 +337,10 @@
     document.body.dataset.cloudsBound = "1";
     document.addEventListener("click", e => {
       if (e.target.closest && e.target.closest(INTERACTIVE)) return;
+      // Birds first: they're small and often drawn over a cloud, so the
+      // cloud would otherwise swallow every attempt to hit one.
+      const bird = eagleAt(e.clientX, e.clientY);
+      if (bird) { pokeEagle(bird); return; }
       const cloud = cloudAt(e.clientX, e.clientY);
       if (cloud) poke(cloud);
     });

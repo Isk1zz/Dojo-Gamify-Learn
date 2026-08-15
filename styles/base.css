@@ -838,7 +838,10 @@ body {
 :where(#bg-decor-layer, #bg-decor-front) > * { display: none; }
 html[data-bg-decor~="usa_stars"]  .decor-usa_stars,
 html[data-bg-decor~="usa_eagles"] .decor-usa_eagles,
-html[data-bg-decor~="clouds"]     .decor-clouds { display: block; }
+/* :not(.cloud-day) matters — the day-only six must stay hidden at night,
+   and this general reveal would otherwise show all twelve regardless of
+   theme (it did, briefly). */
+html[data-bg-decor~="clouds"]     .decor-clouds:not(.cloud-day) { display: block; }
 
 /* One decoration, two faces: moon at night, sun by day. The `moon` id
    owns the slot in both cases — a light theme is a daytime sky, and a
@@ -846,6 +849,13 @@ html[data-bg-decor~="clouds"]     .decor-clouds { display: block; }
    data-theme-mode, published by core/theme.js's paintTheme. */
 html[data-bg-decor~="moon"]:not([data-theme-mode="light"]) .decor-moon { display: block; }
 html[data-bg-decor~="moon"][data-theme-mode="light"]       .decor-sun  { display: block; }
+
+/* Daytime sky: no stars while the sun is up — they read as a rendering
+   fault in broad daylight. The sky doesn't just get emptier, though;
+   the six day-only clouds below take their place. Placed AFTER the
+   reveal rule above so it wins on source order at equal specificity. */
+html[data-theme-mode="light"] .decor-usa_stars { display: none; }
+html[data-bg-decor~="clouds"][data-theme-mode="light"] .decor-clouds.cloud-day { display: block; }
 
 /* ---- Moon ----
    Top-right, mirroring the stars' top-left corner. The halo is a real
@@ -992,6 +1002,15 @@ html[data-bg-decor~="moon"][data-theme-mode="light"]       .decor-sun  { display
 .decor-clouds.cloud-4 { top: 17%; width: 160px; opacity: 0.065; animation: decor-drift 74s  linear infinite; animation-delay: -48s; }
 .decor-clouds.cloud-5 { top: 40%; width: 110px; opacity: 0.055; animation: decor-drift 102s linear infinite; animation-delay: -18s; }
 .decor-clouds.cloud-6 { top: 68%; width: 210px; opacity: 0.075; animation: decor-drift 56s  linear infinite; animation-delay: -84s; }
+/* The daytime six — interleaved between the originals' heights rather
+   than stacked below them, so doubling reads as a fuller sky instead of
+   a second band. */
+.decor-clouds.cloud-7  { top: 13%; width: 120px; opacity: 0.06;  animation: decor-drift 96s  linear infinite; animation-delay: -12s; }
+.decor-clouds.cloud-8  { top: 22%; width: 175px; opacity: 0.07;  animation: decor-drift 68s  linear infinite; animation-delay: -55s; }
+.decor-clouds.cloud-9  { top: 34%; width: 100px; opacity: 0.05;  animation: decor-drift 112s linear infinite; animation-delay: -90s; }
+.decor-clouds.cloud-10 { top: 47%; width: 200px; opacity: 0.065; animation: decor-drift 60s  linear infinite; animation-delay: -25s; }
+.decor-clouds.cloud-11 { top: 60%; width: 140px; opacity: 0.055; animation: decor-drift 84s  linear infinite; animation-delay: -66s; }
+.decor-clouds.cloud-12 { top: 74%; width: 165px; opacity: 0.07;  animation: decor-drift 72s  linear infinite; animation-delay: -40s; }
 @keyframes decor-drift {
   0%   { transform: translateX(-22vw); }
   100% { transform: translateX(122vw); }
@@ -1091,6 +1110,72 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   0%       { opacity: 0; transform: scale(0.9); }
   22%, 68% { opacity: 1; transform: scale(1); }
   100%     { opacity: 0; transform: scale(1.03); }
+}
+
+/* ---- Poke a bird: a feather comes loose and the bird bolts ---- */
+.fx-feather { position: absolute; width: 14px; margin-left: -7px; animation: fx-feather-fall 3.4s ease-in forwards; }
+.fx-feather svg { width: 100%; display: block; }
+.fx-feather .fe-vane  { fill: #d8c3a5; opacity: 0.9; }
+.fx-feather .fe-quill { stroke: #8a7355; opacity: 0.8; }
+/* Sway is a separate rotate on the inner svg so the outer element owns
+   the fall — one element can't run two conflicting transforms. */
+.fx-feather svg { animation: fx-feather-sway 1.5s ease-in-out infinite; }
+@keyframes fx-feather-fall {
+  0%   { opacity: 0; transform: translate(0, -6px); }
+  10%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(38px, 190px); }
+}
+@keyframes fx-feather-sway {
+  0%, 100% { transform: rotate(-24deg); }
+  50%      { transform: rotate(26deg); }
+}
+
+.fx-eagle-rush { position: absolute; animation: fx-eagle-rush 1.2s cubic-bezier(0.3, 0, 0.7, 1) forwards; }
+.fx-eagle-rush .wing { animation-duration: 0.34s !important; }   /* panicked wingbeat */
+@keyframes fx-eagle-rush {
+  0%   { opacity: 0.9; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0;   transform: translate(var(--rush, 46vw), -26vh) scale(0.72); }
+}
+
+/* ---- Bottom clouds ---- */
+/* Something leaps out and drops back in. */
+.fx-bounce { position: absolute; width: 26px; margin-left: -13px; animation: fx-bounce 1.7s cubic-bezier(0.33, 0, 0.5, 1) forwards; }
+.fx-bounce svg { width: 100%; display: block; animation: fx-bounce-spin 1.7s ease-in-out; }
+.fx-bounce .bo-body  { fill: var(--accent-light); opacity: 0.9; }
+.fx-bounce .bo-eye   { fill: var(--bg-deep); }
+.fx-bounce .bo-mouth { stroke: var(--bg-deep); }
+@keyframes fx-bounce {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.6); }
+  12%  { opacity: 1; }
+  45%  { transform: translateY(-88px) scale(1); }
+  85%  { opacity: 1; transform: translateY(4px) scale(1); }
+  100% { opacity: 0; transform: translateY(14px) scale(0.6); }
+}
+@keyframes fx-bounce-spin {
+  0%   { transform: rotate(-14deg); }
+  45%  { transform: rotate(12deg); }
+  100% { transform: rotate(-6deg); }
+}
+
+/* A prop spins straight through the cloud. */
+.fx-fly { position: absolute; width: 40px; margin-top: -20px; }
+.fx-fly.from-left  { animation: fx-fly-r 1.5s linear forwards; }
+.fx-fly.from-right { animation: fx-fly-l 1.5s linear forwards; }
+.fx-fly .fx-prop { width: 100%; display: block; animation: fx-prop-spin 0.5s linear infinite; }
+.fx-fly .pr-head { fill: var(--accent); opacity: 0.85; }
+.fx-fly .pr-dark { fill: #8a7355; }
+@keyframes fx-prop-spin { to { transform: rotate(360deg); } }
+@keyframes fx-fly-r {
+  0%   { opacity: 0; transform: translateX(0); }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(320px); }
+}
+@keyframes fx-fly-l {
+  0%   { opacity: 0; transform: translateX(0); }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-320px); }
 }
 
 .fx-fairy { position: absolute; animation: fx-fairy-fly 2.6s ease-in forwards; }

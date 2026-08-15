@@ -104,6 +104,32 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Birds, daytime sky, low-cloud gags (2026-08-15)
+- **Poke a bird.** A feather comes loose and drifts down (own fall +
+  sway animations on nested elements — one element can't run two
+  conflicting transforms), and the bird bolts off-screen with a
+  panicked wingbeat. The bolt is a CLONE in the fx layer; the real
+  element keeps running its own loop invisibly and reappears on its next
+  pass, so re-timing never fights the keyframes that own its transform.
+  Birds are hit-tested BEFORE clouds — they're small and usually drawn
+  over one, so the cloud would otherwise swallow every attempt.
+- **Daytime sky.** With the sun out there are no stars (they read as a
+  rendering fault in daylight) and twice the clouds instead — six extra
+  `.cloud-day` ones interleaved between the originals' heights, so it
+  reads as a fuller sky rather than a second band. Verified: 6 clouds +
+  stars at night, 12 clouds + no stars by day.
+  - Bug caught in the same pass: the general cloud reveal matched
+    `.cloud-day` too, so all twelve showed at night. Fixed with
+    `:not(.cloud-day)` on that rule.
+- **Low clouds do something else.** Weather falling out of a cloud that
+  sits below the content reads backwards, so any cloud whose centre is
+  in the bottom half skips the weather table entirely: either a little
+  creature leaps out and drops back in, or a prop (a hammer, or the
+  flipped-U arch) spins straight through. Both drawn, not emoji — the
+  Windows flag-glyph lesson applies to any decorative character.
+  Verified the split: bottom cloud yields only bounce/fly-through, top
+  cloud still yields rain/lightning/rainbow/fairy.
+
 ## Moon becomes a Sun on light themes (2026-08-15)
 One decoration, two faces. `core/theme.js`'s `paintTheme` now publishes
 `data-theme-mode="light|dark"` on `<html>` (new, and reusable — anything
