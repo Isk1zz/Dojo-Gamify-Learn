@@ -1,0 +1,38 @@
+All Rights Reserved
+
+Copyright (c) 2026 Illia (github.com/Isk1zz)
+
+This software and its associated content — including the source code, the
+lesson and question content, the gamification design (rank ladder, currencies,
+the Garden retention model, the Forum reputation rule), the visual design and
+the written documentation — are the exclusive property of the copyright holder.
+
+No permission is granted to use, copy, modify, merge, publish, distribute,
+sublicense, or sell any part of this work, except as follows:
+
+1. VIEWING AND FORKING ON GITHUB. While this repository is public, GitHub's
+   Terms of Service (section D) grant other GitHub users the right to view it
+   and to fork it within GitHub. That permission comes from hosting it publicly
+   and is not extended by this file. It does not permit redistribution outside
+   GitHub, commercial use, or use of the content.
+
+2. NO OTHER RIGHTS ARE GRANTED. Absence of a permissive licence is deliberate.
+   Under copyright law, code published without a licence is not free to reuse:
+   all rights remain reserved by default. This file states that explicitly so
+   the position cannot be mistaken for an oversight.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Note, not legal advice: a licence file records intent, it does not enforce it.
+If this becomes a commercial product, the effective protections are making the
+repository private (which stops copying rather than merely making it
+unlawful), keeping server-side logic off the client, and registering the name
+as a trademark. See docs/LEGAL.md.
