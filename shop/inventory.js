@@ -76,12 +76,12 @@
     out.push({
       key: "theme", group: "theme", icon: "🎨", title: "Colour themes", previewKind: "theme",
       items: (Dojo.THEMES || []).map(t => themeItem(t, false)),
-      equip: id => { if (themeOwned(id)) { DB.setTheme(id); Dojo.applyTheme(id); } }
+      equip: id => { if (themeOwned(id)) (Dojo.equipTheme || (i => { DB.setTheme(i); Dojo.applyTheme(i); }))(id); }
     });
     out.push({
       key: "awarded", group: "theme", icon: "✨", title: "Awarded themes", previewKind: "theme",
       items: (Dojo.PREMIUM_THEMES || []).map(t => themeItem(t, true)),
-      equip: id => { if (Dojo.themeUnlocked && Dojo.themeUnlocked(id)) { DB.setTheme(id); Dojo.applyTheme(id); } }
+      equip: id => { if (Dojo.themeUnlocked && Dojo.themeUnlocked(id)) (Dojo.equipTheme || (i => { DB.setTheme(i); Dojo.applyTheme(i); }))(id); }
     });
 
     // ---- Background stripes ----

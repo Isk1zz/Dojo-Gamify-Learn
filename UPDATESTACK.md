@@ -104,6 +104,34 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Day = white theme, and a lobby switch (2026-08-15)
+- **Day now means a WHITE app, not just a bright sky.** Locked pair, per
+  your call to pick from existing and fix it: day = **Frost**, night =
+  **Indigo Night**. Both free, so the switch can never land you on a
+  theme you don't own, and "day" means the same thing every time rather
+  than depending on which themes you last used.
+- **The lock runs BOTH ways.** `setSky` picks the theme; `syncSkyToTheme`
+  picks the sky for whatever theme is equipped, and runs on boot, on
+  profile change, and whenever the lobby renders. That fixes "first
+  launch showed a day topic with night sky" at the source — verified by
+  forcing the broken state into storage (theme frost + sky night) and
+  cold-loading: it reconciles to day with the sun out. Equipping a theme
+  in Custom now goes through `Dojo.equipTheme`, so picking a light theme
+  brings the day sky with it.
+- **Lobby switch, positioned so it moves nothing.** First attempt put it
+  in `.lobby-dials`, which is `justify-content: space-between` — a third
+  child there re-positioned the rotate and spark controls already in the
+  row ("the layout shouldn't affect previous buttons"). Second attempt
+  pinned it absolutely inside `.lobby-inner`, which landed it on top of
+  the spark stepper. It's now `position: fixed` directly under the
+  sun/moon, out of every flex flow and out of the content column.
+  Verified zero overlap with the rotate slider, spark stepper/count, or
+  any ring tile — and it's lobby-only, hidden on other screens.
+- Sun/moon SVGs got `overflow: visible`: an `<svg>` clips to its viewBox
+  by default and the halo scales past it (r44 → r64 on the poke flare),
+  so the flare was being sliced off square ("dashes into a square box
+  and gets cut").
+
 ## Library tile "bigger than the rest" — it wasn't (2026-08-15)
 Measured all six ring tiles: every one is exactly 112x112. Library only
 LOOKED bigger because `.lobby-tile.primary` filled it with

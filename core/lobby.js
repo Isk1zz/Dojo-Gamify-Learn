@@ -25,6 +25,14 @@
     document.getElementById("lobby-welcome").textContent =
       p ? `Welcome back, ${p.name}.` : "Welcome.";
 
+    // Re-sync the sky every time the lobby is shown. The switch below is
+    // wired once at load, so on a profile switch its icon (and the
+    // data-sky attribute driving sun/moon/stars/clouds) could still be
+    // showing the PREVIOUS profile's sky — caught live: a fresh profile
+    // read `night` from the DB while the page still rendered day.
+    if (Dojo.syncSkyToTheme) Dojo.syncSkyToTheme();
+    renderDayNight();
+
     // "Cards" is a re-skin of these same six tiles, not a rearrangement
     // — see styles/base.css's .lobby-style-cards. "Star" DOES rearrange
     // them, into a hub-and-spoke circle of nodes — see layoutLobbyRadial
@@ -549,6 +557,25 @@
   if (minusBtn) minusBtn.addEventListener("click", () => stepSparks(-1));
   if (plusBtn) plusBtn.addEventListener("click", () => stepSparks(1));
   renderSparkCount();
+
+  // ---- Day/night switch (lobby dials) ----
+  // Shows the state you'd switch TO: sun at night, moon by day. Same
+  // state as the vitals-strip chip and the Custom "Sky" slot — all three
+  // call Dojo.toggleSky, none of them keep their own copy.
+  function renderDayNight() {
+    const btn = document.getElementById("lobby-daynight");
+    if (!btn) return;
+    const isDay = (DB.getSky ? DB.getSky() : "night") === "day";
+    btn.textContent = isDay ? "🌙" : "☀️";
+    btn.title = isDay ? "Switch to night" : "Switch to day";
+  }
+  const dayNightBtn = document.getElementById("lobby-daynight");
+  if (dayNightBtn) dayNightBtn.addEventListener("click", () => {
+    if (Dojo.toggleSky) Dojo.toggleSky();
+    renderDayNight();
+  });
+  renderDayNight();
+  if (Dojo.Bus) Dojo.Bus.on("sky:changed", renderDayNight);
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(relayoutIfStarLobbyActive);

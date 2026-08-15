@@ -358,6 +358,14 @@
     <!-- ====== Lobby ====== -->
     <section id="lobby" class="screen">
       <div class="lobby-inner">
+        <!-- Day/night switch, pinned to the lobby's top-right under the
+             sun/moon. Deliberately NOT a child of .lobby-dials: that row
+             is justify-content:space-between, so a third item there
+             re-positioned the rotate and spark controls that were
+             already in it ("the layout shouldn't affect previous
+             buttons"). Absolutely positioned, so it adds nothing to any
+             flex flow and every existing control keeps its place. -->
+        <button type="button" class="lobby-daynight" id="lobby-daynight" aria-label="Toggle day and night"></button>
         <!-- Above the brand, not inside .lobby-actions where it used to
              live: the orbit ring core/lobby.js draws now passes exactly
              through the top-left corner the control was pinned to, and

@@ -131,11 +131,50 @@
     return next;
   }
 
+  // The lock runs BOTH ways. setSky picks the matching theme, and this
+  // picks the matching sky for whatever theme is equipped — otherwise
+  // equipping a light theme from Custom leaves a night sky over a white
+  // app, which is exactly what first launch showed (reported: "a day
+  // topic with night sky"). Called on boot and whenever a theme is
+  // equipped, so the two can never be observed disagreeing.
+  function syncSkyToTheme() {
+    const t = resolveTheme(DB.getTheme ? DB.getTheme() : "indigo");
+    const want = t.mode === "light" ? "day" : "night";
+    if (DB.setSky && (DB.getSky ? DB.getSky() : "night") !== want) DB.setSky(want);
+    applySky(want);
+    if (Dojo.renderVitals) Dojo.renderVitals();
+    if (Dojo.Bus) Dojo.Bus.emit("sky:changed", { id: want });
+  }
+
+  // The one call sites should use when the user PICKS a theme, so the
+  // sky follows. Plain applyTheme stays preview-only and persists
+  // nothing.
+  function equipTheme(id) {
+    DB.setTheme(id);
+    applyTheme(id);
+    syncSkyToTheme();
+  }
+
+  // Day means a WHITE app, not just a bright sky — one switch moves the
+  // whole look. The pair is fixed rather than remembering whichever
+  // themes you last used: "day" has to mean the same thing every time,
+  // and both of these are free, so the switch can never land you on a
+  // theme you don't own.
+  const SKY_THEME = { day: "frost", night: "indigo" };
+
   function setSky(id) {
-    if (DB.setSky) DB.setSky(id);
-    applySky(id);
+    const sky = id === "day" ? "day" : "night";
+    if (DB.setSky) DB.setSky(sky);
+    applySky(sky);
+
+    const theme = SKY_THEME[sky];
+    if (theme && DB.getTheme && DB.getTheme() !== theme) {
+      DB.setTheme(theme);
+      applyTheme(theme);
+    }
+
     if (Dojo.renderVitals) Dojo.renderVitals();   // repaint the toggle's own icon
-    if (Dojo.Bus) Dojo.Bus.emit("sky:changed", { id });
+    if (Dojo.Bus) Dojo.Bus.emit("sky:changed", { id: sky });
   }
 
   // Text was "deliberately not themed" (see core/CORE.md) for as long as
@@ -214,5 +253,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { applyTheme, previewTheme, resolveTheme, themeUnlocked, applyBgStripe, bgStripeUnlocked, applyBgDecors, applyScene, applySky, setSky, toggleSky, hexToRgb, shade });
+  Object.assign(Dojo, { applyTheme, previewTheme, resolveTheme, themeUnlocked, applyBgStripe, bgStripeUnlocked, applyBgDecors, applyScene, applySky, setSky, toggleSky, syncSkyToTheme, equipTheme, hexToRgb, shade });
 })();

@@ -868,7 +868,9 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
    Top-right, mirroring the stars' top-left corner. The halo is a real
    element rather than a filter glow so it can breathe on its own timing
    while the disc holds still. */
-.decor-moon { position: absolute; top: 4rem; right: 2.5rem; width: 108px; height: 108px; }
+/* overflow visible for the same reason as the sun below — the halo
+   breathes past the viewBox edge. */
+.decor-moon { position: absolute; top: 4rem; right: 2.5rem; width: 108px; height: 108px; overflow: visible; }
 .decor-moon .moon-disc  { fill: #eef0f6; }
 .decor-moon .moon-halo  { fill: #dbe4ff; opacity: 0.13; animation: moon-breathe 6.5s ease-in-out infinite; }
 .decor-moon .moon-craters circle { fill: #c3c8d8; opacity: 0.75; }
@@ -890,6 +892,11 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
    actually perceive, and rays turning ~2.5x faster. */
 .decor-sun {
   position: absolute; top: 4rem; right: 2.5rem; width: 108px; height: 108px;
+  /* An <svg> clips to its viewBox by default, and the halo scales past
+     it (r44 -> r64 on the poke flare), so the flare was being sliced off
+     square — "dashes into a square box and gets cut", reported. Nothing
+     here is meant to stay inside the box. */
+  overflow: visible;
   animation: sun-bloom 4.5s ease-in-out infinite;
 }
 @keyframes sun-bloom {
@@ -1389,7 +1396,9 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 /* ── Lobby ── */
 #lobby { display: none; }
 #lobby.active { display: flex; align-items: center; justify-content: center; }
-.lobby-inner { width: 100%; max-width: 560px; padding: 2rem 1.25rem; }
+/* relative so the day/night switch can pin to its top-right corner
+   without joining any flex row — see .lobby-daynight. */
+.lobby-inner { width: 100%; max-width: 560px; padding: 2rem 1.25rem; position: relative; }
 .lobby-brand {
   font-size: 2.6rem; font-weight: 900; text-align: center; letter-spacing: -0.02em;
 }
@@ -1524,6 +1533,32 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 }
 .lobby-rotate-control, .lobby-spark-control {
   display: flex; align-items: center; gap: 0.4rem;
+}
+/* Parked directly UNDER the sun/moon (which sits at top:4rem right:2.5rem
+   and is 108px tall), so the control is next to the thing it controls.
+   Fixed, not absolute: absolute inside .lobby-inner put it at the top of
+   the 560px content column, which is exactly where the spark stepper
+   already is — it overlapped. Fixed positioning takes it out of the
+   column entirely, so it touches no existing control. Still scoped to
+   the lobby: it lives inside #lobby, which is display:none elsewhere.
+   Shown in ALL lobby layouts (unlike .lobby-dials, which is star-only)
+   — the sky isn't a property of the layout. */
+.lobby-daynight {
+  position: fixed; top: calc(4rem + 116px); right: 2.5rem; z-index: 4;
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; padding: 0; border-radius: 50%; cursor: pointer;
+  background: var(--bg-card); border: 1px solid var(--border-accent);
+  font-size: 1rem; line-height: 1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.lobby-daynight:hover {
+  transform: rotate(-20deg) scale(1.12);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+/* On a phone the ring reaches much closer to the right edge, so tuck the
+   switch in and up rather than letting it sit over the tiles. */
+@media (max-width: 620px) {
+  .lobby-daynight { top: calc(3.4rem + 92px); right: 0.9rem; width: 26px; height: 26px; font-size: 0.85rem; }
 }
 /* Stepper, not a slider: the range is 0-5, and a 6-stop slider is a
    worse control than two buttons at that size — the thumb needs
