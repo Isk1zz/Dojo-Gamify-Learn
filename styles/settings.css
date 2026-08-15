@@ -69,8 +69,6 @@ body.hide-hints .settings-hint { display: none; }
 .style-swatch:hover { transform: translateY(-2px); }
 .style-swatch.active { border-color: var(--border-accent); background: var(--accent-glow); }
 .style-preview { display: flex; flex-direction: column; gap: 4px; width: 100%; }
-.spb { height: 10px; border-radius: 3px; background: var(--bg-surface); border: 1px solid var(--border); }
-.spb-card { border-radius: 6px; border-color: transparent; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25); }
 
 /* ── Background-stripe picker — same swatch shell as Lobby style, a
    filled preview box instead of the bars/radial thumbnail. ── */

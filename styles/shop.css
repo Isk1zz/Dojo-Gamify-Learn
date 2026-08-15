@@ -30,36 +30,7 @@
 
 /* Live preview: the card is painted in the theme it sells. */
 .shop-card-preview { position: relative; height: 104px; overflow: hidden; }
-.scp-bg { position: absolute; inset: 0; }
-.scp-chip {
-  position: absolute; left: 14px; top: 22px;
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 12px; border-radius: 10px; border: 1px solid;
-}
-.scp-dot { width: 12px; height: 12px; border-radius: 50%; }
 
-/* Flag palette cards: a real flag-proportioned rectangle (3:2), not a
-   full-bleed bar — see palettesPane() in shop/store.js. Two side by
-   side for the Mixtape combo. */
-.flag-preview { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--bg-surface); }
-.flag-swatch {
-  position: relative; width: 66px; aspect-ratio: 3 / 2; border-radius: 3px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15);
-  display: flex; align-items: center; justify-content: center;
-}
-.flag-star { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  color: #0038B8; font-size: 1.1rem; text-shadow: 0 0 2px rgba(255,255,255,0.6); }
-.flag-canton {
-  position: absolute; top: 0; left: 0; width: 40%; height: 55%; background: #3C3B6E;
-  background-image: radial-gradient(circle, #fff 0.5px, transparent 0.5px);
-  background-size: 5px 5px; background-position: 1.5px 1.5px;
-}
-.scp-line { width: 46px; height: 5px; border-radius: 999px; opacity: 0.75; }
-.scp-bar {
-  position: absolute; left: 14px; right: 14px; bottom: 16px;
-  height: 6px; border-radius: 999px; background: rgba(255,255,255,0.12); overflow: hidden;
-}
-.scp-fill { height: 100%; width: 72%; border-radius: 999px; }
 
 .game-preview {
   display: flex; align-items: center; justify-content: center;
@@ -94,7 +65,6 @@
 .shop-btn.short, .shop-btn:disabled { cursor: default; opacity: 0.5; }
 .shop-btn.equipped { background: transparent; color: var(--text-dim); }
 .shop-price { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); }
-.soon-tag { text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.68rem; }
 
 /* ── Tabs (shared by Shop and Arcade) ── */
 .tab-row {
@@ -239,10 +209,6 @@
 }
 
 .shop-card.locked .shop-card-preview { filter: grayscale(0.7) brightness(0.6); }
-.scp-lock {
-  position: absolute; inset: 0; display: flex; align-items: center;
-  justify-content: center; font-size: 1.5rem;
-}
 
 /* ============================================
    Inventory (shop/inventory.js)
