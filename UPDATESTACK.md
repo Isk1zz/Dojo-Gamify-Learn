@@ -82,6 +82,63 @@ streak wager. Same dopamine, no licensing exposure, and it finally ties
 the Arcade to the thing the app is actually for. Needs a real design
 pass.
 
+### ⚠️ The exchange shipped FIRST — this section's advice was inverted
+The note above says "decide the games first and the exchange second,
+not the other way round." That is not what happened: the Tokens → `$`
+exchange shipped 2026-08-15 on request, while the Arcade is still empty.
+
+That was safe **only because there is nothing to wager on**. The order
+now matters more than it did, not less:
+
+- Tokens are bought with real money. `$` is now reachable FROM Tokens
+  (10:1, one-way). So the moment a game lets you stake `$` on a random
+  outcome, there is an unbroken path from **real money → Tokens → `$` →
+  wager**, which is the exact chain `docs/BACKEND-ROADMAP.md`'s Flag 1
+  was written to keep broken.
+- **Therefore: any new Arcade game must either (a) not be wagering-
+  shaped, or (b) ship together with removing or gating the exchange.**
+  The study-formats direction above satisfies (a) — a recall sprint
+  rewards skill, not chance — which is now a compliance argument for it,
+  not just a thematic one.
+
+Do not treat "the exchange already exists" as settling this. It is the
+constraint on the game design, not permission to ignore it.
+
+## Shipped 2026-08-15 (second batch)
+- **Warning notices now actually reach the user.** `DB.addWarning` has
+  always recorded them and `admin/ADMIN.md` has always described an
+  acknowledgment modal on next entry, but nothing ever displayed one —
+  every warning sat at `read: false` forever and moderation had no
+  effect the user could see. New `core/warnings.js` + `#warning-modal`,
+  fired from both `profile:changed` and cold start (reopening with a
+  profile already active is the commonest way a warned user returns,
+  and `profile:changed` doesn't fire for it). No close X and no
+  click-outside dismiss — the acknowledge button is the only way out.
+  Acknowledging marks `read: true` but does NOT delete: the moderation
+  trail has to survive being read. Messages render via `textContent`,
+  never `innerHTML` — they're operator-typed, and verified live that a
+  `<script>` payload renders as literal text with zero nodes injected.
+- **PAYWALL HOLE FIXED: paid themes were free from Settings.** Settings
+  rendered every base theme as selectable, ignoring the ownership added
+  when themes became purchasable — so a $500 theme could be equipped
+  for nothing while the Shop still charged for it. Exactly the same
+  hole layouts had. Unowned paid themes now render preview-only with
+  "$N in the Shop" as the requirement label. Verified: on a $0 profile
+  Rose has no selectable swatch, and clicking its preview leaves the
+  equipped theme unchanged.
+- **Owned stock leaves the Shop.** Every pane now filters out what you
+  already own, a section with nothing left to sell renders as nothing
+  at all rather than a wall of disabled "Owned" buttons, and an aisle
+  where everything is bought shows a "you own everything" state with a
+  link to the Inventory. Since all decorations are free, that pane is
+  empty in practice — correct, not a bug; it stays so the next PAID
+  decoration needs no new plumbing.
+- **Buying no longer throws you to the top of the Shop.** `renderStore`
+  rebuilds via `innerHTML`, which destroys the nodes holding scroll
+  position. Now captured and restored around the rebuild — except on a
+  category change, which is a different screen and legitimately starts
+  at the top.
+
 ## Renamed to "Unnamed App" (2026-08-15)
 The app's user-facing name is now **Unnamed App**, replacing
 "Dojo道場" / "Dojo - Gamify & Learn". Changed in all five places it

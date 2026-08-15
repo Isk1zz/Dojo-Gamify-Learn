@@ -139,88 +139,74 @@
     return true;
   }
 
-  function scenesPane() {
-    const wallet = DB.getWallet();
-    const now = DB.getScene ? DB.getScene() : "none";
+  // A shop sells what you DON'T have. Everything already owned is
+  // filtered out of every pane below and lives in the Inventory instead
+  // — a section whose stock is entirely bought renders as nothing at
+  // all rather than as a wall of disabled "Owned" buttons you can't act
+  // on. `section()` is the shared shape: no items left, no section.
+  function section(title, hint, items) {
+    if (!items.length) return "";
     return `
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F3DE}\u{FE0F} Scenery</div>
-        <p class="settings-hint">The horizon along the bottom of every screen. One at a time — you can't stand on a jungle floor and a city street at once.</p>
-        <div class="shop-grid">
-          ${(Dojo.SCENES || []).map(s => {
-            const owned = ownsScene(s.id);
-            const afford = wallet >= s.price;
-            return `
-              <div class="shop-card">
-                <div class="shop-card-preview game-preview"><span class="gp-icon">${s.icon}</span></div>
-                <div class="shop-card-body">
-                  <div class="shop-name">${s.name}</div>
-                  <div class="shop-tagline">${owned ? "Owned — equip it in your Inventory." : s.desc}</div>
-                  <button class="shop-btn buy" data-scene="${s.id}" ${owned || !afford ? "disabled" : ""}>
-                    ${owned ? (s.id === now ? "Equipped" : "Owned") : afford ? `Buy — $${s.price}` : `Need $${s.price - wallet} more`}
-                  </button>
-                </div>
-              </div>`;
-          }).join("")}
+        <div class="stats-section-title">${title}</div>
+        <p class="settings-hint">${hint}</p>
+        <div class="shop-grid">${items.join("")}</div>
+      </div>`;
+  }
+
+  function card(preview, name, tagline, attr, id, price, wallet) {
+    const afford = wallet >= price;
+    return `
+      <div class="shop-card">
+        ${preview}
+        <div class="shop-card-body">
+          <div class="shop-name">${name}</div>
+          <div class="shop-tagline">${tagline}</div>
+          <button class="shop-btn buy" ${attr}="${id}" ${afford ? "" : "disabled"}>
+            ${afford ? `Buy — $${price}` : `Need $${price - wallet} more`}
+          </button>
         </div>
       </div>`;
   }
 
+  function scenesPane() {
+    const wallet = DB.getWallet();
+    return section(
+      "\u{1F3DE}\u{FE0F} Scenery",
+      "The horizon along the bottom of every screen. One at a time — you can't stand on two grounds at once.",
+      (Dojo.SCENES || []).filter(s => !ownsScene(s.id)).map(s =>
+        card(`<div class="shop-card-preview game-preview"><span class="gp-icon">${s.icon}</span></div>`,
+             s.name, s.desc, "data-scene", s.id, s.price, wallet))
+    );
+  }
+
+  // Every decoration is free as of 2026-08-15, so this pane renders as
+  // nothing at all in practice — correct, not a bug: they're all
+  // already yours and belong in the Inventory. The pane stays because
+  // the next PAID decoration should appear here without new plumbing.
   function decorPane() {
     const wallet = DB.getWallet();
-    const active = DB.getBgDecors ? DB.getBgDecors() : [];
-    return `
-      <div class="settings-section">
-        <div class="stats-section-title">\u{1F985} Lobby decorations</div>
-        <p class="settings-hint">All free, and all on by default — layer them over any theme or palette, and switch each one on or off independently in your Inventory.</p>
-        <div class="shop-grid">
-          ${(Dojo.BG_DECORS || []).map(d => {
-            const owned = ownsDecor(d.id);
-            const afford = wallet >= d.price;
-            return `
-              <div class="shop-card">
-                <div class="shop-card-preview game-preview"><span class="gp-icon">${d.icon}</span></div>
-                <div class="shop-card-body">
-                  <div class="shop-name">${d.name}</div>
-                  <div class="shop-tagline">${owned ? "Owned — toggle it on in your Inventory." : d.desc}</div>
-                  <button class="shop-btn buy" data-decor="${d.id}" ${owned || !afford ? "disabled" : ""}>
-                    ${owned ? (active.includes(d.id) ? "On" : "Free — off") : afford ? `Buy — $${d.price}` : `Need $${d.price - wallet} more`}
-                  </button>
-                </div>
-              </div>`;
-          }).join("")}
-        </div>
-      </div>`;
+    return section(
+      "\u{1F985} Lobby decorations",
+      "Layer over any theme or palette — switch each one on or off independently in your Inventory.",
+      (Dojo.BG_DECORS || []).filter(d => !ownsDecor(d.id)).map(d =>
+        card(`<div class="shop-card-preview game-preview"><span class="gp-icon">${d.icon}</span></div>`,
+             d.name, d.desc, "data-decor", d.id, d.price, wallet))
+    );
   }
 
   function themesPane() {
     const wallet = DB.getWallet();
-    const now = DB.getTheme();
-    return `
-      <div class="settings-section">
-        <div class="stats-section-title">🌈 Colour themes</div>
-        <p class="settings-hint">Indigo Night and Frost are free — one dark, one light, so you always have a usable pair. Awarded themes aren't sold here at all; those come from rank.</p>
-        <div class="shop-grid">
-          ${(Dojo.THEMES || []).map(t => {
-            const owned = ownsTheme(t.id);
-            const cost = themePrice(t.id);
-            const afford = wallet >= cost;
-            return `
-              <div class="shop-card">
-                <div class="shop-card-preview" style="background:${t.card};display:flex;align-items:center;justify-content:center;">
-                  <span style="width:26px;height:26px;border-radius:50%;background:${t.swatch};"></span>
-                </div>
-                <div class="shop-card-body">
-                  <div class="shop-name">${t.name}</div>
-                  <div class="shop-tagline">${!cost ? "Free — always yours." : owned ? "Owned — equip it in your Inventory." : (t.mode === "light" ? "A light theme." : "A dark theme.")}</div>
-                  <button class="shop-btn buy" data-theme="${t.id}" ${owned || !afford ? "disabled" : ""}>
-                    ${!cost ? "Free" : owned ? (t.id === now ? "Equipped" : "Owned") : afford ? `Buy — $${cost}` : `Need $${cost - wallet} more`}
-                  </button>
-                </div>
-              </div>`;
-          }).join("")}
-        </div>
-      </div>`;
+    return section(
+      "🌈 Colour themes",
+      "Indigo Night and Frost are free and already yours. Awarded themes aren't sold here at all — those come from rank.",
+      (Dojo.THEMES || []).filter(t => !ownsTheme(t.id)).map(t =>
+        card(`<div class="shop-card-preview" style="background:${t.card};display:flex;align-items:center;justify-content:center;">
+                <span style="width:26px;height:26px;border-radius:50%;background:${t.swatch};"></span>
+              </div>`,
+             t.name, t.mode === "light" ? "A light theme." : "A dark theme.",
+             "data-theme", t.id, themePrice(t.id), wallet))
+    );
   }
 
   // ---- Categories ----
@@ -265,35 +251,22 @@
     const FLAGS = Dojo.HEX_FLAGS || {};
     const LABELS = Dojo.HEX_FLAG_LABELS || {};
     const wallet = DB.getWallet();
-    return `
-      <div class="settings-section">
-        <div class="stats-section-title">\u{1F3A8} Styles</div>
-        <p class="settings-hint">Bought once, then equippable on EITHER the Star of David or the spokes — they're two separate slots in your Inventory, so one palette can dress both or you can mix them.</p>
-        <div class="shop-grid">
-          ${Object.keys(MODES).map(id => {
-            const owned = ownsPalette(id);
-            const cost = paletteCost(id);
-            const pair = MODES[id] || [];
-            const first = FLAGS[pair[0]];
-            const second = FLAGS[pair[1]];
-            const afford = wallet >= cost;
-            return `
-              <div class="shop-card">
-                <div class="shop-card-preview flag-preview">
-                  ${flagArt(first, pair[0])}
-                  ${second && second !== first ? flagArt(second, pair[1]) : ""}
-                </div>
-                <div class="shop-card-body">
-                  <div class="shop-name">${LABELS[id] || id}</div>
-                  <div class="shop-tagline">${owned ? "Owned — equip it in your Inventory." : `Unlocks this palette for both colour slots.`}</div>
-                  <button class="shop-btn buy" data-palette="${id}" ${owned || !afford ? "disabled" : ""}>
-                    ${owned ? "Owned" : afford ? `Buy — $${cost}` : `Need $${cost - wallet} more`}
-                  </button>
-                </div>
-              </div>`;
-          }).join("")}
-        </div>
-      </div>`;
+    return section(
+      "\u{1F3A8} Styles",
+      "Bought once, then equippable on EITHER the Star of David or the spokes — they're two separate slots in your Inventory, so one palette can dress both or you can mix them.",
+      Object.keys(MODES).filter(id => !ownsPalette(id)).map(id => {
+        const pair = MODES[id] || [];
+        const first = FLAGS[pair[0]];
+        const second = FLAGS[pair[1]];
+        return card(
+          `<div class="shop-card-preview flag-preview">
+             ${flagArt(first, pair[0])}
+             ${second && second !== first ? flagArt(second, pair[1]) : ""}
+           </div>`,
+          LABELS[id] || id, "Unlocks this palette for both colour slots.",
+          "data-palette", id, paletteCost(id), wallet);
+      })
+    );
   }
 
   // Custom Shop = what the lobby LOOKS like: the layout itself, then
@@ -302,32 +275,28 @@
   // back for styles — they're the same errand.
   function layoutsPane() {
     const wallet = DB.getWallet();
-    return `
-      <div class="settings-section">
-        <div class="stats-section-title">\u{1F9E9} Layouts</div>
-        <p class="settings-hint">How the Lobby is arranged. Star is yours from the start and always free — these are the alternatives.</p>
-        <div class="shop-grid">
-          ${LAYOUTS.map(l => {
-            const owned = ownsLayout(l.id);
-            const afford = wallet >= l.price;
-            return `
-              <div class="shop-card">
-                <div class="shop-card-preview game-preview"><span class="gp-icon">${l.icon}</span></div>
-                <div class="shop-card-body">
-                  <div class="shop-name">${l.name}</div>
-                  <div class="shop-tagline">${owned ? "Owned — equip it in your Inventory." : l.desc}</div>
-                  <button class="shop-btn buy" data-layout="${l.id}" ${owned || !afford ? "disabled" : ""}>
-                    ${owned ? "Owned" : afford ? `Buy — $${l.price}` : `Need $${l.price - wallet} more`}
-                  </button>
-                </div>
-              </div>`;
-          }).join("")}
-        </div>
-      </div>`;
+    return section(
+      "\u{1F9E9} Layouts",
+      "How the Lobby is arranged. Star is yours from the start and always free — these are the alternatives.",
+      LAYOUTS.filter(l => !ownsLayout(l.id)).map(l =>
+        card(`<div class="shop-card-preview game-preview"><span class="gp-icon">${l.icon}</span></div>`,
+             l.name, l.desc, "data-layout", l.id, l.price, wallet))
+    );
   }
 
   function paneHtml() {
-    if (activeCat === "custom") return layoutsPane() + themesPane() + palettesPane() + decorPane() + scenesPane();
+    if (activeCat === "custom") {
+      const panes = layoutsPane() + themesPane() + palettesPane() + decorPane() + scenesPane();
+      // With owned stock filtered out, buying the last item empties the
+      // aisle completely — say so and point at where the goods went,
+      // rather than rendering a bare heading over nothing.
+      return panes || `
+        <div class="settings-section" style="text-align:center;">
+          <div class="stats-section-title">\u{1F389} You own everything here</div>
+          <p class="settings-hint">Every layout, theme, style and scene is yours. Equip them from your Inventory.</p>
+          <button id="btn-store-inventory" class="btn-ghost">\u{1F392} Open Inventory</button>
+        </div>`;
+    }
     // Token packs and patron tiers are shop/tokens.js's data — asked
     // for as markup rather than duplicated here.
     if (activeCat === "packs" && Dojo.tokenPacksPane) return Dojo.tokenPacksPane();
@@ -341,14 +310,35 @@
     const body = document.getElementById("store-body");
     if (!body) return;
 
+    // Buying re-renders the whole pane, which threw the reader back to
+    // the top of the Shop every purchase — the scroll position lives on
+    // nodes that innerHTML destroys. Captured before the rebuild and
+    // put back after. A category CHANGE is a different screen, though,
+    // so that one legitimately starts at the top.
+    const keepScroll = !(payload && payload.cat);
+    const prevPane = document.getElementById("store-pane");
+    const paneTop = prevPane ? prevPane.scrollTop : 0;
+    const bodyTop = body.scrollTop;
+    const winTop = window.scrollY;
+
     body.innerHTML = `
       <div class="store-layout">
         <nav class="store-nav">${navHtml()}</nav>
         <div class="store-pane" id="store-pane">${paneHtml()}</div>
       </div>`;
 
+    if (keepScroll) {
+      const pane = document.getElementById("store-pane");
+      if (pane) pane.scrollTop = paneTop;
+      body.scrollTop = bodyTop;
+      window.scrollTo(0, winTop);
+    }
+
     body.querySelectorAll("[data-cat]").forEach(btn => {
-      btn.addEventListener("click", () => { activeCat = btn.getAttribute("data-cat"); renderStore(); });
+      // Routed through the payload so it counts as a category change and
+      // starts at the top, rather than keeping the previous aisle's
+      // scroll offset in a pane of different length.
+      btn.addEventListener("click", () => renderStore({ cat: btn.getAttribute("data-cat") }));
     });
     body.querySelectorAll("[data-theme]").forEach(btn => {
       btn.addEventListener("click", () => { if (buyTheme(btn.getAttribute("data-theme"))) renderStore(); });
@@ -365,6 +355,8 @@
     body.querySelectorAll("[data-scene]").forEach(btn => {
       btn.addEventListener("click", () => { if (buyScene(btn.getAttribute("data-scene"))) renderStore(); });
     });
+    const invBtn = body.querySelector("#btn-store-inventory");
+    if (invBtn) invBtn.addEventListener("click", () => Router.go("inventory"));
     // Token packs / patron tiers keep their own handlers — they live
     // with the data in shop/tokens.js.
     if (Dojo.bindTokenPane) Dojo.bindTokenPane(body, renderStore);

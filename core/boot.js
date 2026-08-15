@@ -90,6 +90,9 @@
     Dojo.renderCharge();
     Dojo.updateProfileBadge();
     if (Dojo.renderVitals) Dojo.renderVitals();
+    // Entering a profile is exactly the "next time the user enters"
+    // admin/ADMIN.md specifies for delivering a warning notice.
+    if (Dojo.checkWarnings) Dojo.checkWarnings();
   });
 
   // The wallet strip lives in the top bar, so any branch that changes
@@ -148,4 +151,8 @@
   if (Dojo.renderStreak) Dojo.renderStreak();
   Dojo.updateProfileBadge();
   if (Dojo.renderVitals) Dojo.renderVitals();
+  // Also on cold start, not just on profile switch: reopening the app
+  // with a profile already active is the commonest way a warned user
+  // actually comes back, and profile:changed doesn't fire for it.
+  if (Dojo.checkWarnings) Dojo.checkWarnings();
 })();

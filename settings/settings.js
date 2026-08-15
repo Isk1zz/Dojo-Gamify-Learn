@@ -50,16 +50,33 @@
     // (Dojo.previewTheme skips the rank gate on purpose). The rank
     // needed comes from Dojo.Ranks.themeRank, same lookup the reward
     // list elsewhere in the app uses.
-    const lockedSwatch = t => {
-      const r = Dojo.Ranks && Dojo.Ranks.themeRank ? Dojo.Ranks.themeRank(t.id) : null;
+    const lockedSwatch = (t, req) => {
+      const r = req !== undefined
+        ? req
+        : (() => {
+            const rank = Dojo.Ranks && Dojo.Ranks.themeRank ? Dojo.Ranks.themeRank(t.id) : null;
+            return rank ? `Rank ${rank.n} · ${rank.abbr}` : "";
+          })();
       return `
       <button class="theme-swatch locked" data-preview-theme="${t.id}"
               style="--sw:${t.swatch};--sw-bg:${t.card}">
         <span class="sw-preview"><span class="sw-dot"></span><span class="sw-lock">\u{1F512}</span></span>
         <span class="sw-name">${t.name}</span>
-        ${r ? `<span class="sw-req">Rank ${r.n} · ${r.abbr}</span>` : ""}
+        ${r ? `<span class="sw-req">${r}</span>` : ""}
       </button>`;
     };
+
+    // Base themes are BOUGHT now, so Settings has to respect ownership
+    // the same way the Inventory does. It didn't: this list rendered
+    // every base theme as selectable, which meant a $500 theme could be
+    // equipped for free from here while the Shop still charged for it —
+    // the same paywall hole layouts had. Unowned paid themes now fall
+    // through to lockedSwatch (preview only) with the price as the
+    // requirement label instead of a rank.
+    const ownsT = id => !Dojo.ownsTheme || Dojo.ownsTheme(id);
+    const baseSwatch = t => ownsT(t.id)
+      ? swatch(t)
+      : lockedSwatch(t, `$${Dojo.themePrice ? Dojo.themePrice(t.id) : 0} in the Shop`);
 
     // Bars preview for classic/cards — "cards" just draws them elevated
     // and rounded, so the thumbnail itself demonstrates the re-skin
@@ -168,7 +185,7 @@
         <div class="stats-section-title">\u{1F3A8} Colour theme</div>
         <p class="settings-hint">Changes the whole app, not just the accent.</p>
         <div class="theme-grid">
-          ${THEMES.map(swatch).join("")}
+          ${THEMES.map(baseSwatch).join("")}
         </div>
       </div>
       <div class="settings-section">

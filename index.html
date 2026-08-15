@@ -226,6 +226,21 @@
     <!-- ====== Course Buy Modal (locked course -> buy right here) ====== -->
     <div id="course-buy-modal" class="modal-overlay" style="display:none;"></div>
     <!-- ====== Profile Setup Modal (first launch) ====== -->
+    <!-- ====== Administrative Notice (core/warnings.js) ======
+         Shown on entry when the active profile has unread warnings.
+         Deliberately has NO close X and no click-outside dismiss: the
+         acknowledgment button is the only way out, because a notice you
+         can flick away without reading isn't a notice. -->
+    <div id="warning-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-card">
+        <div class="modal-icon">&#9888;&#65039;</div>
+        <h2 class="modal-title">Administrative Notice</h2>
+        <p class="modal-desc" id="warning-modal-desc">You have received a warning from a moderator.</p>
+        <div id="warning-modal-list" class="warning-list"></div>
+        <button id="btn-warning-ack" class="btn-primary">I understand</button>
+      </div>
+    </div>
+
     <div id="profile-modal" class="modal-overlay" style="display:none;">
       <div class="modal-card">
         <div class="modal-icon">👤</div>
@@ -626,6 +641,7 @@
   <script src="shop/ranks.js"></script>
   <script src="core/theme.js"></script>
   <script src="core/hud.js"></script>
+  <script src="core/warnings.js"></script>
   <script src="core/profile.js"></script>
   <script src="library/library.js"></script>
   <script src="library/stats.js"></script>

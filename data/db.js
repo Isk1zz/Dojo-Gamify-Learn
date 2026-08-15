@@ -583,6 +583,30 @@ const DB = (() => {
     return true;
   }
 
+  // ---- Warning delivery ----
+  // addWarning above has always RECORDED warnings; until 2026-08-15
+  // nothing ever showed them to the warned user, so `read` was written
+  // false and never flipped. These two are the delivery half: the
+  // active profile's undelivered notices, and the acknowledgment that
+  // retires them. Warnings are NOT deleted on acknowledgment — the
+  // moderation trail has to survive being read (admin/ADMIN.md shows
+  // the full history, and only an admin's "Clear All" empties it).
+  function getUnreadWarnings() {
+    const p = getActiveProfile();
+    if (!p || !Array.isArray(p.warnings)) return [];
+    return p.warnings.filter(w => !w.read);
+  }
+
+  function acknowledgeWarnings() {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p || !Array.isArray(p.warnings)) return 0;
+    let n = 0;
+    p.warnings.forEach(w => { if (!w.read) { w.read = true; n++; } });
+    if (n) save(db);
+    return n;
+  }
+
   function listProfiles() {
     const db = load();
     return Object.entries(db.profiles).map(([id, p]) => ({
@@ -1660,6 +1684,8 @@ const DB = (() => {
     setBannedStatus,
     addWarning,
     clearWarnings,
+    getUnreadWarnings,
+    acknowledgeWarnings,
     kickProfile,
     getOwnedAvatars,
     buyAvatar,
