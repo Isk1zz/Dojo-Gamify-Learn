@@ -1,15 +1,17 @@
-# CS Dojo — Project Reference
+# Unnamed App — Project Reference
 
 Everything about how this app works, why it's built this way, and what's still open.
 **Read this first if you're picking the project up cold.**
 
-Last updated: August 2026 — **restructured into branch folders; start with `docs/ARCHITECTURE.md`, then the one folder you're working on.**
+Last updated: August 2026 — the Arcade became the Forum, money became reputation,
+and every cosmetic went free. If a section below contradicts that, the section is
+older than the change.
 
 ---
 
 ## 1. What it is
 
-An offline, dependency-free study app. Content is broken into small chunks; each chunk
+A study app that fights forgetting. Content is broken into small chunks; each chunk
 teaches one idea, shows a worked example, and asks a question. Passing a topic's mastery
 exam schedules it for spaced review rather than marking it finished forever.
 
@@ -17,7 +19,37 @@ Open `index.html` in a browser. No build step, no server, no npm. That constrain
 deliberate — it means the app works offline, forever, with no maintenance surface.
 **Don't add a build step or a dependency without a very good reason.**
 
-Live at `Isk1zz.github.io/cs_dojo_demo` (GitHub Pages, branch `main`, root).
+Live at `Isk1zz.github.io/Dojo-Gamify-Learn` (GitHub Pages, branch `main`, root).
+
+### Where it is going
+
+Three loops. Two exist, and the third is the one the other two build toward:
+
+1. **Learn** — chunks → topic exam → spaced review. Built.
+2. **Retain** — the Garden makes decay visible; watering is reviewing. Built.
+3. **Contribute** — post what you know; reputation is what other people gave you.
+   **Blocked on accounts.**
+
+The third loop is why the first two are shaped the way they are. The Garden pays
+reputation, and reputation can only be spent on *other people's* posts — never your
+own, so standing can never be self-farmed. See `forum/FORUM.md`.
+
+It needs a backend: everything is `localStorage`, so two people running this share
+nothing. The Firebase port at the top of `UPDATESTACK.md` is a **precondition** for
+the Forum, not an enhancement.
+
+### Currencies
+
+Three, deliberately separate, none convertible into another:
+
+| | Earned by | Spent on |
+|---|---|---|
+| ⚡ XP | Studying | Nothing — it only buys rank |
+| 🪙 Tokens | Rank-ups, or bought | Courses |
+| 👏 Reputation | The Garden | Other people's posts, never your own |
+
+Cosmetics are **free** — themes, layouts, palettes, decorations and scenery are all
+unlocked from the start. The Shop sells courses and patron tiers, nothing else.
 
 ---
 
@@ -32,11 +64,12 @@ folders**, each owning one feature end to end and each carrying its own `.md`.
 | `data/` | localStorage persistence and migrations | `data/DATA.md` |
 | `library/` | courses, units, topics, lessons, exams, stats, all content | `library/LIBRARY.md` |
 | `garden/` | plants, growth stages, daily dividends | `garden/GARDEN.md` |
-| `shop/` | premium themes (charge) and life goods (money) | `shop/SHOP.md` |
-| `games/` | arcade shell, games, and the Life tab's host screen | `games/GAMES.md` |
+| `shop/` | the Shop (courses, patron tiers), Custom (equip), cosmetics data | `shop/SHOP.md` |
+| `forum/` | the Forum and the reputation rule (a shell until accounts exist) | `forum/FORUM.md` |
 | `settings/` | themes, data, admin code, legal | `settings/SETTINGS.md` |
 | `styles/` | one stylesheet per branch, plus `base.css` | — |
 | `docs/` | `ARCHITECTURE.md` (the contract), `CHANGELOG.md` | — |
+| — | in-flight work and open decisions live in `UPDATESTACK.md` | — |
 
 **Read `docs/ARCHITECTURE.md` before editing anything.** It defines the four
 seams (`DB`, `Bus`, `Router`, `Dojo.*`) and the rule that a branch never reaches
@@ -323,13 +356,24 @@ Both are interpretive paraphrases still in copyright.
 
 ## 11. Current state
 
-**Built:** Units 6 (Networks, Internet, Security), 7 (Programming Fundamentals),
+**Content:** Units 6 (Networks, Internet, Security), 7 (Programming Fundamentals),
 8 (Machine Learning). 26 topics total. One course, "Intro to CS."
 
-**Screens:** Landing → Lobby → Courses → Units → Topics → Lesson → Exam → Result.
-Plus Garden, Settings, and the Stats modal.
+**Screens:** Landing → Lobby → Courses → Units → Topics → Lesson → Exam → Result,
+plus Garden, Career, Custom, Shop, Forum, Settings and Admin.
+
+**Shipped since this section was last honest:**
+- Arcade removed; the tile is the **Forum** now (a shell — see `forum/FORUM.md`)
+- `$` money became **reputation**; storage key stayed `wallet` so no profile lost a balance
+- Every cosmetic went **free**; the Shop sells courses and patron tiers only
+- Inventory renamed **Custom** and is the single place anything is equipped —
+  Settings used to carry a duplicate set of the same controls, which is exactly
+  how paid themes became equippable for nothing
+- Sky (day/night) is its own scene, locked to a light/dark theme pair
+- Warning notices actually reach the user (they were recorded and never shown)
 
 **Not built:**
+- Accounts / backend — **the blocker for the Forum**, and therefore for loop 3
 - Four more Unit 8 modules — Cloud Computing, Big Data, Blockchain, IoT & Sensors, VR
 - The five-phase chunk flow: `predict → explain → example → apply → recall`.
   Adding a **predict** question before instruction exploits the pretesting effect;
@@ -337,15 +381,16 @@ Plus Garden, Settings, and the Stats modal.
   stronger than recognition. Both need new content written per chunk — the schema should
   be frozen with optional `predict` and `recall` fields *before* the remaining modules
   are written, or all five will need retrofitting.
-- A rewards sink for lightning charge (see §6)
 - Launcher / desktop packaging
 - Books section
 
 **Open decisions:**
 1. Does Unit 8 stay one entry, or split? Five modules ≈ 75 chunks in one track.
-2. Raise `CHARGE_CAP` or add the sink?
-3. What should the Garden actually be?
-4. Licence for the repo and the content.
+2. Reputation can still be traded back and forth between two accounts — the
+   give-only rule does not prevent collusion. Decide before the Forum ships.
+3. Licence for the repo and the content. The repo is **public with no `LICENSE`**,
+   which means default all-rights-reserved — but GitHub's own terms still grant
+   every user the right to view and fork it. See `docs/LEGAL.md`.
 
 ---
 
@@ -362,4 +407,4 @@ Plus Garden, Settings, and the Stats modal.
   for a long time. Don't "clean it up."
 - **Charge cap** — always use `addCharge`'s return value, not the requested amount.
 - The README's clone command historically had both the username and repo name wrong.
-  Correct: `git clone https://github.com/Isk1zz/cs_dojo_demo.git`
+  Correct: `git clone https://github.com/Isk1zz/Dojo-Gamify-Learn.git`
