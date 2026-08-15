@@ -37,7 +37,7 @@ Never emit `"renderGarden"`. If you find yourself calling another branch's
 render function directly, publish an event instead.
 
 Current events: `screen:changed`, `profile:changed`, `progress:changed`,
-`wallet:changed`, `arcade:round`.
+`wallet:changed` (reputation), `tokens:changed`, `sky:changed`.
 
 ### `Dojo.Router` — navigation
 ```js
@@ -50,12 +50,12 @@ That is what makes a folder droppable.
 ### Tabs — sharing a screen
 A branch can take a tab on another branch's screen instead of a lobby slot:
 ```js
-Dojo.Arcade.registerTab({ id: "example", label: "🔧 Example", render(body) {...} });
+Dojo.Router.register("example", { render(payload) {...} });
 ```
 The host owns the screen and calls `showScreen`; the guest only fills the body
 it is handed. Sharing a surface is not merging the code — every one of them
 keeps its own folder, doc and stylesheet. (Story used this pattern, then the
-Life tab did — both since removed; `games/games.js`'s `TAB_GATE` is currently
+Life tab did — both since removed, and so is the Arcade that hosted them. The
 empty, kept as infra for whichever branch uses the seam next.)
 
 ### `Dojo.<fn>` — the export seam
@@ -113,7 +113,7 @@ If a change needs something a branch doesn't have, the answer is almost always
 | | earned by | spends on |
 |---|---|---|
 | ⚡ XP | studying — chunks and exams | **never spent** — raises your rank |
-| $ money | Garden dividends, Arcade | game unlocks, arcade stakes |
+| 👏 reputation | Garden dividends | other people's Forum posts, never your own |
 
 Rewards (themes, background stripes) arrive with a rank; see `shop/SHOP.md`.
 
@@ -127,11 +127,11 @@ argument in PROJECT.md §5 collapses.
 
 - `db.js` stores; branches decide. No tuning numbers in `db.js`.
 - Migrations are additive. Never drop a field — see PROJECT.md §4.
-- Money leaves the wallet in exactly one place per branch (`buy`, `beginRound`).
+- Reputation leaves the balance in exactly one place per branch.
   Never call `DB.addMoney` from game logic; go through `Games.settle`.
 - The life-sim (vitals, decay, night theft, the goods shop) was removed —
-  see `shop/SHOP.md` and BACKLOG.md's Batch 5/9. Nothing gates the Arcade
-  on a character-state check any more; only tickets and wallet balance do.
+  see `shop/SHOP.md` and BACKLOG.md's Batch 5/9. The Arcade itself is gone —
+  its tile is the Forum now (`forum/FORUM.md`).
 - Nothing decays on a wall clock. Being away from the app must stay free.
 - Every branch owns one stylesheet. `styles/base.css` is the design system and
   the screens core owns; it must not gain rules for another branch's screens.

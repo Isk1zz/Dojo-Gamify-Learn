@@ -33,7 +33,7 @@ Stylesheet: `styles/settings.css`.
    |---|---|
    | `admin613` | Marks every topic complete |
    | `parnasa100` | +$100 to the wallet |
-   | `agrala` | Refills arcade tickets to full |
+   | `agrala` | Refills tickets to full (the Arcade is gone; tickets remain in DB) |
    | `capmyrank` | Jumps to the top of the rank ladder |
    | `nullmyrank` | Resets XP to zero |
 

@@ -11,7 +11,7 @@ for the newest one.
 | `themes.js` | Pure data: free `THEMES` + reward `PREMIUM_THEMES`. No DOM, no DB. |
 | `ranks.js` | Pure data: the 20-rank ladder, XP thresholds, rewards, lookups. |
 | `shop.js` | The Career screen — rank, the full ladder, what each rung awards. Read-only: it doesn't equip anything, see below. |
-| `tokens.js` | The 🪙 Token Shop screen (reached from Library) — packs and priced-course purchases. See its own section below. |
+| `tokens.js` | Token packs and patron tiers, rendered into the unified Shop (`store.js`). |
 
 `life.js` (the life-sim: vitals, decay, night theft, the goods shop) was
 **removed** — see BACKLOG.md's Batch 5/9. The wallet strip it also used to
@@ -26,7 +26,7 @@ Stylesheet: `styles/shop.css`.
 | | earned by | does what |
 |---|---|---|
 | ⚡ XP | studying | **never spent** — it raises your rank |
-| $ money | Garden, Arcade | food, hygiene, shelter, story scenes, game unlocks, Arcade stake-cap upgrades |
+| 👏 reputation | Garden | other people's Forum posts — never your own |
 | 🪙 Tokens | rank-up rewards, real-money packs (currently a demo stub) | unlocks priced Library courses |
 
 **None of the three convert to each other**, and nothing anywhere buys
@@ -95,7 +95,7 @@ is the one place to actually equip one.
 
 There is no money shop any more. `$` still exists as core economy —
 `DB.getWallet`/`addMoney`/`spendMoney`, earned via Garden dividends and
-Arcade payouts, spent on Arcade unlocks and stakes — it just no longer
+Garden dividends, and is reputation now that the Arcade is the Forum — it just no longer
 buys anything survival-related, because there's no survival system left
 to buy for.
 
@@ -117,8 +117,8 @@ paid course exists, not a change to anything currently gated.
 theme/bgStripe rewards are (see the comment on that in `ranks.js` — Tokens
 are spendable, so a membership-scan pattern would re-grant them forever).
 
-**Spending / buying:** `Dojo.ownsCourse(id)` / the Token Shop's `buyCourse`
-gate courses the same way Arcade unlocks and stake-cap tiers do — a string
+**Spending / buying:** `Dojo.ownsCourse(id)` / `buyCourse`
+gate courses the same way every cosmetic does — a string
 in `DB`'s generic inventory array (`course_<id>`), no bespoke profile
 field. `buyPack()` is the real-money side, and **it's a deliberate stub**:
 there's no backend (static GitHub Pages site), so nothing here can verify a

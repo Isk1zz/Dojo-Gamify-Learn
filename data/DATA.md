@@ -24,7 +24,7 @@ number here, it belongs in the branch that owns the feature.
   theme, lastPosition: { unitId, topicId, chunkIdx } | null,
   lobbyStyle,          // "classic" | "cards" — re-skin only, see core/lobby.js
 
-  // v5 — money ($), energy, arcade tickets, life sim
+  // v5 — money ($, now reputation), energy, tickets, life sim
   wallet,
   tickets, ticketsUpdatedAt,
   lastDividendClaim,
@@ -67,7 +67,7 @@ both were removed (see `shop/SHOP.md`, BACKLOG.md's Batch 4/5/9). Left in
 place per the same rule: migrations never drop fields, and an unread one
 costs nothing. `inventory` itself is NOT fully dead — `games.js` reuses
 `DB.getInventory`/`addInventory` for an unrelated purpose (tracking which
-arcade games are unlocked).
+cosmetics and courses are unlocked; the arcade unlocks it was built for are gone).
 
 **Every migration is additive with a safe default. Never drop a field.**
 `miniQuiz*` keys are historical — the UI says "Questions". Change labels in

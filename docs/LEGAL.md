@@ -40,7 +40,7 @@ can contribute, and GitHub shows the repo as "all rights reserved".
 
 The decision splits in two, and they don't have to match:
 
-**The code** — the engine, branches, DB, arcade, garden.
+**The code** — the engine, branches, DB, garden, forum.
 | Option | Means |
 |---|---|
 | All rights reserved (now) | Nobody may copy or reuse it. Maximum freedom to sell later. |
@@ -72,10 +72,10 @@ From PROJECT.md §10, and it doesn't depend on which licence you pick:
   Both are interpretive paraphrases still in copyright. Entries in `quotes.js`
   marked `verified: false` still need checking before any public release.
 
-## 4. The arcade — a schema decision, not a legal footnote
+## 4. The arcade — REMOVED 2026-08-14 (kept for the reasoning)
 
 **As long as `$` is earned in-app only, never purchasable with real money and
-never cashable out, the arcade is a closed loop** — ordinary, and what most
+never cashable out, the arcade was a closed loop** — ordinary, and what most
 games do.
 
 Add a "buy stars" button next to a blackjack table and some jurisdictions treat
