@@ -104,6 +104,29 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Moon becomes a Sun on light themes (2026-08-15)
+One decoration, two faces. `core/theme.js`'s `paintTheme` now publishes
+`data-theme-mode="light|dark"` on `<html>` (new, and reusable — anything
+decorative can now react to day vs night without re-deriving it), and
+the `moon` id renders a moon under `dark` and a sun under `light`, same
+slot and same size so switching theme doesn't shift the composition.
+
+The LABEL follows too, via `Dojo.decorFace(d)` — Custom and the Shop say
+"Sun ☀️" on a light theme. Without that the tile would read "Moon" with a
+sun plainly visible behind it. Written as a lookup on optional
+`lightName`/`lightIcon`/`lightDesc` fields rather than an `if (id ===
+"moon")`, so a second two-faced decoration needs no new plumbing.
+
+Sun colours are deliberately softer than a "correct" sun would be: on a
+light background a solid yellow disc is much louder than a pale moon is
+on a dark one.
+
+**Still odd, not changed — your call:** the Stars decoration stays
+visible on light themes, which is the same daylight problem the moon
+had. Left alone because hiding stars by day would silently disable a
+decoration the user switched on; say the word and it can either hide
+with the moon or fade to a daytime intensity.
+
 ## Clouds no longer eat clicks (2026-08-15) — self-inflicted, fixed
 Reported: "menu isn't opening what I need if a cloud is passing by."
 Entirely my doing. To make clouds pokeable I put them in a layer above

@@ -192,12 +192,16 @@
     const activeDecors = DB.getBgDecors ? DB.getBgDecors() : [];
     out.push({
       key: "decor", group: "style", icon: "\u{1F985}", title: "Decorations", previewKind: "decor", multi: true,
-      items: (Dojo.BG_DECORS || []).map(d => ({
-        id: d.id, name: d.name, glyph: d.icon, swatch: null,
-        equipped: activeDecors.includes(d.id),
-        locked: !(Dojo.ownsDecor && Dojo.ownsDecor(d.id)),
-        price: d.price
-      })),
+      items: (Dojo.BG_DECORS || []).map(d => {
+        // Moon reads as "Sun" on a light theme — see Dojo.decorFace.
+        const face = Dojo.decorFace ? Dojo.decorFace(d) : d;
+        return {
+          id: d.id, name: face.name, glyph: face.icon, swatch: null,
+          equipped: activeDecors.includes(d.id),
+          locked: !(Dojo.ownsDecor && Dojo.ownsDecor(d.id)),
+          price: d.price
+        };
+      }),
       equip: id => {
         if (!Dojo.ownsDecor || !Dojo.ownsDecor(id)) return;
         DB.toggleBgDecor(id);

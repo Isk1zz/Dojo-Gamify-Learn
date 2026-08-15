@@ -163,6 +163,12 @@
     root.setProperty("--bolt-glow", `rgba(${br}, ${bg_}, ${bb}, 0.55)`);
     root.setProperty("--bg-image", t.bg || "none");
 
+    // Published to CSS so purely decorative things can react to day vs
+    // night without re-deriving it. First consumer: the Moon decoration
+    // becomes a Sun on a light theme — a moon in a bright daytime sky
+    // reads as a bug, not a decoration.
+    document.documentElement.dataset.themeMode = t.mode === "light" ? "light" : "dark";
+
     const tx = t.mode === "light" ? LIGHT_TEXT : DARK_TEXT;
     root.setProperty("--text", tx.text);
     root.setProperty("--text-dim", tx.dim);

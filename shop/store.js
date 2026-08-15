@@ -189,9 +189,11 @@
     return section(
       "\u{1F985} Lobby decorations",
       "Layer over any theme or palette — switch each one on or off independently in Custom.",
-      (Dojo.BG_DECORS || []).filter(d => !ownsDecor(d.id)).map(d =>
-        card(`<div class="shop-card-preview game-preview"><span class="gp-icon">${d.icon}</span></div>`,
-             d.name, d.desc, "data-decor", d.id, d.price, wallet))
+      (Dojo.BG_DECORS || []).filter(d => !ownsDecor(d.id)).map(d => {
+        const face = Dojo.decorFace ? Dojo.decorFace(d) : d;
+        return card(`<div class="shop-card-preview game-preview"><span class="gp-icon">${face.icon}</span></div>`,
+                    face.name, face.desc, "data-decor", d.id, d.price, wallet);
+      })
     );
   }
 

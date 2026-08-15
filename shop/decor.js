@@ -32,8 +32,26 @@
     { id: "clouds", name: "Clouds", price: 0, icon: "☁️",
       desc: "Slow clouds at three depths — and you can poke them." },
     { id: "moon", name: "Moon", price: 0, icon: "🌙",
-      desc: "A cratered moon, top-right, with a soft halo." }
+      desc: "A cratered moon, top-right, with a soft halo.",
+      // One decoration with two faces — see the data-theme-mode split in
+      // styles/base.css. The LABEL has to follow the sky, or Custom says
+      // "Moon" while a sun is plainly visible behind it.
+      lightName: "Sun", lightIcon: "☀️",
+      lightDesc: "A sun, top-right, with a slow halo and turning rays." }
   ];
+
+  // What to CALL a decoration right now. Only the moon/sun differs, but
+  // it's a lookup rather than a special case at each call site so the
+  // next two-faced piece needs no new plumbing.
+  function decorFace(d) {
+    const light = document.documentElement.dataset.themeMode === "light";
+    if (!light) return { name: d.name, icon: d.icon, desc: d.desc };
+    return {
+      name: d.lightName || d.name,
+      icon: d.lightIcon || d.icon,
+      desc: d.lightDesc || d.desc
+    };
+  }
 
   // The Liberty Bundle is GONE, not repriced. It sold Stars + Eagles +
   // the USA palette for $650; with both decorations now free it would
@@ -232,5 +250,5 @@
     initClouds();
   }
 
-  Object.assign(Dojo, { BG_DECORS, SCENES, pokeCloud: poke });
+  Object.assign(Dojo, { BG_DECORS, SCENES, decorFace, pokeCloud: poke });
 })();

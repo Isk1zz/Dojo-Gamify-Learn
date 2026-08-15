@@ -38,7 +38,9 @@
       <span></span><span></span><span></span><span></span>
     </div>
     <!-- Moon: top-right, opposite the stars' top-left corner so the two
-         frame the screen instead of crowding one edge. -->
+         frame the screen instead of crowding one edge. On a LIGHT theme
+         the sun below takes its place instead — same slot, same
+         decoration, different sky. -->
     <svg class="decor-moon" viewBox="0 0 100 100">
       <circle class="moon-halo" cx="50" cy="50" r="42"/>
       <circle class="moon-disc" cx="50" cy="50" r="27"/>
@@ -47,6 +49,20 @@
         <circle cx="46" cy="60" r="3"/><circle cx="56" cy="36" r="2.4"/>
         <circle cx="36" cy="53" r="2.2"/>
       </g>
+    </svg>
+    <svg class="decor-sun" viewBox="0 0 100 100">
+      <circle class="sun-halo" cx="50" cy="50" r="44"/>
+      <g class="sun-rays">
+        <rect x="48.5" y="4"  width="3" height="13" rx="1.5"/>
+        <rect x="48.5" y="83" width="3" height="13" rx="1.5"/>
+        <rect x="4"  y="48.5" width="13" height="3" rx="1.5"/>
+        <rect x="83" y="48.5" width="13" height="3" rx="1.5"/>
+        <rect x="48.5" y="4"  width="3" height="13" rx="1.5" transform="rotate(45 50 50)"/>
+        <rect x="48.5" y="83" width="3" height="13" rx="1.5" transform="rotate(45 50 50)"/>
+        <rect x="4"  y="48.5" width="13" height="3" rx="1.5" transform="rotate(45 50 50)"/>
+        <rect x="83" y="48.5" width="13" height="3" rx="1.5" transform="rotate(45 50 50)"/>
+      </g>
+      <circle class="sun-disc" cx="50" cy="50" r="25"/>
     </svg>
     <!-- Eagles are drawn, not the 🦅 emoji they started as: an emoji
          can't flap, and its glyph is at the mercy of the OS font (the

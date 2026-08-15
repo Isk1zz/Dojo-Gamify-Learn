@@ -838,8 +838,14 @@ body {
 :where(#bg-decor-layer, #bg-decor-front) > * { display: none; }
 html[data-bg-decor~="usa_stars"]  .decor-usa_stars,
 html[data-bg-decor~="usa_eagles"] .decor-usa_eagles,
-html[data-bg-decor~="clouds"]     .decor-clouds,
-html[data-bg-decor~="moon"]       .decor-moon { display: block; }
+html[data-bg-decor~="clouds"]     .decor-clouds { display: block; }
+
+/* One decoration, two faces: moon at night, sun by day. The `moon` id
+   owns the slot in both cases — a light theme is a daytime sky, and a
+   moon hanging in it reads as a bug rather than a decoration. Split on
+   data-theme-mode, published by core/theme.js's paintTheme. */
+html[data-bg-decor~="moon"]:not([data-theme-mode="light"]) .decor-moon { display: block; }
+html[data-bg-decor~="moon"][data-theme-mode="light"]       .decor-sun  { display: block; }
 
 /* ---- Moon ----
    Top-right, mirroring the stars' top-left corner. The halo is a real
@@ -853,6 +859,20 @@ html[data-bg-decor~="moon"]       .decor-moon { display: block; }
   0%, 100% { opacity: 0.10; transform: scale(0.94); transform-origin: 50% 50%; }
   50%      { opacity: 0.20; transform: scale(1.06); transform-origin: 50% 50%; }
 }
+
+/* ---- Sun (the Moon decoration's light-theme face) ----
+   Same position and size as the moon so switching theme doesn't shift
+   the composition. Warm and low-contrast: on a light background a solid
+   yellow disc is far louder than a pale moon is on a dark one, so this
+   is deliberately softer than a "correct" sun colour would be. */
+.decor-sun { position: absolute; top: 4rem; right: 2.5rem; width: 108px; height: 108px; }
+.decor-sun .sun-disc { fill: #f5b942; opacity: 0.85; }
+.decor-sun .sun-halo {
+  fill: #f7c65c; opacity: 0.16;
+  animation: moon-breathe 6.5s ease-in-out infinite;   /* same pulse as the moon's halo */
+}
+.decor-sun .sun-rays { fill: #f0ad3c; opacity: 0.55; transform-origin: 50% 50%; animation: sun-turn 44s linear infinite; }
+@keyframes sun-turn { to { transform: rotate(360deg); } }
 
 /* ---- Stars ----
    top: below the fixed header bar (#app > .screen's 2.8rem padding),
@@ -1102,7 +1122,8 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .decor-usa_stars, .decor-usa_stars span,
   .decor-usa_eagles, .decor-usa_eagles .wing,
-  .decor-clouds, .decor-scene .sc-window, .decor-moon .moon-halo { animation: none; }
+  .decor-clouds, .decor-scene .sc-window,
+  .decor-moon .moon-halo, .decor-sun .sun-halo, .decor-sun .sun-rays { animation: none; }
   .decor-usa_eagles { display: none; }
   .fx-flash { display: none; }
 }
