@@ -24,7 +24,7 @@
     "topic-map":    () => Dojo.renderTopicMap,
     garden:         () => Dojo.renderGarden,
     shop:           () => Dojo.renderShop,
-    games:          () => Dojo.renderGames,
+    forum:          () => Dojo.renderForum,
     inventory:      () => Dojo.renderInventory,
     store:          () => Dojo.renderStore,
     settings:       () => Dojo.renderSettings
@@ -48,7 +48,7 @@
   on("btn-token-shop",     () => Router.go("store", { cat: "packs" }));
   on("btn-lobby-garden",   () => Router.go("garden"));
   on("btn-lobby-shop",     () => Router.go("shop"));
-  on("btn-lobby-games",    () => Router.go("games"));
+  on("btn-lobby-games",    () => Router.go("forum"));
   on("btn-lobby-settings", () => Router.go("settings"));
   // Statistics merged into Career; this tile is Inventory now (its id
   // is unchanged on purpose — see index.html).
@@ -64,11 +64,10 @@
   ["btn-back-lobby", "btn-back-lobby2", "btn-back-lobby3",
    "btn-back-lobby4", "btn-back-lobby6"]
     .forEach(id => on(id, () => Dojo.showLobby()));
-  // Arcade's back button is the one exception — mid-game it should step
-  // back to the game list, not skip straight past Arcade to the Lobby
-  // the way every other screen's back button does. See games/games.js's
-  // backFromArcade.
-  on("btn-back-lobby5", () => (Dojo.backFromArcade ? Dojo.backFromArcade() : Dojo.showLobby()));
+  // Was the Arcade's special case (step back to the game list rather
+  // than to the Lobby). The Forum has no sub-screens, so it is an
+  // ordinary back button now.
+  on("btn-back-lobby5", () => Dojo.showLobby());
 
   // Resume: jump straight back into the exact chunk they left.
   // Lives here rather than in library/ because the lobby owns the tile.

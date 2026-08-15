@@ -129,7 +129,10 @@
     const activeEl = document.querySelector(".screen.active");
     if (activeEl && WALLET_HIDDEN_SCREENS.has(activeEl.id)) { strip.style.display = "none"; return; }
     strip.style.display = "flex";
-    const moneyTip = "Earned from the Garden's daily dividends and Arcade wins. Spent to unlock Arcade games and place stakes. — tap to open the Shop";
+    // Reputation, not money — see data/db.js's getReputation. Same
+    // stored number, new meaning: the Arcade it used to pay for is the
+    // Forum now, and cosmetics are free, so `$` had nothing left to buy.
+    const moneyTip = "Reputation, earned in the Garden. Spent on other people's Forum posts — never on your own.";
     const tokenTip = "Earned free from rank-ups, or bought in the Token Shop. Spent to unlock courses. Never converts to or from $ money. — tap to open the Token Shop";
     // Day/night toggle. Shows the state you'd switch TO, which is the
     // usual toggle idiom and the only thing that makes a single icon
@@ -138,7 +141,7 @@
     // data/db.js's getSky.
     const isDay = (DB.getSky ? DB.getSky() : "night") === "day";
     const dnTip = isDay ? "Switch to night" : "Switch to day";
-    strip.innerHTML = `<span id="vital-wallet-chip" class="vital-wallet" role="button" tabindex="0" title="${moneyTip}"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`
+    strip.innerHTML = `<span id="vital-wallet-chip" class="vital-wallet" role="button" tabindex="0" title="${moneyTip}"><span class="vw-icon">🏅</span>${DB.getReputation()}</span>`
       + `<span id="vital-tokens-chip" class="vital-tokens" role="button" tabindex="0" title="${tokenTip}"><span class="vw-icon">🪙</span>${DB.getTokens()}</span>`
       + `<button id="vital-daynight" class="vital-daynight" type="button" title="${dnTip}" aria-label="${dnTip}">${isDay ? "🌙" : "☀️"}</button>`;
 
@@ -172,10 +175,10 @@
     pop.innerHTML = isTokens
       ? `<strong>🪙 ${DB.getTokens()}</strong><br>`
         + `Earned free from rank-ups, or bought in 🪙 Token Shop (Library). Spent `
-        + `to unlock courses. Never converts to or from $ money.`
-      : `<strong>$${DB.getWallet()}</strong><br>`
-        + `Earned from the Garden's daily dividends and Arcade wins. Spent to `
-        + `unlock Arcade games and place stakes.`;
+        + `to unlock courses.`
+      : `<strong>🏅 ${DB.getReputation()}</strong><br>`
+        + `Earned in the Garden. Spent on other people's Forum posts — `
+        + `never on your own.`;
     const r = chip.getBoundingClientRect();
     pop.style.display = "block";
     pop.style.top = `${r.bottom + 6}px`;

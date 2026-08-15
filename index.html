@@ -23,7 +23,6 @@
   <link rel="stylesheet" href="styles/garden.css" />
   <link rel="stylesheet" href="styles/settings.css" />
   <link rel="stylesheet" href="styles/shop.css" />
-  <link rel="stylesheet" href="styles/games.css" />
   <link rel="stylesheet" href="styles/admin.css" />
 </head>
 <body>
@@ -435,11 +434,14 @@
             </span>
             <span class="arrow">&rarr;</span>
           </button>
+          <!-- id stays btn-lobby-games: core/lobby.js's STAR_ORDER keys
+               the ring layout off it, same reason btn-lobby-stats kept
+               its name when Statistics became Custom. -->
           <button id="btn-lobby-games" class="lobby-tile" >
-            <span class="lt-icon">&#127920;</span>
+            <span class="lt-icon">&#128172;</span>
             <span class="lt-body">
-              <span class="lt-title">Arcades</span>
-              <span class="lt-sub" id="lobby-games-sub">Games</span>
+              <span class="lt-title">Forum</span>
+              <span class="lt-sub" id="lobby-games-sub">Community</span>
             </span>
             <span class="arrow">&rarr;</span>
           </button>
@@ -494,13 +496,15 @@
       <div class="shop-body" id="shop-body"></div>
     </section>
 
-    <!-- ====== Arcade ====== -->
-    <section id="games" class="screen">
+    <!-- ====== Forum (forum/forum.js) ======
+         Replaced the Arcade. See forum.js's header for why it ships as
+         an honest shell rather than a seeded fake community. -->
+    <section id="forum" class="screen">
       <div class="topbar">
         <button id="btn-back-lobby5" class="btn-ghost">&larr; Lobby</button>
-        <h2 class="topbar-title"><span class="accent">Arcades</span></h2>
+        <h2 class="topbar-title">The <span class="accent">Forum</span></h2>
       </div>
-      <div class="games-body" id="games-body"></div>
+      <div class="topic-map-body" id="forum-body"></div>
     </section>
 
 
@@ -650,9 +654,9 @@
          4. core/boot LAST — wires branches together and starts up
        Within band 3 the order between BRANCHES does not matter: they
        reach each other through late-bound Dojo.* calls, never at load
-       time. The one exception is a branch's own sub-files — the three
-       games call Games.register() at load, so games/games.js has to
-       come before them or the card renders as "Not loaded".
+       time. (The one exception used to be the Arcade's sub-files, which
+       had to load after games.js to register themselves — that branch
+       is gone, replaced by the Forum, and no branch has sub-files now.)
        Deleting a branch's <script> tags removes the feature cleanly.
        ============================================================ -->
 
@@ -701,7 +705,7 @@
   <script src="shop/decor.js"></script>
   <script src="shop/store.js"></script>
   <script src="shop/inventory.js"></script>
-  <script src="games/games.js"></script>
+  <script src="forum/forum.js"></script>
   
   
   

@@ -85,7 +85,7 @@
     };
     tile("btn-lobby-garden", "lobby-garden-sub", gardenSummary());
     tile("btn-lobby-shop",   "lobby-shop-sub",   shopSummary());
-    tile("btn-lobby-games",  "lobby-games-sub",  Dojo.gamesSummary ? Dojo.gamesSummary() : null);
+    tile("btn-lobby-games",  "lobby-games-sub",  Dojo.forumSummary ? Dojo.forumSummary() : null);
     tile("btn-lobby-flashcards", "lobby-flashcards-sub", Dojo.flashcardsSummary ? Dojo.flashcardsSummary() : null);
 
     renderCharge();

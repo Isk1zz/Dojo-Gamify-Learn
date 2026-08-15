@@ -1374,6 +1374,17 @@ const DB = (() => {
   // games/, story/), never here. db.js must stay boring.
   // ================================================
 
+  // ---- Reputation (was `$` money) ----
+  // Same stored field, new meaning as of 2026-08-15. `$` existed to buy
+  // Arcade unlocks and cosmetics; the Arcade became the Forum and every
+  // cosmetic went free, so money had no sink left at all. Rather than
+  // delete a balance every profile already has, it was repurposed: the
+  // number you had is the reputation you have.
+  //
+  // The STORAGE key stays `wallet` deliberately — renaming it would
+  // orphan every existing save for a cosmetic gain. The exported names
+  // below are what new code should use; getWallet/addMoney/spendMoney
+  // remain as aliases because Garden, Library and Admin still call them.
   function getWallet() {
     const p = getActiveProfile();
     return p ? (p.wallet || 0) : 0;
@@ -1662,6 +1673,10 @@ const DB = (() => {
     getWallet,
     addMoney,
     spendMoney,
+    // Preferred names — same storage, current meaning. See getWallet.
+    getReputation: getWallet,
+    addReputation: addMoney,
+    spendReputation: spendMoney,
     getTokens,
     addTokens,
     spendTokens,

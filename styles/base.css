@@ -1324,6 +1324,14 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   .fx-flash { display: none; }
 }
 
+/* Forum (forum/forum.js) — the reputation figure is the one number on
+   the screen, so it gets the weight rather than being another line. */
+.forum-rep {
+  font-family: var(--mono); font-size: 2.6rem; font-weight: 800;
+  color: var(--yellow); line-height: 1; margin: 0.2rem 0 0.6rem;
+}
+.forum-empty { border: 1px dashed var(--border-accent); background: transparent; }
+
 /* Flying bolt */
 .bolt-layer { position: fixed; inset: 0; pointer-events: none; z-index: 70; }
 .flying-bolt {
