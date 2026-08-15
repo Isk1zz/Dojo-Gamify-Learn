@@ -17,6 +17,10 @@ nightly, spent only on others. The Garden pays nothing. Received
 badges accumulate into a season; seasonal achievements pay status,
 never currency. Full reasoning in `UPDATESTACK.md`.
 
+CAPS (decided 2026-08-16): max **10 points to any one user per month**,
+max **1 point per post**. Kills collusion, and forces breadth — spending a
+full allowance means reaching 15-27 different authors.
+
 ## The one rule
 
 **You cannot spend reputation on yourself.**

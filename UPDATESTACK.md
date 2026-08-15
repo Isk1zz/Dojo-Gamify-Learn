@@ -208,10 +208,37 @@ Two consequences worth noting:
   popular. Worth keeping: it is cheap now and hard to add later without
   backfilled data nobody has.
 
-### Open, cheap to settle now, expensive later
-- **Collusion.** Two accounts trading daily allowances both hit seasonal
-  thresholds. Seasonal reset limits the damage but does not stop it.
-  Cheap fix if wanted: diminishing returns on repeat gifts to the same
+### All economy questions are now SETTLED (nothing open here)
+### Settled 2026-08-16: per-recipient and per-post caps
+- **Max 10 points to any one user per month.**
+- **Max 1 point per post.**
+
+**Collusion is solved outright.** Two friends swapping can move at most
+10 each per month, not ~150. It stops being a strategy rather than being
+policed.
+
+**Two properties that fall out of this for free, worth keeping on
+purpose:**
+- **You must read widely to spend at all.** An allowance of 5-9/day is
+  ~150-270 a month, and no single author can absorb more than 10 of it.
+  Spending it fully means engaging with **15-27 different authors**.
+  That is real pressure toward breadth, and it came from the cap rather
+  than from a rule saying "read widely".
+- **Nobody can be carried by one superfan.** Since a single giver is
+  worth at most 10, a high monthly total requires many distinct people.
+  Popularity has to be broad, not deep.
+- 1 point per post also means 10 points to one author requires them to
+  have written **10 posts** that month — so the ceiling rewards
+  sustained output, not one viral hit.
+
+**Interaction to handle in the UI, not a flaw:** on a small forum the
+allowance is mostly untouchable. Five active posters means at most 50
+points can be placed all month against an allowance of ~150-270. The
+number will look broken unless the UI frames it as "up to N per day" and
+shows what is actually placeable, rather than advertising a balance the
+forum has nowhere to put. Revisit the daily figure once posting volume
+is known — it is far easier to raise later than to cut.
+
   person within a season.
 - ~~Existing `wallet` balances.~~ SETTLED: nothing accumulates, so there is nothing to migrate. Old text: profiles carry accumulated dividends.
   Under an allowance model that stored number means nothing. Decide
