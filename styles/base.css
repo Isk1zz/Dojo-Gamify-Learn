@@ -792,6 +792,290 @@ body {
    under it when survival is unlocked. */
 #app > .screen { padding-top: 2.8rem; }
 
+/* ---- Lobby decorations (shop/decor.js) ----
+   Fixed, z-index -1 so cards/screens (default position:static, so they
+   paint on top of positioned siblings regardless of DOM order) always
+   sit above the decorations, same relationship body's own background
+   already has with the app. Each piece is hidden by default and shown
+   only when its exact id is a token in html[data-bg-decor] — set by
+   core/theme.js's applyBgDecors, `~=` matches one word out of the
+   space-separated list of everything currently toggled on. */
+#bg-decor-layer { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+/* Clouds only — above the app so they can actually be clicked. */
+#bg-decor-front { position: fixed; inset: 0; pointer-events: none; z-index: 55; overflow: hidden; }
+/* :where() so this hide rule contributes ZERO specificity — written as
+   a bare `#bg-decor-layer > *` it scores (1,0,0) on the id and beats
+   every reveal rule below (0,2,1), silently hiding all decorations
+   even when their token is present. Caught live. */
+:where(#bg-decor-layer, #bg-decor-front) > * { display: none; }
+html[data-bg-decor~="usa_stars"]  .decor-usa_stars,
+html[data-bg-decor~="usa_eagles"] .decor-usa_eagles,
+html[data-bg-decor~="clouds"]     .decor-clouds,
+html[data-bg-decor~="moon"]       .decor-moon { display: block; }
+
+/* ---- Moon ----
+   Top-right, mirroring the stars' top-left corner. The halo is a real
+   element rather than a filter glow so it can breathe on its own timing
+   while the disc holds still. */
+.decor-moon { position: absolute; top: 4rem; right: 2.5rem; width: 108px; height: 108px; }
+.decor-moon .moon-disc  { fill: #eef0f6; }
+.decor-moon .moon-halo  { fill: #dbe4ff; opacity: 0.13; animation: moon-breathe 6.5s ease-in-out infinite; }
+.decor-moon .moon-craters circle { fill: #c3c8d8; opacity: 0.75; }
+@keyframes moon-breathe {
+  0%, 100% { opacity: 0.10; transform: scale(0.94); transform-origin: 50% 50%; }
+  50%      { opacity: 0.20; transform: scale(1.06); transform-origin: 50% 50%; }
+}
+
+/* ---- Stars ----
+   top: below the fixed header bar (#app > .screen's 2.8rem padding),
+   not literal viewport y:0 — the header sits there on every screen and
+   would hide this entirely otherwise. Nine stars at three sizes rather
+   than five identical ones: an even grid of same-size stars reads as a
+   UI element, a scattered field of mixed sizes reads as a sky. The
+   whole cluster also drifts, so it isn't pinned rigidly to the corner. */
+.decor-usa_stars {
+  position: absolute; top: 4.5rem; left: 1.5rem; width: 150px; height: 120px;
+  animation: decor-star-drift 19s ease-in-out infinite;
+}
+.decor-usa_stars span {
+  position: absolute; color: #FFD700; line-height: 1;
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.55), 0 0 14px rgba(255, 215, 0, 0.25);
+  animation: decor-twinkle 2.6s ease-in-out infinite;
+}
+.decor-usa_stars span::before { content: "\2605"; }
+/* Irregular on purpose — no two stars share a row or column. */
+.decor-usa_stars span:nth-child(1) { top:   2px; left:  46px; font-size: 1.05rem; animation-delay: 0s;    animation-duration: 3.1s; }
+.decor-usa_stars span:nth-child(2) { top:  21px; left:   6px; font-size: 0.6rem;  animation-delay: 0.7s;  animation-duration: 2.4s; }
+.decor-usa_stars span:nth-child(3) { top:  13px; left:  94px; font-size: 0.75rem; animation-delay: 1.3s;  animation-duration: 3.6s; }
+.decor-usa_stars span:nth-child(4) { top:  44px; left:  27px; font-size: 0.9rem;  animation-delay: 0.35s; animation-duration: 2.8s; }
+.decor-usa_stars span:nth-child(5) { top:  38px; left:  68px; font-size: 0.55rem; animation-delay: 1.9s;  animation-duration: 3.3s; }
+.decor-usa_stars span:nth-child(6) { top:  61px; left: 106px; font-size: 0.95rem; animation-delay: 1.1s;  animation-duration: 2.6s; }
+.decor-usa_stars span:nth-child(7) { top:  76px; left:  14px; font-size: 0.65rem; animation-delay: 2.2s;  animation-duration: 3.8s; }
+.decor-usa_stars span:nth-child(8) { top:  88px; left:  56px; font-size: 0.8rem;  animation-delay: 0.9s;  animation-duration: 3.0s; }
+.decor-usa_stars span:nth-child(9) { top: 100px; left:  92px; font-size: 0.5rem;  animation-delay: 1.6s;  animation-duration: 2.5s; }
+@keyframes decor-twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8) rotate(0deg); }
+  50%      { opacity: 1;   transform: scale(1.15) rotate(8deg); }
+}
+@keyframes decor-star-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(6px, -8px); }
+}
+
+/* ---- Eagles ----
+   Two animations stacked: the <svg> flies the path, the inner <g>
+   flaps. Kept separate so the flight can be linear (steady glide)
+   while the wingbeat eases — one combined animation can't do both. */
+/* Body is a lifted brown, not a true silhouette: an accurate dark
+   eagle against these dark themes disappeared entirely in testing. The
+   pale head does most of the legibility work. */
+.decor-usa_eagles {
+  position: absolute; top: 14%; left: 0; width: 78px; height: 39px;
+  color: #6b5540; opacity: 0.9;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45));
+  /* 27s made a pass easy to miss entirely — at this size the bird has
+     to visibly GO somewhere while you're looking at the screen. */
+  animation: decor-fly 16s linear infinite;
+}
+.decor-usa_eagles .wing, .decor-usa_eagles .eagle-body, .decor-usa_eagles .eagle-tail { fill: currentColor; }
+.decor-usa_eagles .eagle-tail { fill: #f4f1ea; }          /* white tail + head: the bald eagle's two identifying marks */
+.decor-usa_eagles .eagle-head { fill: #f4f1ea; }
+.decor-usa_eagles .eagle-beak { fill: #f0b429; }
+.decor-usa_eagles .wing {
+  transform-box: view-box; transform-origin: 30px 15px;
+  animation: decor-flap 1.5s ease-in-out infinite;
+}
+.decor-usa_eagles .wing-r { animation-name: decor-flap-r; }
+.decor-usa_eagles.eagle-2 {
+  top: 34%; width: 54px; height: 27px; opacity: 0.62;
+  animation-duration: 23s; animation-delay: -9s;
+}
+.decor-usa_eagles.eagle-2 .wing { animation-duration: 1.9s; animation-delay: -0.6s; }
+@keyframes decor-flap {
+  0%, 100% { transform: rotate(-13deg); }
+  50%      { transform: rotate(11deg); }
+}
+@keyframes decor-flap-r {
+  0%, 100% { transform: rotate(13deg); }
+  50%      { transform: rotate(-11deg); }
+}
+/* Crosses the viewport, resets off-screen left at the midpoint so one
+   loop reads as two separate passes at different heights. */
+@keyframes decor-fly {
+  0%     { transform: translate(-15vw, 0); }
+  25%    { transform: translate(45vw, 5vh); }
+  50%    { transform: translate(118vw, -3vh); }
+  50.01% { transform: translate(-15vw, 11vh); }
+  75%    { transform: translate(45vw, 3vh); }
+  100%   { transform: translate(118vw, -5vh); }
+}
+
+/* ---- Clouds ----
+   Three sizes at three speeds, so the layer has depth instead of one
+   flat sheet sliding past: the big near cloud crosses fastest, the
+   small far one crawls. Deliberately low-contrast — this sits behind
+   the whole app and must never compete with card text. */
+/* The one decoration that takes input — the layer is pointer-events:
+   none, so this opts back in. Only reachable where no card overlaps it,
+   which is most of the background most of the time. */
+.decor-clouds { position: absolute; color: var(--text); pointer-events: auto; cursor: pointer; }
+.decor-clouds g { fill: currentColor; }
+.decor-clouds:hover { filter: brightness(1.5); }
+.decor-clouds.cloud-poked { animation-play-state: paused; transform-origin: 50% 50%; }
+.decor-clouds.cloud-poked g { animation: cloud-squish 0.55s ease-out; }
+@keyframes cloud-squish {
+  0%   { transform: scale(1, 1); }
+  35%  { transform: scale(1.07, 0.87); }
+  70%  { transform: scale(0.97, 1.05); }
+  100% { transform: scale(1, 1); }
+}
+/* Fairy outcome: the cloud thins out to let her leave, then re-forms. */
+.decor-clouds.cloud-fading { transition: opacity 0.7s ease; opacity: 0.012 !important; }
+/* Six, spread across the height and staggered so the sky is never
+   empty and never evenly spaced: the big near ones cross fastest, the
+   small far ones crawl. Negative delays start each mid-journey rather
+   than queuing them all at the left edge on load. */
+.decor-clouds.cloud-1 { top:  9%; width: 190px; opacity: 0.09;  animation: decor-drift 62s  linear infinite; }
+.decor-clouds.cloud-2 { top: 27%; width: 130px; opacity: 0.07;  animation: decor-drift 88s  linear infinite; animation-delay: -30s; }
+.decor-clouds.cloud-3 { top: 55%; width:  90px; opacity: 0.05;  animation: decor-drift 124s linear infinite; animation-delay: -70s; }
+.decor-clouds.cloud-4 { top: 17%; width: 160px; opacity: 0.065; animation: decor-drift 74s  linear infinite; animation-delay: -48s; }
+.decor-clouds.cloud-5 { top: 40%; width: 110px; opacity: 0.055; animation: decor-drift 102s linear infinite; animation-delay: -18s; }
+.decor-clouds.cloud-6 { top: 68%; width: 210px; opacity: 0.075; animation: decor-drift 56s  linear infinite; animation-delay: -84s; }
+@keyframes decor-drift {
+  0%   { transform: translateX(-22vw); }
+  100% { transform: translateX(122vw); }
+}
+
+/* ---- Scenery (shop/decor.js's SCENES) ----
+   Bottom-anchored horizon, one at a time via html[data-bg-scene]. Sits
+   in the same behind-the-app layer as the decorations. preserveAspect
+   is "none" on the SVGs so the band stretches to any width instead of
+   letterboxing on ultrawide. */
+.decor-scene {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 21vh; min-height: 108px; max-height: 210px;
+  color: var(--accent); display: none;
+}
+html[data-bg-scene="jungle"]  .scene-jungle,
+html[data-bg-scene="river"]   .scene-river,
+html[data-bg-scene="island"]  .scene-island,
+html[data-bg-scene="urban"]   .scene-urban,
+html[data-bg-scene="village"] .scene-village { display: block; }
+/* Two depth bands: the far one washed toward the page background, the
+   near one solid. Doing the distance with opacity rather than two
+   hand-picked colours means it keeps working on every theme. */
+.decor-scene .sc-far  { fill: currentColor; opacity: 0.07; }
+.decor-scene .sc-near { fill: currentColor; opacity: 0.14; }
+.decor-scene .sc-shine  { fill: var(--text); opacity: 0.3; }
+.decor-scene .sc-window { fill: var(--yellow); opacity: 0.75; animation: sc-window-flicker 7s steps(1) infinite; }
+@keyframes sc-window-flicker {
+  0%, 44%  { opacity: 0.75; }
+  45%, 62% { opacity: 0.4; }
+  63%      { opacity: 0.75; }
+}
+
+/* ---- Cloud-poke effects (shop/decor.js) ----
+   Own layer ABOVE the app, unlike the decorations themselves: these are
+   a direct response to a click, so they have to be visible over cards.
+   Under .bolt-layer's z-index 70 so XP feedback still wins. */
+#decor-fx { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
+
+.fx-rain { position: absolute; }
+.fx-rain span {
+  position: absolute; top: 0; width: 1.5px; height: 11px; border-radius: 1px;
+  background: linear-gradient(to bottom, transparent, var(--cyan));
+  opacity: 0; animation: fx-fall 1.05s linear infinite;
+}
+.fx-rain.heavy span { height: 16px; width: 2px; animation-duration: 0.72s; }
+@keyframes fx-fall {
+  0%   { opacity: 0;    transform: translateY(0); }
+  12%  { opacity: 0.85; }
+  100% { opacity: 0;    transform: translateY(var(--fall, 90px)); }
+}
+
+.fx-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: fx-flash 0.62s ease-out; }
+@keyframes fx-flash {
+  0%   { opacity: 0; }
+  8%   { opacity: 0.30; }
+  16%  { opacity: 0.04; }
+  26%  { opacity: 0.22; }
+  100% { opacity: 0; }
+}
+.fx-bolt { position: absolute; width: 24px; animation: fx-bolt 0.62s ease-out; }
+.fx-bolt svg { width: 100%; display: block; }
+.fx-bolt path { fill: #fde68a; filter: drop-shadow(0 0 8px rgba(253, 230, 138, 0.9)); }
+@keyframes fx-bolt {
+  0%, 12%   { opacity: 0; }
+  14%, 30%  { opacity: 1; }
+  34%       { opacity: 0.2; }
+  44%       { opacity: 1; }
+  100%      { opacity: 0; }
+}
+
+/* Rainbow: concentric rings from a radial-gradient, red on the OUTSIDE
+   and violet inside (the real order), each stop soft so the bands wash
+   into each other instead of butting up as hard stripes. Blur takes the
+   last of the edge off; the mask fades the legs out before they reach
+   the horizon, which is what stops it looking like a drawn arch. */
+.fx-rainbow {
+  position: absolute; width: 300px; height: 150px; margin-left: -150px;
+  animation: fx-rainbow 5.2s ease-in-out;
+}
+.fx-rainbow .bow {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle 150px at 50% 100%,
+    transparent 0 60%,
+    rgba(138, 43, 226, 0.30) 62%,
+    rgba(65, 105, 225, 0.34) 67%,
+    rgba(60, 179, 113, 0.34) 73%,
+    rgba(255, 215, 0, 0.38) 79%,
+    rgba(255, 140, 0, 0.36) 85%,
+    rgba(220, 60, 50, 0.30) 90%,
+    transparent 95%);
+  filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to top, transparent 2%, #000 34%);
+  mask-image: linear-gradient(to top, transparent 2%, #000 34%);
+}
+@keyframes fx-rainbow {
+  0%       { opacity: 0; transform: scale(0.9); }
+  22%, 68% { opacity: 1; transform: scale(1); }
+  100%     { opacity: 0; transform: scale(1.03); }
+}
+
+.fx-fairy { position: absolute; animation: fx-fairy-fly 2.6s ease-in forwards; }
+.fx-fairy .fairy-body {
+  position: absolute; font-size: 1.15rem; color: #fff7c2;
+  filter: drop-shadow(0 0 7px #fbbf24); animation: fx-fairy-spin 0.7s linear infinite;
+}
+.fx-fairy .fairy-glow {
+  position: absolute; left: -13px; top: -13px; width: 40px; height: 40px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(251,191,36,0.55), transparent 68%);
+  animation: fx-fairy-pulse 0.9s ease-in-out infinite;
+}
+@keyframes fx-fairy-fly {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  14%  { opacity: 1; transform: translate(14px, -12px) scale(1); }
+  40%  { transform: translate(64px, -46px) scale(1); }
+  62%  { transform: translate(38px, -94px) scale(0.94); }
+  84%  { opacity: 0.85; transform: translate(96px, -142px) scale(0.8); }
+  100% { opacity: 0; transform: translate(150px, -196px) scale(0.5); }
+}
+@keyframes fx-fairy-spin  { to { transform: rotate(360deg); } }
+@keyframes fx-fairy-pulse { 0%, 100% { transform: scale(0.8); opacity: 0.75; } 50% { transform: scale(1.2); opacity: 1; } }
+
+/* Everything here is ambient motion with no informational content, so
+   it all stops outright rather than being reduced — matching what the
+   rest of the app does for reduced-motion. The cloud-poke effects stay
+   available (they're user-initiated, not ambient) but lose the flash,
+   which is the one piece that could actually hurt. */
+@media (prefers-reduced-motion: reduce) {
+  .decor-usa_stars, .decor-usa_stars span,
+  .decor-usa_eagles, .decor-usa_eagles .wing,
+  .decor-clouds, .decor-scene .sc-window, .decor-moon .moon-halo { animation: none; }
+  .decor-usa_eagles { display: none; }
+  .fx-flash { display: none; }
+}
+
 /* Flying bolt */
 .bolt-layer { position: fixed; inset: 0; pointer-events: none; z-index: 70; }
 .flying-bolt {

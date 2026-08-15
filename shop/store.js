@@ -94,6 +94,105 @@
     return true;
   }
 
+  // ---- Lobby decorations ----
+  // Each separately purchasable and separately toggleable — a DIFFERENT
+  // ownership shape than layout/theme/palette above, which are all
+  // single-equip slots. See data/db.js's getBgDecors/toggleBgDecor
+  // comment for why this is a set, not a slot.
+  const decorKey = id => `decor_${id}`;
+  function decorPrice(id) {
+    const d = (Dojo.BG_DECORS || []).find(x => x.id === id);
+    return (d && d.price) || 0;
+  }
+  function ownsDecor(id) {
+    if (!decorPrice(id)) return true;                 // free tier
+    return DB.getInventory().includes(decorKey(id));
+  }
+  function buyDecor(id) {
+    if (ownsDecor(id)) return false;
+    const cost = decorPrice(id);
+    if (!cost || !DB.spendMoney || !DB.spendMoney(cost)) return false;
+    DB.addInventory(decorKey(id));
+    Dojo.Bus.emit("wallet:changed", { delta: -cost, reason: "decor-buy" });
+    return true;
+  }
+
+  // ---- Scenery ----
+  // A slot, not a set — so this mirrors layouts/themes (buy, then equip
+  // exactly one) rather than the decorations above.
+  const sceneKey = id => `scene_${id}`;
+  function scenePrice(id) {
+    const s = (Dojo.SCENES || []).find(x => x.id === id);
+    return (s && s.price) || 0;
+  }
+  function ownsScene(id) {
+    if (id === "none") return true;                 // "no scenery" is always available
+    if (!scenePrice(id)) return true;               // free tier
+    return DB.getInventory().includes(sceneKey(id));
+  }
+  function buyScene(id) {
+    if (ownsScene(id)) return false;
+    const cost = scenePrice(id);
+    if (!cost || !DB.spendMoney || !DB.spendMoney(cost)) return false;
+    DB.addInventory(sceneKey(id));
+    Dojo.Bus.emit("wallet:changed", { delta: -cost, reason: "scene-buy" });
+    return true;
+  }
+
+  function scenesPane() {
+    const wallet = DB.getWallet();
+    const now = DB.getScene ? DB.getScene() : "none";
+    return `
+      <div class="settings-section">
+        <div class="stats-section-title">\u{1F3DE}\u{FE0F} Scenery</div>
+        <p class="settings-hint">The horizon along the bottom of every screen. One at a time — you can't stand on a jungle floor and a city street at once.</p>
+        <div class="shop-grid">
+          ${(Dojo.SCENES || []).map(s => {
+            const owned = ownsScene(s.id);
+            const afford = wallet >= s.price;
+            return `
+              <div class="shop-card">
+                <div class="shop-card-preview game-preview"><span class="gp-icon">${s.icon}</span></div>
+                <div class="shop-card-body">
+                  <div class="shop-name">${s.name}</div>
+                  <div class="shop-tagline">${owned ? "Owned — equip it in your Inventory." : s.desc}</div>
+                  <button class="shop-btn buy" data-scene="${s.id}" ${owned || !afford ? "disabled" : ""}>
+                    ${owned ? (s.id === now ? "Equipped" : "Owned") : afford ? `Buy — $${s.price}` : `Need $${s.price - wallet} more`}
+                  </button>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }
+
+  function decorPane() {
+    const wallet = DB.getWallet();
+    const active = DB.getBgDecors ? DB.getBgDecors() : [];
+    return `
+      <div class="settings-section">
+        <div class="stats-section-title">\u{1F985} Lobby decorations</div>
+        <p class="settings-hint">All free, and all on by default — layer them over any theme or palette, and switch each one on or off independently in your Inventory.</p>
+        <div class="shop-grid">
+          ${(Dojo.BG_DECORS || []).map(d => {
+            const owned = ownsDecor(d.id);
+            const afford = wallet >= d.price;
+            return `
+              <div class="shop-card">
+                <div class="shop-card-preview game-preview"><span class="gp-icon">${d.icon}</span></div>
+                <div class="shop-card-body">
+                  <div class="shop-name">${d.name}</div>
+                  <div class="shop-tagline">${owned ? "Owned — toggle it on in your Inventory." : d.desc}</div>
+                  <button class="shop-btn buy" data-decor="${d.id}" ${owned || !afford ? "disabled" : ""}>
+                    ${owned ? (active.includes(d.id) ? "On" : "Free — off") : afford ? `Buy — $${d.price}` : `Need $${d.price - wallet} more`}
+                  </button>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }
+
   function themesPane() {
     const wallet = DB.getWallet();
     const now = DB.getTheme();
@@ -126,9 +225,10 @@
 
   // ---- Categories ----
   const CATS = [
-    { id: "packs",   group: "tokens",  icon: "\u{1FA99}", label: "Token packs" },
-    { id: "custom",  group: "money",   icon: "\u{1F3A8}", label: "Custom Shop" },
-    { id: "patron",  group: "support", icon: "\u{1F49C}", label: "Support the Dojo" }
+    { id: "packs",    group: "tokens",  icon: "\u{1FA99}", label: "Token packs" },
+    { id: "exchange", group: "tokens",  icon: "\u{1F501}", label: "Exchange" },
+    { id: "custom",   group: "money",   icon: "\u{1F3A8}", label: "Custom Shop" },
+    { id: "patron",   group: "support", icon: "\u{1F49C}", label: "Support the Dojo" }
   ];
 
   function navHtml() {
@@ -146,6 +246,20 @@
   }
 
   // ---- Panes ----
+  // A single flag, drawn as an actual flag-proportioned rectangle (not
+  // a full-bleed card background) with its two most identifying details
+  // added back in: Israel's Star of David and the USA's canton of
+  // stars. Reported as "flags in shop should be fixed" — this was the
+  // ART half of that; HEX_FLAG_MODES' key order (core/lobby.js) is the
+  // ORDER half, now real flags first and the Mixtape combo last since
+  // it's built FROM the first two.
+  function flagArt(flag, id) {
+    if (!flag) return `<div class="flag-swatch" style="background:var(--bg-surface)"></div>`;
+    const overlay = id === "israel" ? `<span class="flag-star">✡</span>`
+      : id === "usa" ? `<span class="flag-canton"></span>` : "";
+    return `<div class="flag-swatch" style="background:${flag.bar}">${overlay}</div>`;
+  }
+
   function palettesPane() {
     const MODES = Dojo.HEX_FLAG_MODES || {};
     const FLAGS = Dojo.HEX_FLAGS || {};
@@ -159,13 +273,16 @@
           ${Object.keys(MODES).map(id => {
             const owned = ownsPalette(id);
             const cost = paletteCost(id);
-            const first = FLAGS[(MODES[id] || [])[0]];
-            const second = FLAGS[(MODES[id] || [])[1]];
+            const pair = MODES[id] || [];
+            const first = FLAGS[pair[0]];
+            const second = FLAGS[pair[1]];
             const afford = wallet >= cost;
             return `
               <div class="shop-card">
-                <div class="shop-card-preview" style="background:${first ? first.bar : "var(--bg-surface)"}"></div>
-                ${second && second !== first ? `<div class="shop-card-preview" style="height:10px;background:${second.bar}"></div>` : ""}
+                <div class="shop-card-preview flag-preview">
+                  ${flagArt(first, pair[0])}
+                  ${second && second !== first ? flagArt(second, pair[1]) : ""}
+                </div>
                 <div class="shop-card-body">
                   <div class="shop-name">${LABELS[id] || id}</div>
                   <div class="shop-tagline">${owned ? "Owned — equip it in your Inventory." : `Unlocks this palette for both colour slots.`}</div>
@@ -210,10 +327,11 @@
   }
 
   function paneHtml() {
-    if (activeCat === "custom") return layoutsPane() + themesPane() + palettesPane();
+    if (activeCat === "custom") return layoutsPane() + themesPane() + palettesPane() + decorPane() + scenesPane();
     // Token packs and patron tiers are shop/tokens.js's data — asked
     // for as markup rather than duplicated here.
     if (activeCat === "packs" && Dojo.tokenPacksPane) return Dojo.tokenPacksPane();
+    if (activeCat === "exchange" && Dojo.exchangePane) return Dojo.exchangePane();
     if (activeCat === "patron" && Dojo.patronPane) return Dojo.patronPane();
     return `<p class="settings-hint">Nothing here yet.</p>`;
   }
@@ -241,6 +359,12 @@
     body.querySelectorAll("[data-palette]").forEach(btn => {
       btn.addEventListener("click", () => { if (buyPalette(btn.getAttribute("data-palette"))) renderStore(); });
     });
+    body.querySelectorAll("[data-decor]").forEach(btn => {
+      btn.addEventListener("click", () => { if (buyDecor(btn.getAttribute("data-decor"))) renderStore(); });
+    });
+    body.querySelectorAll("[data-scene]").forEach(btn => {
+      btn.addEventListener("click", () => { if (buyScene(btn.getAttribute("data-scene"))) renderStore(); });
+    });
     // Token packs / patron tiers keep their own handlers — they live
     // with the data in shop/tokens.js.
     if (Dojo.bindTokenPane) Dojo.bindTokenPane(body, renderStore);
@@ -248,5 +372,5 @@
     showScreen("store");
   }
 
-  Object.assign(Dojo, { renderStore, ownsPalette, paletteCost, ownsLayout, LAYOUTS, ownsTheme, themePrice });
+  Object.assign(Dojo, { renderStore, ownsPalette, paletteCost, ownsLayout, LAYOUTS, ownsTheme, themePrice, ownsDecor, decorPrice, ownsScene, scenePrice });
 })();

@@ -85,6 +85,32 @@
     document.documentElement.style.setProperty("--bg-stripe-image", stripeCssFor(id, t));
   }
 
+  // ---- Background decorations (Inventory's "Decorations" slot) ----
+  // Same busy-theme conflict stripeCssFor already solves for the stripe
+  // layer, applied here too: a theme whose OWN `bg` is a repeating
+  // pattern (Kirigami etc.) reads as noise with a second moving layer
+  // on top, so decorations suppress there exactly like stripes do —
+  // still owned/toggled in DB, just not rendered against that theme.
+  // Rendered via a data attribute (`~=` token matching in CSS), not a
+  // CSS var, because decorations are actual animated DOM elements
+  // (flying eagles), not a single background-image string.
+  function decorsSuppressed(t) {
+    return !!(t && t.bg && t.bg.includes("repeating-linear-gradient"));
+  }
+  function applyBgDecors(ids) {
+    const t = resolveTheme(DB.getTheme ? DB.getTheme() : "indigo");
+    document.documentElement.dataset.bgDecor = decorsSuppressed(t) ? "" : (ids || []).join(" ");
+  }
+
+  // Scenery is deliberately NOT run through decorsSuppressed: the
+  // suppression rule exists because a repeating overlay tiled on top of
+  // a repeating theme `bg` reads as noise. Scenery is a solid silhouette
+  // anchored to the bottom edge — it doesn't tile, so it doesn't fight
+  // a patterned theme the way stripes and drifting decorations do.
+  function applyScene(id) {
+    document.documentElement.dataset.bgScene = id && id !== "none" ? id : "";
+  }
+
   // Text was "deliberately not themed" (see core/CORE.md) for as long as
   // every theme was a dark background — a fixed light text color always
   // had contrast. A light theme breaks that assumption outright, so text
@@ -149,8 +175,13 @@
     // and the white-on-white light themes needed different handling.
     const stripeId = DB.getBgStripe ? DB.getBgStripe() : "none";
     root.setProperty("--bg-stripe-image", stripeCssFor(stripeId, t));
+
+    // Same re-adapt as the stripe above: a theme switch/preview has to
+    // re-check decoration suppression against whichever theme just
+    // painted, not leave decorations exactly as they were.
+    document.documentElement.dataset.bgDecor = decorsSuppressed(t) ? "" : (DB.getBgDecors ? DB.getBgDecors() : []).join(" ");
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { applyTheme, previewTheme, resolveTheme, themeUnlocked, applyBgStripe, bgStripeUnlocked, hexToRgb, shade });
+  Object.assign(Dojo, { applyTheme, previewTheme, resolveTheme, themeUnlocked, applyBgStripe, bgStripeUnlocked, applyBgDecors, applyScene, hexToRgb, shade });
 })();

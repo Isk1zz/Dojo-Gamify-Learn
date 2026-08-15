@@ -82,28 +82,122 @@ streak wager. Same dopamine, no licensing exposure, and it finally ties
 the Arcade to the thing the app is actually for. Needs a real design
 pass.
 
-## NOT YET BUILT from the 2026-08-14 restructure ask
-Everything else from that message shipped (see BACKLOG.md). These two
-did not, and are deliberately parked rather than half-done:
+## Renamed to "Unnamed App" (2026-08-15)
+The app's user-facing name is now **Unnamed App**, replacing
+"Dojo道場" / "Dojo - Gamify & Learn". Changed in all five places it
+surfaced: the `<title>`, the manifest's `name` AND `short_name`, the
+`apple-mobile-web-app-title` meta, the landing wordmark, the lobby
+wordmark, and the first-run welcome modal. (The wordmark needed an
+explicit `&nbsp;` — "Dojo道場" needed no space between Latin and CJK,
+"Unnamed App" does, and without it it rendered as "UnnamedApp".)
 
-- **US theme: eagles flying around + stars in the top-left corner, each
-  separately purchasable.** Not started. It's a bigger piece than it
-  sounds: it needs (a) an animation layer over the lobby, which hits
-  the exact per-theme overlay-conflict already documented under the
-  Weather VFX item below — the lobby is already carrying a theme `bg`
-  plus a `bgStripe`, and three themes suppress the stripe entirely
-  because two patterns fight; (b) two new purchasable inventory items,
-  which means extending the `$`/inventory model to cosmetic decorations
-  (today it only holds courses, avatars, themes, stripes); (c) a
-  decision on whether these are US-flag-only or general decorations.
-  Worth scoping together with Weather VFX, since both are "animated
-  decoration over the lobby" and would share the same layer.
-- **Windows shows country-flag emoji as letter pairs, not flags.** The
-  new 🇺🇦/🇮🇱/🇺🇸 labels render as "UA"/"IL"/"US" on Windows because
-  Windows ships no flag glyphs — verified in the live preview, it's an
-  OS font gap, not a code bug. Same class of problem as the silver-vs-
-  gold Token icon already logged below. Real fix is small inline SVG
-  flags instead of emoji; say the word and I'll swap them.
+**Deliberately NOT renamed:** the `Dojo` global object, the `cs_dojo`
+directory, and the repo. Those are code identity, not the product name
+— renaming the global would touch every file in the project for zero
+user-visible gain. If the name is meant to reach the code too, say so
+and it's a separate, mechanical pass.
+
+## NOT YET BUILT from the 2026-08-14 restructure ask
+Everything from that message has now shipped (see BACKLOG.md).
+
+- ~~**US theme: eagles flying around + stars in the top-left corner,
+  each separately purchasable.**~~ Shipped 2026-08-15, built as a
+  GENERAL decoration layer rather than a US-only one (your call), so
+  Weather VFX and any future overlay can reuse it instead of getting
+  its own mechanism:
+  - **New layer**: `#bg-decor-layer` in index.html — fixed,
+    `pointer-events:none`, `z-index:-1`. Each piece is hidden by default
+    and revealed by `html[data-bg-decor~="<id>"]`, so on/off is pure CSS
+    and the markup exists exactly once.
+  - **New ownership shape**: decorations are a SET, not a slot —
+    `DB.getBgDecors/setBgDecors/toggleBgDecor`, so Stars and Eagles can
+    both be on at once. Inventory's slot carries `multi: true` and the
+    dropzone renders a chip per active piece rather than one item.
+  - **Suppression**: `core/theme.js`'s `applyBgDecors` reuses the exact
+    rule `stripeCssFor` already applies — a theme whose own `bg` is a
+    repeating pattern (Kirigami/Terminal/Ronin) blanks decorations, so
+    the third overlay can't fight the first two. Verified live against
+    Kirigami.
+  - **Now FREE and default, per your call** ("set this bundle for
+    default (free)" = whatever was on screen). Stars, Eagles, Clouds and
+    Moon are all price 0 — always owned, same convention Indigo/Frost
+    use — and a new profile ships with all four ON plus the Jungle scene
+    equipped (`data/db.js` profile defaults). Verified on a fresh $0
+    profile with an empty inventory: full look, nothing bought. Each is
+    still individually switchable in the Inventory. Only River ($250)
+    and Island ($350) remain paid.
+  - **The Liberty Bundle was DELETED, not repriced.** It sold Stars +
+    Eagles + the USA palette for $650; with both decorations now free it
+    would have been a $650 wrapper around a $400 palette — strictly
+    worse than buying the palette alone, which is a trap rather than a
+    discount. The USA palette is still sold normally under Styles.
+  - **Art pass, same day**: Stars went from 5 identical glyphs on a grid
+    to 9 at mixed sizes on an irregular scatter, with per-star twinkle
+    rates and a slow drift on the whole cluster. Eagles went from the
+    🦅 emoji (can't animate, and at the mercy of the OS font — the same
+    trap the country-flag labels fell into) to a drawn SVG with wings
+    that beat, on a separate animation from the flight path so the
+    glide stays linear while the wingbeat eases.
+  - Two of my own bugs, both caught only by looking at the live page:
+    (1) the hide rule was written `#bg-decor-layer > *`, which scores
+    (1,0,0) on the id and silently beat every reveal rule (0,2,1) — so
+    NO decoration rendered even with its token set; fixed with
+    `:where()` to zero the specificity. (2) The first eagle drawing was
+    a concave notched tail + long triangular beak + straight body,
+    which is fletching + arrowhead + shaft — it read as an arrow, not a
+    bird ("it looks like an arrow with wings lol"). Redrawn with a
+    convex fanned tail, a blunt beak, and notched wing primaries.
+  - Reduced-motion: all decoration animation stops and the eagles hide
+    entirely — it's ambient motion with no informational content. The
+    cloud-poke effects stay (user-initiated, not ambient) minus the
+    lightning flash, which is the one piece that could actually hurt.
+  - **Clickable clouds + weather** (2026-08-15, second pass). Poking a
+    cloud rolls a weighted outcome: drizzle / light rain / heavy rain /
+    lightning / rainbow / a fairy who was hiding in it and flies away
+    (rarest at 8%). This is the first real piece of the parked Weather
+    VFX idea, built on the decoration layer rather than a new one.
+    - Clouds had to MOVE to their own layer (`#bg-decor-front`,
+      z-index 55) to be clickable at all: at z-index -1 the screen
+      `<section>` covers the viewport and swallowed every click —
+      verified, the hit target at a cloud's centre was `SECTION.screen`.
+      Everything else stays behind the app. They're faint enough that
+      drifting over a card reads as atmosphere.
+    - Effects render in a third layer (`#decor-fx`, z-index 60, under
+      hud.js's bolt layer) because a response to a click has to be
+      visible OVER cards, unlike ambient background art.
+    - The rainbow was rebuilt after you called the first one gross: six
+      hard saturated SVG strokes read as a croquet hoop. It's now
+      concentric radial-gradient rings (red outside, violet in — the
+      real order), soft-blended, blurred, and masked to fade out before
+      the legs reach the horizon.
+  - **Scenery** (2026-08-15): a bottom-of-screen horizon — Jungle
+    (free/default), River $250, Island $350. A SLOT, not a set
+    (`DB.getScene/setScene`) — you can't stand on a jungle floor and a
+    city street at once. Two depth bands per scene done with opacity
+    rather than picked colours, so it works on every theme. NOT run
+    through the busy-theme suppression: a bottom-anchored silhouette
+    doesn't tile, so it can't fight a patterned theme the way stripes
+    and drifting decorations do.
+    - **City and Village were built and pulled the same day** on your
+      call ("remove buildings from below — it used to be better"). Drawn
+      as rectangles-plus-triangles they read as flat cut-outs next to
+      the organic curves of the other three. Their markup and CSS are
+      still in place; re-listing them in `SCENES` is all it takes to
+      bring them back once they're drawn to the same standard.
+    - **Mountains: tried and removed.** Added as a test distant range
+      behind the scene, first tucked behind the canopy (read as
+      foreground clutter), then raised to the ring's level and faded
+      back. Cut on your call — fully removed, markup and CSS both, not
+      left dormant like City/Village. Don't re-propose it as an
+      improvement; it was built and judged.
+      Final depth order: stars/moon → scene → clouds (front).
+- ~~**Windows shows country-flag emoji as letter pairs, not flags.**~~
+  Resolved as a side effect of two separate fixes: the 🇺🇦/🇮🇱/🇺🇸 labels
+  were already stripped to plain text everywhere (2026-08-14), and the
+  2026-08-15 "flags in shop" fix replaced the Shop's gradient bars with
+  real drawn `.flag-swatch` art. No emoji-as-sole-identifier spot is
+  left in Settings, Shop, or Inventory — all three already draw a real
+  CSS swatch next to the text label.
 
 ## Ready to build, no blockers
 Nothing right now — Tokens (earn, spend, Token Shop, course-price gating,
@@ -234,25 +328,44 @@ cache-first strategy can pin a broken build.
   (both the empty template). Harmless, but the local copy is redundant.
 
 ## Still open — needs your input (2026-08-14 batch)
-- **"Flags in shop should be fixed" — I need one detail before I touch
-  it.** The palette cards in Custom Shop currently show each flag as a
-  full-bleed gradient bar. I don't know which part you meant: the card
-  ART (bar vs. a proper flag shape), the EMOJI (Windows renders 🇺🇦/🇮🇱/🇺🇸
-  as the letter pairs UA/IL/US — an OS font gap, not a code bug), or the
-  ORDER. Say which and it's quick.
-- **Preview for things you don't own yet.** Awarded (rank-locked) themes
-  preview on click in the Inventory. Unbought LAYOUTS and unbought BASE
-  themes don't — they route to the Shop instead. Making those preview
-  too is small; confirm you want click-to-preview rather than
-  click-to-shop for them, since it can't be both.
-- **New background-stripe shapes.** Asked for ideas, not yet drafted.
-  Current set: diagonal, cross-hatch, herringbone, lattice, origami —
-  all rank rewards, none sold. Two open questions: do new ones stay
-  rank-earned or go in the Custom Shop, and how many do you want?
-- **Buy `$` with Tokens (exchange rate).** Now viable — see the Arcade
-  section above for why it wasn't before. Needs a rate, and a decision
-  on whether it's one-way (Tokens → `$` only, which I'd recommend so
-  real money can never flow backwards out of the app).
+- ~~**"Flags in shop should be fixed."**~~ Shipped 2026-08-15 — both
+  ART and ORDER, per your answer. Art: palette cards now draw each flag
+  as an actual 3:2 rectangle (`.flag-swatch`) instead of a full-bleed
+  bar, with Israel's Star of David and the USA's dotted canton drawn
+  back in (`flagArt()` in shop/store.js). Order: `HEX_FLAG_MODES` in
+  core/lobby.js now lists Ukraine/Israel/USA before Mixtape, not after
+  — the combo is built FROM the other two, so it reads better last.
+- ~~**Preview for things you don't own yet.**~~ Shipped 2026-08-15. Every
+  locked tile in Inventory (base themes, awarded themes, lobby layouts,
+  star links, Star-of-David/spoke palettes) now previews on click instead
+  of routing straight to the Shop — themes repaint the whole app via the
+  same `Dojo.previewTheme` Settings already used, layouts/links/palettes
+  show in the bottom-right mini-lobby panel. A banner appears with either
+  "Buy — $X" (routes to Shop) or "Reach Rank N" for awarded themes, plus
+  a Restore button. Nothing is written to DB until it's actually bought.
+  Preview clears automatically on switching branches or leaving the
+  screen, so it can never leak into the rest of the app. Also fixed a
+  real bug this surfaced: awarded themes' old preview branch lived
+  inside `slot.equip`, but the click handler intercepted locked tiles
+  before `equip` was ever called — so that preview path was dead code,
+  never actually reachable.
+- ~~**New background-stripe shapes.**~~ Shipped 2026-08-15. Added two:
+  Trellis (rank 11, replacing that rank's old 150-token reward — a
+  60°/-60° diamond grid, wider and shallower than Lattice's 0°/90° one)
+  and Sunburst (rank 17, replacing that rank's old 100-token reward —
+  rays fanning from the top via `repeating-conic-gradient`, the first
+  non-linear shape in the set). You said "either" on rank-earned vs.
+  sellable, so these stayed rank-earned to match the existing five
+  rather than standing up a new Shop category and pricing for just two
+  items — sellable stripes are still on the table later if you want
+  more of them.
+- ~~**Buy `$` with Tokens (exchange rate).**~~ Shipped 2026-08-15. New
+  "🔁 Exchange" tab under Tokens in the Shop, one-way only (no `$` →
+  Tokens direction, same reasoning SHOP.md gives for keeping XP/money
+  apart). Rate started at 50 Tokens = $1, then bumped 5x on request to
+  **10 Tokens = $1** — a generous conversion now, not a loss-sink.
+  `shop/tokens.js`'s `exchangeTokens()`/`exchangeQuote()`, wired through
+  `shop/store.js`'s new `exchange` category.
 
 ## Still open — needs your input
 - **Admin panel: warning notices still don't reach the user.** Settled
@@ -317,16 +430,17 @@ cache-first strategy can pin a broken build.
   not reproduced here). Explicitly a rough sketch, not a spec — needs a
   real design pass before scoping, not literal implementation of every
   named weather type.
-  **Flagged conflict, per your ask to surface these before deciding:**
-  the lobby already carries two decorative overlay layers — each
-  theme's own `bg` (`shop/themes.js`) and the separate `bgStripe` layer
-  on top of it (`core/theme.js`). Three themes (Kirigami, Terminal,
-  Ronin) already suppress the stripe layer entirely because their OWN
-  `bg` is a repeating pattern and a second one on top just reads as
-  noise (see `core/theme.js`'s `stripeCssFor`). A weather layer is a
-  THIRD overlay — it will hit the exact same problem, likely worse
-  (moving clouds vs. a static pattern), and needs the same kind of
-  per-theme suppression/dimming logic worked out, not bolted on blind.
+  **Overlay conflict — now largely solved, as of 2026-08-15.** This was
+  flagged as the blocker: the lobby already carried two decorative
+  layers (each theme's own `bg`, plus `bgStripe` on top), and three
+  themes suppress the stripe entirely because two patterns fight. The
+  US-decorations work above built the THIRD layer properly —
+  `#bg-decor-layer` + `applyBgDecors`, with the same per-theme
+  suppression rule stripes use. Weather VFX should be built ON that
+  layer (a decoration id like any other) rather than inventing a
+  fourth. What's still undesigned is weather-specific: which effects
+  from the six-category reference list actually ship, whether clouds
+  are clickable, and whether weather is bought or earned.
 - **"Cosmos" theme** — a new theme option, pitched alongside real
   planetary-weather trivia (Mercury through Neptune, pasted in chat) as
   possible flavor text/tooltips. Also a rough sketch — needs a palette,

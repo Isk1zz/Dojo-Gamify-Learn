@@ -71,6 +71,13 @@ const DB = (() => {
       hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
       soundEnabled: true,    // mutes core/sfx.js's synthesized UI sounds app-wide
       bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
+      // Active decoration ids, ALL on at once (not a single slot). These
+      // four are free (shop/decor.js prices them 0) and ON by default:
+      // the night-sky look is the app's default appearance now, not an
+      // upsell, so a new profile opens on it rather than on a bare
+      // background. Each can still be switched off in the Inventory.
+      bgDecors: ["usa_stars", "moon", "clouds", "usa_eagles"],
+      scene: "jungle",       // bottom-of-screen scenery — a slot, one at a time; jungle is the free default
       unitsUnlocked: false,  // bypasses the "finish the previous unit" prereq — see the unlockallunits code
 
       // ---- Profile customization ----
@@ -1216,6 +1223,51 @@ const DB = (() => {
     save(db);
   }
 
+  // ---- Background decorations ----
+  // A DIFFERENT shape than bgStripe on purpose: stripes are one-at-a-
+  // time (a slot), decorations are "each separately purchasable" and
+  // meant to layer — you can have Stars AND Eagles on at once. So this
+  // is a small SET of active ids, not a single current one. Bought with
+  // `$` like layouts/themes/palettes (see shop/decor.js), stored the
+  // same generic-inventory-string way (`decor_<id>`).
+  function getBgDecors() {
+    const p = getActiveProfile();
+    return (p && Array.isArray(p.bgDecors)) ? p.bgDecors : [];
+  }
+
+  function setBgDecors(ids) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.bgDecors = Array.isArray(ids) ? ids.slice() : [];
+    save(db);
+  }
+
+  function toggleBgDecor(id) {
+    const cur = getBgDecors();
+    const next = cur.includes(id) ? cur.filter(x => x !== id) : cur.concat(id);
+    setBgDecors(next);
+    return next;
+  }
+
+  // ---- Scenery ----
+  // A SLOT, not a set (unlike decorations above): this is the horizon
+  // along the bottom of the screen, and you can't stand on a jungle
+  // floor and a city street at the same time. Single-select, same shape
+  // as bgStripe.
+  function getScene() {
+    const p = getActiveProfile();
+    return (p && p.scene) || "none";
+  }
+
+  function setScene(id) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.scene = id;
+    save(db);
+  }
+
   // ---- Resume position ----
   // completedChunks was written from the very first version and never
   // read by anything. This is what it was always for.
@@ -1304,10 +1356,12 @@ const DB = (() => {
 
   // ---- Tokens (🪙) ----
   // A second, SEPARATE currency from `$` money — Tokens buy Library
-  // courses, money buys Arcade/Garden things. Nothing converts either
-  // way, same "two currencies, deliberately separate" rule SHOP.md
-  // documents for XP vs money. Storage-only here, same as wallet: prices
-  // and pack sizes live in shop/tokens.js, never here.
+  // courses, money buys Custom Shop/Garden things. Storage-only here,
+  // same as wallet: prices and pack sizes live in shop/tokens.js, never
+  // here. One narrow exception as of 2026-08-15: shop/tokens.js's
+  // exchangeTokens() converts Tokens → `$` at a fixed, deliberately
+  // lossy rate (never the reverse) — see that function's comment for
+  // why a one-way sink doesn't break the "deliberately separate" rule.
   //
   // Named Tokens, not Stars — ⭐ was already the XP glyph everywhere
   // (the rank chip and the "+N XP" fly-bolt both use it, see
@@ -1592,6 +1646,11 @@ const DB = (() => {
     setSoundEnabled,
     getBgStripe,
     setBgStripe,
+    getBgDecors,
+    setBgDecors,
+    toggleBgDecor,
+    getScene,
+    setScene,
     getAvatar,
     setAvatar,
     getPatronTier,

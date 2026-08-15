@@ -190,11 +190,13 @@
 
   // Which flag each of the two triangles wears. "Combined" is the pair
   // the hexagram shipped with; the rest fly one flag on both triangles.
+  // Real flags first, the combo last — it's built FROM the first two,
+  // so listing it ahead of them read backwards in the Shop.
   const HEX_FLAG_MODES = {
-    combined: ["ukraine", "israel"],
     ukraine: ["ukraine", "ukraine"],
     israel: ["israel", "israel"],
-    usa: ["usa", "usa"]
+    usa: ["usa", "usa"],
+    combined: ["ukraine", "israel"]
   };
 
   // Plain-text labels — no flag emoji. Windows ships no colour flag

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dojo - Gamify &amp; Learn</title>
+  <title>Unnamed App</title>
   <meta name="description" content="An interactive, chunk-based CS learning experience — with quizzes and mastery exams, organized by unit." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <!-- One stylesheet per branch. base.css is the design system and the
@@ -13,7 +13,7 @@
   <meta name="theme-color" content="#0a0e1a" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Dojo" />
+  <meta name="apple-mobile-web-app-title" content="Unnamed App" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
@@ -27,6 +27,162 @@
   <link rel="stylesheet" href="styles/admin.css" />
 </head>
 <body>
+  <!-- ====== Lobby decorations (shop/decor.js + core/theme.js's
+       applyBgDecors) ====== Fixed, pointer-events:none, hidden by
+       default — styles/base.css shows each piece only when its id is a
+       token in <html data-bg-decor="…">, so this markup exists once and
+       every profile's on/off toggles are pure CSS. -->
+  <div id="bg-decor-layer" aria-hidden="true">
+    <div class="decor-usa_stars">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <!-- Moon: top-right, opposite the stars' top-left corner so the two
+         frame the screen instead of crowding one edge. -->
+    <svg class="decor-moon" viewBox="0 0 100 100">
+      <circle class="moon-halo" cx="50" cy="50" r="42"/>
+      <circle class="moon-disc" cx="50" cy="50" r="27"/>
+      <g class="moon-craters">
+        <circle cx="42" cy="40" r="5.5"/><circle cx="59" cy="52" r="4"/>
+        <circle cx="46" cy="60" r="3"/><circle cx="56" cy="36" r="2.4"/>
+        <circle cx="36" cy="53" r="2.2"/>
+      </g>
+    </svg>
+    <!-- Eagles are drawn, not the 🦅 emoji they started as: an emoji
+         can't flap, and its glyph is at the mercy of the OS font (the
+         same trap the country-flag labels fell into on Windows). Wings
+         rotate about the body; the outer element does the flight path. -->
+    <svg class="decor-usa_eagles eagle-1" viewBox="0 0 60 30"><g class="eagle">
+      <path class="eagle-tail" d="M22 13.2 Q 17 12.4, 14.5 11.2 Q 12.8 15, 14.5 18.8 Q 17 17.6, 22 16.8 Z"/>
+      <path class="wing wing-l" d="M29 13.9 Q 23.5 9.2, 17 7.6 Q 13 6.8, 10 6.2 L 13.5 9 L 8.5 8.9 L 12.5 11 L 8 11.6 L 13 12.9 Q 20 14.2, 29 15.8 Z"/>
+      <path class="wing wing-r" d="M31 13.9 Q 36.5 9.2, 43 7.6 Q 47 6.8, 50 6.2 L 46.5 9 L 51.5 8.9 L 47.5 11 L 52 11.6 L 47 12.9 Q 40 14.2, 31 15.8 Z"/>
+      <path class="eagle-body" d="M41 15 Q 41.2 13.3, 38 13.1 L 26 13.3 Q 22 13.5, 21 15 Q 22 16.5, 26 16.7 L 38 16.9 Q 41.2 16.7, 41 15 Z"/>
+      <circle class="eagle-head" cx="39.6" cy="15" r="2"/>
+      <path class="eagle-beak" d="M41.4 14.4 Q 43 15, 41.4 15.6 Z"/>
+    </g></svg>
+    <svg class="decor-usa_eagles eagle-2" viewBox="0 0 60 30"><g class="eagle">
+      <path class="eagle-tail" d="M22 13.2 Q 17 12.4, 14.5 11.2 Q 12.8 15, 14.5 18.8 Q 17 17.6, 22 16.8 Z"/>
+      <path class="wing wing-l" d="M29 13.9 Q 23.5 9.2, 17 7.6 Q 13 6.8, 10 6.2 L 13.5 9 L 8.5 8.9 L 12.5 11 L 8 11.6 L 13 12.9 Q 20 14.2, 29 15.8 Z"/>
+      <path class="wing wing-r" d="M31 13.9 Q 36.5 9.2, 43 7.6 Q 47 6.8, 50 6.2 L 46.5 9 L 51.5 8.9 L 47.5 11 L 52 11.6 L 47 12.9 Q 40 14.2, 31 15.8 Z"/>
+      <path class="eagle-body" d="M41 15 Q 41.2 13.3, 38 13.1 L 26 13.3 Q 22 13.5, 21 15 Q 22 16.5, 26 16.7 L 38 16.9 Q 41.2 16.7, 41 15 Z"/>
+      <circle class="eagle-head" cx="39.6" cy="15" r="2"/>
+      <path class="eagle-beak" d="M41.4 14.4 Q 43 15, 41.4 15.6 Z"/>
+    </g></svg>
+    <!-- ====== Scenery ====== The horizon along the bottom, one at a
+         time (html[data-bg-scene]). Two depth bands per scene: .sc-far
+         is washed out, .sc-near is solid, which is what sells it as
+         distance rather than a flat cut-out. -->
+    <svg class="decor-scene scene-jungle" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <g class="sc-far">
+        <path d="M0 96 Q 90 40, 180 92 Q 270 34, 380 90 Q 480 40, 590 94 Q 700 36, 810 92 Q 920 42, 1030 94 Q 1120 50, 1200 90 L1200 200 L0 200 Z"/>
+      </g>
+      <g class="sc-near">
+        <rect x="150" y="120" width="9" height="80"/><rect x="640" y="126" width="8" height="74"/>
+        <rect x="1010" y="118" width="10" height="82"/>
+        <path d="M0 140 Q 80 96, 165 134 Q 250 92, 350 138 Q 450 100, 545 140 Q 640 96, 730 136 Q 830 98, 930 140 Q 1030 96, 1120 138 Q 1170 118, 1200 132 L1200 200 L0 200 Z"/>
+        <path d="M155 124 Q 100 96, 62 112 Q 108 108, 150 130 Z"/>
+        <path d="M155 124 Q 210 96, 250 112 Q 202 108, 160 130 Z"/>
+        <path d="M1014 122 Q 962 92, 922 108 Q 968 106, 1010 128 Z"/>
+        <path d="M1014 122 Q 1066 92, 1108 108 Q 1060 106, 1018 128 Z"/>
+      </g>
+    </svg>
+
+    <svg class="decor-scene scene-river" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <g class="sc-far"><path d="M0 70 L 1200 58 L1200 96 L0 104 Z"/></g>
+      <g class="sc-near">
+        <path d="M0 100 Q 200 86, 420 100 Q 640 114, 860 98 Q 1040 86, 1200 98 L1200 200 L0 200 Z"/>
+        <path class="sc-shine" d="M120 132 Q 260 126, 400 132 Q 300 138, 120 138 Z"/>
+        <path class="sc-shine" d="M560 158 Q 740 150, 900 158 Q 760 166, 560 164 Z"/>
+        <path class="sc-shine" d="M240 182 Q 420 176, 600 182 Q 430 190, 240 188 Z"/>
+      </g>
+    </svg>
+
+    <svg class="decor-scene scene-island" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <g class="sc-far"><path d="M0 104 L1200 96 L1200 200 L0 200 Z"/></g>
+      <g class="sc-near">
+        <path d="M430 152 Q 560 96, 700 152 Q 620 162, 430 158 Z"/>
+        <rect x="556" y="104" width="8" height="52"/>
+        <path d="M562 106 Q 508 78, 464 92 Q 512 90, 558 112 Z"/>
+        <path d="M562 106 Q 616 78, 660 92 Q 612 90, 566 112 Z"/>
+        <path d="M562 104 Q 546 66, 508 56 Q 542 76, 556 108 Z"/>
+        <path class="sc-shine" d="M180 170 Q 340 164, 470 170 Q 330 178, 180 176 Z"/>
+        <path class="sc-shine" d="M700 186 Q 880 180, 1020 186 Q 860 194, 700 192 Z"/>
+      </g>
+    </svg>
+
+    <svg class="decor-scene scene-urban" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <g class="sc-far">
+        <rect x="40" y="86" width="70" height="114"/><rect x="200" y="66" width="58" height="134"/>
+        <rect x="400" y="94" width="80" height="106"/><rect x="640" y="60" width="62" height="140"/>
+        <rect x="850" y="90" width="74" height="110"/><rect x="1060" y="72" width="66" height="128"/>
+      </g>
+      <g class="sc-near">
+        <rect x="0" y="126" width="96" height="74"/><rect x="120" y="108" width="72" height="92"/>
+        <rect x="286" y="132" width="88" height="68"/><rect x="470" y="100" width="66" height="100"/>
+        <rect x="580" y="136" width="94" height="64"/><rect x="726" y="112" width="70" height="88"/>
+        <rect x="880" y="140" width="86" height="60"/><rect x="990" y="104" width="60" height="96"/>
+        <rect x="1120" y="130" width="80" height="70"/>
+        <g class="sc-window">
+          <rect x="136" y="122" width="8" height="10"/><rect x="156" y="122" width="8" height="10"/>
+          <rect x="136" y="144" width="8" height="10"/><rect x="168" y="144" width="8" height="10"/>
+          <rect x="486" y="116" width="8" height="10"/><rect x="508" y="116" width="8" height="10"/>
+          <rect x="486" y="138" width="8" height="10"/><rect x="508" y="160" width="8" height="10"/>
+          <rect x="742" y="128" width="8" height="10"/><rect x="764" y="128" width="8" height="10"/>
+          <rect x="742" y="150" width="8" height="10"/><rect x="1006" y="120" width="8" height="10"/>
+          <rect x="1026" y="120" width="8" height="10"/><rect x="1006" y="142" width="8" height="10"/>
+        </g>
+      </g>
+    </svg>
+
+    <svg class="decor-scene scene-village" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <g class="sc-far"><path d="M0 110 Q 160 58, 330 106 Q 500 52, 680 108 Q 860 56, 1030 106 Q 1130 76, 1200 102 L1200 200 L0 200 Z"/></g>
+      <g class="sc-near">
+        <path d="M110 150 L 176 112 L 242 150 Z"/><rect x="126" y="148" width="100" height="52"/>
+        <path d="M370 158 L 424 126 L 478 158 Z"/><rect x="384" y="156" width="80" height="44"/>
+        <path d="M640 146 L 706 106 L 772 146 Z"/><rect x="656" y="144" width="100" height="56"/>
+        <path d="M900 158 L 954 126 L 1008 158 Z"/><rect x="914" y="156" width="80" height="44"/>
+        <rect x="196" y="96" width="14" height="26"/><rect x="726" y="90" width="14" height="26"/>
+        <ellipse cx="300" cy="150" rx="30" ry="38"/><rect x="296" y="168" width="8" height="32"/>
+        <ellipse cx="836" cy="154" rx="26" ry="34"/><rect x="832" y="170" width="8" height="30"/>
+        <ellipse cx="1090" cy="152" rx="32" ry="40"/><rect x="1086" y="170" width="8" height="30"/>
+      </g>
+    </svg>
+  </div>
+  <!-- Clouds live in their own layer ABOVE the app, unlike the rest of
+       the decorations. They have to: at z-index -1 the screen <section>
+       covers the whole viewport and swallowed every click, so a cloud
+       could never actually be poked (verified — the hit target at a
+       cloud's centre was SECTION.screen). The layer is pointer-events:
+       none and the clouds are faint enough that drifting over a card
+       reads as atmosphere rather than an object in the way. -->
+  <div id="bg-decor-front" aria-hidden="true">
+    <svg class="decor-clouds cloud-1" viewBox="0 0 120 50"><g>
+      <ellipse cx="35" cy="34" rx="24" ry="14"/><ellipse cx="62" cy="27" rx="29" ry="19"/>
+      <ellipse cx="88" cy="35" rx="22" ry="13"/><rect x="30" y="34" width="60" height="14" rx="7"/>
+    </g></svg>
+    <svg class="decor-clouds cloud-2" viewBox="0 0 120 50"><g>
+      <ellipse cx="35" cy="34" rx="24" ry="14"/><ellipse cx="62" cy="27" rx="29" ry="19"/>
+      <ellipse cx="88" cy="35" rx="22" ry="13"/><rect x="30" y="34" width="60" height="14" rx="7"/>
+    </g></svg>
+    <svg class="decor-clouds cloud-3" viewBox="0 0 120 50"><g>
+      <ellipse cx="35" cy="34" rx="24" ry="14"/><ellipse cx="62" cy="27" rx="29" ry="19"/>
+      <ellipse cx="88" cy="35" rx="22" ry="13"/><rect x="30" y="34" width="60" height="14" rx="7"/>
+    </g></svg>
+    <!-- 4-6 use a second, flatter silhouette so a fuller sky doesn't
+         read as the same cloud stamped six times. -->
+    <svg class="decor-clouds cloud-4" viewBox="0 0 120 50"><g>
+      <ellipse cx="30" cy="36" rx="26" ry="11"/><ellipse cx="58" cy="31" rx="31" ry="15"/>
+      <ellipse cx="92" cy="37" rx="20" ry="10"/><rect x="26" y="36" width="68" height="12" rx="6"/>
+    </g></svg>
+    <svg class="decor-clouds cloud-5" viewBox="0 0 120 50"><g>
+      <ellipse cx="35" cy="34" rx="24" ry="14"/><ellipse cx="62" cy="27" rx="29" ry="19"/>
+      <ellipse cx="88" cy="35" rx="22" ry="13"/><rect x="30" y="34" width="60" height="14" rx="7"/>
+    </g></svg>
+    <svg class="decor-clouds cloud-6" viewBox="0 0 120 50"><g>
+      <ellipse cx="30" cy="36" rx="26" ry="11"/><ellipse cx="58" cy="31" rx="31" ry="15"/>
+      <ellipse cx="92" cy="37" rx="20" ry="10"/><rect x="26" y="36" width="68" height="12" rx="6"/>
+    </g></svg>
+  </div>
   <div id="app">
     <!-- ====== Lightning charge bar ======
          Collapsed by default to the insignia + full rank name; the track
@@ -73,7 +229,7 @@
     <div id="profile-modal" class="modal-overlay" style="display:none;">
       <div class="modal-card">
         <div class="modal-icon">👤</div>
-        <h2 class="modal-title">Welcome to <span class="accent">Dojo - Gamify &amp; Learn</span></h2>
+        <h2 class="modal-title">Welcome to <span class="accent">Unnamed App</span></h2>
         <p class="modal-desc">Enter your name to create a profile. Your progress and stats will be saved locally.</p>
         <input id="profile-name-input" class="modal-input" type="text" placeholder="Your name..." maxlength="30" autocomplete="off" />
         <button id="btn-profile-save" class="btn-primary" style="width:100%;justify-content:center;">Start Learning <span class="arrow">→</span></button>
@@ -130,7 +286,7 @@
       <div class="landing-bg"></div>
       <div class="landing-content">
         <div class="logo-glow"></div>
-        <h1 class="landing-title">Dojo<span class="accent">道場</span></h1>
+        <h1 class="landing-title">Unnamed&nbsp;<span class="accent">App</span></h1>
         <p class="landing-sub">A study system that keeps what you learn from fading — chunk by chunk, day by day.</p>
         <div class="landing-features">
           <div class="feat"><span class="feat-icon">📖</span><span>Any course, one chunk at a time</span></div>
@@ -169,7 +325,7 @@
             <span class="lobby-rotate-icon" aria-hidden="true">&#10024;</span>
           </div>
         </div>
-        <div class="lobby-brand">Dojo<span class="accent">&#36947;&#22580;</span></div>
+        <div class="lobby-brand">Unnamed&nbsp;<span class="accent">App</span></div>
         <p class="lobby-welcome" id="lobby-welcome">Welcome back.</p>
         <div class="lobby-actions" id="lobby-actions">
           <svg class="lobby-star-lines" id="lobby-star-lines" aria-hidden="true"></svg>
@@ -476,6 +632,7 @@
   <script src="garden/garden.js"></script>
   <script src="shop/shop.js"></script>
   <script src="shop/tokens.js"></script>
+  <script src="shop/decor.js"></script>
   <script src="shop/store.js"></script>
   <script src="shop/inventory.js"></script>
   <script src="games/games.js"></script>

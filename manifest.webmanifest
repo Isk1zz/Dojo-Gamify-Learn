@@ -1,6 +1,6 @@
 {
-  "name": "Dojo - Gamify & Learn",
-  "short_name": "Dojo",
+  "name": "Unnamed App",
+  "short_name": "Unnamed App",
   "description": "An offline, chunk-based CS study app with spaced review, mastery exams and a garden that grows with what you remember.",
   "start_url": "./index.html",
   "scope": "./",

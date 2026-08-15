@@ -65,17 +65,14 @@
       };
     };
     out.push({
-      key: "theme", group: "theme", icon: "🎨", title: "Colour themes",
+      key: "theme", group: "theme", icon: "🎨", title: "Colour themes", previewKind: "theme",
       items: (Dojo.THEMES || []).map(t => themeItem(t, false)),
       equip: id => { if (themeOwned(id)) { DB.setTheme(id); Dojo.applyTheme(id); } }
     });
     out.push({
-      key: "awarded", group: "theme", icon: "✨", title: "Awarded themes",
+      key: "awarded", group: "theme", icon: "✨", title: "Awarded themes", previewKind: "theme",
       items: (Dojo.PREMIUM_THEMES || []).map(t => themeItem(t, true)),
-      equip: id => {
-        if (Dojo.themeUnlocked && Dojo.themeUnlocked(id)) { DB.setTheme(id); Dojo.applyTheme(id); }
-        else if (Dojo.previewTheme) Dojo.previewTheme(id);   // locked: preview only
-      }
+      equip: id => { if (Dojo.themeUnlocked && Dojo.themeUnlocked(id)) { DB.setTheme(id); Dojo.applyTheme(id); } }
     });
 
     // ---- Background stripes ----
@@ -100,7 +97,7 @@
     const ownsL = id => !Dojo.ownsLayout || Dojo.ownsLayout(id);
     const styleNow = DB.getLobbyStyle();
     out.push({
-      key: "lobby", group: "layout", icon: "\u{1F9E9}", title: "Lobby style",
+      key: "lobby", group: "layout", icon: "\u{1F9E9}", title: "Lobby style", previewKind: "lobby",
       items: [["classic", "Classic"], ["cards", "Cards"], ["star", "Star"]]
         .map(([id, name]) => ({
           id, name, swatch: null,
@@ -117,7 +114,7 @@
     if (styleNow === "star") {
       const linksNow = DB.getStarLinks ? DB.getStarLinks() : "spokes";
       out.push({
-        key: "links", group: "layout", icon: "\u{1F517}", title: "Star links",
+        key: "links", group: "layout", icon: "\u{1F517}", title: "Star links", previewKind: "links",
         items: [["spokes", "Spokes"], ["hexagram", "Star of David"]]
           .map(([id, name]) => ({
             id, name, swatch: null,
@@ -150,13 +147,13 @@
 
       if (linksNow === "hexagram") {
         out.push({
-          key: "flags", group: "style", icon: "\u{1F38C}", title: "Star of David colours",
+          key: "flags", group: "style", icon: "\u{1F38C}", title: "Star of David colours", previewKind: "flags",
           items: paletteItems(DB.getHexFlags ? DB.getHexFlags() : "combined"),
           equip: id => DB.setHexFlags(id)
         });
       } else {
         out.push({
-          key: "spokes", group: "style", icon: "\u{1F517}", title: "Spoke colours",
+          key: "spokes", group: "style", icon: "\u{1F517}", title: "Spoke colours", previewKind: "spokes",
           items: paletteItems(DB.getSpokeFlags ? DB.getSpokeFlags() : "combined"),
           equip: id => DB.setSpokeFlags(id)
         });
@@ -179,6 +176,47 @@
       });
     }
 
+    // ---- Lobby decorations ----
+    // `multi: true` — unlike every other slot, more than one item can
+    // be equipped at once (Stars AND Eagles together), so `equipped`
+    // means "currently toggled on," not "the one active choice."
+    const activeDecors = DB.getBgDecors ? DB.getBgDecors() : [];
+    out.push({
+      key: "decor", group: "style", icon: "\u{1F985}", title: "Decorations", previewKind: "decor", multi: true,
+      items: (Dojo.BG_DECORS || []).map(d => ({
+        id: d.id, name: d.name, glyph: d.icon, swatch: null,
+        equipped: activeDecors.includes(d.id),
+        locked: !(Dojo.ownsDecor && Dojo.ownsDecor(d.id)),
+        price: d.price
+      })),
+      equip: id => {
+        if (!Dojo.ownsDecor || !Dojo.ownsDecor(id)) return;
+        DB.toggleBgDecor(id);
+        if (Dojo.applyBgDecors) Dojo.applyBgDecors(DB.getBgDecors());
+      }
+    });
+
+    // ---- Scenery ----
+    // Single-select, so "None" is a real listed option here (it is on
+    // the stripe slot too) — otherwise there'd be no way to take a
+    // scene back off once one is equipped.
+    const sceneNow = DB.getScene ? DB.getScene() : "none";
+    const ownsSc = id => !Dojo.ownsScene || Dojo.ownsScene(id);
+    out.push({
+      key: "scene", group: "style", icon: "\u{1F3DE}\u{FE0F}", title: "Scenery", previewKind: "scene",
+      items: [{ id: "none", name: "None", glyph: "\u{2715}", swatch: null, equipped: sceneNow === "none" }]
+        .concat((Dojo.SCENES || []).map(s => ({
+          id: s.id, name: s.name, glyph: s.icon, swatch: null,
+          equipped: ownsSc(s.id) && s.id === sceneNow,
+          locked: !ownsSc(s.id), price: s.price
+        }))),
+      equip: id => {
+        if (!ownsSc(id)) return;
+        DB.setScene(id);
+        if (Dojo.applyScene) Dojo.applyScene(id);
+      }
+    });
+
     return out;
   }
 
@@ -194,6 +232,23 @@
   ];
   let activeSlot = null;
 
+  // ---- Preview of unowned things ----
+  // Clicking a locked tile no longer jumps straight to the Shop — it
+  // previews instead, same idea as Settings' locked-theme preview. What
+  // "preview" means differs by kind: a theme repaints the whole app's
+  // CSS vars (Dojo.previewTheme, exactly what Settings already does); a
+  // layout/links/palette has no such global hook, so it's shown in the
+  // mini lobby preview panel on the right instead. Either way nothing
+  // is written to DB until it's bought and equipped for real.
+  let preview = null; // { kind: "theme"|"lobby"|"links"|"flags"|"spokes"|"decor", id, name, price }
+
+  function clearPreview() {
+    if (preview && preview.kind === "theme" && Dojo.applyTheme) Dojo.applyTheme(DB.getTheme());
+    if (preview && preview.kind === "decor" && Dojo.applyBgDecors) Dojo.applyBgDecors(DB.getBgDecors ? DB.getBgDecors() : []);
+    if (preview && preview.kind === "scene" && Dojo.applyScene) Dojo.applyScene(DB.getScene ? DB.getScene() : "none");
+    preview = null;
+  }
+
   // ---- Live preview ----
   // A miniature of the actual lobby, redrawn on every equip so you can
   // see what a choice does before leaving the screen. Deliberately its
@@ -203,8 +258,9 @@
   // decorative preview to layout code that has already had two
   // pointer/measurement bugs.
   function previewHtml() {
-    const style = DB.getLobbyStyle();
-    const links = DB.getStarLinks ? DB.getStarLinks() : "spokes";
+    const style = preview && preview.kind === "lobby" ? preview.id : DB.getLobbyStyle();
+    const links = preview && preview.kind === "links" ? preview.id
+      : (DB.getStarLinks ? DB.getStarLinks() : "spokes");
     const FLAGS = Dojo.HEX_FLAGS || {};
     const MODES = Dojo.HEX_FLAG_MODES || {};
     const paletteOf = mode => (MODES[mode] || []).map(id => FLAGS[id]).filter(Boolean);
@@ -222,7 +278,9 @@
     };
     let out = "";
     if (links === "hexagram") {
-      const pair = paletteOf(DB.getHexFlags ? DB.getHexFlags() : "combined");
+      const flagsNow = preview && preview.kind === "flags" ? preview.id
+        : (DB.getHexFlags ? DB.getHexFlags() : "combined");
+      const pair = paletteOf(flagsNow);
       for (let i = 0; i < n; i++) {
         const [x1, y1] = pt(i), [x2, y2] = pt((i + 2) % n);
         const f = pair[i % 2] || pair[0];
@@ -230,7 +288,9 @@
         out += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/>`;
       }
     } else {
-      const pal = paletteOf(DB.getSpokeFlags ? DB.getSpokeFlags() : "combined")
+      const spokesNow = preview && preview.kind === "spokes" ? preview.id
+        : (DB.getSpokeFlags ? DB.getSpokeFlags() : "combined");
+      const pal = paletteOf(spokesNow)
         .flatMap(f => f.stops.map(x => x[1]));
       const uniq = [...new Set(pal)];
       for (let i = 0; i < n; i++) {
@@ -272,6 +332,7 @@
     }).join("");
 
     const equipped = slot ? slot.items.find(i => i.equipped) : null;
+    const equippedList = slot && slot.multi ? slot.items.filter(i => i.equipped) : [];
     const grid = slot ? slot.items.map(it => `
       <button type="button" class="inv-tile${it.equipped ? " equipped" : ""}${it.locked ? " vacant" : ""}"
               data-id="${it.id}"${it.locked ? ' data-locked="1"' : ' draggable="true"'}
@@ -290,12 +351,16 @@
           <button id="btn-inventory-shop" class="btn-ghost inv-shop-btn">🛒 Shop</button>
         </nav>
         <div class="inv-main">
-          <div class="inv-dropzone${equipped ? " filled" : ""}" id="inv-dropzone">
-            <div class="inv-dropzone-label">${slot ? slot.title : ""} — equipped</div>
-            <div class="inv-dropzone-slot">
-              ${equipped
-                ? `<span class="inv-tile-art"${equipped.swatch ? ` style="${equipped.swatch}"` : ""}>${equipped.glyph || ""}</span><span>${equipped.name}</span>`
-                : `<span class="inv-dropzone-hint">Drag something here to wear it</span>`}
+          <div class="inv-dropzone${(slot && slot.multi ? equippedList.length : equipped) ? " filled" : ""}" id="inv-dropzone">
+            <div class="inv-dropzone-label">${slot ? slot.title : ""} — ${slot && slot.multi ? "on" : "equipped"}</div>
+            <div class="inv-dropzone-slot${slot && slot.multi ? " multi" : ""}">
+              ${slot && slot.multi
+                ? (equippedList.length
+                    ? equippedList.map(it => `<span class="inv-dropzone-chip"><span class="inv-tile-art"${it.swatch ? ` style="${it.swatch}"` : ""}>${it.glyph || ""}</span><span>${it.name}</span></span>`).join("")
+                    : `<span class="inv-dropzone-hint">Click an owned tile to switch it on</span>`)
+                : (equipped
+                    ? `<span class="inv-tile-art"${equipped.swatch ? ` style="${equipped.swatch}"` : ""}>${equipped.glyph || ""}</span><span>${equipped.name}</span>`
+                    : `<span class="inv-dropzone-hint">Drag something here to wear it</span>`)}
             </div>
           </div>
           <div class="inv-tile-grid">${grid}</div>
@@ -303,25 +368,58 @@
         <aside class="inv-preview" aria-label="Live lobby preview">
           <div class="inv-preview-title">Preview</div>
           <div class="inv-preview-art">${previewHtml()}</div>
+          ${preview ? `
+            <div class="inv-preview-banner">
+              <div class="inv-preview-banner-text">Previewing "${preview.name}" — not yours</div>
+              <div class="inv-preview-banner-row">
+                ${preview.req
+                  ? `<span class="inv-preview-banner-hint">Reach ${preview.req}</span>`
+                  : `<button type="button" class="btn-ghost" id="inv-preview-buy">Buy — $${preview.price}</button>`}
+                <button type="button" class="btn-ghost" id="inv-preview-clear">✕ Restore</button>
+              </div>
+            </div>` : ""}
         </aside>
       </div>`;
 
     body.querySelectorAll("[data-slot-nav]").forEach(btn => {
-      btn.addEventListener("click", () => { activeSlot = btn.getAttribute("data-slot-nav"); renderInventory(); });
+      btn.addEventListener("click", () => {
+        clearPreview();
+        activeSlot = btn.getAttribute("data-slot-nav");
+        renderInventory();
+      });
     });
 
     // Equip = click OR drag-onto-the-slot. Click stays first-class: drag
     // is unavailable on touch without a bespoke pointer implementation,
     // so making it the only way to equip would lock phones out entirely.
-    function apply(id, tile) {
+    //
+    // A LOCKED tile previews instead of equipping — it doesn't jump to
+    // the Shop anymore, since "I want to see what this looks like" and
+    // "I want to buy this" turned out to be two different clicks. The
+    // preview banner below is the one place that still offers the Shop.
+    function apply(id, locked) {
       if (!slot) return;
-      if (tile && tile.hasAttribute("data-locked")) { Router.go("store", { cat: "custom" }); return; }
+      if (locked) {
+        const it = slot.items.find(x => x.id === id);
+        if (it && slot.previewKind) {
+          if (slot.previewKind === "theme" && Dojo.previewTheme) Dojo.previewTheme(id);
+          if (slot.previewKind === "decor" && Dojo.applyBgDecors) {
+            const active = DB.getBgDecors ? DB.getBgDecors() : [];
+            Dojo.applyBgDecors(active.concat(id));
+          }
+          if (slot.previewKind === "scene" && Dojo.applyScene) Dojo.applyScene(id);
+          preview = { kind: slot.previewKind, id, name: it.name, price: it.price, req: it.req };
+          renderInventory();
+        }
+        return;
+      }
+      clearPreview();
       slot.equip(id);
       renderInventory();
     }
 
     body.querySelectorAll(".inv-tile").forEach(tile => {
-      tile.addEventListener("click", () => apply(tile.getAttribute("data-id"), tile));
+      tile.addEventListener("click", () => apply(tile.getAttribute("data-id"), tile.hasAttribute("data-locked")));
       tile.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", tile.getAttribute("data-id"));
         e.dataTransfer.effectAllowed = "move";
@@ -329,6 +427,11 @@
       });
       tile.addEventListener("dragend", () => tile.classList.remove("dragging"));
     });
+
+    const previewBuyBtn = body.querySelector("#inv-preview-buy");
+    if (previewBuyBtn) previewBuyBtn.addEventListener("click", () => Router.go("store", { cat: "custom" }));
+    const previewClearBtn = body.querySelector("#inv-preview-clear");
+    if (previewClearBtn) previewClearBtn.addEventListener("click", () => { clearPreview(); renderInventory(); });
 
     const zone = body.querySelector("#inv-dropzone");
     if (zone) {
@@ -341,14 +444,22 @@
         e.preventDefault();
         zone.classList.remove("over");
         const id = e.dataTransfer.getData("text/plain");
-        const it = slot && slot.items.find(x => x.id === id);
-        if (it && it.locked) { Router.go("store", { cat: "custom" }); return; }
-        if (id) apply(id, null);
+        if (id) apply(id, (slot && slot.items.find(x => x.id === id) || {}).locked);
       });
     }
 
     const shopBtn = body.querySelector("#btn-inventory-shop");
     if (shopBtn) shopBtn.addEventListener("click", () => Router.go("store", { cat: "custom" }));
+
+    // Leaving mid-preview must not carry a never-bought theme out to the
+    // rest of the app — same guard Settings uses on its own back button.
+    // Bound once: this button lives outside #inventory-body and survives
+    // every re-render, so re-binding on each render would stack handlers.
+    const backBtn = document.getElementById("btn-back-inventory");
+    if (backBtn && !backBtn.dataset.previewGuard) {
+      backBtn.dataset.previewGuard = "1";
+      backBtn.addEventListener("click", () => clearPreview(), true);
+    }
 
     showScreen("inventory");
   }
