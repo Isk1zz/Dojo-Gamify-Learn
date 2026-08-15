@@ -20,6 +20,15 @@ and Edge Functions on the free tier, so the server-side enforcement the
 Forum requires — the self-spend rule, the 10/user/month cap — can be
 written without paying up front.
 
+**Diia: SETTLED 2026-08-16 — not now.** None of it is needed to build
+accounts or the Forum. A trigger map (what event makes each legal step
+necessary, in plain language) is in . The short version:
+nothing now; accounts need a privacy policy, ToS and a real delete
+button; the Forum needs a reporting/takedown route; real money is best
+started through a merchant of record rather than an entity; Дія.City
+only matters with staff; Diia.ID identity verification — recommend
+never, since the only reason for it (age-gating the Arcade) is gone.
+
 Still needs YOUR decision before code starts:
 1. **Which "register in Diia" you actually mean** — registering a
    business entity, joining Дія.City, or integrating Diia.ID for
