@@ -185,12 +185,35 @@ discussion; **not built** — see "why not yet" at the end.
 - **Seasonal reset on received.** Makes standing recent rather than
   historical, so old accounts don't permanently outrank newer ones.
 
+### Confirmed 2026-08-16: no accumulation, and what the profile records
+Points **cannot be accumulated to spend**. The daily allowance is
+transferred to blogs/posts on the Forum, or it is gone. This settles the
+old-balance question by dissolving it: there is nothing to migrate,
+because a balance was never the thing.
+
+The profile records three figures instead — the ledger IS the record:
+
+| Figure | Side | Meaning |
+|---|---|---|
+| Points contributed | given | lifetime total you have handed to other people |
+| Monthly awarded | received | what you were given this month (the season) |
+| Total awarded | received | lifetime received |
+
+Two consequences worth noting:
+- **The season is a month.** "Monthly awarded" is the seasonal figure
+  that resets; "total awarded" is the permanent one that does not.
+- **Generosity is visible.** Tracking *contributed* alongside *received*
+  means the ledger shows what you gave, not only what you got — a
+  counterweight to a scoreboard that would otherwise only reward being
+  popular. Worth keeping: it is cheap now and hard to add later without
+  backfilled data nobody has.
+
 ### Open, cheap to settle now, expensive later
 - **Collusion.** Two accounts trading daily allowances both hit seasonal
   thresholds. Seasonal reset limits the damage but does not stop it.
   Cheap fix if wanted: diminishing returns on repeat gifts to the same
   person within a season.
-- **Existing `wallet` balances.** Profiles carry accumulated dividends.
+- ~~Existing `wallet` balances.~~ SETTLED: nothing accumulates, so there is nothing to migrate. Old text: profiles carry accumulated dividends.
   Under an allowance model that stored number means nothing. Decide
   deliberately: retire it, or pay it out once as a launch bonus. Do not
   leave it sitting there looking authoritative — that field has already
