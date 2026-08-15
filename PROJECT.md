@@ -35,7 +35,7 @@ reputation, and reputation can only be spent on *other people's* posts — never
 own, so standing can never be self-farmed. See `forum/FORUM.md`.
 
 It needs a backend: everything is `localStorage`, so two people running this share
-nothing. The Firebase port at the top of `UPDATESTACK.md` is a **precondition** for
+nothing. The Supabase port at the top of `UPDATESTACK.md` is a **precondition** for
 the Forum, not an enhancement.
 
 ### Currencies

@@ -51,7 +51,7 @@ than a stage set.
 
 ## What unblocks it
 
-The Firebase port at the top of `UPDATESTACK.md`. Not a nice-to-have for this
+The Supabase port at the top of `UPDATESTACK.md`. Not a nice-to-have for this
 feature — a **precondition**. Until accounts exist, nothing here can be more
 than it currently is.
 

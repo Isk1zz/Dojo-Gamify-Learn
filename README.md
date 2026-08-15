@@ -25,7 +25,7 @@ reputation can only ever be spent on *other people's* posts — never your own.
 See `forum/FORUM.md`.
 
 That third loop needs a backend. Everything is `localStorage` today, so two
-people running this share nothing. The Firebase port at the top of
+people running this share nothing. The Supabase port at the top of
 `UPDATESTACK.md` is the precondition, not a nice-to-have.
 
 ## Running

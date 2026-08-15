@@ -1,4 +1,27 @@
-# BACKEND-ROADMAP.md — Firebase port, accounts, and the legal pack
+# BACKEND-ROADMAP.md — backend port, accounts, and the legal pack
+
+> ## ⚠️ VENDOR CORRECTED 2026-08-16 — the database is **Supabase**, not Firebase
+>
+> This document is written throughout against Firebase (Auth + Firestore +
+> Cloud Functions). That was never confirmed, and when finally asked, the
+> answer was **Supabase**. The older note elsewhere in the stack was the
+> correct one.
+>
+> **What still applies:** everything about SHAPE — that accounts are the
+> precondition, what has to be enforced server-side rather than in the
+> client, the legal pack, the migration path off `localStorage`, and the
+> data model. None of that is vendor-specific.
+>
+> **What no longer applies:** Firestore's document model (Supabase is
+> Postgres with row-level security), and — usefully — **the Blaze plan
+> problem**. Needing a paid plan for Cloud Functions was the single real
+> caveat here. Supabase runs Edge Functions and RLS on the free tier, so
+> the server-side rules the Forum depends on (self-spend, the 10/user/month
+> cap) can be written without paying up front.
+>
+> Not rewritten wholesale on purpose: the reasoning is the valuable part
+> and it survives the vendor swap. Translate as you implement.
+
 
 Status: **planning only, nothing built.** Written 2026-08-13.
 

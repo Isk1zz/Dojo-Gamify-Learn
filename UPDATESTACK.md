@@ -5,11 +5,22 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
-## TOP OF STACK — Firebase backend port
-Moved to the top per your call. Full plan for Firebase (Auth +
-Firestore), accounts, and the legal pack exists as its own doc:
-docs/BACKEND-ROADMAP.md. Two things in it need YOUR decision before any
-code starts:
+## TOP OF STACK — Supabase backend port
+**Settled 2026-08-16: the database is Supabase, not Firebase.** The two
+labels had been contradicting each other in this file for weeks; asked
+and answered. `docs/BACKEND-ROADMAP.md` is still written against
+Firebase and carries a correction banner — its SHAPE (auth, accounts,
+the legal pack, what has to be server-side) all still applies, but the
+vendor specifics do not.
+
+One consequence worth having: **the Blaze-plan problem disappears.**
+Firebase needed a paid plan for Cloud Functions, which was the single
+real caveat in that doc. Supabase runs Postgres with row-level security
+and Edge Functions on the free tier, so the server-side enforcement the
+Forum requires — the self-spend rule, the 10/user/month cap — can be
+written without paying up front.
+
+Still needs YOUR decision before code starts:
 1. **Which "register in Diia" you actually mean** — registering a
    business entity, joining Дія.City, or integrating Diia.ID for
    identity verification. Three different projects with different
@@ -22,11 +33,10 @@ code starts:
 Also note: Cloud Functions needs the paid Blaze plan, which is the one
 real "free tier" caveat — the doc lists three ways around it.
 
-**Flagging, not fixing silently:** the older "Blocked on the backend"
-section below still says **Supabase**, not Firebase — that predates
-this decision. Left as-is since I don't know if that was a separate
-call (maybe Supabase for something specific) or just stale wording;
-confirm which and I'll reconcile it.
+**RESOLVED 2026-08-16.** This section used to flag that the older
+"Blocked on the backend" heading said Supabase while the top said
+Firebase. Asked, and Supabase is the real answer — so the older note
+was right all along and the Firebase label was the stale one.
 
 ## NEW IDEA — user forum with $-funded reputation (noted only, nothing built)
 Raised 2026-08-14, explicitly "don't mind this for now just denote".
@@ -75,7 +85,7 @@ what OTHERS gave them, and the Garden only mints the right to give.
 A forum is inherently multi-user; this app is offline-first with
 `localStorage` as its only store and no server (static GitHub Pages).
 Posts, votes and reputation cannot cross between people without a
-backend. So this lands squarely on the **TOP OF STACK Firebase port** —
+backend. So this lands squarely on the **TOP OF STACK Supabase port** —
 it isn't a nice-to-have for the forum, it's a precondition. Anything
 built before then can only be a single-player mock, and a forum with no
 one else in it is worse than no forum.
@@ -1004,7 +1014,7 @@ cache-first strategy can pin a broken build.
   Tokens are shown — real but small work. Confirm it's worth doing
   before I build it.
 
-## Blocked on the backend (Supabase — see the Firebase note at the top; one of these two labels is stale)
+## Blocked on the backend (Supabase — confirmed 2026-08-16)
 - Career weekly XP ladder.
 - Wallet "bank": deposits + 3 stocks (tied to the black market's live
   economy per your call — also blocked on that design).
