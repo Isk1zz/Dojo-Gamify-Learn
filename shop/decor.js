@@ -44,7 +44,7 @@
   // it's a lookup rather than a special case at each call site so the
   // next two-faced piece needs no new plumbing.
   function decorFace(d) {
-    const light = document.documentElement.dataset.themeMode === "light";
+    const light = document.documentElement.dataset.sky === "day";
     if (!light) return { name: d.name, icon: d.icon, desc: d.desc };
     return {
       name: d.lightName || d.name,

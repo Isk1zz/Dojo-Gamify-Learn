@@ -78,6 +78,7 @@ const DB = (() => {
       // background. Each can still be switched off in the Inventory.
       bgDecors: ["usa_stars", "moon", "clouds", "usa_eagles"],
       scene: "jungle",       // bottom-of-screen scenery — a slot, one at a time; jungle is the free default
+      sky: "night",          // day | night — its own state, NOT derived from the theme being light/dark
       unitsUnlocked: false,  // bypasses the "finish the previous unit" prereq — see the unlockallunits code
 
       // ---- Profile customization ----
@@ -1274,6 +1275,26 @@ const DB = (() => {
     return next;
   }
 
+  // ---- Sky (day / night) ----
+  // Its OWN state, deliberately not derived from whether the theme is
+  // light or dark. It was derived at first, and that conflated two
+  // separate choices: which colours the app uses, and what time of day
+  // it is outside. Now you can run a dark theme in daylight or a light
+  // theme at night. Drives the sun/moon swap, the stars, and the cloud
+  // count — see core/theme.js's applySky.
+  function getSky() {
+    const p = getActiveProfile();
+    return (p && p.sky) || "night";
+  }
+
+  function setSky(id) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.sky = id === "day" ? "day" : "night";
+    save(db);
+  }
+
   // ---- Scenery ----
   // A SLOT, not a set (unlike decorations above): this is the horizon
   // along the bottom of the screen, and you can't stand on a jungle
@@ -1675,6 +1696,8 @@ const DB = (() => {
     toggleBgDecor,
     getScene,
     setScene,
+    getSky,
+    setSky,
     getAvatar,
     setAvatar,
     getPatronTier,

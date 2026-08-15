@@ -85,6 +85,7 @@
     Dojo.applyTheme(DB.getTheme());
     if (Dojo.applyBgStripe) Dojo.applyBgStripe(DB.getBgStripe());
     if (Dojo.applyScene) Dojo.applyScene(DB.getScene());
+    if (Dojo.applySky) Dojo.applySky(DB.getSky());
     if (Dojo.applyHints) Dojo.applyHints(DB.getHintsEnabled());
     if (Dojo.applySoundEnabled) Dojo.applySoundEnabled(DB.getSoundEnabled());
     Dojo.renderCharge();
@@ -145,6 +146,7 @@
   Dojo.applyTheme(DB.getTheme());
   if (Dojo.applyBgStripe) Dojo.applyBgStripe(DB.getBgStripe());
   if (Dojo.applyScene) Dojo.applyScene(DB.getScene());
+  if (Dojo.applySky) Dojo.applySky(DB.getSky());
   if (Dojo.applyHints) Dojo.applyHints(DB.getHintsEnabled());
   if (Dojo.applySoundEnabled) Dojo.applySoundEnabled(DB.getSoundEnabled());
   Dojo.renderCharge();

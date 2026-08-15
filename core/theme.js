@@ -111,41 +111,31 @@
     document.documentElement.dataset.bgScene = id && id !== "none" ? id : "";
   }
 
-  // ---- Day / night toggle ----
-  // "Day" and "night" aren't a separate setting — they're whether the
-  // equipped THEME is light or dark, which is what already drives the
-  // sun/moon swap, the stars and the extra clouds. So this flips the
-  // theme, and everything downstream follows for free.
+  // ---- Sky: day / night ----
+  // A scene in its own right, NOT a reading of whether the theme is
+  // light or dark. The first version derived it from the theme, which
+  // meant one control moved two unrelated things: the app's colours and
+  // the time of day outside. Separating them means a dark theme can run
+  // in daylight and a light theme at night, and the sky can be equipped
+  // from Custom like any other scene.
   //
-  // Each side remembers the last theme you were actually on, so toggling
-  // to day and back returns you to YOUR dark theme rather than dumping
-  // you on the default. Only themes you own are eligible — this must not
-  // become a back door onto a paid theme (Settings already was one once).
-  let lastDark = null, lastLight = null;
-
-  function ownsThemeId(id) {
-    return !Dojo.ownsTheme || Dojo.ownsTheme(id);
-  }
-  function firstOwned(mode, fallback) {
-    const t = (THEMES || []).find(x => x.id !== fallback &&
-      (mode === "light" ? x.mode === "light" : x.mode !== "light") && ownsThemeId(x.id));
-    return t ? t.id : fallback;
+  // Everything downstream keys off this one attribute: sun vs moon, the
+  // stars (hidden by day), and the doubled cloud count.
+  function applySky(id) {
+    document.documentElement.dataset.sky = id === "day" ? "day" : "night";
   }
 
-  function toggleDayNight() {
-    const cur = resolveTheme(DB.getTheme ? DB.getTheme() : "indigo");
-    const goingLight = cur.mode !== "light";
-    if (cur.mode === "light") lastLight = cur.id; else lastDark = cur.id;
+  function toggleSky() {
+    const next = (DB.getSky ? DB.getSky() : "night") === "day" ? "night" : "day";
+    setSky(next);
+    return next;
+  }
 
-    let next = goingLight ? lastLight : lastDark;
-    // Indigo and Frost are the free defaults, so they're always a valid
-    // landing spot when there's no remembered theme.
-    if (!next || !ownsThemeId(next)) next = goingLight ? firstOwned("light", "frost") : firstOwned("dark", "indigo");
-
-    DB.setTheme(next);
-    applyTheme(next);
+  function setSky(id) {
+    if (DB.setSky) DB.setSky(id);
+    applySky(id);
     if (Dojo.renderVitals) Dojo.renderVitals();   // repaint the toggle's own icon
-    if (Dojo.Bus) Dojo.Bus.emit("theme:changed", { id: next });
+    if (Dojo.Bus) Dojo.Bus.emit("sky:changed", { id });
   }
 
   // Text was "deliberately not themed" (see core/CORE.md) for as long as
@@ -200,12 +190,10 @@
     root.setProperty("--bolt-glow", `rgba(${br}, ${bg_}, ${bb}, 0.55)`);
     root.setProperty("--bg-image", t.bg || "none");
 
-    // Published to CSS so purely decorative things can react to day vs
-    // night without re-deriving it. First consumer: the Moon decoration
-    // becomes a Sun on a light theme — a moon in a bright daytime sky
-    // reads as a bug, not a decoration.
-    document.documentElement.dataset.themeMode = t.mode === "light" ? "light" : "dark";
-
+    // (A `data-theme-mode` attribute lived here briefly to drive the
+    // sun/moon swap off light-vs-dark. The sky is its own setting now —
+    // `data-sky`, see applySky — so nothing read it any more and it was
+    // removed rather than left looking load-bearing.)
     const tx = t.mode === "light" ? LIGHT_TEXT : DARK_TEXT;
     root.setProperty("--text", tx.text);
     root.setProperty("--text-dim", tx.dim);
@@ -226,5 +214,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { applyTheme, previewTheme, resolveTheme, themeUnlocked, applyBgStripe, bgStripeUnlocked, applyBgDecors, applyScene, toggleDayNight, hexToRgb, shade });
+  Object.assign(Dojo, { applyTheme, previewTheme, resolveTheme, themeUnlocked, applyBgStripe, bgStripeUnlocked, applyBgDecors, applyScene, applySky, setSky, toggleSky, hexToRgb, shade });
 })();

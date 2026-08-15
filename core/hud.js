@@ -132,18 +132,19 @@
     const moneyTip = "Earned from the Garden's daily dividends and Arcade wins. Spent to unlock Arcade games and place stakes. — tap to open the Shop";
     const tokenTip = "Earned free from rank-ups, or bought in the Token Shop. Spent to unlock courses. Never converts to or from $ money. — tap to open the Token Shop";
     // Day/night toggle. Shows the state you'd switch TO, which is the
-    // usual toggle idiom and the only one that makes a single icon
-    // unambiguous. It flips the equipped THEME (that's what "day" and
-    // "night" actually are here) — see Dojo.toggleDayNight.
-    const isLight = document.documentElement.dataset.themeMode === "light";
-    const dnTip = isLight ? "Switch to night" : "Switch to day";
+    // usual toggle idiom and the only thing that makes a single icon
+    // unambiguous. It flips the SKY, which is its own setting and has
+    // nothing to do with whether the theme is light or dark — see
+    // data/db.js's getSky.
+    const isDay = (DB.getSky ? DB.getSky() : "night") === "day";
+    const dnTip = isDay ? "Switch to night" : "Switch to day";
     strip.innerHTML = `<span id="vital-wallet-chip" class="vital-wallet" role="button" tabindex="0" title="${moneyTip}"><span class="vw-icon">👛</span>$${DB.getWallet()}</span>`
       + `<span id="vital-tokens-chip" class="vital-tokens" role="button" tabindex="0" title="${tokenTip}"><span class="vw-icon">🪙</span>${DB.getTokens()}</span>`
-      + `<button id="vital-daynight" class="vital-daynight" type="button" title="${dnTip}" aria-label="${dnTip}">${isLight ? "🌙" : "☀️"}</button>`;
+      + `<button id="vital-daynight" class="vital-daynight" type="button" title="${dnTip}" aria-label="${dnTip}">${isDay ? "🌙" : "☀️"}</button>`;
 
     const dn = document.getElementById("vital-daynight");
     if (dn) dn.addEventListener("click", () => {
-      if (Dojo.toggleDayNight) Dojo.toggleDayNight();
+      if (Dojo.toggleSky) Dojo.toggleSky();
     });
   }
 

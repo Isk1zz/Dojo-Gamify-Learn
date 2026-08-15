@@ -209,6 +209,20 @@
       }
     });
 
+    // ---- Sky ----
+    // Day/night as a scene you equip, not a side effect of the theme.
+    // Free and always available: it's a time of day, not merchandise.
+    // The vitals-strip button flips this same state.
+    const skyNow = DB.getSky ? DB.getSky() : "night";
+    out.push({
+      key: "sky", group: "style", icon: "\u{1F304}", title: "Sky",
+      items: [
+        { id: "night", name: "Night", glyph: "\u{1F319}", swatch: null, equipped: skyNow === "night" },
+        { id: "day",   name: "Day",   glyph: "☀\u{FE0F}", swatch: null, equipped: skyNow === "day" }
+      ],
+      equip: id => { if (Dojo.setSky) Dojo.setSky(id); }
+    });
+
     // ---- Scenery ----
     // Single-select, so "None" is a real listed option here (it is on
     // the stripe slot too) — otherwise there'd be no way to take a

@@ -104,6 +104,39 @@ now matters more than it did, not less:
 Do not treat "the exchange already exists" as settling this. It is the
 constraint on the game design, not permission to ignore it.
 
+## Sky is its own scene now (2026-08-15)
+Day/night was derived from whether the equipped THEME was light or dark.
+That conflated two unrelated choices — which colours the app uses, and
+what time of day it is outside — so picking a colour scheme silently
+changed the sky. They're separate now:
+
+- New `sky` profile field (`DB.getSky/setSky`, default `night`) and
+  `data-sky` on `<html>`. Sun-vs-moon, the stars and the doubled cloud
+  count all key off it. A dark theme in daylight and a light theme at
+  night are both possible now; verified Frost + night sky renders the
+  moon.
+- **Two ways to change it, one state:** the ☀️/🌙 button in the vitals
+  strip, and a "Sky" slot in Custom (Night / Day, free — it's a time of
+  day, not merchandise). Verified both write the same field.
+- `data-theme-mode` was removed. It existed only to drive the sun/moon
+  swap; with the sky owning that, nothing read it, so it went rather
+  than sitting there looking load-bearing.
+
+**Clouds moved back BEHIND the app** (`#bg-decor-front` z-index 55 → -1).
+They were only in front so they could be clicked, but clicks are resolved
+by rect hit-testing now, so being on top bought nothing and cost real
+damage: a drifting cloud washed over the lobby tiles (reported with the
+Library tile circled). Verified the tile is unobscured and still takes
+the click, and clouds are still pokeable — that never depended on
+stacking order.
+
+**Sun glows at rest.** Reported as "static and doesn't glow unless
+clicked", and true in effect: the idle halo pulsed 0.10→0.20 opacity and
+the rays took 44s per revolution — animation you can measure but not
+see. Now a real drop-shadow bloom, a halo pulsing across a visible
+range, a throbbing disc and rays at 18s. The poked state was raised well
+above the new idle so a click still reads as an escalation.
+
 ## Sky polish round 2 (2026-08-15)
 - **Bird bolt fixed — "some tp, some natural" was a specificity bug.**
   The clone kept its original classes, so `.decor-usa_eagles.eagle-2`
