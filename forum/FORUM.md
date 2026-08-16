@@ -70,6 +70,17 @@ Two accounts can still trade reputation back and forth, which the give-only
 rule does not prevent. Worth deciding whether that matters **before** it ships,
 not after — see `UPDATESTACK.md`.
 
+## Notes sync — planned, after Supabase
+
+Notes (planned branch) work offline first, but must **also sync online**
+once accounts exist — decided 2026-08-16. Same batch as the Forum, for
+the same reason: both need a server.
+
+The link worth building deliberately: a note is a **draft**. Publishing
+one as a post is a small step from something you already wrote, which
+is how the Forum gets seed content instead of asking people to face a
+blank page on day one.
+
 ## Where reputation lives
 
 `data/db.js`, stored under the profile's `wallet` field. It was money until the
