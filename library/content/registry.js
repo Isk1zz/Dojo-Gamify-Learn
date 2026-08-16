@@ -81,6 +81,9 @@ const Content = (() => {
 
       COURSES.push({
         id: c.id, title: c.title, subtitle: c.subtitle, icon: c.icon,
+        // Which shelf the Library files it under. Courses are grouped by
+        // track rather than listed flat — omitted falls to "other".
+        track: c.track || "other",
         available: c.available !== false,
         // 0/omitted = free, same as every course today. A course manifest
         // opts INTO the Token Shop by setting this — see shop/tokens.js.

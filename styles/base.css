@@ -1077,6 +1077,10 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
    They stay inert to the hit-tester; shop/decor.js instead watches for
    clicks that hit NO interactive element and only then checks whether
    one landed on a cloud. Real UI wins by construction, not by luck. */
+/* Opaque enough to actually OCCLUDE. They were 5-9% because they used
+   to render in FRONT of the app and had to stay unobtrusive; behind it
+   that constraint is gone, and at 5% a cloud passing a star hid nothing
+   — the star read as being in front of the cloud (reported). */
 .decor-clouds { position: absolute; color: var(--text); pointer-events: none; }
 .decor-clouds g { fill: currentColor; }
 .decor-clouds.cloud-poked { animation-play-state: paused; transform-origin: 50% 50%; }
@@ -1093,12 +1097,12 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
    empty and never evenly spaced: the big near ones cross fastest, the
    small far ones crawl. Negative delays start each mid-journey rather
    than queuing them all at the left edge on load. */
-.decor-clouds.cloud-1 { top:  9%; width: 190px; opacity: 0.09;  animation: decor-drift 62s  linear infinite; }
-.decor-clouds.cloud-2 { top: 27%; width: 130px; opacity: 0.07;  animation: decor-drift 88s  linear infinite; animation-delay: -30s; }
-.decor-clouds.cloud-3 { top: 55%; width:  90px; opacity: 0.05;  animation: decor-drift 124s linear infinite; animation-delay: -70s; }
-.decor-clouds.cloud-4 { top: 17%; width: 160px; opacity: 0.065; animation: decor-drift 74s  linear infinite; animation-delay: -48s; }
-.decor-clouds.cloud-5 { top: 40%; width: 110px; opacity: 0.055; animation: decor-drift 102s linear infinite; animation-delay: -18s; }
-.decor-clouds.cloud-6 { top: 68%; width: 210px; opacity: 0.075; animation: decor-drift 56s  linear infinite; animation-delay: -84s; }
+.decor-clouds.cloud-1 { top:  9%; width: 190px; opacity: 0.42;  animation: decor-drift 62s  linear infinite; }
+.decor-clouds.cloud-2 { top: 27%; width: 130px; opacity: 0.34;  animation: decor-drift 88s  linear infinite; animation-delay: -30s; }
+.decor-clouds.cloud-3 { top: 55%; width:  90px; opacity: 0.26;  animation: decor-drift 124s linear infinite; animation-delay: -70s; }
+.decor-clouds.cloud-4 { top: 17%; width: 160px; opacity: 0.32; animation: decor-drift 74s  linear infinite; animation-delay: -48s; }
+.decor-clouds.cloud-5 { top: 40%; width: 110px; opacity: 0.28; animation: decor-drift 102s linear infinite; animation-delay: -18s; }
+.decor-clouds.cloud-6 { top: 68%; width: 210px; opacity: 0.38; animation: decor-drift 56s  linear infinite; animation-delay: -84s; }
 /* The daytime six — interleaved between the originals' heights rather
    than stacked below them, so doubling reads as a fuller sky instead of
    a second band. */

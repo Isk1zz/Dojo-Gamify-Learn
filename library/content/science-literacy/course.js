@@ -25,6 +25,7 @@
 Content.course({
   id: "science-literacy",
   title: "Science Literacy",
+  track: "science",
   subtitle: "How science actually works — evidence, data, reasoning",
   icon: "\u{1F9EA}",
   available: false,

@@ -126,6 +126,7 @@
   Content.course({
     id: "intro-cs",
     title: "Intro to CS",
+  track: "cs",
     subtitle: "Networks, programming and emerging technologies",
     icon: "\u{1F4BB}",
     available: true,

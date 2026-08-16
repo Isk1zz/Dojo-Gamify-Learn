@@ -25,6 +25,7 @@
 Content.course({
   id: "biology",
   title: "Biology",
+  track: "science",
   subtitle: "Cells, genetics, evolution and human systems",
   icon: "\u{1F9EC}",
   available: false,

@@ -1081,3 +1081,14 @@
   text-transform: uppercase; color: var(--text-dim);
   margin: 0.8rem 0 0.4rem;
 }
+
+/* Library tracks — one row per course direction rather than one pile.
+   The heading only renders when its track has courses, so an empty
+   direction costs nothing. */
+.course-track-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--text-dim);
+  margin: 1.4rem 0 0.6rem;
+}
+.course-track-title:first-child { margin-top: 0; }
+.course-track-grid { margin-bottom: 0.4rem; }

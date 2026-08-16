@@ -25,6 +25,7 @@
 Content.course({
   id: "chemistry",
   title: "Chemistry",
+  track: "science",
   subtitle: "Atoms, bonding, reactions and equilibrium",
   icon: "\u{2697}\u{FE0F}",
   available: false,

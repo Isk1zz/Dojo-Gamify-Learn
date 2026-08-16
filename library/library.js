@@ -144,10 +144,31 @@
     body.innerHTML = "";
     const completedTopics = DB.getCompletedTopics();
 
-    const grid = document.createElement("div");
-    grid.className = "topic-grid";
+    // Grouped by TRACK, not one flat grid: mixing a CS course in with
+    // four sciences reads as a pile rather than a library, and the
+    // problem only gets worse as courses are added. A course with no
+    // `track` falls into "other" rather than vanishing.
+    const TRACKS = [
+      { id: "cs",      label: "\u{1F4BB} Computer Science" },
+      { id: "science", label: "\u{1F52C} Sciences" },
+      { id: "other",   label: "\u{1F4DA} Other" }
+    ];
+    const byTrack = new Map(TRACKS.map(t => [t.id, []]));
+    COURSES.forEach(c => byTrack.get(byTrack.has(c.track) ? c.track : "other").push(c));
 
-    COURSES.forEach(c => {
+    TRACKS.forEach(t => {
+      const list = byTrack.get(t.id);
+      if (!list.length) return;          // no empty headings
+
+      const head = document.createElement("div");
+      head.className = "course-track-title";
+      head.textContent = t.label;
+      body.appendChild(head);
+
+      const grid = document.createElement("div");
+      grid.className = "topic-grid course-track-grid";
+
+      list.forEach(c => {
       const topics = c.units.flatMap(id => UNIT_TOPICS[id] || []);
       const done = topics.filter(t => completedTopics.has(t.id)).length;
       const pct = topics.length ? Math.round((done / topics.length) * 100) : 0;
@@ -196,9 +217,10 @@
         });
       }
       grid.appendChild(card);
+      });
+      body.appendChild(grid);
     });
 
-    body.appendChild(grid);
     showScreen("course-select");
   }
 

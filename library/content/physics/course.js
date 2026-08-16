@@ -25,6 +25,7 @@
 Content.course({
   id: "physics",
   title: "Physics",
+  track: "science",
   subtitle: "Motion, energy, waves, electricity and light",
   icon: "\u{1F3D7}\u{FE0F}",
   available: false,
