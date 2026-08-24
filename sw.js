@@ -87,7 +87,10 @@
 // units and a Library card reading "0 units" — which is exactly what a
 // stale cache produced while this was being tested, and it cost a round
 // of chasing a scoping bug that was not there.
-const CACHE_VERSION = "knell-v8";
+// Bumped for core/crypto.js: a new file in band 1. A cached index.html
+// without its tag means Dojo.Crypto is simply absent, and every caller
+// has to guess whether that means "not supported here" or "stale cache".
+const CACHE_VERSION = "knell-v9";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

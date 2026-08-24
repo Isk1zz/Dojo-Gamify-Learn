@@ -725,6 +725,12 @@
   <!-- Before the content band: Content.course() resolves {en, ru} bags
        through I18N at registration, so this must already exist. -->
   <script src="core/i18n.js"></script>
+  <!-- Web Crypto wrapper: device key pair, signing, passphrase
+       encryption. Band 1 because it depends only on Dojo existing, and
+       anything that wants to sign or encrypt loads after it. Requires a
+       secure context (https or localhost) — Dojo.Crypto.isAvailable()
+       reports that rather than throwing. -->
+  <script src="core/crypto.js"></script>
   <script src="core/sfx.js"></script>
   <script src="data/db.js"></script>
   <script src="admin/logger.js"></script>

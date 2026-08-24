@@ -8,6 +8,38 @@ it belongs in a branch folder instead.**
 |---|---|
 | `core.js` | `Dojo.state`, `Bus`, `Router`, `showScreen`, shuffle + quote utils |
 | `i18n.js` | Language: `I18N.resolve` for course content, `I18N.t` for chrome, the first-run picker |
+| `crypto.js` | `Dojo.Crypto`: device key pair, signing, passphrase encryption. Web Crypto only |
+
+## Dojo.Crypto
+
+A thin wrapper over the browser's `crypto.subtle`. Nothing in it
+implements a cipher or modular arithmetic by hand, and nothing should.
+
+| Call | Does |
+|---|---|
+| `isAvailable()` | False outside a secure context (https / localhost) |
+| `getDeviceKeys()` | ECDSA P-256 pair, generated once, kept in IndexedDB `knell-keys` |
+| `getPublicKeyJwk()` / `getFingerprint()` | The half that may leave the device, and a short stable id for it |
+| `sign(data)` / `verify(data, sig, jwk?)` | Objects are hashed through `stableStringify`, so key order cannot change a signature |
+| `encryptWithPassphrase` / `decryptWithPassphrase` | PBKDF2-SHA256 600k → AES-256-GCM, self-describing envelope |
+| `signEnvelope` / `verifyEnvelope` | Payload + signature + public key, for an export somebody else will check |
+
+Three things to keep straight:
+
+- **The private key cannot be exported.** It is generated with
+  `extractable: false` and lives in IndexedDB as a live `CryptoKey` —
+  localStorage could not hold it without making it extractable, which
+  would defeat the point. `resetDeviceKeys()` destroys it; there is no
+  backup, by design.
+- **A self-signed envelope proves integrity, not identity.** Anyone can
+  sign with their own pair and ship the matching public key inside.
+  `verifyEnvelope` returns `selfSigned: true` when no trusted key was
+  supplied, and that flag is the whole warning. A server must compare
+  against a key it already holds.
+- **None of this protects the local economy.** Tokens and XP live on the
+  user's machine, and so does any key used to sign them; the user can
+  always re-sign what they edited. Only a server that keeps its own
+  authoritative numbers can fix that — see the online-database work.
 | `theme.js` | Paints a theme id into CSS variables on `:root` |
 | `hud.js` | The fixed top strip: charge bar, flying bolt, rank insignia, streak badge |
 | `profile.js` | Profile creation, name badge, profile switcher |
