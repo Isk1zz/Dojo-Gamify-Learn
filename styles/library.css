@@ -560,7 +560,16 @@
 .quiz-feedback.wrong   { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: var(--text-dim); }
 .quiz-feedback .fb-title { font-weight: 700; margin-bottom: 0.3rem; }
 
-.btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+/* Same missing-gap fix as .chunk-actions below: this had flex and gap
+   but no margin, so the row sat flush against whatever closed the card
+   above it — the sources box on the explain phase, the steps on the
+   example phase, the answer feedback on both quiz screens. All four
+   uses are the same shape (a button row ending a card), so the margin
+   belongs on the class rather than on each caller. */
+.btn-row {
+  display: flex; gap: 0.75rem; flex-wrap: wrap;
+  margin-top: 1.4rem;
+}
 
 /* ============================================
    Exam
@@ -889,6 +898,24 @@
   background: rgba(255, 255, 255, 0.03);
   font-size: 0.86rem; line-height: 1.55; color: var(--text-dim);
 }
+/* The row of buttons that closes every chunk phase. It had NO rules at
+   all until now, so it sat flush against whatever came before it —
+   most visibly on the predict phase, where the reveal box and the
+   "See the explanation" button touched. Reported from a screenshot.
+
+   One rule fixes all five phases (predict, explain, example, quiz,
+   recall) because they share the class. flex + gap rather than relying
+   on collapsed whitespace between inline buttons, which is what the
+   two-button rows were doing; alignment stays left, as it already
+   rendered. Matches .sim-actions in the mock exam. */
+.chunk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+}
+
 .recall-input {
   width: 100%; padding: 0.85rem 1rem; margin-top: 0.9rem;
   background: var(--bg-surface); border: 1px solid var(--border);

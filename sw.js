@@ -79,7 +79,7 @@
 // Bumped for interface translation pass 1: index.html gained ~56
 // data-i18n nodes and i18n.js the keys behind them. Split across a
 // stale cache that is a screen of raw keys.
-const CACHE_VERSION = "knell-v4";
+const CACHE_VERSION = "knell-v5";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
