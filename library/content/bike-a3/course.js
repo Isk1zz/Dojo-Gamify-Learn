@@ -41,16 +41,24 @@
 
   Content.course({
     id: "bike-a3",
-    title: "Теория A3 — электровелосипед",
+    // {en, ru} bags — resolved by I18N at registration, so everything
+    // downstream still sees a plain string. See core/i18n.js.
+    title: { en: "A3 Theory — Electric Bicycle", ru: "Теория A3 — электровелосипед" },
     track: "other",
-    subtitle: "Официальный банк вопросов Министерства транспорта, Израиль",
+    subtitle: {
+      en: "The Ministry of Transport's official question bank, Israel",
+      ru: "Официальный банк вопросов Министерства транспорта, Израиль"
+    },
     icon: "\u{1F6B2}",
     available: true,
     units: [
       {
         id: 31,
-        title: "Блок A3",
-        subtitle: "Электровелосипед: закон, дорога, безопасность",
+        title: { en: "Block A3", ru: "Блок A3" },
+        subtitle: {
+          en: "Electric bicycles: the law, the road, staying alive",
+          ru: "Электровелосипед: закон, дорога, безопасность"
+        },
         icon: "\u{1F6B2}",
         modules: [m1]
       }
