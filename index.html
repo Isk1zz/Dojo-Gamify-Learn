@@ -316,20 +316,20 @@
     <div id="warning-modal" class="modal-overlay" style="display:none;">
       <div class="modal-card">
         <div class="modal-icon">&#9888;&#65039;</div>
-        <h2 class="modal-title">Administrative Notice</h2>
-        <p class="modal-desc" id="warning-modal-desc">You have received a warning from a moderator.</p>
+        <h2 class="modal-title" data-i18n="ui.warn.title">Administrative Notice</h2>
+        <p class="modal-desc" id="warning-modal-desc" data-i18n="ui.warn.desc">You have received a warning from a moderator.</p>
         <div id="warning-modal-list" class="warning-list"></div>
-        <button id="btn-warning-ack" class="btn-primary">I understand</button>
+        <button id="btn-warning-ack" class="btn-primary" data-i18n="ui.warn.ack">I understand</button>
       </div>
     </div>
 
     <div id="profile-modal" class="modal-overlay" style="display:none;">
       <div class="modal-card">
         <div class="modal-icon">👤</div>
-        <h2 class="modal-title">Welcome to <span class="accent">Knell</span></h2>
-        <p class="modal-desc">Enter your name to create a profile. Your progress and stats will be saved locally.</p>
-        <input id="profile-name-input" class="modal-input" type="text" placeholder="Your name..." maxlength="30" autocomplete="off" />
-        <button id="btn-profile-save" class="btn-primary" style="width:100%;justify-content:center;">Start Learning <span class="arrow">→</span></button>
+        <h2 class="modal-title"><span data-i18n="ui.profile.welcome">Welcome to</span> <span class="accent">Knell</span></h2>
+        <p class="modal-desc" data-i18n="ui.profile.desc">Enter your name to create a profile. Your progress and stats will be saved locally.</p>
+        <input id="profile-name-input" class="modal-input" type="text" placeholder="Your name..." data-i18n-placeholder="ui.profile.name" maxlength="30" autocomplete="off" />
+        <button id="btn-profile-save" class="btn-primary" style="width:100%;justify-content:center;"><span data-i18n="ui.profile.start">Start Learning</span> <span class="arrow">→</span></button>
       </div>
     </div>
 
@@ -337,12 +337,12 @@
     <div id="stats-modal" class="modal-overlay" style="display:none;">
       <div class="modal-card modal-card-wide">
         <div class="modal-close" id="btn-stats-close">✕</div>
-        <h2 class="modal-title" style="font-size:1.3rem;">👤 Your Profile</h2>
+        <h2 class="modal-title" style="font-size:1.3rem;">👤 <span data-i18n="ui.stats.title">Your Profile</span></h2>
         <div id="stats-body"></div>
         <div class="stats-actions">
-          <button id="btn-export" class="btn-ghost">📥 Export Data</button>
+          <button id="btn-export" class="btn-ghost">📥 <span data-i18n="ui.stats.export">Export Data</span></button>
           <label class="btn-ghost import-label">
-            📤 Import Data
+            📤 <span data-i18n="ui.stats.import">Import Data</span>
             <input type="file" id="btn-import" accept=".json" style="display:none;" />
           </label>
         </div>
@@ -361,21 +361,21 @@
     <!-- ====== Profile Dropdown ====== -->
     <div id="profile-dropdown" class="profile-dropdown" style="display:none;">
       <div class="pd-header">
-        <span class="pd-label">Profile</span>
+        <span class="pd-label" data-i18n="ui.pd.profile">Profile</span>
         <div class="pd-name-row">
           <input id="pd-name-edit" class="pd-name-input" type="text" maxlength="30" />
           <button id="pd-name-save" class="pd-save-btn">✓</button>
         </div>
       </div>
       <div class="pd-divider"></div>
-      <div class="pd-label">Avatar <span id="pd-avatar-wallet" class="pd-wallet-note"></span></div>
+      <div class="pd-label"><span data-i18n="ui.pd.avatar">Avatar</span> <span id="pd-avatar-wallet" class="pd-wallet-note"></span></div>
       <div id="pd-avatars-grid" class="pd-avatars-grid"></div>
       <div class="pd-divider"></div>
       <div id="pd-profiles-list" class="pd-profiles-list"></div>
       <div class="pd-divider"></div>
-      <button id="pd-new-profile" class="pd-action">＋ New Profile</button>
-      <button id="pd-stats" class="pd-action">📊 View Statistics</button>
-      <button id="pd-admin" class="pd-action">🛡️ Admin &amp; Logs</button>
+      <button id="pd-new-profile" class="pd-action">＋ <span data-i18n="ui.pd.newProfile">New Profile</span></button>
+      <button id="pd-stats" class="pd-action">📊 <span data-i18n="ui.pd.stats">View Statistics</span></button>
+      <button id="pd-admin" class="pd-action">🛡️ <span data-i18n="ui.pd.admin">Admin &amp; Logs</span></button>
     </div>
 
     <!-- ====== Landing ====== -->
@@ -387,18 +387,18 @@
              than the second half of it — and the &nbsp; that used to
              hold "Unnamed App" apart is gone with the space it guarded. -->
         <h1 class="landing-title"><span class="accent">Knell</span></h1>
-        <p class="landing-sub">A study system that keeps what you learn from fading — chunk by chunk, day by day.</p>
+        <p class="landing-sub" data-i18n="ui.landing.sub">A study system that keeps what you learn from fading — chunk by chunk, day by day.</p>
         <div class="landing-features">
-          <div class="feat"><span class="feat-icon">📖</span><span>Any course, one chunk at a time</span></div>
-          <div class="feat"><span class="feat-icon">🔥</span><span>Spaced review that adapts to you</span></div>
+          <div class="feat"><span class="feat-icon">📖</span><span data-i18n="ui.landing.feat1">Any course, one chunk at a time</span></div>
+          <div class="feat"><span class="feat-icon">🔥</span><span data-i18n="ui.landing.feat2">Spaced review that adapts to you</span></div>
           <!-- Was "Earn your way into the Arcades" — the Arcade branch
                was deleted and the landing page went on advertising it.
                Replaced with the Garden, which is both real and the one
                mechanic nothing else here has. -->
-          <div class="feat"><span class="feat-icon">🌱</span><span>A garden that wilts when you stop</span></div>
+          <div class="feat"><span class="feat-icon">🌱</span><span data-i18n="ui.landing.feat3">A garden that wilts when you stop</span></div>
         </div>
-        <button id="btn-start" class="btn-primary">Begin Training</button>
-        <p class="landing-hint">No account needed — progress saves automatically, on this device</p>
+        <button id="btn-start" class="btn-primary" data-i18n="ui.landing.begin">Begin Training</button>
+        <p class="landing-hint" data-i18n="ui.landing.hint">No account needed — progress saves automatically, on this device</p>
       </div>
     </section>
 
@@ -445,15 +445,15 @@
           <button id="btn-lobby-courses" class="lobby-tile primary">
             <span class="lt-icon">&#128218;</span>
             <span class="lt-body">
-              <span class="lt-title">Library</span>
-              <span class="lt-sub" id="lobby-library-sub">Choose a course and start training</span>
+              <span class="lt-title" data-i18n="ui.tile.library">Library</span>
+              <span class="lt-sub" id="lobby-library-sub" data-i18n="ui.tile.librarySub">Choose a course and start training</span>
             </span>
             <span class="arrow">&rarr;</span>
           </button>
           <button id="btn-lobby-resume" class="lobby-tile" style="display:none;">
             <span class="lt-icon">&#9889;</span>
             <span class="lt-body">
-              <span class="lt-title">Continue where you left off</span>
+              <span class="lt-title" data-i18n="ui.tile.resume">Continue where you left off</span>
               <span class="lt-sub" id="lobby-resume-sub"></span>
             </span>
             <span class="arrow">&rarr;</span>
@@ -461,7 +461,7 @@
           <button id="btn-lobby-garden" class="lobby-tile">
             <span class="lt-icon">&#127793;</span>
             <span class="lt-body">
-              <span class="lt-title">Garden</span>
+              <span class="lt-title" data-i18n="ui.tile.garden">Garden</span>
               <span class="lt-sub" id="lobby-garden-sub">What you've grown, and what needs watering</span>
             </span>
             <span class="arrow">&rarr;</span>
@@ -469,15 +469,15 @@
           <button id="btn-lobby-shop" class="lobby-tile">
             <span class="lt-icon">&#127894;</span>
             <span class="lt-body">
-              <span class="lt-title">Career</span>
-              <span class="lt-sub" id="lobby-shop-sub">Rank, rewards and the ladder</span>
+              <span class="lt-title" data-i18n="ui.tile.career">Career</span>
+              <span class="lt-sub" id="lobby-shop-sub" data-i18n="ui.tile.careerSub">Rank, rewards and the ladder</span>
             </span>
             <span class="arrow">&rarr;</span>
           </button>
           <button id="btn-lobby-flashcards" class="lobby-tile subtle">
             <span class="lt-icon">&#128209;</span>
             <span class="lt-body">
-              <span class="lt-title">Flashcards</span>
+              <span class="lt-title" data-i18n="ui.tile.flashcards">Flashcards</span>
               <span class="lt-sub" id="lobby-flashcards-sub">Pick any chunks, drill your weak spots</span>
             </span>
             <span class="arrow">&rarr;</span>
@@ -488,7 +488,7 @@
           <button id="btn-lobby-games" class="lobby-tile" >
             <span class="lt-icon">&#128172;</span>
             <span class="lt-body">
-              <span class="lt-title">Forum</span>
+              <span class="lt-title" data-i18n="ui.tile.forum">Forum</span>
               <span class="lt-sub" id="lobby-games-sub">Community</span>
             </span>
             <span class="arrow">&rarr;</span>
@@ -500,16 +500,16 @@
           <button id="btn-lobby-stats" class="lobby-tile subtle">
             <span class="lt-icon">&#127890;</span>
             <span class="lt-body">
-              <span class="lt-title">Custom</span>
-              <span class="lt-sub">Everything you've unlocked, ready to equip</span>
+              <span class="lt-title" data-i18n="ui.tile.custom">Custom</span>
+              <span class="lt-sub" data-i18n="ui.tile.customSub">Everything you've unlocked, ready to equip</span>
             </span>
             <span class="arrow">&rarr;</span>
           </button>
           <button id="btn-lobby-settings" class="lobby-tile subtle">
             <span class="lt-icon">&#9881;</span>
             <span class="lt-body">
-              <span class="lt-title">Settings</span>
-              <span class="lt-sub">Colour theme and data</span>
+              <span class="lt-title" data-i18n="ui.tile.settings">Settings</span>
+              <span class="lt-sub" data-i18n="ui.tile.settingsSub">Colour theme and data</span>
             </span>
             <span class="arrow">&rarr;</span>
           </button>
@@ -520,8 +520,8 @@
     <!-- ====== Garden ====== -->
     <section id="garden" class="screen">
       <div class="topbar">
-        <button id="btn-back-lobby2" class="btn-ghost">&larr; Lobby</button>
-        <h2 class="topbar-title">Your <span class="accent">Garden</span></h2>
+        <button id="btn-back-lobby2" class="btn-ghost" data-i18n="ui.back.lobby">&larr; Lobby</button>
+        <h2 class="topbar-title"><span class="accent" data-i18n="ui.screen.garden">Your Garden</span></h2>
       </div>
       <div class="garden-body" id="garden-body"></div>
     </section>
@@ -529,8 +529,8 @@
     <!-- ====== Settings ====== -->
     <section id="settings" class="screen">
       <div class="topbar">
-        <button id="btn-back-lobby3" class="btn-ghost">&larr; Lobby</button>
-        <h2 class="topbar-title"><span class="accent">Settings</span></h2>
+        <button id="btn-back-lobby3" class="btn-ghost" data-i18n="ui.back.lobby">&larr; Lobby</button>
+        <h2 class="topbar-title"><span class="accent" data-i18n="ui.screen.settings">Settings</span></h2>
       </div>
       <div class="settings-body" id="settings-body"></div>
     </section>
@@ -538,8 +538,8 @@
     <!-- ====== Shop ====== -->
     <section id="shop" class="screen">
       <div class="topbar">
-        <button id="btn-back-lobby4" class="btn-ghost">&larr; Lobby</button>
-        <h2 class="topbar-title"><span class="accent">Career</span></h2>
+        <button id="btn-back-lobby4" class="btn-ghost" data-i18n="ui.back.lobby">&larr; Lobby</button>
+        <h2 class="topbar-title"><span class="accent" data-i18n="ui.screen.career">Career</span></h2>
       </div>
       <div class="shop-body" id="shop-body"></div>
     </section>
@@ -549,8 +549,8 @@
          an honest shell rather than a seeded fake community. -->
     <section id="forum" class="screen">
       <div class="topbar">
-        <button id="btn-back-lobby5" class="btn-ghost">&larr; Lobby</button>
-        <h2 class="topbar-title">The <span class="accent">Forum</span></h2>
+        <button id="btn-back-lobby5" class="btn-ghost" data-i18n="ui.back.lobby">&larr; Lobby</button>
+        <h2 class="topbar-title"><span class="accent" data-i18n="ui.screen.forum">The Forum</span></h2>
       </div>
       <div class="topic-map-body" id="forum-body"></div>
     </section>
@@ -559,10 +559,10 @@
     <!-- ====== Course Select ====== -->
     <section id="course-select" class="screen">
       <div class="topbar">
-        <button id="btn-back-lobby" class="btn-ghost">&larr; Lobby</button>
-        <h2 class="topbar-title"><span class="accent">Library</span></h2>
+        <button id="btn-back-lobby" class="btn-ghost" data-i18n="ui.back.lobby">&larr; Lobby</button>
+        <h2 class="topbar-title"><span class="accent" data-i18n="ui.screen.library">Library</span></h2>
         <div class="topbar-right">
-          <button id="btn-token-shop" class="btn-ghost">&#129689; Shop</button>
+          <button id="btn-token-shop" class="btn-ghost">&#129689; <span data-i18n="ui.btn.tokenShop">Shop</span></button>
         </div>
       </div>
       <div class="topic-map-body" id="course-select-body"></div>
@@ -572,8 +572,8 @@
     <!-- ====== Unit Select ====== -->
     <section id="unit-select" class="screen">
       <div class="topbar">
-        <button id="btn-back-courses" class="btn-ghost">&larr; Courses</button>
-        <h2 class="topbar-title">Choose a <span class="accent">Unit</span></h2>
+        <button id="btn-back-courses" class="btn-ghost" data-i18n="ui.back.courses">&larr; Courses</button>
+        <h2 class="topbar-title"><span class="accent" data-i18n="ui.screen.unit">Choose a Unit</span></h2>
       </div>
       <div class="topic-map-body" id="unit-select-body"></div>
     </section>
@@ -584,8 +584,8 @@
          deck. See library/library.js's renderDeckBuilder(). -->
     <section id="deck-builder" class="screen">
       <div class="topbar">
-        <button id="btn-back-deckbuilder" class="btn-ghost">&larr; Unit</button>
-        <h2 class="topbar-title">&#128194; Custom <span class="accent">Deck</span></h2>
+        <button id="btn-back-deckbuilder" class="btn-ghost" data-i18n="ui.back.unit">&larr; Unit</button>
+        <h2 class="topbar-title">&#128194; <span class="accent" data-i18n="ui.screen.deck">Custom Deck</span></h2>
       </div>
       <div class="deck-builder-body" id="deck-builder-body"></div>
     </section>
@@ -682,7 +682,7 @@
     <!-- ====== Shop (shop/store.js) ====== -->
     <section id="store" class="screen">
       <div class="topbar">
-        <button id="btn-back-store" class="btn-ghost">&larr; Lobby</button>
+        <button id="btn-back-store" class="btn-ghost" data-i18n="ui.back.lobby">&larr; Lobby</button>
         <h2 class="topbar-title">The <span class="accent">Shop</span></h2>
       </div>
       <div class="topic-map-body" id="store-body"></div>
@@ -691,7 +691,7 @@
     <!-- ====== Inventory (shop/inventory.js) ====== -->
     <section id="inventory" class="screen">
       <div class="topbar">
-        <button id="btn-back-inventory" class="btn-ghost">&larr; Lobby</button>
+        <button id="btn-back-inventory" class="btn-ghost" data-i18n="ui.back.lobby">&larr; Lobby</button>
         <h2 class="topbar-title">Your <span class="accent">Custom</span></h2>
       </div>
       <div class="topic-map-body" id="inventory-body"></div>

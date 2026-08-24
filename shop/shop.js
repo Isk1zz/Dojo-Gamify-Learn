@@ -123,8 +123,8 @@
   function shopSummary() {
     const prog = Dojo.Ranks.progress(DB.getXp());
     return prog.next
-      ? `${prog.cur.name} \u00b7 ${prog.toGo} XP to ${prog.next.name}`
-      : `${prog.cur.name} \u00b7 top of the ladder`;
+      ? I18N.t("ui.sum.rankToGo", { cur: prog.cur.name, n: prog.toGo, next: prog.next.name })
+      : I18N.t("ui.sum.rankTop", { cur: prog.cur.name });
   }
 
   // ---- seam: what this branch offers to everyone else ----

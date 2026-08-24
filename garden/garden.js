@@ -106,14 +106,17 @@
   // What the lobby tile shows. The lobby must not compute this itself.
   function gardenSummary() {
     const grown = ALL_TOPICS.filter(t => growthFor(t.id) !== GROWTH[0]).length;
-    if (!grown) return "Nothing planted yet \u2014 finish a topic to grow something";
+    if (!grown) return I18N.t("ui.sum.gardenEmpty");
 
     const due = DB.getDueTopicIds().length;
     const wait = msUntilClaim();
-    const bits = [`${grown} of ${ALL_TOPICS.length} planted`];
+    const bits = [I18N.t("ui.sum.planted", { n: grown, of: ALL_TOPICS.length })];
     // Watering comes first: it's the thing with a deadline.
-    if (due) bits.push(`${due} need${due === 1 ? "s" : ""} watering`);
-    if (wait === 0) bits.push(`$${dividendPreview().total} to claim`);
+    // The English plural is dropped rather than translated: Russian
+    // needs three forms where English needs two, so both strings were
+    // reworded to carry the count after a colon instead.
+    if (due) bits.push(I18N.t("ui.sum.needWater", { n: due }));
+    if (wait === 0) bits.push(I18N.t("ui.sum.toClaim", { n: dividendPreview().total }));
     else bits.push(`payout in ${fmtWait(wait)}`);
     return bits.join(" \u00b7 ");
   }

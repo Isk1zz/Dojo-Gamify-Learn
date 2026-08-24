@@ -79,7 +79,7 @@
 
   // The lobby tile's one-line summary, same seam every other branch uses.
   function forumSummary() {
-    return `${reputation()} reputation · opens with accounts`;
+    return I18N.t("ui.sum.forum", { n: reputation() });
   }
 
   Object.assign(Dojo, { renderForum, forumSummary });

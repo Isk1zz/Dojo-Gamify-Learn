@@ -213,6 +213,85 @@ const I18N = (() => {
     "btn.backToTopics":     { en: "Back to Topics",     ru: "К списку тем" },
     "btn.backToCourse":     { en: "← Course",           ru: "← К курсу" },
 
+    // ---- Static chrome: landing, first run, lobby, screen titles ----
+    // Pass one of the interface translation. These are the screens seen
+    // every session; the Shop catalogue, Garden and Stats text are still
+    // English and are the next pass.
+    "ui.landing.sub":       { en: "A study system that keeps what you learn from fading — chunk by chunk, day by day.",
+                              ru: "Система занятий, которая не даёт выученному выветриться — по кусочку, изо дня в день." },
+    "ui.landing.feat1":     { en: "Any course, one chunk at a time", ru: "Любой курс, по одному блоку за раз" },
+    "ui.landing.feat2":     { en: "Spaced review that adapts to you", ru: "Повторение с интервалами, подстроенное под вас" },
+    "ui.landing.feat3":     { en: "A garden that wilts when you stop", ru: "Сад, который вянет, когда вы бросаете" },
+    "ui.landing.begin":     { en: "Begin Training",     ru: "Начать" },
+    "ui.landing.hint":      { en: "No account needed — progress saves automatically, on this device",
+                              ru: "Аккаунт не нужен — прогресс сохраняется сам, на этом устройстве" },
+
+    "ui.profile.welcome":   { en: "Welcome to",         ru: "Добро пожаловать в" },
+    "ui.profile.desc":      { en: "Enter your name to create a profile. Your progress and stats will be saved locally.",
+                              ru: "Введите имя, чтобы создать профиль. Прогресс и статистика сохранятся на этом устройстве." },
+    "ui.profile.name":      { en: "Your name...",       ru: "Ваше имя…" },
+    "ui.profile.start":     { en: "Start Learning",     ru: "Начать учиться" },
+
+    "ui.warn.title":        { en: "Administrative Notice", ru: "Административное уведомление" },
+    "ui.warn.desc":         { en: "You have received a warning from a moderator.",
+                              ru: "Вы получили предупреждение от модератора." },
+    "ui.warn.ack":          { en: "I understand",       ru: "Понятно" },
+
+    "ui.stats.title":       { en: "Your Profile",       ru: "Ваш профиль" },
+    "ui.stats.export":      { en: "Export Data",        ru: "Выгрузить данные" },
+    "ui.stats.import":      { en: "Import Data",        ru: "Загрузить данные" },
+    "ui.pd.profile":        { en: "Profile",            ru: "Профиль" },
+    "ui.pd.avatar":         { en: "Avatar",             ru: "Аватар" },
+    "ui.pd.newProfile":     { en: "New Profile",        ru: "Новый профиль" },
+    "ui.pd.stats":          { en: "View Statistics",    ru: "Статистика" },
+    "ui.pd.admin":          { en: "Admin & Logs",       ru: "Админка и логи" },
+
+    // Lobby tiles
+    "ui.tile.library":      { en: "Library",            ru: "Библиотека" },
+    "ui.tile.librarySub":   { en: "Choose a course and start training", ru: "Выберите курс и начните" },
+    "ui.tile.resume":       { en: "Continue where you left off", ru: "Продолжить с того же места" },
+    "ui.tile.garden":       { en: "Garden",             ru: "Сад" },
+    "ui.tile.career":       { en: "Career",             ru: "Карьера" },
+    "ui.tile.careerSub":    { en: "Rank, rewards and the ladder", ru: "Ранг, награды и лестница" },
+    "ui.tile.flashcards":   { en: "Flashcards",         ru: "Карточки" },
+    "ui.tile.forum":        { en: "Forum",              ru: "Форум" },
+    "ui.tile.custom":       { en: "Custom",             ru: "Кастом" },
+    "ui.tile.customSub":    { en: "Everything you've unlocked, ready to equip",
+                              ru: "Всё открытое, готовое к использованию" },
+    "ui.tile.settings":     { en: "Settings",           ru: "Настройки" },
+    "ui.tile.settingsSub":  { en: "Colour theme and data", ru: "Оформление и данные" },
+    "ui.lobby.welcomeBack": { en: "Welcome back.",      ru: "С возвращением." },
+
+    // Screen titles and their back buttons
+    "ui.back.lobby":        { en: "← Lobby",            ru: "← В лобби" },
+    "ui.back.courses":      { en: "← Courses",          ru: "← К курсам" },
+    "ui.back.unit":         { en: "← Unit",             ru: "← К блоку" },
+    "ui.screen.garden":     { en: "Your Garden",        ru: "Ваш сад" },
+    "ui.screen.settings":   { en: "Settings",           ru: "Настройки" },
+    "ui.screen.career":     { en: "Career",             ru: "Карьера" },
+    "ui.screen.forum":      { en: "The Forum",          ru: "Форум" },
+    "ui.screen.library":    { en: "Library",            ru: "Библиотека" },
+    "ui.screen.unit":       { en: "Choose a Unit",      ru: "Выберите блок" },
+    "ui.screen.deck":       { en: "Custom Deck",        ru: "Своя колода" },
+    "ui.btn.tokenShop":     { en: "Shop",               ru: "Магазин" },
+
+    // Lobby tile subtitles. Computed by their own branch (lobby.js must
+    // not know what a plant or a rank is), so the branch does the lookup
+    // and the plural-dodging phrasing lives here.
+    "ui.sum.gardenEmpty":  { en: "Nothing planted yet — finish a topic to grow something",
+                              ru: "Пока ничего не посажено — пройдите тему, и что-нибудь взойдёт" },
+    "ui.sum.planted":      { en: "{n} of {of} planted", ru: "посажено: {n} из {of}" },
+    "ui.sum.needWater":    { en: "{n} need watering",   ru: "требуют полива: {n}" },
+    "ui.sum.toClaim":      { en: "${n} to claim",      ru: "к получению: ${n}" },
+    "ui.sum.rankToGo":     { en: "{cur} · {n} XP to {next}", ru: "{cur} · до «{next}» ещё {n} XP" },
+    "ui.sum.rankTop":      { en: "{cur} · top of the ladder", ru: "{cur} · вершина лестницы" },
+    "ui.sum.buyToUnlock":  { en: "Buy a course to unlock", ru: "Купите курс, чтобы открыть" },
+    "ui.sum.reviewed":     { en: "{n} chunks reviewed so far — build a deck",
+                              ru: "повторено блоков: {n} — соберите колоду" },
+    "ui.sum.flashIdle":    { en: "Pick any chunks, drill your weak spots",
+                              ru: "Выберите блоки и прогоняйте слабые места" },
+    "ui.sum.forum":        { en: "{n} reputation · opens with accounts",
+                              ru: "репутация: {n} · откроется с аккаунтами" },
     // ---- Mock exam (library/exam-sim.js) ----
     // {n} / {min} / {pass} / {i} / {of} / {score} are filled by t(key, vars).
     "sim.entry":            { en: "Mock Exam",          ru: "Пробный экзамен" },
@@ -283,9 +362,21 @@ const I18N = (() => {
   // band in the document, so they are already parsed by the time this
   // runs — no DOMContentLoaded needed, and the label never flashes in
   // the wrong language.
+  // data-i18n sets textContent, so it must go on an element that owns
+  // NOTHING but that text. Several places in index.html therefore got a
+  // wrapper <span> rather than the attribute on the parent: the Import
+  // Data label holds a hidden <input>, and the Avatar row holds the
+  // wallet note — textContent on either would delete the child.
+  //
+  // data-i18n-placeholder is separate because an <input>'s visible text
+  // is an attribute, not a child node.
   function applyStatic(root) {
-    (root || document).querySelectorAll("[data-i18n]").forEach(el => {
+    const scope = root || document;
+    scope.querySelectorAll("[data-i18n]").forEach(el => {
       el.textContent = t(el.dataset.i18n);
+    });
+    scope.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+      el.setAttribute("placeholder", t(el.dataset.i18nPlaceholder));
     });
   }
   applyStatic();

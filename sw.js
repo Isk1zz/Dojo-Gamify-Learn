@@ -76,7 +76,10 @@
 // Bumped again: tickets removed from db.js/admin.js, and flashcard
 // decks now include exam questions. Both are behaviour changes across
 // files that load together.
-const CACHE_VERSION = "knell-v3";
+// Bumped for interface translation pass 1: index.html gained ~56
+// data-i18n nodes and i18n.js the keys behind them. Split across a
+// stale cache that is a screen of raw keys.
+const CACHE_VERSION = "knell-v4";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

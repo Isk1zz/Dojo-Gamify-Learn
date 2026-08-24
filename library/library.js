@@ -1853,13 +1853,13 @@
   // compute it in lobby.js" rule every other tile follows.
   function flashcardsSummary() {
     if (!COURSES.length) return null;
-    if (Dojo.ownsCourse && !Dojo.ownsCourse(COURSES[0].id)) return "🔒 Buy a course to unlock";
+    if (Dojo.ownsCourse && !Dojo.ownsCourse(COURSES[0].id)) return "🔒 " + I18N.t("ui.sum.buyToUnlock");
     const completed = DB.getCompletedChunks();
     let total = 0;
     Object.values(completed).forEach(set => { total += set ? set.size : 0; });
     return total > 0
-      ? `${total} chunk${total === 1 ? "" : "s"} reviewed so far — build a deck`
-      : "Pick any chunks, drill your weak spots";
+      ? I18N.t("ui.sum.reviewed", { n: total })
+      : I18N.t("ui.sum.flashIdle");
   }
 
   function renderDeckBuilder() {
