@@ -138,7 +138,7 @@ const Bus = (() => {
   // the duration of a chunk keeps the app's look everywhere it isn't
   // costing legibility. shop/decor.js calls these "lobby decorations"
   // in its own header — this makes the code agree with the comment.
-  const STUDY_SCREENS = new Set(["lesson", "exam", "flashcards"]);
+  const STUDY_SCREENS = new Set(["lesson", "exam", "flashcards", "exam-sim"]);
 
   function showScreen(id) {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));

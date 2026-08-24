@@ -51,6 +51,12 @@
     },
     icon: "\u{1F6B2}",
     available: true,
+    // The real test's terms, and the reason they live here rather than
+    // in library/exam-sim.js: 30/40/26 is a fact about the Israeli A3
+    // exam, not about this app. draw comes out of the pool of official
+    // questions the course carries (40 for A3 — see data_m1.js), pass
+    // is the mark, minutes is the clock.
+    examSim: { draw: 30, minutes: 40, pass: 26 },
     units: [
       {
         id: 31,

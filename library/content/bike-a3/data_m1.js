@@ -228,7 +228,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "Какова предельная скорость (в километрах в час), при превышении которой двигатель электровелосипеда должен отключиться?", en: "What is the speed limit (in kilometers per hour [km/h]), above which the motor on the electric bicycle must disengage?" },
+            official: true, question: { ru: "Какова предельная скорость (в километрах в час), при превышении которой двигатель электровелосипеда должен отключиться?", en: "What is the speed limit (in kilometers per hour [km/h]), above which the motor on the electric bicycle must disengage?" },
             options: [
               { ru: "25 км/ч.", en: "25 km/h." },
               { ru: "10 км/ч.", en: "10 km/h." },
@@ -576,7 +576,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "Разрешено ли электровелосипедисту ездить по обочине?", en: "Is an electric bicycle rider allowed to ride on the shoulder?" },
+            official: true, question: { ru: "Разрешено ли электровелосипедисту ездить по обочине?", en: "Is an electric bicycle rider allowed to ride on the shoulder?" },
             options: [
               { ru: "Это категорически запрещено.", en: "This is absolutely forbidden." },
               { ru: "Это необходимо при езде по междугородной дороге, обочина которой чистая и заасфальтирована.", en: "This is mandatory when riding along an intercity road, where the shoulder is clear and surfaced with asphalt." },
@@ -800,7 +800,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "Какую дистанцию должен держать электровелосипедист до едущего впереди автомобиля?", en: "What is the distance a rider on an electric bicycle must keep from a vehicle in front of him?" },
+            official: true, question: { ru: "Какую дистанцию должен держать электровелосипедист до едущего впереди автомобиля?", en: "What is the distance a rider on an electric bicycle must keep from a vehicle in front of him?" },
             options: [
               { ru: "Два метра.", en: "Two meters distance." },
               { ru: "Дистанция не важна.", en: "Distance is not important." },
@@ -851,7 +851,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "Какая опасность возникает, когда велосипедист обгоняет автомобиль справа?", en: "What is dangerous about a bicycle rider overtaking a vehicle from the right?" },
+            official: true, question: { ru: "Какая опасность возникает, когда велосипедист обгоняет автомобиль справа?", en: "What is dangerous about a bicycle rider overtaking a vehicle from the right?" },
             options: [
               { ru: "Обгоняющий велосипедист находится рядом с бордюром с одной стороны и рядом с автомобилем с другой, из-за чего он может потерять равновесие.", en: "The overtaking rider is near the kerb on the one side and near the vehicle on the other side, meaning he could lose his balance." },
               { ru: "Обгоняющий велосипедист находится в «слепой зоне» автомобиля, то есть водитель не может видеть его в зеркала.", en: "The overtaking rider is in the vehicle’s “blind spot”, meaning the vehicle driver cannot see the bicycle rider in his mirrors." },
@@ -902,7 +902,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "Что должен сделать электровелосипедист, подъехав к перекрёстку, на котором мигает жёлтый сигнал светофора?", en: "What must a rider on an electric bicycle do when he approaches an intersection in which there is a yellow flashing traffic light?" },
+            official: true, question: { ru: "Что должен сделать электровелосипедист, подъехав к перекрёстку, на котором мигает жёлтый сигнал светофора?", en: "What must a rider on an electric bicycle do when he approaches an intersection in which there is a yellow flashing traffic light?" },
             options: [
               { ru: "В любом случае остановиться перед пешеходным переходом.", en: "In any case, he will stop before the pedestrian crossing." },
               { ru: "Снизить скорость и при необходимости полностью остановиться — в зависимости от движения транспорта вокруг него.", en: "He will slow down, and even come to a full stop if necessary - depending on the nearby traffic." },
@@ -1024,7 +1024,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "Как предотвратить занос электровелосипеда на дороге?", en: "How can you prevent an electric bicycle from skidding on the road?" },
+            official: true, question: { ru: "Как предотвратить занос электровелосипеда на дороге?", en: "How can you prevent an electric bicycle from skidding on the road?" },
             options: [
               { ru: "Поддерживая разумную скорость, правильно и контролируемо используя тормоза, а также контролируя ускорение.", en: "By maintaining reasonable speed and by correct, controlled use of the brakes and by controlled acceleration." },
               { ru: "Повернув руль вправо — так можно выровнять велосипед.", en: "By swerving the handlebar to the right to stabilize the bicycle." },
@@ -1075,7 +1075,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "К чему приведёт резкое торможение при повороте на электровелосипеде?", en: "What will an abrupt braking cause while turning with an electric bicycle?" },
+            official: true, question: { ru: "К чему приведёт резкое торможение при повороте на электровелосипеде?", en: "What will an abrupt braking cause while turning with an electric bicycle?" },
             options: [
               { ru: "К заносу переднего колеса.", en: "Skidding of the front wheel." },
               { ru: "К увеличению скорости велосипеда.", en: "Increased bicycle speed." },
@@ -1127,7 +1127,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "Как электровелосипедист должен двигаться по мокрой дороге?", en: "How will an electric bicycle rider ride when the road is wet?" },
+            official: true, question: { ru: "Как электровелосипедист должен двигаться по мокрой дороге?", en: "How will an electric bicycle rider ride when the road is wet?" },
             options: [
               { ru: "Так же, как и по сухой дороге. Никакой разницы.", en: "Same as on a dry road. No difference." },
               { ru: "Периодически нажимать на тормоз.", en: "He will intermittently press the brake." },
@@ -1300,7 +1300,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "Как щиток шлема повлияет на езду на электровелосипеде в темноте?", en: "How will the helmet visor affect riding on an electric bicycle in the dark?" },
+            official: true, question: { ru: "Как щиток шлема повлияет на езду на электровелосипеде в темноте?", en: "How will the helmet visor affect riding on an electric bicycle in the dark?" },
             options: [
               { ru: "Поцарапанный или грязный щиток шлема отражает свет и сильно ухудшает видимость в темноте.", en: "A scratched or dirty helmet visor deflects the light and severely reduces vision in the dark." },
               { ru: "Поцарапанный или грязный щиток шлема облегчает езду в темноте.", en: "A scratched or dirty helmet visor makes riding in the dark easier." },
@@ -1351,7 +1351,7 @@ const MODULE_A3 = {
             ]
           },
           quiz: {
-            question: { ru: "Имеет ли полицейский право остановить электровелосипедиста и запретить ему продолжать движение, если тот нарушает закон?", en: "Is a policeman allowed to stop and end an electric bicycle ride if the rider is breaking the law?" },
+            official: true, question: { ru: "Имеет ли полицейский право остановить электровелосипедиста и запретить ему продолжать движение, если тот нарушает закон?", en: "Is a policeman allowed to stop and end an electric bicycle ride if the rider is breaking the law?" },
             options: [
               { ru: "Нет. Полицейскому не разрешается останавливать электровелосипедиста и запрещать ему продолжать движение, кроме случаев, когда у велосипедиста нет водительских прав.", en: "No. A policeman is not allowed to stop and end a bicycle ride, unless the rider has a driving license." },
               { ru: "Нет. Только полицейский в звании инспектора или выше имеет право останавливать велосипедиста и запрещать ему продолжать движение.", en: "No. Only a police officer, ranked Inspector or higher, is allowed to stop and end a bicycle ride." },

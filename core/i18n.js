@@ -165,6 +165,45 @@ const I18N = (() => {
 
     // Static chrome in index.html, filled in by applyStatic() below
     "btn.backToTopics":     { en: "Back to Topics",     ru: "К списку тем" },
+    "btn.backToCourse":     { en: "← Course",           ru: "← К курсу" },
+
+    // ---- Mock exam (library/exam-sim.js) ----
+    // {n} / {min} / {pass} / {i} / {of} / {score} are filled by t(key, vars).
+    "sim.entry":            { en: "Mock Exam",          ru: "Пробный экзамен" },
+    "sim.entrySub":         { en: "{n} questions · {min} min · {pass} to pass",
+                              ru: "{n} вопросов · {min} мин · порог {pass}" },
+    "sim.best":             { en: "best {score}/{n}",   ru: "лучший {score}/{n}" },
+    "sim.title":            { en: "Mock Exam",          ru: "Пробный экзамен" },
+    "sim.introTitle":       { en: "Before you start",   ru: "Перед началом" },
+    "sim.introBody":        { en: "{n} questions drawn at random from the Ministry's published bank of 40. {min} minutes. You pass on {pass} correct — that is at most {wrong} mistakes.<br><br>You can move back and forth between questions and change answers. The clock does not stop, and it does not stop for the review either: when it runs out the paper is submitted as it stands.",
+                              ru: "{n} вопросов, взятых случайно из опубликованного министерством банка в 40. {min} минут. Проходной балл — {pass} правильных, то есть не больше {wrong} ошибок.<br><br>По вопросам можно ходить вперёд и назад и менять ответы. Часы при этом не останавливаются, и на проверку их тоже не останавливают: когда время выйдет, работа уйдёт в том виде, в каком есть." },
+    "sim.introNote":        { en: "Nothing here is scored into your progress. It is a rehearsal, and you may sit it as often as you like.",
+                              ru: "Ничего из этого не идёт в ваш прогресс. Это репетиция, и проходить её можно сколько угодно раз." },
+    "sim.begin":            { en: "Start the exam",     ru: "Начать экзамен" },
+    "sim.counter":          { en: "Question {i} of {of}", ru: "Вопрос {i} из {of}" },
+    "sim.prev":             { en: "← Previous",         ru: "← Назад" },
+    "sim.next":             { en: "Next →",             ru: "Дальше →" },
+    "sim.finish":           { en: "Finish",             ru: "Завершить" },
+    "sim.unanswered":       { en: "{n} unanswered",     ru: "без ответа: {n}" },
+    "sim.confirm":          { en: "Finish now? {n} question(s) still have no answer, and unanswered counts as wrong.",
+                              ru: "Завершить сейчас? Без ответа осталось: {n}. Пустой ответ считается ошибкой." },
+    "sim.timeUp":           { en: "Time is up — the paper was submitted as it stood.",
+                              ru: "Время вышло — работа принята в том виде, в каком была." },
+    "sim.passed":           { en: "Passed",             ru: "Сдано" },
+    "sim.failed":           { en: "Not passed",         ru: "Не сдано" },
+    "sim.result":           { en: "{score} of {of} correct — you needed {pass}.",
+                              ru: "{score} из {of} правильных — требовалось {pass}." },
+    "sim.timeSpent":        { en: "Time taken: {t}",    ru: "Затрачено времени: {t}" },
+    "sim.reviewTitle":      { en: "What you got wrong", ru: "Что вы ответили неверно" },
+    "sim.allCorrect":       { en: "Every answer correct. Nothing to review.",
+                              ru: "Все ответы верны. Разбирать нечего." },
+    "sim.yourAnswer":       { en: "Your answer",        ru: "Ваш ответ" },
+    "sim.noAnswer":         { en: "left blank",         ru: "без ответа" },
+    "sim.correctAnswer":    { en: "Correct answer",     ru: "Правильный ответ" },
+    "sim.again":            { en: "Sit it again",       ru: "Пройти ещё раз" },
+    "sim.leave":            { en: "Back to the course", ru: "Вернуться к курсу" },
+    "sim.abandon":          { en: "Leave the exam? The attempt will not be saved.",
+                              ru: "Выйти с экзамена? Попытка не сохранится." },
 
     // The language control itself
     "lang.label":           { en: "Language",           ru: "Язык" },
@@ -175,10 +214,18 @@ const I18N = (() => {
   // Missing key returns the key itself rather than "" — a visible
   // `btn.whatever` on screen is a bug report; a blank button is a
   // mystery. Same reasoning as registry.js shouting about id collisions.
-  function t(key) {
+  // `vars` fills {name} placeholders. Kept this dumb on purpose: no
+  // pluralisation engine, because Russian needs three forms and English
+  // two, and every string that would have needed it was rewritten to
+  // dodge the problem ("без ответа: 3" rather than "3 вопроса").
+  // An unknown placeholder is left standing rather than blanked — same
+  // reasoning as a missing key returning the key.
+  function t(key, vars) {
     const s = STRINGS[key];
     if (!s) { console.warn(`[I18N] no string for "${key}"`); return key; }
-    return s[lang] || s[FALLBACK] || key;
+    const out = s[lang] || s[FALLBACK] || key;
+    if (!vars) return out;
+    return out.replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
   }
 
   // Real lang attribute, not decoration: it drives hyphenation, the

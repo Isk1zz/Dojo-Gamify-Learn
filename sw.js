@@ -50,7 +50,14 @@
 // another file to exist. Adding a script tag that something depends on
 // is exactly that line. Bump when you add a file, not just when you
 // delete one.
-const CACHE_VERSION = "cs-dojo-v5";
+// Bumped 2026-08-24 again: library/exam-sim.js is another new file, and
+// core/i18n.js gained the strings it renders with. A stale i18n.js
+// beside a fresh exam-sim.js would put raw keys like "sim.begin" on the
+// buttons — not a crash this time, because library.js reaches the
+// feature through a `Dojo.examSimEntry` guard, but still a broken
+// screen. Same rule as v5: adding a file that something else reads
+// means bumping.
+const CACHE_VERSION = "cs-dojo-v6";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

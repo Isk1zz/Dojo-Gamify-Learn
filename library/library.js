@@ -430,6 +430,15 @@
     deckBtn.addEventListener("click", openDeckBuilder);
     body.appendChild(deckBtn);
 
+    // Mock exam, for a course whose manifest declares one. Built by
+    // library/exam-sim.js and asked for rather than constructed here,
+    // so this file needs to know nothing about clocks or pass marks —
+    // and the whole feature drops out cleanly with its script tag.
+    if (Dojo.examSimEntry) {
+      const simBtn = Dojo.examSimEntry(course);
+      if (simBtn) body.appendChild(simBtn);
+    }
+
     // Cumulative Final Quiz — sits at the BOTTOM of the unit list now
     // (below units, either view), not right next to the unit picker —
     // moved there on request so it reads as "after you've worked

@@ -1092,3 +1092,91 @@
 }
 .course-track-title:first-child { margin-top: 0; }
 .course-track-grid { margin-bottom: 0.4rem; }
+
+/* ================= Mock exam (library/exam-sim.js) =================
+   Reuses .chunk-card, .quiz-question and .quiz-option so a question
+   under the clock looks like a question anywhere else — the difference
+   between rehearsal and study should be the clock and the stakes, not
+   a second visual language to learn. */
+
+.sim-intro { max-width: 46rem; margin: 0 auto; text-align: center; padding: 1.5rem 0 2rem; }
+.sim-intro-icon { font-size: 2.6rem; margin-bottom: 0.6rem; }
+.sim-intro-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.9rem; }
+.sim-intro-body { color: var(--text-dim); line-height: 1.65; margin-bottom: 1rem; text-align: left; }
+.sim-intro-note { color: var(--text-muted); font-size: 0.85rem; line-height: 1.55; margin-bottom: 1.4rem; }
+.sim-begin { min-width: 14rem; }
+
+/* Bar: counter left, clock right. The clock is tabular-nums so the
+   digits stop jittering as the seconds tick — at 1Hz a shifting
+   baseline is surprisingly hard to ignore while you are reading. */
+.sim-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; margin-bottom: 0.7rem;
+}
+.sim-counter { color: var(--text-dim); font-size: 0.9rem; font-weight: 600; }
+.sim-clock {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.15rem; font-weight: 700;
+  padding: 0.2rem 0.6rem; border-radius: 0.5rem;
+  background: var(--bg-surface); border: 1px solid var(--border);
+}
+.sim-clock.urgent {
+  color: #f87171; border-color: rgba(248, 113, 113, 0.5);
+  animation: sim-pulse 1s ease-in-out infinite;
+}
+@keyframes sim-pulse { 50% { opacity: 0.55; } }
+
+/* One dot per question: answered, current, untouched. Doubles as
+   navigation, which is what the real test gives you and what makes
+   "come back to it later" a usable strategy rather than a wish. */
+.sim-progress {
+  display: flex; flex-wrap: wrap; gap: 0.3rem;
+  margin-bottom: 1rem; justify-content: center;
+}
+.sim-dot {
+  width: 0.85rem; height: 0.85rem; border-radius: 50%; padding: 0;
+  border: 1px solid var(--border); background: transparent; cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.sim-dot:hover { transform: scale(1.25); }
+.sim-dot.done { background: var(--accent); border-color: var(--accent); }
+.sim-dot.current { box-shadow: 0 0 0 2px var(--accent-glow); border-color: var(--accent); }
+
+.sim-card { margin-bottom: 1rem; }
+.sim-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.75rem; margin-top: 1.1rem; flex-wrap: wrap;
+}
+.sim-actions-end { justify-content: center; }
+.sim-unanswered { color: var(--text-muted); font-size: 0.8rem; }
+
+/* Result */
+.sim-result { text-align: center; padding: 1.5rem 1rem 1rem; }
+.sim-result-badge { font-size: 3rem; line-height: 1; margin-bottom: 0.5rem; }
+.sim-result-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.4rem; }
+.sim-result.pass .sim-result-title { color: #4ade80; }
+.sim-result.fail .sim-result-title { color: #f87171; }
+.sim-result-score { font-size: 1.05rem; margin-bottom: 0.25rem; }
+.sim-result-time, .sim-result-timeout { color: var(--text-muted); font-size: 0.85rem; }
+
+.sim-review { max-width: 48rem; margin: 1.5rem auto 0; }
+.sim-review-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.8rem; }
+.sim-review-item {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.8rem;
+}
+.sim-review-line {
+  display: flex; gap: 0.6rem; align-items: baseline;
+  font-size: 0.9rem; line-height: 1.5; margin-top: 0.5rem;
+}
+.sim-review-label {
+  flex: 0 0 auto; font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--text-muted); font-weight: 700;
+}
+.sim-review-line.bad > span:last-child { color: #f87171; }
+.sim-review-line.good > span:last-child { color: #4ade80; }
+.sim-review-why {
+  margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--border);
+  color: var(--text-dim); font-size: 0.87rem; line-height: 1.6;
+}

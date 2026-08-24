@@ -547,6 +547,18 @@
       <div class="deck-builder-body" id="deck-builder-body"></div>
     </section>
 
+    <!-- ====== Mock exam ======
+         Sits the whole paper under a clock, on the real test's terms.
+         Shape comes from the course manifest's examSim block, never
+         from the code. See library/exam-sim.js. -->
+    <section id="exam-sim" class="screen">
+      <div class="topbar">
+        <button id="btn-back-examsim" class="btn-ghost" data-i18n="btn.backToCourse">&larr; Course</button>
+        <h2 class="topbar-title" data-i18n="sim.title">Mock Exam</h2>
+      </div>
+      <div class="exam-body" id="exam-sim-body"></div>
+    </section>
+
     <!-- ====== Topic Map ====== -->
     <section id="topic-map" class="screen">
       <div class="topbar">
@@ -721,6 +733,7 @@
   <script src="core/profile.js"></script>
   <script src="library/library.js"></script>
   <script src="library/stats.js"></script>
+  <script src="library/exam-sim.js"></script>
   <script src="garden/garden.js"></script>
   <script src="shop/shop.js"></script>
   <script src="shop/tokens.js"></script>

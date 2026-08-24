@@ -99,6 +99,15 @@ const Content = (() => {
         // 0/omitted = free, same as every course today. A course manifest
         // opts INTO the Token Shop by setting this — see shop/tokens.js.
         priceTokens: c.priceTokens || 0,
+        // Mock-exam terms, if the course sits one: { draw, minutes,
+        // pass }. Omitted means no mock exam and no entry button — see
+        // library/exam-sim.js. Copied through rather than defaulted,
+        // because there is no sensible default for somebody else's
+        // exam. NOTE: this object is built field by field, so a new
+        // manifest key is invisible until it is named here. That is
+        // deliberate — it keeps stray keys out of the globals — but it
+        // is also exactly how examSim went missing the first time.
+        examSim: c.examSim || null,
         units: unitObjects.map(u => u.id),
         unitObjects
       });
