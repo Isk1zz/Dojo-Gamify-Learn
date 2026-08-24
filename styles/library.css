@@ -1180,3 +1180,12 @@
   margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--border);
   color: var(--text-dim); font-size: 0.87rem; line-height: 1.6;
 }
+
+/* Armed state for the two-step confirmations in the mock exam — see
+   armed() in library/exam-sim.js. Amber rather than red: this is "are
+   you sure", not "something went wrong". */
+.sim-armed {
+  border-color: #fbbf24 !important;
+  color: #fbbf24 !important;
+  font-weight: 700;
+}

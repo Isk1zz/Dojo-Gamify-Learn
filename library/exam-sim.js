@@ -109,6 +109,38 @@
     if (sim && sim.tick) { clearInterval(sim.tick); sim.tick = null; }
   }
 
+  // ---- Two-step confirmation, in the page ----
+  // The first version of this used window.confirm(), and that was the
+  // bug behind "you can't leave the exam". confirm() is not reliably
+  // there: an installed PWA or an in-app webview can suppress dialogs
+  // outright, and a suppressed confirm returns FALSE — so leave() took
+  // its early return and the button did nothing at all, silently. Add
+  // to that a mistap on Cancel producing the identical dead-button
+  // experience, and a native dialog is simply the wrong instrument for
+  // a decision this small.
+  //
+  // So: the button asks in its own label and waits for a second press.
+  // Nothing to suppress, nothing to mistap irreversibly, and it reverts
+  // on its own if the second press never comes.
+  const ARM_MS = 4000;
+  function armed(btn, prompt, onConfirm) {
+    if (btn.dataset.armed === "1") {
+      clearTimeout(Number(btn.dataset.armTimer));
+      onConfirm();
+      return;
+    }
+    const original = btn.innerHTML;
+    btn.dataset.armed = "1";
+    btn.classList.add("sim-armed");
+    btn.innerHTML = prompt;
+    const timer = setTimeout(() => {
+      btn.dataset.armed = "0";
+      btn.classList.remove("sim-armed");
+      btn.innerHTML = original;
+    }, ARM_MS);
+    btn.dataset.armTimer = String(timer);
+  }
+
   // ---- Entry ----
   function openExamSim(course) {
     stopEverything();
@@ -213,8 +245,8 @@
     const fin = el("sim-finish");
     if (fin) fin.addEventListener("click", () => {
       const left = sim.answers.filter(a => a === null).length;
-      if (left && !confirm(I18N.t("sim.confirm", { n: left }))) return;
-      finish();
+      if (!left) { finish(); return; }
+      armed(fin, I18N.t("sim.finishAnyway", { n: left }), finish);
     });
   }
 
@@ -260,16 +292,34 @@
 
     const course = sim.course;
     el("sim-again").addEventListener("click", () => startAttempt(course));
-    el("sim-leave").addEventListener("click", () => leave(true));
+    el("sim-leave").addEventListener("click", leaveNow);
   }
 
-  // `settled` = the attempt is already over, so no confirmation is owed.
-  function leave(settled) {
-    if (!settled && sim && sim.tick && !confirm(I18N.t("sim.abandon"))) return;
+  function leaveNow() {
     stopEverything();
     sim = null;
+    const back = el("btn-back-examsim");
+    if (back) {                       // clear any half-armed state behind us
+      clearTimeout(Number(back.dataset.armTimer));
+      back.dataset.armed = "0";
+      back.classList.remove("sim-armed");
+      back.textContent = I18N.t("btn.backToCourse");
+    }
     Dojo.renderUnitSelect();
     Dojo.showScreen("unit-select");
+  }
+
+  // Asks only while a paper is actually running. On the intro screen and
+  // on the result screen there is nothing to lose, so the back button
+  // must leave on the first press — making someone press twice to
+  // escape a finished exam is how a back button earns a reputation for
+  // being broken.
+  function leave() {
+    const running = sim && sim.tick;
+    if (!running) { leaveNow(); return; }
+    const back = el("btn-back-examsim");
+    if (!back) { leaveNow(); return; }
+    armed(back, I18N.t("sim.abandon"), leaveNow);
   }
 
   // The entry tile for unit-select. Returns null for a course with no
@@ -289,10 +339,14 @@
     return btn;
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const back = document.getElementById("btn-back-examsim");
-    if (back) back.addEventListener("click", () => leave(false));
-  });
+  // Wired at load, not on DOMContentLoaded — the same way library.js
+  // wires its own back buttons. This file sits at the end of <body>, so
+  // the element is already parsed, and a listener that depends on an
+  // event that may already have fired is one more way for an exit to go
+  // missing. Belt and braces after the confirm() bug.
+  const backBtn = document.getElementById("btn-back-examsim");
+  if (backBtn) backBtn.addEventListener("click", leave);
+  else console.error("[exam-sim] #btn-back-examsim missing — the exam would have no exit.");
 
   Object.assign(Dojo, { openExamSim, examSimEntry });
 })();

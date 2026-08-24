@@ -57,7 +57,13 @@
 // feature through a `Dojo.examSimEntry` guard, but still a broken
 // screen. Same rule as v5: adding a file that something else reads
 // means bumping.
-const CACHE_VERSION = "cs-dojo-v6";
+// Bumped 2026-08-24 a third time, and this one is not about a new file:
+// v6 shipped a mock exam you could not leave. Stale-while-revalidate
+// would hand the fix over on the SECOND open, which is the wrong shape
+// for "the exit button is dead" — the person hitting it is stuck now.
+// Bump when a cached copy is actively broken, not only when files are
+// added.
+const CACHE_VERSION = "cs-dojo-v7";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

@@ -185,8 +185,6 @@ const I18N = (() => {
     "sim.next":             { en: "Next →",             ru: "Дальше →" },
     "sim.finish":           { en: "Finish",             ru: "Завершить" },
     "sim.unanswered":       { en: "{n} unanswered",     ru: "без ответа: {n}" },
-    "sim.confirm":          { en: "Finish now? {n} question(s) still have no answer, and unanswered counts as wrong.",
-                              ru: "Завершить сейчас? Без ответа осталось: {n}. Пустой ответ считается ошибкой." },
     "sim.timeUp":           { en: "Time is up — the paper was submitted as it stood.",
                               ru: "Время вышло — работа принята в том виде, в каком была." },
     "sim.passed":           { en: "Passed",             ru: "Сдано" },
@@ -202,8 +200,8 @@ const I18N = (() => {
     "sim.correctAnswer":    { en: "Correct answer",     ru: "Правильный ответ" },
     "sim.again":            { en: "Sit it again",       ru: "Пройти ещё раз" },
     "sim.leave":            { en: "Back to the course", ru: "Вернуться к курсу" },
-    "sim.abandon":          { en: "Leave the exam? The attempt will not be saved.",
-                              ru: "Выйти с экзамена? Попытка не сохранится." },
+    "sim.abandon":          { en: "Leave? Tap again",   ru: "Выйти? Нажмите ещё раз" },
+    "sim.finishAnyway":     { en: "{n} blank — finish?", ru: "без ответа: {n} — завершить?" },
 
     // The language control itself
     "lang.label":           { en: "Language",           ru: "Язык" },
