@@ -21,7 +21,8 @@
 // ---- Course pricing ----
 // A course opts into costing Tokens by setting `priceTokens` in its
 // manifest (library/content/registry.js defaults it to 0 = free).
-// intro-cs is the one paid course today (100 Tokens, course.js) —
+// Both courses are paid as of 2026-08-24: intro-cs at 700 Tokens and
+// bike-a3 at 100 (each course.js) —
 // ownership is stored the same way Arcade game unlocks and stake-cap
 // tiers are (a string in DB's generic inventory array), not a bespoke
 // profile field.

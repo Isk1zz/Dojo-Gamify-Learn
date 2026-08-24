@@ -130,13 +130,19 @@
     subtitle: "Networks, programming and emerging technologies",
     icon: "\u{1F4BB}",
     available: true,
-    // 100 -- was 250, before that 1000 (~$21). Cut again 2026-08-14
-    // alongside the Token Shop's rebuild: the smallest pack now buys
-    // EXACTLY 100 Tokens for $1.99, so this is priced to be a single
-    // starter-pack purchase, not a fraction of a bigger one. Locks the
-    // only course behind the Token Shop's demo buyPack() until real
-    // payment exists.
-    priceTokens: 100,
+    // 700 -- raised from 100 on 2026-08-24. Was 250 before that, and
+    // 1000 (~$21) before that. Lands exactly on the medium pack
+    // ($11.99), so it buys clean with nothing left over, same principle
+    // the old 100 followed against the starter pack.
+    //
+    // Worth knowing what 700 means against the FREE supply: rank-up
+    // rewards total 545 Tokens across ranks 6/8/12/15/18 (the last at
+    // 81,000 XP), plus 12 from unit completions. Roughly 557 lifetime,
+    // which is BELOW 700 — so this course cannot be reached by playing
+    // alone, at any amount of effort. That is a pricing decision, not an
+    // oversight; if it should be earnable, either the price comes down
+    // or the rank rewards go up.
+    priceTokens: 700,
     units
   });
 })();

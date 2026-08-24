@@ -51,6 +51,11 @@
     },
     icon: "\u{1F6B2}",
     available: true,
+    // 100 Tokens — exactly the starter pack ($3.99), so buying it leaves
+    // no unspendable dust behind. Was free until 2026-08-24; see
+    // UPDATESTACK.md on what pricing it costs, because this course was
+    // the app's only no-purchase way in.
+    priceTokens: 100,
     // The real test's terms, and the reason they live here rather than
     // in library/exam-sim.js: 30/40/26 is a fact about the Israeli A3
     // exam, not about this app. draw comes out of the pool of official

@@ -856,11 +856,41 @@ Everything from that message has now shipped (see BACKLOG.md).
   left in Settings, Shop, or Inventory — all three already draw a real
   CSS swatch next to the text label.
 
-## Ready to build, no blockers
-Nothing right now — Tokens (earn, spend, Token Shop, course-price gating,
-see BACKLOG.md) is done. Real-money purchases stay a labeled demo stub
-until there's a payment account to wire a Payment Link to — that's a
-you-side task, not a code blocker, see `shop/tokens.js`'s `buyPack()`.
+## Ready to build, no blockers (rewritten 2026-08-24)
+Four things, agreed or found, none waiting on anything.
+
+**1. Intro to CS in Russian — the big one.** Agreed 2026-08-24: the
+whole course, one module at a time. Ten modules, ~137 chunks, on the
+order of 60,000 words of technical translation. The machinery is done
+and proven — `core/i18n.js` resolves `{en, ru}` bags, `check-content.js`
+runs a full pass per language, and the A3 course went through it
+end to end. Suggested start: Databases (m6, unit 5), the only large
+module already written to CONTENT-MODEL.md and therefore the honest
+calibration sample. This is weeks of writing, not an afternoon.
+
+**2. `profile.tickets` is dead state.** Written and migrated by
+`data/db.js`, surfaced in Admin, and read by nothing since the Arcade
+became the Forum. Removing a persisted field needs its own commit and
+its own migration thinking — deliberately left out of the rename.
+
+**3. A free way in — now urgent, and this is new.** As of 2026-08-24
+BOTH courses cost Tokens (intro-cs 700, bike-a3 100), so there is no
+longer any route into the app that does not pass a purchase. A first
+visitor cannot reach the chunk → predict → explain → quiz loop at all,
+which is the only thing that would convince them. See item 4 under
+Popularization below; it stopped being a nice-to-have the moment A3 was
+priced.
+
+**4. Two open facts on the A3 course.** Electric bicycles and scooters
+in Israel have required registration and a plate since 1 August 2024 —
+found while fact-checking, not verified to the primary source and not in
+the course. And the name **Knell has not been cleared**: search turned
+up nothing in software, which is not clearance. USPTO, EUIPO and ILPO,
+classes 9 and 41, before any logo or store listing.
+
+Real-money purchases remain a labeled demo stub until there's a payment
+account to wire a Payment Link to — a you-side task, not a code
+blocker, see `shop/tokens.js`'s `buyPack()`.
 
 ## Shipped 2026-08-14 (detail in BACKLOG.md)
 Shop/Inventory/economy rework, in one run:
@@ -1124,9 +1154,12 @@ actually help distribution, as opposed to the strategy work above.
 **Highest leverage, genuinely cheap:**
 1. **Shareable result cards.** The Final Quiz / topic-mastery result
    screen already computes a score, a rank, and a streak — rendering
-   that to a downloadable image (canvas) with the Dojo mark turns every
+   that to a downloadable image (canvas) with the Knell mark turns every
    pass into an organic post. This is the single most social-shaped
-   thing the app already almost has.
+   thing the app already almost has. The A3 mock exam raised the ceiling
+   on this one: "passed the theory, 28/30" is a card someone posts to
+   people who are also about to sit it, which the CS course has no
+   equivalent of.
 2. **Open Graph / Twitter card meta tags.** `index.html` has a
    `description` but no `og:image`/`og:title`. Right now every link
    anyone shares unfurls as a bare grey box — actively costs clicks.
@@ -1135,21 +1168,36 @@ actually help distribution, as opposed to the strategy work above.
    already an installable PWA; "add to home screen" is a retention
    mechanic that costs nothing extra to lean into.
 
-**Medium effort, high ceiling:**
-4. **A free sample unit that needs no purchase.** With the course now
-   priced, a first-time visitor hits a paywall before experiencing the
-   thing that's actually good (the chunk→predict→explain→quiz loop).
-   One free unit is the strongest possible demo of the product.
+**Medium effort, high ceiling — except #4, which is now the top of this
+whole list:**
+4. **A free way in — PROMOTED 2026-08-24, was "medium effort".** Both
+   courses are priced now (intro-cs 700, bike-a3 100), so a stranger
+   meets a purchase before they meet the product. Nobody buys a study
+   app on a description; they buy it after the chunk → predict →
+   explain → quiz loop has landed once. Right now nothing lets that
+   happen.
+   Cheapest shapes, in order: one free unit inside a paid course; or a
+   free trial course of a handful of topics; or make the A3 mock exam
+   playable unowned, since it is self-contained, needs no progress, and
+   is the most convincing single screen in the app. Whichever — the
+   requirement is that a first visit reaches real content without a
+   purchase.
 5. **Deep links to a specific topic/unit** (`?topic=...`). Makes the
    app linkable from a video description or a comment, instead of only
    ever "go to the homepage and find it."
 6. **A public "what I learned" streak/stat page** — needs the backend,
    so parked behind the account work, but worth designing toward.
 
-**Worth noting honestly:** the biggest growth blocker is not a missing
-feature, it's that there is one course and no distribution channel. #1
-and #2 above are the only items here that pay off *before* those two
-problems are solved.
+**Worth noting honestly (updated 2026-08-24):** there are two courses
+now, not one, and the second one changes the picture. A3 has something
+the CS course does not — an audience with a date, a fee and a real
+consequence, all of whom are already searching for exactly this. That is
+a distribution channel in a way "learn CS" never was.
+
+What has NOT improved is the way in. Both courses are priced, so a
+stranger meets a purchase before they meet the product. #1 and #2 below
+still pay off before anything else, and #4 moved from "medium effort" to
+"the thing standing between the app and its first user".
 
 ## Long-term roadmap (later — needs the account/backend question settled first)
 - Finish out the web app, then port to iOS and Android.
