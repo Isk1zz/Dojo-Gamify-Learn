@@ -41,6 +41,17 @@
         <button id="btn-settings-custom" class="btn-ghost">🎒 Open Custom</button>
       </div>
       <div class="settings-section">
+        <div class="stats-section-title">\u{1F310} ${I18N.t("lang.label")}</div>
+        <p class="settings-hint">${I18N.t("lang.note")}</p>
+        <div class="lang-row">
+          ${I18N.langs().map(l => `
+            <button class="btn-ghost lang-btn${I18N.lang() === l ? " active" : ""}"
+                    data-lang="${l}"${I18N.lang() === l ? " aria-current=\"true\"" : ""}>
+              ${I18N.nativeName(l)}
+            </button>`).join("")}
+        </div>
+      </div>
+      <div class="settings-section">
         <div class="stats-section-title">\u{1F4A1} Hints</div>
         <p class="settings-hint">The small explainer text under section titles across the app — like this one.</p>
         <label class="hint-toggle-row">
@@ -106,6 +117,14 @@
         </div>
       </div>`;
 
+
+    // I18N.set reloads the page — see core/i18n.js for why the language
+    // is resolved once per load rather than swapped live. Nothing to
+    // save first: progress is written to the DB as it happens, and the
+    // language itself goes to localStorage inside set().
+    body.querySelectorAll(".lang-btn").forEach(btn => {
+      btn.addEventListener("click", () => I18N.set(btn.dataset.lang));
+    });
 
     const hintsToggle = document.getElementById("hints-toggle");
     if (hintsToggle) hintsToggle.addEventListener("change", () => {

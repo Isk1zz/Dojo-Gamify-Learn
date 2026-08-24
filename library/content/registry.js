@@ -29,9 +29,20 @@ const Content = (() => {
   // A course manifest:
   // { id, title, subtitle, icon, available,
   //   units: [{ id, title, subtitle, icon, modules: [MODULE_N] }] }
+  // Resolved HERE, at registration, rather than inside build(): this is
+  // the one line every course already passes through, and doing it now
+  // means nothing downstream — build(), flatten(), library.js, the
+  // Garden — ever sees a {en, ru} bag. They keep working on plain
+  // strings exactly as before the language layer existed.
+  //
+  // I18N.resolve hands back the SAME object when a course carries no
+  // bags at all, so a single-language course pays a walk and no copy.
+  // The typeof guard keeps registry.js loadable on its own, the way
+  // check-content.js loads module files with no app around them.
   function course(manifest) {
-    courses.push(manifest);
-    return manifest;
+    const m = typeof I18N !== "undefined" ? I18N.resolve(manifest) : manifest;
+    courses.push(m);
+    return m;
   }
 
   function flatten(modules) {

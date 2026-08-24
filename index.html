@@ -576,7 +576,7 @@
     <!-- ====== Lesson ====== -->
     <section id="lesson" class="screen">
       <div class="topbar">
-        <button id="btn-back-topics" class="btn-ghost">← Topics</button>
+        <button id="btn-back-topics" class="btn-ghost" data-i18n="btn.topics">← Topics</button>
         <div class="lesson-progress-bar"><div id="lesson-progress-fill" class="lesson-progress-fill"></div></div>
         <span id="chunk-counter" class="chunk-counter">1/4</span>
       </div>
@@ -586,7 +586,7 @@
     <!-- ====== Mastery Exam ====== -->
     <section id="exam" class="screen">
       <div class="topbar">
-        <button id="btn-back-topics2" class="btn-ghost">← Topics</button>
+        <button id="btn-back-topics2" class="btn-ghost" data-i18n="btn.topics">← Topics</button>
         <h2 class="topbar-title">Mastery Exam</h2>
         <span id="exam-score-display" class="chunk-counter"></span>
       </div>
@@ -607,7 +607,7 @@
         <div id="result-wisdom"></div>
         <div class="result-btns">
           <button id="btn-retry" class="btn-primary">Retry Exam</button>
-          <button id="btn-to-topics" class="btn-ghost">Back to Topics</button>
+          <button id="btn-to-topics" class="btn-ghost" data-i18n="btn.backToTopics">Back to Topics</button>
         </div>
       </div>
     </section>
@@ -617,7 +617,7 @@
          whole topic — see garden/GARDEN.md and library/LIBRARY.md. -->
     <section id="flashcards" class="screen">
       <div class="topbar">
-        <button id="btn-back-flashcards" class="btn-ghost">← Topics</button>
+        <button id="btn-back-flashcards" class="btn-ghost" data-i18n="btn.topics">← Topics</button>
         <h2 class="topbar-title" id="flashcard-title">💧 Review</h2>
         <span id="flashcard-counter" class="chunk-counter"></span>
       </div>
@@ -667,6 +667,9 @@
 
   <!-- 1. Kernel + persistence -->
   <script src="core/core.js"></script>
+  <!-- Before the content band: Content.course() resolves {en, ru} bags
+       through I18N at registration, so this must already exist. -->
+  <script src="core/i18n.js"></script>
   <script src="core/sfx.js"></script>
   <script src="data/db.js"></script>
   <script src="admin/logger.js"></script>

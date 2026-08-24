@@ -999,12 +999,16 @@
   // `apply` is the existing multiple-choice question, renamed in the
   // flow but still `chunk.quiz` in the data — renaming the field would
   // invalidate saved progress for no gain.
+  // Labels read through I18N.t at BUILD of this object, not at render.
+  // Safe because the language is fixed for the life of the page \u2014 see
+  // core/i18n.js on why switching reloads \u2014 and it keeps the lookup out
+  // of the render path, which runs on every click.
   const PHASE_META = {
-    predict: { key: "predict", icon: "\u{1F52E}", label: "Predict", next: "See the explanation" },
-    explain: { key: "explain", icon: "\u{1F4D6}", label: "Explanation", next: "See Example" },
-    example: { key: "example", icon: "\u{1F9EA}", label: "Example", next: "Answer Question" },
-    apply:   { key: "quiz",    icon: "\u2753",     label: "Question", next: "Next" },
-    recall:  { key: "recall",  icon: "\u{1F9E0}", label: "Recall", next: "Next" }
+    predict: { key: "predict", icon: "\u{1F52E}", label: I18N.t("phase.predict"), next: I18N.t("next.predict") },
+    explain: { key: "explain", icon: "\u{1F4D6}", label: I18N.t("phase.explain"), next: I18N.t("next.explain") },
+    example: { key: "example", icon: "\u{1F9EA}", label: I18N.t("phase.example"), next: I18N.t("next.example") },
+    apply:   { key: "quiz",    icon: "\u2753",     label: I18N.t("phase.apply"),   next: I18N.t("next.default") },
+    recall:  { key: "recall",  icon: "\u{1F9E0}", label: I18N.t("phase.recall"),  next: I18N.t("next.default") }
   };
 
   // The phases this chunk actually has, in order.
@@ -1103,10 +1107,9 @@
 
     body.innerHTML = `
       <div class="chunk-card">
-        <div class="chunk-phase predict">\u{1F52E} Predict</div>
+        <div class="chunk-phase predict">\u{1F52E} ${I18N.t("phase.predict")}</div>
         <h2 class="chunk-title">${chunk.title}</h2>
-        <p class="predict-nudge">Before you read anything \u2014 what's your guess?
-          Being wrong here helps as much as being right, and nothing is scored.</p>
+        <p class="predict-nudge">${I18N.t("predict.nudge")}</p>
         <div class="quiz-question">${p.question}</div>
         <div class="quiz-options" id="predict-options">
           ${p.options.map((o, i) => `
@@ -1117,7 +1120,7 @@
         ${answered ? `<div class="predict-after">${p.reveal || "Hold that thought \u2014 read on and see."}</div>` : ""}
         <div class="chunk-actions">
           <button id="btn-next-phase" class="btn-primary" ${answered ? "" : "disabled"}>
-            See the explanation <span class="arrow">\u2192</span>
+            ${I18N.t("next.predict")} <span class="arrow">\u2192</span>
           </button>
         </div>
       </div>`;
@@ -1148,16 +1151,15 @@
 
     body.innerHTML = `
       <div class="chunk-card">
-        <div class="chunk-phase recall">\u{1F9E0} Recall</div>
+        <div class="chunk-phase recall">\u{1F9E0} ${I18N.t("phase.recall")}</div>
         <h2 class="chunk-title">${chunk.title}</h2>
-        <p class="predict-nudge">No options this time. Write it out from memory \u2014
-          that effort is what makes it stick.</p>
+        <p class="predict-nudge">${I18N.t("recall.nudge")}</p>
         <div class="quiz-question">${r.prompt}</div>
         <textarea id="recall-input" class="recall-input" rows="4"
-                  placeholder="In your own words..."></textarea>
+                  placeholder="${I18N.t("recall.placeholder")}"></textarea>
         <div class="chunk-actions">
-          <button id="btn-prev-phase" class="btn-ghost">\u2190 Back to the question</button>
-          <button id="btn-reveal-recall" class="btn-primary">Show a model answer</button>
+          <button id="btn-prev-phase" class="btn-ghost">${I18N.t("btn.backToQuestion")}</button>
+          <button id="btn-reveal-recall" class="btn-primary">${I18N.t("recall.reveal")}</button>
         </div>
         <div id="recall-model"></div>
       </div>`;
@@ -1171,18 +1173,16 @@
       const wrote = (document.getElementById("recall-input").value || "").trim();
       document.getElementById("recall-model").innerHTML = `
         <div class="recall-model">
-          <div class="rm-label">A model answer</div>
+          <div class="rm-label">${I18N.t("recall.model")}</div>
           <div class="rm-text">${r.answer}</div>
           ${r.points && r.points.length ? `
-            <div class="rm-label">Did you get these?</div>
+            <div class="rm-label">${I18N.t("recall.points")}</div>
             <ul class="rm-points">${r.points.map(pt => `<li>${pt}</li>`).join("")}</ul>` : ""}
-          ${wrote ? "" : `<div class="rm-nudge">You didn't write anything \u2014 next time try,
-            even badly. Reading a model answer you never attempted is just re-reading,
-            which is one of the weakest things you can do.</div>`}
+          ${wrote ? "" : `<div class="rm-nudge">${I18N.t("recall.empty")}</div>`}
         </div>
         <div class="chunk-actions">
           <button id="btn-next-chunk-recall" class="btn-primary">
-            ${isLastChunk ? "Take the Mastery Exam" : "Next chunk"} <span class="arrow">\u2192</span>
+            ${isLastChunk ? I18N.t("btn.masteryExam") : I18N.t("btn.nextChunk")} <span class="arrow">\u2192</span>
           </button>
         </div>`;
       document.getElementById("btn-next-chunk-recall")
@@ -1322,8 +1322,8 @@
         <div class="quiz-options">${optionsHtml}</div>
         ${feedbackHtml}
         <div class="btn-row">
-          <button id="btn-prev-phase" class="btn-ghost">← Back to example</button>
-          ${!state.quizSubmitted ? `<button id="btn-submit-quiz" class="btn-primary" ${state.quizAnswer === null ? "disabled" : ""}>Check Answer</button>` : ""}
+          <button id="btn-prev-phase" class="btn-ghost">${I18N.t("btn.backToExample")}</button>
+          ${!state.quizSubmitted ? `<button id="btn-submit-quiz" class="btn-primary" ${state.quizAnswer === null ? "disabled" : ""}>${I18N.t("btn.checkAnswer")}</button>` : ""}
           ${state.quizSubmitted ? `<button id="btn-next-chunk" class="btn-primary">${nextBtnText}</button>` : ""}
         </div>
       </div>
@@ -1529,7 +1529,7 @@
         <div class="quiz-options">${optionsHtml}</div>
         ${feedbackHtml}
         <div class="btn-row">
-          ${!state.examSubmitted[idx] ? `<button id="btn-exam-submit" class="btn-primary" ${state.examAnswers[idx] === null ? "disabled" : ""}>Check Answer</button>` : ""}
+          ${!state.examSubmitted[idx] ? `<button id="btn-exam-submit" class="btn-primary" ${state.examAnswers[idx] === null ? "disabled" : ""}>${I18N.t("btn.checkAnswer")}</button>` : ""}
           ${state.examSubmitted[idx] && !isLast ? `<button id="btn-exam-next" class="btn-primary">Next Question <span class="arrow">→</span></button>` : ""}
           ${state.examSubmitted[idx] && isLast ? `<button id="btn-exam-finish" class="btn-primary">See Results 🏆</button>` : ""}
         </div>
@@ -2155,10 +2155,10 @@
   // requeue logic below and the deck builder's category filter both key
   // off. Worst first, matching how they read left-to-right as buttons.
   const CONFIDENCE = [
-    { level: 0, id: "difficult",      label: "I'm struggling",    icon: "\u{1F616}" },
-    { level: 1, id: "still-learning", label: "I'm still learning", icon: "\u{1F4D6}" },
-    { level: 2, id: "has-idea",       label: "I have an idea",    icon: "\u{1F4A1}" },
-    { level: 3, id: "known-best",     label: "I know this well",  icon: "✅" }
+    { level: 0, id: "difficult",      label: I18N.t("conf.difficult"),      icon: "\u{1F616}" },
+    { level: 1, id: "still-learning", label: I18N.t("conf.still-learning"), icon: "\u{1F4D6}" },
+    { level: 2, id: "has-idea",       label: I18N.t("conf.has-idea"),       icon: "\u{1F4A1}" },
+    { level: 3, id: "known-best",     label: I18N.t("conf.known-best"),     icon: "✅" }
   ];
 
   function buildFlashDeck(topic) {
@@ -2228,7 +2228,7 @@
           ${card.explanation ? `<div class="flashcard-explain">${card.explanation}</div>` : ""}
         </div>
       </div>
-      <button id="btn-flash-flip" class="btn-primary flashcard-flip-btn">Show Answer</button>
+      <button id="btn-flash-flip" class="btn-primary flashcard-flip-btn">${I18N.t("btn.showAnswer")}</button>
       <div id="flashcard-confidence-row" class="flashcard-confidence-row" style="display:none;">
         ${CONFIDENCE.map(c => `
           <button class="flashcard-conf-btn conf-${c.id}" data-level="${c.level}">

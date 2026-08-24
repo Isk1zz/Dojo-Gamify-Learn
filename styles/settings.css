@@ -109,3 +109,16 @@ body.hide-hints .settings-hint { display: none; }
 .legal-block p {
   margin-top: 0.6rem; font-size: 0.82rem; line-height: 1.55; color: var(--text-dim);
 }
+
+/* ---- Language (core/i18n.js) ----
+   Two buttons rather than a dropdown: with two options a select costs a
+   tap to open and hides the choice you are not on. Each names its own
+   language in that language — "Русский", never "Russian" — because the
+   person who needs the control is the one who cannot read the current
+   one. */
+.lang-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.lang-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}

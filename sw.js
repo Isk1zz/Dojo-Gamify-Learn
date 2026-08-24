@@ -36,7 +36,21 @@
 // refreshed the live ones eventually, but the DELETED ones would have
 // sat in the old cache indefinitely — nothing re-fetches a file that no
 // longer exists. Bumping drops the whole cache and starts clean.
-const CACHE_VERSION = "cs-dojo-v4";
+// Bumped 2026-08-24: core/i18n.js is a NEW file that library.js now
+// depends on at load time. Stale-while-revalidate serves the cached
+// index.html first, so a returning device would have got the OLD index
+// (no <script src="core/i18n.js">) together with the NEW library.js —
+// and library.js reads I18N.t() while building PHASE_META, at load.
+// Result: ReferenceError, Content never renders, blank Library, fixed
+// only by opening the app a second time.
+//
+// This is the case the header's "Updating" note is for, and it is worth
+// stating the rule sharply: a stale cache is acceptable when old files
+// merely render old content, and NOT acceptable once one file needs
+// another file to exist. Adding a script tag that something depends on
+// is exactly that line. Bump when you add a file, not just when you
+// delete one.
+const CACHE_VERSION = "cs-dojo-v5";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

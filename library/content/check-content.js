@@ -37,6 +37,39 @@ const LETTER = ["A", "B", "C", "D"];
 const strip = s => String(s || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 const words = s => (strip(s) ? strip(s).split(" ").length : 0);
 
+// ---- Language bags (core/i18n.js) ----
+// A bilingual course writes {en, ru} where a single-language one writes a
+// string. This file runs in a bare VM with no app around it, so it cannot
+// call I18N — it carries its own copy of the same two rules. Keep them in
+// step: a bag is an object whose keys are ALL language codes, which is what
+// stops {heading, text} being mistaken for one.
+//
+// Without this every bagged string stringifies to "[object Object]" and
+// scores one word, so a fully translated module would fail on every single
+// explain-length check. The failure would look like thin content and it
+// would be a lie.
+const LANGS = ["en", "ru"];
+const isBag = v => v && typeof v === "object" && !Array.isArray(v) &&
+  Object.keys(v).length > 0 && Object.keys(v).every(k => LANGS.includes(k));
+
+function langsIn(v, found = new Set()) {
+  if (isBag(v)) { Object.keys(v).forEach(k => found.add(k)); Object.values(v).forEach(x => langsIn(x, found)); }
+  else if (Array.isArray(v)) v.forEach(x => langsIn(x, found));
+  else if (v && typeof v === "object") Object.values(v).forEach(x => langsIn(x, found));
+  return found;
+}
+
+function pick(v, lang) {
+  if (isBag(v)) return pick(v[lang] !== undefined ? v[lang] : v[LANGS.find(l => v[l] !== undefined)], lang);
+  if (Array.isArray(v)) return v.map(x => pick(x, lang));
+  if (v && typeof v === "object") {
+    const out = {};
+    for (const k in v) out[k] = pick(v[k], lang);
+    return out;
+  }
+  return v;
+}
+
 function loadModules(dir) {
   const files = fs.readdirSync(dir).filter(f => /^data_m\d+\.js$/.test(f)).sort();
   const ctx = { console };
@@ -171,17 +204,30 @@ for (const slug of courses) {
   const rows = [];
   for (const { file, mod, fatal } of loaded) {
     if (fatal) { console.log(`\n  ${file}\n    \u2717 could not load: ${fatal}`); failures++; continue; }
-    const r = checkModule(mod, file);
-    rows.push({ file: r.file, unit: r.unit, title: r.title, topics: r.topics, chunks: r.chunks,
-                "quiz keys": r.spread, fails: r.fail.length, warns: r.warn.length });
-    if (r.fail.length || r.warn.length) {
-      console.log(`\n  ${r.file} — ${r.title} (unit ${r.unit})`);
-      r.fail.slice(0, 12).forEach(m => console.log(`    \u2717 ${m}`));
-      if (r.fail.length > 12) console.log(`    \u2717 ...and ${r.fail.length - 12} more`);
-      r.warn.slice(0, 8).forEach(m => console.log(`    \u26a0 ${m}`));
-      if (r.warn.length > 8) console.log(`    \u26a0 ...and ${r.warn.length - 8} more`);
+    // A bilingual module is checked ONCE PER LANGUAGE, against the full
+    // standard each time. Half a translation must not pass: 200 words of
+    // Russian explanation beside a one-line English stub would sail
+    // through any check that only saw whichever language came first.
+    // A single-language module yields exactly one pass, as before, and
+    // its row stays unlabelled.
+    const present = [...langsIn(mod)];
+    const passes = present.length ? LANGS.filter(l => present.includes(l)) : [null];
+
+    for (const lang of passes) {
+      const tag = lang ? ` [${lang}]` : "";
+      const r = checkModule(lang ? pick(mod, lang) : mod, file);
+      rows.push({ file: r.file + tag, unit: r.unit, title: r.title, topics: r.topics, chunks: r.chunks,
+                  "quiz keys": r.spread, fails: r.fail.length, warns: r.warn.length });
+      if (r.fail.length || r.warn.length) {
+        console.log(`
+  ${r.file}${tag} — ${r.title} (unit ${r.unit})`);
+        r.fail.slice(0, 12).forEach(m => console.log(`    ✗ ${m}`));
+        if (r.fail.length > 12) console.log(`    ✗ ...and ${r.fail.length - 12} more`);
+        r.warn.slice(0, 8).forEach(m => console.log(`    ⚠ ${m}`));
+        if (r.warn.length > 8) console.log(`    ⚠ ...and ${r.warn.length - 8} more`);
+      }
+      if (r.fail.length) failures++;
     }
-    if (r.fail.length) failures++;
   }
   console.log("");
   console.table(rows);
