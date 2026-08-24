@@ -251,6 +251,12 @@ names kept because saved progress depends on them; units 1, 2, 3, 4 and 5
 were added later and match the course's own numbering, so they sort before
 the historical ones rather than after.
 
+Also taken: **31** (Теория A3 — электровелосипед). **9–30 are reserved** for
+the four science courses — CURRICULUM-PLAN.md §2 holds that allocation, so a
+course that grabs one of them collides with a plan rather than with existing
+content, which is worse: nothing errors until the science course is written.
+**Next free id: 32.**
+
 ---
 
 ## 7. Checklist before a module ships
@@ -278,6 +284,20 @@ the historical ones rather than after.
 | 4 Programming | 7 | ✗ legacy | ✗ 0 | 89 | ✗ 89% B | ✗ | ✗ |
 | 5 Machine Learning | 8 | ✓ | ✓ 38 | 202 | ✓ | 1 chunk | ✗ |
 | 6 Databases | 5 | ✓ | ✓ 36 | 213 | ✓ | ✓ full | ✓ |
+| A3 Электровелосипед | 31 | ✓ | ✓ 38 | 168 | ✓ | ✓ full | ✓ |
+
+The A3 module is the first one written to this file from scratch rather than
+brought up to it, and it is the only one reporting zero warnings as well as
+zero failures. Worth opening next to whatever you write — it is shorter than
+module 6 and the whole standard is visible in one file.
+
+Its 168 words/chunk sits below the 200 target and that is a **language
+artifact, not thin content**: the module is in Russian, which carries in one
+inflected word what English spends two or three on ("на велосипеде" vs "on the
+bicycle"). `words()` counts space-separated tokens and cannot see that. The
+150-word floor still catches genuinely thin chunks, so the check was left
+alone rather than given a per-language target — but don't "fix" this row by
+padding the Russian, and don't take 168 as licence to write 168 in English.
 
 57 chunks across modules 1–4 to bring up. Roughly 11,500 words of new explanation,
 ~114 citations, 57 quizzes rewritten. That is four modules of writing, not an edit

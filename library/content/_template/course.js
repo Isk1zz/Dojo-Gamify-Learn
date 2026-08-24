@@ -82,7 +82,9 @@
 // reviews and the Garden are keyed on them, so a reused id silently
 // shares progress between two topics. registry.js checks and logs a
 // console error, but don't rely on that — pick fresh ids.
-// >>> UNIT IDS 1-8 ARE ALL TAKEN by Intro to CS. Start at 9. <<<
+// >>> UNIT IDS 1-8 ARE TAKEN by Intro to CS, 9-30 ARE RESERVED for the
+//     four science courses (CURRICULUM-PLAN.md §2), and 31 belongs to
+//     the A3 bicycle-theory course. START AT 32. <<<
 //
 // This line used to say only 6, 7 and 8 were taken, which was true when
 // the course had three units and dangerously wrong once it grew to

@@ -56,6 +56,7 @@ reviews and Garden plants — see `_template/course.js`.
 | Chemistry | 15–20 |
 | Biology | 21–26 |
 | Science Literacy | 27–30 |
+| Теория A3 — электровелосипед | 31 (built) |
 
 ---
 
