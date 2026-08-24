@@ -89,6 +89,21 @@ reversal closes off, not just skipping whole topics.
 quiz per chunk, then the exam). It launches a **flashcard deck** instead —
 `startFlashcardReview(topic)`, `screen: flashcards`.
 
+### Lazy course content
+
+`intro-cs` ships its manifest only; its modules are injected on open —
+see `docs/ARCHITECTURE.md` §3. Two consequences for anyone editing here:
+
+- `renderCourseSelect` cannot count a lazy course's topics before it
+  loads, so it falls back to `unitOutline` in the manifest. Those numbers
+  are checked against the real modules by `check-content.js`, which fails
+  the build on drift — do not "fix" a wrong count by editing the outline
+  without checking which side is actually wrong.
+- Opening a course goes through `Content.load()` and is therefore
+  **async**. It resolves immediately for an eager course, so no caller
+  needs to special-case the difference, but a new entry point into a
+  course must await it or it will render a course with no units.
+
 - One card per chunk, built by `buildFlashDeck(topic)` straight from that
   chunk's existing `quiz` — front is the question, back is the correct option
   plus its explanation. No separate flashcard content to author.

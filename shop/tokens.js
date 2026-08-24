@@ -127,6 +127,11 @@
     if (!DB.spendTokens(price)) return false;
     DB.addInventory(courseKey(courseId));
     Dojo.Bus.emit("tokens:changed", { delta: -price, reason: "course-buy" });
+    // Ownership changing is its own fact, not a side effect of the
+    // wallet moving. boot.js listens for this to pull down a lazy
+    // course's content the moment it is bought, rather than making the
+    // buyer wait for it on first open.
+    Dojo.Bus.emit("course:bought", { course: courseId });
     return true;
   }
 

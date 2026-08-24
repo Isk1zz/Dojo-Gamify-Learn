@@ -737,16 +737,21 @@
   <script src="library/content/quotes.js"></script>
 
   <!-- course: intro-cs -->
-  <script src="library/content/intro-cs/data_m1.js"></script>
-  <script src="library/content/intro-cs/data_m2.js"></script>
-  <script src="library/content/intro-cs/data_m3.js"></script>
-  <script src="library/content/intro-cs/data_m4.js"></script>
-  <script src="library/content/intro-cs/data_m5.js"></script>
-  <script src="library/content/intro-cs/data_m6.js"></script>
-  <script src="library/content/intro-cs/data_m7.js"></script>
-  <script src="library/content/intro-cs/data_m8.js"></script>
-  <script src="library/content/intro-cs/data_m9.js"></script>
-  <script src="library/content/intro-cs/data_m10.js"></script>
+  <!--
+    data_m1..m10 are DELIBERATELY not listed here (2026-08-24). They are
+    ~700KB and used to parse on every boot for a course nobody owns by
+    default — it costs 700 Tokens. registry.js injects them when the
+    course is opened; the file list lives in intro-cs/course.js under
+    `lazyFiles`.
+
+    If you add a module, add it THERE, not here. Putting a tag back is
+    not broken in itself — the injector skips a file that already ran —
+    but it puts the weight back on boot, which is the whole point.
+
+    The service worker needs no change: SHELL precaches only the page,
+    everything else is cached stale-while-revalidate on first fetch, so
+    an injected module is offline-available once the course is opened.
+  -->
   <script src="library/content/intro-cs/final_quiz.js"></script>
   <script src="library/content/intro-cs/course.js"></script>
 

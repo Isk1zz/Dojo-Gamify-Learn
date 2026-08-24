@@ -88,6 +88,59 @@ function loadModules(dir) {
   return mods;
 }
 
+// ---- Lazy-course manifest check ----
+// A lazy course carries two numbers that are copies of the truth: the
+// list of module files to inject, and the topic count each unit claims
+// (the course card shows it before any content is in memory). Copies
+// drift. This runs the real course.js against the real modules and
+// makes drift a build failure instead of a wrong number on a card.
+function checkManifest(dir) {
+  const file = path.join(dir, "course.js");
+  if (!fs.existsSync(file)) return null;
+
+  const onDisk = fs.readdirSync(dir).filter(f => /^data_m\d+\.js$/.test(f)).sort();
+  const ctx = { console: { error() {}, warn() {}, info() {}, log() {} } };
+  let manifest = null;
+  ctx.Content = { course(m) { manifest = m; return m; } };
+  vm.createContext(ctx);
+
+  for (const f of onDisk) {
+    const src = fs.readFileSync(path.join(dir, f), "utf8")
+      .replace(/^\s*const\s+(MODULE_\w+)/m, "globalThis.$1");
+    try { vm.runInContext(src, ctx, { filename: f }); } catch (e) { return null; }
+  }
+  try { vm.runInContext(fs.readFileSync(file, "utf8"), ctx, { filename: "course.js" }); }
+  catch (e) { return { fail: ["course.js could not run: " + e.message] }; }
+
+  if (!manifest || !manifest.lazyFiles) return null;   // eager course, nothing to drift
+  const fail = [];
+
+  // 1. Every module file on disk must be listed, and every listed file
+  //    must exist. A module missing from lazyFiles never loads, and its
+  //    unit silently vanishes from the course.
+  const listed = manifest.lazyFiles.map(f => f.split("/").pop()).sort();
+  onDisk.filter(f => !listed.includes(f))
+    .forEach(f => fail.push(`${f} exists but is not in lazyFiles — its unit would never load`));
+  listed.filter(f => !onDisk.includes(f))
+    .forEach(f => fail.push(`lazyFiles names ${f}, which is not on disk`));
+
+  // 2. Declared topic counts must equal real ones.
+  if (manifest.unitOutline && manifest.unitsFactory) {
+    const real = {};
+    for (const u of manifest.unitsFactory()) {
+      real[u.id] = (u.modules || []).reduce((n, m) => n + ((m.topics || []).length), 0);
+    }
+    for (const o of manifest.unitOutline) {
+      if (real[o.id] === undefined) { fail.push(`unitOutline names unit ${o.id}, which the factory does not build`); continue; }
+      if (real[o.id] !== o.topics) fail.push(`unit ${o.id}: unitOutline says ${o.topics} topics, modules hold ${real[o.id]}`);
+    }
+    for (const id of Object.keys(real)) {
+      if (!manifest.unitOutline.some(o => String(o.id) === id)) fail.push(`unit ${id} is built but missing from unitOutline — the card would undercount`);
+    }
+  }
+  return { fail };
+}
+
 function checkModule(M, file) {
   const fail = [], warn = [];
   const qKey = [0, 0, 0, 0];
@@ -200,6 +253,14 @@ for (const slug of courses) {
   console.log(`\n\u2501\u2501\u2501 ${slug} \u2501\u2501\u2501`);
   const loaded = loadModules(path.join(ROOT, slug));
   if (!loaded.length) { console.log("  (no data_m*.js files)"); continue; }
+
+  const manifest = checkManifest(path.join(ROOT, slug));
+  if (manifest && manifest.fail.length) {
+    console.log("");
+    console.log("  course.js");
+    manifest.fail.forEach(m => console.log(`    ✗ ${m}`));
+    failures += manifest.fail.length;
+  }
 
   const rows = [];
   for (const { file, mod, fatal } of loaded) {

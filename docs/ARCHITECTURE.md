@@ -94,6 +94,37 @@ course manifest's `{en, ru}` values through `I18N.resolve` at registration,
 so the language layer has to exist before band 2 runs. It is also what
 reveals the first-run language picker.
 
+### Lazy courses (2026-08-24)
+
+A course may keep its manifest in band 2 and load its content later.
+`intro-cs` does: its ten `data_m*.js` files have **no script tag**, and
+`Content.load(id, CONTENT)` injects them when the course is opened. That
+took ~660KB — 43% of the boot JS — off every load for a course nobody
+owns by default.
+
+Three things make it work, and all three are load-bearing:
+
+- The manifest supplies `unitsFactory` instead of `units`. A value would
+  be computed at registration, when the `MODULE_N` constants do not
+  exist yet; a function is read after the files have run.
+- The factory must read those constants as **direct identifiers**. A data
+  file declares `const MODULE_1`, and a top-level `const` is a global
+  *lexical* binding — it is not a property of `globalThis`, so a computed
+  lookup returns undefined even when the file loaded perfectly.
+- `Content.attach()` fills the arrays `build.js` already published rather
+  than rebuilding them. `MODULES`, `UNITS`, `ALL_TOPICS` and
+  `UNIT_TOPICS` are `const` bindings to mutable objects: reassigning them
+  is impossible, filling them is not — which is why every existing holder
+  of those references sees the new content with no rebuild.
+
+An **owned** lazy course is preloaded at boot (`core/boot.js` §5), because
+Garden and Stats walk `ALL_TOPICS` long before anyone opens the Library.
+An unowned one stays off the boot path entirely — that is the saving.
+
+Bumping `CACHE_VERSION` matters more than usual here: a stale
+`index.html` paired with a fresh `course.js` gives a course with zero
+units, which reads as a scoping bug and is not one.
+
 ---
 
 ## 4. Working one branch at a time

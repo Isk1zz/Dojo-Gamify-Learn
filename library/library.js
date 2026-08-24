@@ -169,9 +169,20 @@
       grid.className = "topic-grid course-track-grid";
 
       list.forEach(c => {
-      const topics = c.units.flatMap(id => UNIT_TOPICS[id] || []);
+      // A lazy course (intro-cs) holds no content in memory until it is
+      // opened, so its real topics are simply not here yet. The manifest
+      // carries the counts for exactly this moment, and check-content.js
+      // holds those numbers to the truth.
+      //
+      // Progress reading 0 is not a guess: a lazy course is priced, and
+      // an unowned course cannot have been studied. Owned ones are
+      // preloaded (see preloadOwnedCourses), so they show real numbers.
+      const loaded = !Content.isLoaded || Content.isLoaded(c.id);
+      const topics = loaded ? c.units.flatMap(id => UNIT_TOPICS[id] || []) : [];
+      const unitCount = loaded ? c.units.length : (c.unitOutline || []).length;
+      const topicCount = loaded ? topics.length : (Content.declaredTopics(c.id) || 0);
       const done = topics.filter(t => completedTopics.has(t.id)).length;
-      const pct = topics.length ? Math.round((done / topics.length) * 100) : 0;
+      const pct = topicCount ? Math.round((done / topicCount) * 100) : 0;
 
       // A priced course (see registry.js's priceTokens) not yet bought
       // is the second genuine hard-lock, same treatment as "not built
@@ -193,9 +204,9 @@
         <div class="topic-title">${c.title}</div>
         <div class="topic-desc">${c.subtitle}</div>
         <div class="topic-meta">
-          <span>${c.units.length} units</span>
+          <span>${unitCount} units</span>
           <span>·</span>
-          <span>${topics.length} topics</span>
+          <span>${topicCount} topics</span>
           <span>·</span>
           <span>${pct}% complete</span>
           ${!c.available ? '<span class="topic-badge ahead-badge">Coming soon</span>' : ""}
@@ -209,8 +220,13 @@
         card.addEventListener("click", () => {
           const enter = () => {
             state.currentCourse = c.id;
-            renderUnitSelect();
-            showScreen("unit-select");
+            // Resolves immediately for an eager course; for a lazy one
+            // this is where its content actually arrives. Rendering
+            // before it lands would show a course with no units.
+            Content.load(c.id, CONTENT).then(() => {
+              renderUnitSelect();
+              showScreen("unit-select");
+            });
           };
           if (DB.hasSignedContract(c.id)) enter();
           else showContractModal(c, enter);

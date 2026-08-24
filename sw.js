@@ -79,7 +79,15 @@
 // Bumped for interface translation pass 1: index.html gained ~56
 // data-i18n nodes and i18n.js the keys behind them. Split across a
 // stale cache that is a screen of raw keys.
-const CACHE_VERSION = "knell-v7";
+// Bumped for lazy course loading. This one MATTERS more than the usual
+// bump: index.html no longer carries the ten intro-cs <script> tags, and
+// intro-cs/course.js now builds its units from a factory that reads the
+// modules after they are injected. A stale index.html paired with a new
+// course.js (or the reverse) yields a course that registers with zero
+// units and a Library card reading "0 units" — which is exactly what a
+// stale cache produced while this was being tested, and it cost a round
+// of chasing a scoping bug that was not there.
+const CACHE_VERSION = "knell-v8";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

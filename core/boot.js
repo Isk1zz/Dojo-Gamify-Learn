@@ -156,4 +156,53 @@
   // with a profile already active is the commonest way a warned user
   // actually comes back, and profile:changed doesn't fire for it.
   if (Dojo.checkWarnings) Dojo.checkWarnings();
+
+  // ---- 5. Owned lazy content ----
+  // A lazy course (intro-cs) ships its manifest only; its modules are
+  // injected when the course is opened. That is fine for a course nobody
+  // bought — and wrong for one somebody did, because an owner's numbers
+  // depend on that content being in memory. Garden's due-review count
+  // and Stats both walk ALL_TOPICS, and both run long before anyone
+  // opens the Library.
+  //
+  // So an owned lazy course is fetched in the background right after
+  // boot: the owner waits for nothing and sees correct figures, while an
+  // unowned course stays off the boot path entirely — which is the whole
+  // saving. requestIdleCallback keeps it clear of the first paint.
+  //
+  // This lives in boot.js and not in library.js on purpose: it is the
+  // Library's content serving the Garden and Stats, which is exactly the
+  // cross-branch case this file exists for.
+  if (typeof Content !== "undefined" && Content.load) {
+    Bus.on("content:loaded", () => {
+      // Re-render whatever the user is actually looking at. The DOM is
+      // the honest source for that — no second copy of "current screen"
+      // to fall out of step with Router.
+      const active = document.querySelector(".screen.active");
+      const get = active && SCREENS[active.id];
+      const fn = get && get();
+      if (typeof fn === "function") fn();
+    });
+
+    const soon = window.requestIdleCallback || (fn => setTimeout(fn, 400));
+    soon(() => {
+      COURSES.forEach(c => {
+        if (!c.lazyFiles || Content.isLoaded(c.id)) return;
+        const owned = !(c.priceTokens > 0 && Dojo.ownsCourse && !Dojo.ownsCourse(c.id));
+        if (!owned) return;
+        Content.load(c.id, CONTENT).then(ok => {
+          if (ok) Bus.emit("content:loaded", { course: c.id });
+        });
+      });
+    });
+
+    // Buying a course is the other moment its content becomes needed,
+    // and it can happen in a session that never preloaded it.
+    Bus.on("course:bought", e => {
+      const id = e && e.course;
+      if (id && !Content.isLoaded(id)) {
+        Content.load(id, CONTENT).then(ok => { if (ok) Bus.emit("content:loaded", { course: id }); });
+      }
+    });
+  }
 })();

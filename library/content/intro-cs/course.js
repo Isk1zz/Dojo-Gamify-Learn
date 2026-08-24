@@ -21,20 +21,50 @@
 // So each module is read through `mod()`, which returns null instead of
 // throwing and prints the exact <script> tag to add. A missing module
 // now drops its own unit and nothing else.
+//
+// ---- Why the units are a factory (2026-08-24) ----
+// This course is ~700KB, and it used to be parsed on every boot whether
+// or not anyone opened it — nobody owns it by default, it costs 700
+// Tokens. Its data_m*.js files now have NO <script> tag in index.html;
+// registry.js injects them when the course is opened.
+//
+// That is why `units` became `unitsFactory`. A value would be computed
+// at registration, when MODULE_1..10 do not exist yet and every unit
+// would drop itself through mod(). A function is read later, after the
+// files have run, which is the whole point.
+//
+// `unitOutline` carries the topic counts so the course card can say
+// "8 units · 48 topics" before any of that content is in memory.
+// check-content.js verifies those numbers against the real modules, so
+// they cannot quietly drift.
 // ================================================
 
 (() => {
-  // typeof is the only safe way to ask about an undeclared name.
-  const m1 = typeof MODULE_1 === "undefined" ? null : MODULE_1;
-  const m2 = typeof MODULE_2 === "undefined" ? null : MODULE_2;
-  const m3 = typeof MODULE_3 === "undefined" ? null : MODULE_3;
-  const m4 = typeof MODULE_4 === "undefined" ? null : MODULE_4;
-  const m5 = typeof MODULE_5 === "undefined" ? null : MODULE_5;
-  const m6 = typeof MODULE_6 === "undefined" ? null : MODULE_6;
-  const m7 = typeof MODULE_7 === "undefined" ? null : MODULE_7;
-  const m8 = typeof MODULE_8 === "undefined" ? null : MODULE_8;
-  const m9 = typeof MODULE_9 === "undefined" ? null : MODULE_9;
-  const m10 = typeof MODULE_10 === "undefined" ? null : MODULE_10;
+  // Read inside the factory, not at file scope: at file scope these run
+  // before the data files are injected and every one would be null.
+  //
+  // These MUST be direct identifier reads. A data file declares
+  // `const MODULE_1`, and a top-level const creates a global LEXICAL
+  // binding — it is not a property of globalThis. A lookup like
+  // globalThis["MODULE_" + n] therefore returns undefined even when the
+  // module loaded perfectly, which drops every unit and leaves the
+  // course empty with no error worth reading. typeof remains the only
+  // safe way to ask about a name that may not be declared.
+  const M = n => {
+    switch (n) {
+      case 1:  return typeof MODULE_1  === "undefined" ? null : MODULE_1;
+      case 2:  return typeof MODULE_2  === "undefined" ? null : MODULE_2;
+      case 3:  return typeof MODULE_3  === "undefined" ? null : MODULE_3;
+      case 4:  return typeof MODULE_4  === "undefined" ? null : MODULE_4;
+      case 5:  return typeof MODULE_5  === "undefined" ? null : MODULE_5;
+      case 6:  return typeof MODULE_6  === "undefined" ? null : MODULE_6;
+      case 7:  return typeof MODULE_7  === "undefined" ? null : MODULE_7;
+      case 8:  return typeof MODULE_8  === "undefined" ? null : MODULE_8;
+      case 9:  return typeof MODULE_9  === "undefined" ? null : MODULE_9;
+      case 10: return typeof MODULE_10 === "undefined" ? null : MODULE_10;
+      default: return null;
+    }
+  };
 
   // Loud, not silent — the same rule registry.js applies to id collisions.
   function mod(n, m) {
@@ -47,7 +77,7 @@
     return [];
   }
 
-  const units = [
+  const buildUnits = () => [
     {
       // Same reason units 2-4 sort where they do — numbered to match
       // the real course, built after 5-8.
@@ -55,7 +85,7 @@
       title: "Unit 1",
       subtitle: "Computer Fundamentals",
       icon: "\u{1F9EE}",
-      modules: mod(10, m10)
+      modules: mod(10, M(10))
     },
     {
       // Added after 5-8 were already built, numbered 2 to match the real
@@ -65,7 +95,7 @@
       title: "Unit 2",
       subtitle: "Number Systems & Data Representation",
       icon: "\u{1F522}",
-      modules: mod(7, m7)
+      modules: mod(7, M(7))
     },
     {
       // Same reason unit 2 sorts where it does \u2014 numbered to match the
@@ -74,7 +104,7 @@
       title: "Unit 3",
       subtitle: "Boolean Algebra & Logic Gates",
       icon: "\u{1F500}",
-      modules: mod(8, m8)
+      modules: mod(8, M(8))
     },
     {
       // Same reason units 2-3 sort where they do — numbered to match
@@ -83,7 +113,7 @@
       title: "Unit 4",
       subtitle: "Operating Systems",
       icon: "\u{1F5A5}️",
-      modules: mod(9, m9)
+      modules: mod(9, M(9))
     },
     {
       // Added after 6-8 were already built, and numbered 5 to match the
@@ -93,34 +123,36 @@
       title: "Unit 5",
       subtitle: "Databases",
       icon: "\u{1F5C4}\uFE0F",
-      modules: mod(6, m6)
+      modules: mod(6, M(6))
     },
     {
       id: 6,
       title: "Unit 6",
       subtitle: "Networks, Internet & Security",
       icon: "\u{1F5A7}",
-      modules: [...mod(1, m1), ...mod(2, m2), ...mod(3, m3)]
+      modules: [...mod(1, M(1)), ...mod(2, M(2)), ...mod(3, M(3))]
     },
     {
       id: 7,
       title: "Unit 7",
       subtitle: "Programming Fundamentals",
       icon: "\u{1F4BB}",
-      modules: mod(4, m4)
+      modules: mod(4, M(4))
     },
     {
       id: 8,
       title: "Unit 8",
       subtitle: "Emerging Technologies",
       icon: "\u{1F9E0}",
-      modules: mod(5, m5)
+      modules: mod(5, M(5))
       // Unit 8 continues: Cloud Computing, Big Data, Blockchain, IoT.
       // Open question in PROJECT.md §11: does Unit 8 stay one entry, or
       // split? Five modules is ~75 chunks in one track.
     }
   // A unit with no modules would render as an empty card, which is worse
   // than not rendering — the console error above is the honest signal.
+  // attach() applies the same filter, so a module that fails to load
+  // still drops only its own unit.
   ].filter(u => u.modules.length);
 
   Content.course({
@@ -143,6 +175,38 @@
     // oversight; if it should be earnable, either the price comes down
     // or the rank rewards go up.
     priceTokens: 700,
-    units
+
+    // No <script> tags for these — registry.js injects them on open.
+    // Order matters only in that unit 6 wants 1-3 together; they are
+    // loaded in sequence, so any order that lists all ten is correct.
+    lazyFiles: [
+      "library/content/intro-cs/data_m1.js",
+      "library/content/intro-cs/data_m2.js",
+      "library/content/intro-cs/data_m3.js",
+      "library/content/intro-cs/data_m4.js",
+      "library/content/intro-cs/data_m5.js",
+      "library/content/intro-cs/data_m6.js",
+      "library/content/intro-cs/data_m7.js",
+      "library/content/intro-cs/data_m8.js",
+      "library/content/intro-cs/data_m9.js",
+      "library/content/intro-cs/data_m10.js"
+    ],
+
+    // Counts for the card before the content exists. Verified against
+    // the real modules by check-content.js — if you add a topic and
+    // forget the number here, the checker fails.
+    unitOutline: [
+      { id: 1, topics: 4 },
+      { id: 2, topics: 4 },
+      { id: 3, topics: 4 },
+      { id: 4, topics: 4 },
+      { id: 5, topics: 6 },
+      { id: 6, topics: 14 },
+      { id: 7, topics: 6 },
+      { id: 8, topics: 6 }
+    ],
+
+    units: [],          // filled by Content.attach() on first open
+    unitsFactory: buildUnits
   });
 })();
