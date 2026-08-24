@@ -136,12 +136,23 @@
     }
   }
   hookBus();
-  const checkBus = setInterval(() => {
-    if (Dojo.Bus && Dojo.Bus.emit && !Dojo.Bus._loggerHooked) {
-      hookBus();
-      clearInterval(checkBus);
-    }
-  }, 100);
+
+  // The poll below used to run for the life of the page. Its clear
+  // condition included `!Dojo.Bus._loggerHooked` — but hookBus() above
+  // sets that flag, and core.js loads before this file, so the hook
+  // always succeeded first and the condition could never become true
+  // again. A 10Hz timer, forever, doing nothing.
+  //
+  // Now it only starts if the hook did NOT take, clears the moment it
+  // does, and gives up after five seconds rather than polling a Bus
+  // that is never going to arrive.
+  if (!(Dojo.Bus && Dojo.Bus._loggerHooked)) {
+    let attempts = 0;
+    const checkBus = setInterval(() => {
+      if (Dojo.Bus && Dojo.Bus.emit) { hookBus(); clearInterval(checkBus); return; }
+      if (++attempts > 50) clearInterval(checkBus);
+    }, 100);
+  }
 
   // ---- Global Error Handlers ----
   window.addEventListener("error", (e) => {

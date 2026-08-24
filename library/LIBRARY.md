@@ -92,6 +92,13 @@ quiz per chunk, then the exam). It launches a **flashcard deck** instead —
 - One card per chunk, built by `buildFlashDeck(topic)` straight from that
   chunk's existing `quiz` — front is the question, back is the correct option
   plus its explanation. No separate flashcard content to author.
+- **Plus one card per exam question** (2026-08-24). Before that a topic's
+  `examQuestions` were reachable in an exam and nowhere else, which barely
+  mattered for Intro to CS and mattered a great deal for A3, where the exam
+  questions ARE the material: only 10 of the Ministry's 40 live as chunk
+  quizzes. Exam cards carry `chunkIdx: null` and every write-back checks
+  `isChunkCard` first — an exam question owns no chunk, so grading one must
+  not move a chunk's weakness or its review schedule.
 - Self-reported (**Knew it / Didn't**), not graded, because there's no
   multiple-choice to check automatically. The tally still maps onto SM-2's
   0-5 quality scale the same way `showExamResults()` does, so a review

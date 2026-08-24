@@ -673,6 +673,18 @@
   function renderTopicMap() {
     const unit = UNITS.find(u => u.id === state.currentUnit);
     const body = document.getElementById("topic-map-body");
+    // state.currentUnit can outlive the unit it names: a course whose
+    // script tag was dropped, a unit id that changed, or Router.back()
+    // landing here after the state moved on. Without this the next line
+    // reads .title off undefined and the screen comes up blank with a
+    // console error — the same failure LIBRARY.md's Gotchas already
+    // records for renderExamQuestion. renderUnitSelect guards the same
+    // way for a missing course; this one was simply missed.
+    if (!unit) {
+      showScreen("unit-select");
+      renderUnitSelect();
+      return;
+    }
     document.getElementById("topic-map-unit-label").textContent = `${unit.title} · ${unit.subtitle}`;
     body.innerHTML = "";
 

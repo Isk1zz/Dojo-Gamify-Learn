@@ -8,7 +8,7 @@ that wasn't part of this repo. `data/db.js` didn't have the
 isAdmin/isBanned/warnings fields or the setAdminStatus/setBannedStatus/
 addWarning/clearWarnings/getProfileById/kickProfile functions this
 panel calls — those were added as part of the port, along with
-expanding `listProfiles()` to include xp/wallet/tokens/tickets/avatar
+expanding `listProfiles()` to include xp/wallet/tokens/avatar
 (it previously only returned id/name/createdAt/topicsCompleted). Also
 fixed during the port: every `rankInfo.title` reference read a field
 that doesn't exist on this project's rank objects (they use `name`) —

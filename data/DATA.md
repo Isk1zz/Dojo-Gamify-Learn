@@ -24,9 +24,11 @@ number here, it belongs in the branch that owns the feature.
   theme, lastPosition: { unitId, topicId, chunkIdx } | null,
   lobbyStyle,          // "classic" | "cards" — re-skin only, see core/lobby.js
 
-  // v5 — money ($, now reputation), energy, tickets, life sim
+  // v5 — money ($, now reputation), life sim
+  // energy and tickets were both removed (energy in v6, tickets on
+  // 2026-08-24 with the Arcade long gone). Old saves still carry the
+  // numbers; nothing reads them, and migrations here only ever add.
   wallet,
-  tickets, ticketsUpdatedAt,
   lastDividendClaim,
   inventory: [itemId],
   storyProgress: { unlockedNodes: [], completedNodes: [] },

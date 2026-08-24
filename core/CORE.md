@@ -7,6 +7,7 @@ it belongs in a branch folder instead.**
 | File | Role |
 |---|---|
 | `core.js` | `Dojo.state`, `Bus`, `Router`, `showScreen`, shuffle + quote utils |
+| `i18n.js` | Language: `I18N.resolve` for course content, `I18N.t` for chrome, the first-run picker |
 | `theme.js` | Paints a theme id into CSS variables on `:root` |
 | `hud.js` | The fixed top strip: charge bar, flying bolt, rank insignia, streak badge |
 | `profile.js` | Profile creation, name badge, profile switcher |

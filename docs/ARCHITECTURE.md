@@ -78,6 +78,7 @@ Four bands. Order *between* bands is load-bearing; order *within* band 3 is not.
 
 ```
 1. core/core.js      kernel: state, Bus, Router, utils
+   core/i18n.js      language — MUST precede band 2, see below
    data/db.js        persistence
 2. library/content/  pure course data (quotes, modules, then data.js)
 3. branches          each registers itself on window.Dojo
@@ -87,6 +88,11 @@ Four bands. Order *between* bands is load-bearing; order *within* band 3 is not.
 Band 2 has its own order: `content/registry.js` → each course's module files →
 that course's `course.js` → `content/build.js`. Adding a course is one folder
 and its script tags; see `library/LIBRARY.md`.
+
+`core/i18n.js` sits in band 1 for a reason: `Content.course()` resolves a
+course manifest's `{en, ru}` values through `I18N.resolve` at registration,
+so the language layer has to exist before band 2 runs. It is also what
+reveals the first-run language picker.
 
 ---
 
