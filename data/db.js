@@ -19,13 +19,15 @@ const DB = (() => {
   const STORAGE_KEY = "unit6-dojo-db";
   const DB_VERSION = 9;
 
-  // Tickets are now the ONLY arcade limiter: 7 per 6 hours, ceiling 7.
-  // Energy was removed in v6 — it and tickets were two rate limits doing
-  // the same job, and the one that actually reads as "come back later"
-  // is the ticket. The `energy` field is kept in stored profiles because
-  // migrations never drop fields, but nothing reads it.
-  const TICKET_MAX = 7;
-  const TICKET_PER_MS = 7 / (6 * 60 * 60 * 1000);
+  // Tickets are GONE (2026-08-24). They rate-limited the Arcade, the
+  // Arcade became the Forum, and for two versions nothing read them —
+  // the field was still being written into every profile, migrated on
+  // every load and edited in Admin, for nobody. `energy` before them
+  // went the same way and is still sitting in stored profiles.
+  //
+  // Old saves keep their `tickets` number. Nothing reads it, and a
+  // migration that deletes fields is a migration that can lose data by
+  // typo — the rule in this file is that migrations only ever add.
 
 
 
@@ -119,8 +121,6 @@ const DB = (() => {
 
       // ---- v5: economy & life-sim ----
       wallet: 0,             // $ earned from garden dividends and mini-games
-      tickets: TICKET_MAX,   // arcade entries; 2 per 6h, hard ceiling on losses
-      ticketsUpdatedAt: null,
       lastDividendClaim: null,
       inventory: [],         // purchased life-shop item ids
       storyProgress: {
@@ -293,8 +293,6 @@ const DB = (() => {
         // keeps all its progress and simply starts the new systems at
         // zero. Never drop a field in a migration.
         if (typeof p.wallet !== "number") p.wallet = 0;
-        if (typeof p.tickets !== "number") p.tickets = TICKET_MAX;
-        if (p.ticketsUpdatedAt === undefined) p.ticketsUpdatedAt = null;
         if (p.lastDividendClaim === undefined) p.lastDividendClaim = null;
         if (!Array.isArray(p.inventory)) p.inventory = [];
         if (!p.storyProgress) p.storyProgress = { unlockedNodes: ["act1_node1"], completedNodes: [] };
@@ -406,8 +404,6 @@ const DB = (() => {
       });
     });
     p.completedTopics = [...doneTopics];
-    p.tickets = TICKET_MAX;
-    p.ticketsUpdatedAt = new Date().toISOString();
     p.wallet = 50000;
     // Reported live: "adminaccount didn't unlock me rank and rewards" —
     // course/wallet/tickets were being set, but XP (chargeEarned, what
@@ -460,7 +456,7 @@ const DB = (() => {
   const ADMIN_CODES = {
     [SECRET_ADMIN_NAME]: {
       fn: applyAdminStart,
-      msg: "Admin start applied — unlocked, tickets full, wallet at $50,000, rank maxed."
+      msg: "Admin start applied — unlocked, wallet at $50,000, rank maxed."
     },
     unlockallunits: {
       fn: applyUnlockAllUnits,
@@ -626,7 +622,6 @@ const DB = (() => {
       xp: p.chargeEarned || 0,
       wallet: p.wallet || 0,
       tokens: p.tokens || 0,
-      tickets: p.tickets !== undefined ? p.tickets : TICKET_MAX,
       avatar: p.avatar || null,
       isAdmin: !!p.isAdmin,
       isBanned: !!p.isBanned,
@@ -780,7 +775,8 @@ const DB = (() => {
   // itself is never blocked past the cap (no hard locks — PROJECT.md §5),
   // only the XP stops, same "the activity always works, the reward is
   // what's rate-limited" shape the Arcade's tickets used before it
-  // became the Forum. The tickets themselves still live in this file.
+  // became the Forum. The tickets themselves were deleted on
+  // 2026-08-24; this cap is the last thing still built on their idea.
   const FINAL_QUIZ_XP_ATTEMPTS_PER_DAY = 3;
 
   function recordFinalQuizResult(correct, total, passed) {
@@ -1456,66 +1452,11 @@ const DB = (() => {
     return true;
   }
 
-  // ---- Lazy regeneration ----
-  // Nothing runs on a timer; we work out how much time passed since the
-  // stored stamp and credit that on read. Keeps tickets correct when the
-  // tab has been shut for three days.
-  function regen(p, key, stampKey, max, perMs) {
-    const now = Date.now();
-    const last = p[stampKey] ? new Date(p[stampKey]).getTime() : now;
-    const gained = Math.floor((now - last) * perMs);
-    if (gained > 0) {
-      p[key] = Math.min(max, (p[key] || 0) + gained);
-      p[stampKey] = new Date(last + Math.ceil(gained / perMs)).toISOString();
-    } else if (!p[stampKey]) {
-      p[stampKey] = new Date(now).toISOString();
-    }
-    if (p[key] >= max) p[stampKey] = new Date(now).toISOString();
-    return p[key];
-  }
-
-  // ---- Arcade tickets ----
-  // 2 per 6 hours, ceiling of 2. This is the burnout brake: the arcade
-  // cannot become the main way to earn, and a bad night cannot cost
-  // more than two entries.
-  function getTickets() {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return 0;
-    const v = regen(p, "tickets", "ticketsUpdatedAt", TICKET_MAX, TICKET_PER_MS);
-    save(db);
-    return v;
-  }
-
-  function spendTicket() {
-    if (getTickets() < 1) return false;
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    p.tickets -= 1;
-    if (!p.ticketsUpdatedAt) p.ticketsUpdatedAt = new Date().toISOString();
-    save(db);
-    return true;
-  }
-
-  // Used by the agrala code. Sets the stamp too, or lazy regen would
-  // immediately try to credit time that has already been paid out.
-  function refillTickets() {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return 0;
-    p.tickets = TICKET_MAX;
-    p.ticketsUpdatedAt = new Date().toISOString();
-    save(db);
-    return p.tickets;
-  }
-
-  function msUntilNextTicket() {
-    const p = getActiveProfile();
-    if (!p) return 0;
-    if ((p.tickets || 0) >= TICKET_MAX) return 0;
-    const last = p.ticketsUpdatedAt ? new Date(p.ticketsUpdatedAt).getTime() : Date.now();
-    return Math.max(0, (last + 1 / TICKET_PER_MS) - Date.now());
-  }
+  // regen() lived here — lazy "credit the time that passed since the
+  // stamp" refill. Tickets were its only caller, so it went with them.
+  // Worth remembering the shape if anything is ever rate-limited again:
+  // no timers, just arithmetic on read, which stays correct across a tab
+  // that was shut for three days.
 
   // ---- Garden dividends ----
   function getLastDividendClaim() {
@@ -1686,16 +1627,11 @@ const DB = (() => {
     getTokens,
     addTokens,
     spendTokens,
-    getTickets,
-    spendTicket,
-    refillTickets,
-    msUntilNextTicket,
     getLastDividendClaim,
     setLastDividendClaim,
     getInventory,
     addInventory,
     unlockAllTopics,
-    constants: () => ({ TICKET_MAX }),
     getTheme,
     setTheme,
     getLobbyStyle,

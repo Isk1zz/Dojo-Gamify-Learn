@@ -2170,6 +2170,12 @@
     { level: 3, id: "known-best",     label: I18N.t("conf.known-best"),     icon: "✅" }
   ];
 
+  // A card that maps onto a chunk, and therefore onto stored progress.
+  // Exam-question cards do not: they carry chunkIdx null and are drill
+  // material only. Everything that writes to the DB from a deck asks
+  // this first.
+  const isChunkCard = card => typeof card.chunkIdx === "number";
+
   function buildFlashDeck(topic) {
     const cards = [];
     topic.chunks.forEach((c, idx) => {
@@ -2183,6 +2189,31 @@
         chunkIdx: idx
       });
     });
+
+    // Then the topic's EXAM questions. They were never cards before,
+    // which mattered most where the exam questions are the real study
+    // material: the A3 course carries the Ministry's 40 published
+    // questions, only 10 of them as chunk quizzes, so thirty of the
+    // forty could be met in an exam and nowhere else. Now a topic's
+    // deck is its three chunks plus its five exam questions.
+    //
+    // chunkIdx is null on these ON PURPOSE and every write-back checks
+    // for it (see isChunkCard). An exam question does not belong to a
+    // chunk, so grading one must not rewrite some chunk's weakness or
+    // its spaced-review schedule — that would make the Garden wilt for
+    // material the learner never actually failed.
+    (topic.examQuestions || []).forEach((q, idx) => {
+      cards.push({
+        q: q.question,
+        a: q.options[q.correct],
+        explanation: q.explanation || null,
+        topicId: topic.id,
+        topicTitle: topic.title,
+        chunkIdx: null,
+        examIdx: idx
+      });
+    });
+
     return cards;
   }
 
@@ -2316,7 +2347,9 @@
     // Last rating for this chunk wins if it appears more than once in
     // this session (a requeue, or two glossary terms off the same
     // chunk) — same "last attempt wins" rule chunkResults already uses.
-    state.flashConfidence[chunkKey(card.topicId, card.chunkIdx)] = level;
+    if (isChunkCard(card)) {
+      state.flashConfidence[chunkKey(card.topicId, card.chunkIdx)] = level;
+    }
     if (level === 0) scheduleRequeue(card);
     setTimeout(() => {
       if (state.flashIndex + 1 < state.flashDeck.length) {
@@ -2450,6 +2483,7 @@
     writeFlashConfidence();
 
     deck.forEach((card, i) => {
+      if (!isChunkCard(card)) return;   // exam cards own no chunk result
       DB.recordQuizAnswer(card.topicId, card.chunkIdx, state.flashResults[i]);
     });
     Bus.emit("review:finished", { custom: true, known, total, passed });
@@ -2485,6 +2519,7 @@
     const wisdomEl = document.getElementById("result-wisdom");
     if (wisdomEl) {
       const tags = deck.flatMap(card => {
+        if (!isChunkCard(card)) return [];
         const t = ALL_TOPICS.find(x => x.id === card.topicId);
         const c = t && t.chunks[card.chunkIdx];
         return (c && c.wisdomTags) || [];

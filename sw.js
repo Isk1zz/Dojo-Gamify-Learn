@@ -73,7 +73,10 @@
 // overlay markup and core/i18n.js the code that reveals it. A stale
 // pairing shows a gate with dead buttons, or no gate at all on a device
 // that never chose.
-const CACHE_VERSION = "knell-v2";
+// Bumped again: tickets removed from db.js/admin.js, and flashcard
+// decks now include exam questions. Both are behaviour changes across
+// files that load together.
+const CACHE_VERSION = "knell-v3";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

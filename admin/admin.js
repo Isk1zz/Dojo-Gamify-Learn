@@ -106,7 +106,7 @@
     const container = document.getElementById("admin-body") || document.getElementById("admin");
     if (!container) return;
 
-    const p = DB.getActiveProfile() || { name: "None", chargeEarned: 0, wallet: 0, tokens: 0, tickets: 7, isAdmin: false };
+    const p = DB.getActiveProfile() || { name: "None", chargeEarned: 0, wallet: 0, tokens: 0, isAdmin: false };
     
     // Strict Admin Protection: Non-admins must authenticate via Master Passcode
     if (!p || !p.isAdmin) {
@@ -229,13 +229,6 @@
                   <button id="btn-set-tokens" class="admin-btn-pill">Set</button>
                 </div>
               </div>
-              <div class="admin-field-row">
-                <span class="admin-label">🎫 Arcade Tickets</span>
-                <div class="admin-input-group">
-                  <input id="input-adm-tickets" type="number" class="admin-number-input" max="7" min="0" value="${p.tickets !== undefined ? p.tickets : 7}" />
-                  <button id="btn-set-tickets" class="admin-btn-pill">Set</button>
-                </div>
-              </div>
             </div>
 
             <!-- Dev Cheats -->
@@ -250,7 +243,6 @@
                 <button id="cheat-add-xp" class="admin-cheat-btn">⚡ +1,000 XP</button>
                 <button id="cheat-add-tokens" class="admin-cheat-btn">🪙 +100 Tokens</button>
                 <button id="cheat-add-money" class="admin-cheat-btn">💵 +$1,000 Cash</button>
-                <button id="cheat-refill-tickets" class="admin-cheat-btn">🎫 Max Tickets (7)</button>
                 <button id="cheat-reset-reviews" class="admin-cheat-btn">🔁 Reset SM-2 Schedule</button>
                 <button id="cheat-reset-profile" class="admin-cheat-btn" style="color:var(--red);">🧹 Reset Progress</button>
               </div>
@@ -572,7 +564,6 @@
           <div style="font-size:1.1rem; font-weight:700; color:var(--green); margin-top:0.25rem;">$${(u.wallet || 0).toLocaleString()}</div>
           <div style="font-size:0.85rem; color:var(--yellow); margin-top:0.2rem;">🪙 ${u.tokens || 0} Tokens</div>
           <div style="font-size:0.8rem; color:var(--text-dim); margin-top:0.25rem;">
-            Arcade Tickets: ${u.tickets !== undefined ? u.tickets : 7} / 7
           </div>
         </div>
       </div>
@@ -654,7 +645,7 @@
           DB.setBannedStatus(uid, false, "");
           showBanner(`User "${u.name}" unbanned.`, "success");
         } else {
-          if (!confirm(`Ban "${u.name}"? This WIPES the account — all progress, XP, wallet, Tokens and Tickets reset to zero, permanently. This cannot be undone.`)) return;
+          if (!confirm(`Ban "${u.name}"? This WIPES the account — all progress, XP, wallet and Tokens reset to zero, permanently. This cannot be undone.`)) return;
           const reason = prompt("Enter ban reason:", "Violation of Dojo guidelines");
           if (reason !== null) {
             DB.setBannedStatus(uid, true, reason);
@@ -834,7 +825,7 @@
             renderAdmin();
             showBanner(`User "${u.name}" unbanned.`, "success");
           } else {
-            if (!confirm(`Ban "${u.name}"? This WIPES the account — all progress, XP, wallet, Tokens and Tickets reset to zero, permanently. This cannot be undone.`)) return;
+            if (!confirm(`Ban "${u.name}"? This WIPES the account — all progress, XP, wallet and Tokens reset to zero, permanently. This cannot be undone.`)) return;
             const reason = prompt(`Enter ban reason for "${u.name}":`, "Violation of community standards");
             if (reason !== null) {
               DB.setBannedStatus(uid, true, reason);
@@ -951,23 +942,6 @@
       });
     }
 
-    // Set Tickets
-    const btnSetTickets = document.getElementById("btn-set-tickets");
-    if (btnSetTickets) {
-      btnSetTickets.addEventListener("click", () => {
-        const val = Math.min(7, Math.max(0, parseInt(document.getElementById("input-adm-tickets").value, 10) || 0));
-        const db = getRawDB();
-        const prof = db.profiles[db.activeProfileId];
-        if (prof) {
-          prof.tickets = val;
-          prof.ticketsUpdatedAt = new Date().toISOString();
-          setRawDB(db);
-          Bus.emit("profile:changed");
-          renderAdmin();
-          showBanner(`Arcade tickets set to ${val}.`, "success");
-        }
-      });
-    }
 
     // Cheats
     const bindCheat = (id, fn) => {
@@ -1018,10 +992,6 @@
       showBanner("Granted +$1,000 Cash.", "success");
     });
 
-    bindCheat("cheat-refill-tickets", () => {
-      DB.refillTickets();
-      showBanner("Arcade tickets refilled to maximum.", "success");
-    });
 
     bindCheat("cheat-reset-reviews", () => {
       const db = getRawDB();
