@@ -846,6 +846,44 @@ body {
    toggled by data-bg-decor, so this blanket hide would swallow them.
    It did: they spawned correctly, in the right order, display:none. */
 :where(#bg-decor-layer, #bg-decor-front) > *:not(.fx-bat) { display: none; }
+
+/* ---- Study mode: scenery off while reading ----
+   html[data-study] is set by core/core.js's showScreen for the lesson,
+   exam and flashcard screens only. The decorations are already behind
+   the app (z-index -1) and were never covering anything — but a study
+   card is transparent, so a cloud drifting behind a paragraph reads as
+   a cloud drifting THROUGH it, and the stars land inside the heading.
+   Reported from a phone, and it is worst exactly where it matters most.
+
+   `visibility` rather than `display`, and on the LAYER rather than its
+   children: display:none on #bg-decor-layer would drop the clouds out
+   of layout, and shop/decor.js positions its click hit-boxes from the
+   live element rects — poking a cloud after leaving a lesson would aim
+   at stale coordinates. visibility keeps the geometry and only stops
+   the paint. The transition means walking into a chunk fades the sky
+   out rather than snapping it off.
+
+   Not a setting. Someone who equipped clouds wants them in the lobby,
+   which is where they still are; nobody equips scenery in order to
+   read through it.
+
+   Applied to the LAYER, not to its children: the children are
+   display:none until their token is present, and the scenery SVGs are
+   nested rather than direct children, so a `> *` rule would miss the
+   horizon band. visibility cascades to every descendant at any depth.
+
+   visibility rather than display, because shop/decor.js hit-tests
+   cloud clicks against live element rects — display:none would collapse
+   those to zero and leave poking aimed at stale coordinates once the
+   lesson closed. */
+:where(#bg-decor-layer, #bg-decor-front, #decor-fx) {
+  transition: opacity 0.28s ease, visibility 0s linear 0s;
+}
+html[data-study] :where(#bg-decor-layer, #bg-decor-front, #decor-fx) {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, visibility 0s linear 0.28s;
+}
 html[data-bg-decor~="usa_stars"]  .decor-usa_stars,
 html[data-bg-decor~="usa_eagles"] .decor-usa_eagles,
 /* :not(.cloud-day) matters — the day-only six must stay hidden at night,

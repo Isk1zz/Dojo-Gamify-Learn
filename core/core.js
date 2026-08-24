@@ -125,9 +125,26 @@ const Bus = (() => {
     document.body.classList.toggle("hide-hints", !on);
   }
 
+  // Screens where the learner is READING, not browsing. The drifting
+  // decorations sit at z-index -1, so they were never on top of the
+  // text — but a lesson card has no opaque surface of its own, so a
+  // cloud passing behind a paragraph is a cloud passing *through* it.
+  // Reported from a phone: a cloud washed across the chunk title and
+  // the stars sat inside the heading.
+  //
+  // Suppressed rather than restyled. Giving every study card a solid
+  // background would fix the contrast and lose the theme entirely on
+  // the screens people spend the most time on; hiding the scenery for
+  // the duration of a chunk keeps the app's look everywhere it isn't
+  // costing legibility. shop/decor.js calls these "lobby decorations"
+  // in its own header — this makes the code agree with the comment.
+  const STUDY_SCREENS = new Set(["lesson", "exam", "flashcards"]);
+
   function showScreen(id) {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
+    if (STUDY_SCREENS.has(id)) document.documentElement.dataset.study = "1";
+    else delete document.documentElement.dataset.study;
     window.scrollTo(0, 0);
     if (Dojo.closeDropdown) Dojo.closeDropdown();   // profiles branch may not be loaded
     // The one choke point every screen transition passes through,
