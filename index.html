@@ -288,6 +288,31 @@
          Deliberately has NO close X and no click-outside dismiss: the
          acknowledgment button is the only way out, because a notice you
          can flick away without reading isn't a notice. -->
+    <!-- ====== First-run language gate ======
+         Shown once, before anything else, when no language has ever
+         been chosen on this device. core/i18n.js reveals and wires it.
+
+         Its own text is bilingual on purpose and is the one thing in
+         the app that must NEVER go through I18N.t(): a language picker
+         written in a language you may not read is a locked door with
+         the key inside. Both lines are shown at once, and each button
+         names its language in that language. -->
+    <div id="lang-gate" class="modal-overlay" style="display:none;">
+      <div class="modal-card">
+        <div class="modal-icon">🌐</div>
+        <h2 class="modal-title">Choose your language</h2>
+        <p class="modal-desc" lang="ru">Выберите язык</p>
+        <div class="lang-gate-row">
+          <button class="btn-primary lang-gate-btn" data-lang="en" lang="en">English</button>
+          <button class="btn-primary lang-gate-btn" data-lang="ru" lang="ru">Русский</button>
+        </div>
+        <p class="modal-desc lang-gate-hint">
+          <span lang="en">You can change this any time in Settings.</span><br>
+          <span lang="ru">Это можно поменять в любой момент в настройках.</span>
+        </p>
+      </div>
+    </div>
+
     <div id="warning-modal" class="modal-overlay" style="display:none;">
       <div class="modal-card">
         <div class="modal-icon">&#9888;&#65039;</div>

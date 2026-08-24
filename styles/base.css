@@ -1868,3 +1868,17 @@ html[data-theme-mode="light"] #brand-watermark > span { opacity: 0.03; }
 @media (prefers-reduced-motion: reduce) {
   #brand-watermark { transition: none; }
 }
+
+/* ---- First-run language gate (#lang-gate) ----
+   Two equal buttons, not a primary and a secondary: neither language is
+   the default here, and styling one as the obvious choice would be
+   making the choice for them. */
+.lang-gate-row {
+  display: flex; gap: 0.6rem; justify-content: center;
+  flex-wrap: wrap; margin: 0.4rem 0 0.9rem;
+}
+.lang-gate-btn { min-width: 8.5rem; }
+.lang-gate-hint {
+  font-size: 0.8rem; line-height: 1.6; color: var(--text-muted);
+  margin-bottom: 0;
+}

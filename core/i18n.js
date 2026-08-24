@@ -65,6 +65,47 @@ const I18N = (() => {
     return true;
   }
 
+  function stored() {
+    try { return localStorage.getItem(KEY); } catch (e) { return null; }
+  }
+
+  // The first-run gate's own commit. NOT set() — set() bails out when
+  // the pick matches the language already active, which is the right
+  // thing for the Settings toggle and exactly wrong here: a Russian
+  // browser detects "ru", the person presses Русский, set() returns
+  // false, nothing is written and the gate never closes. A locked door
+  // with the key inside.
+  //
+  // So this always records the choice, and only reloads when the choice
+  // actually differs from what is running. Recording it is the whole
+  // point: `detect()` guesses from navigator.language but stores
+  // nothing, so without this write the gate would reappear every visit.
+  function choose(next) {
+    if (!LANGS.includes(next)) return false;
+    try { localStorage.setItem(KEY, next); } catch (e) { /* private mode */ }
+    if (next === lang) { hideGate(); return true; }
+    location.reload();
+    return true;
+  }
+
+  function hideGate() {
+    const gate = document.getElementById("lang-gate");
+    if (gate) gate.style.display = "none";
+  }
+
+  // Shown only when nothing was ever chosen on this device. A guessed
+  // language is not a choice, which is why detect()'s navigator fallback
+  // does not count as one.
+  function openGateIfUnset() {
+    if (stored()) return;
+    const gate = document.getElementById("lang-gate");
+    if (!gate) return;
+    gate.style.display = "flex";
+    gate.querySelectorAll(".lang-gate-btn").forEach(btn => {
+      btn.addEventListener("click", () => choose(btn.dataset.lang));
+    });
+  }
+
   // ---- Content ----
   // A "language bag" is an object whose keys are ALL language codes.
   // That test is what keeps `{heading, text}` and `{term, definition}`
@@ -249,10 +290,15 @@ const I18N = (() => {
   }
   applyStatic();
 
+  // After applyStatic so the rest of the chrome is already in the
+  // detected language behind the overlay — if someone dismisses by
+  // choosing what was guessed, there is no flash of the wrong labels.
+  openGateIfUnset();
+
   return {
     langs: () => LANGS.slice(),
     lang: () => lang,
-    set, resolve, t, applyStatic,
+    set, resolve, t, applyStatic, choose,
     // Exposed for the toggle's own label, which must name the language
     // you'd be switching TO, in that language — "Русский", not "Russian".
     nativeName: l => ({ en: "English", ru: "Русский" })[l] || l

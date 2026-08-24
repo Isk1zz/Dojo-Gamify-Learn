@@ -69,7 +69,11 @@
 // keys in db.js, i18n.js and exam-sim.js address saved data and keep
 // their old names forever. The rename doubles as the bump that
 // index.html and the manifest need anyway.
-const CACHE_VERSION = "knell-v1";
+// Bumped for the first-run language gate: index.html gained the
+// overlay markup and core/i18n.js the code that reveals it. A stale
+// pairing shows a gate with dead buttons, or no gate at all on a device
+// that never chose.
+const CACHE_VERSION = "knell-v2";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
