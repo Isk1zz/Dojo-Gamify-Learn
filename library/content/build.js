@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — LIBRARY / content build
+// Knell — LIBRARY / content build
 // ------------------------------------------------
 // Loads AFTER every course file and publishes the globals the branches
 // read. This is the only file that creates them, and it creates them

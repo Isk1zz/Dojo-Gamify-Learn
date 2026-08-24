@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — CORE / sfx
+// Knell — CORE / sfx
 // ------------------------------------------------
 // Interface sound effects, synthesized with the Web Audio API rather
 // than shipped as audio files. The since-removed Arcade wanted a payout

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Unnamed App</title>
-  <meta name="description" content="An interactive, chunk-based CS learning experience — with quizzes and mastery exams, organized by unit." />
+  <title>Knell</title>
+  <meta name="description" content="Knell — a chunk-based study app with spaced review, mastery exams and a garden that wilts when you stop. Computer science and Israeli A3 electric-bicycle theory, in English and Russian." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <!-- One stylesheet per branch. base.css is the design system and the
        screens core owns; the rest are droppable with their folder. -->
@@ -13,7 +13,7 @@
   <meta name="theme-color" content="#0a0e1a" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Unnamed App" />
+  <meta name="apple-mobile-web-app-title" content="Knell" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
@@ -31,6 +31,17 @@
        default — styles/base.css shows each piece only when its id is a
        token in <html data-bg-decor="…">, so this markup exists once and
        every profile's on/off toggles are pure CSS. -->
+  <!-- ====== Brand watermark ======
+       The wordmark as background art: one huge rotated "Knell" sitting
+       behind the whole app. Its own layer rather than a piece of
+       #bg-decor-layer below, because that layer hides every child by
+       default and reveals them per purchased token — the brand is not
+       a decoration you equip.
+       Suppressed on study screens with everything else (see
+       html[data-study] in base.css): a watermark behind a paragraph is
+       the same legibility problem the clouds were. -->
+  <div id="brand-watermark" aria-hidden="true"><span>Knell</span></div>
+
   <div id="bg-decor-layer" aria-hidden="true">
     <div class="decor-usa_stars">
       <span></span><span></span><span></span><span></span><span></span>
@@ -290,7 +301,7 @@
     <div id="profile-modal" class="modal-overlay" style="display:none;">
       <div class="modal-card">
         <div class="modal-icon">👤</div>
-        <h2 class="modal-title">Welcome to <span class="accent">Unnamed App</span></h2>
+        <h2 class="modal-title">Welcome to <span class="accent">Knell</span></h2>
         <p class="modal-desc">Enter your name to create a profile. Your progress and stats will be saved locally.</p>
         <input id="profile-name-input" class="modal-input" type="text" placeholder="Your name..." maxlength="30" autocomplete="off" />
         <button id="btn-profile-save" class="btn-primary" style="width:100%;justify-content:center;">Start Learning <span class="arrow">→</span></button>
@@ -347,12 +358,19 @@
       <div class="landing-bg"></div>
       <div class="landing-content">
         <div class="logo-glow"></div>
-        <h1 class="landing-title">Unnamed&nbsp;<span class="accent">App</span></h1>
+        <!-- One word now, so the whole wordmark takes the accent rather
+             than the second half of it — and the &nbsp; that used to
+             hold "Unnamed App" apart is gone with the space it guarded. -->
+        <h1 class="landing-title"><span class="accent">Knell</span></h1>
         <p class="landing-sub">A study system that keeps what you learn from fading — chunk by chunk, day by day.</p>
         <div class="landing-features">
           <div class="feat"><span class="feat-icon">📖</span><span>Any course, one chunk at a time</span></div>
           <div class="feat"><span class="feat-icon">🔥</span><span>Spaced review that adapts to you</span></div>
-          <div class="feat"><span class="feat-icon">🎮</span><span>Earn your way into the Arcades</span></div>
+          <!-- Was "Earn your way into the Arcades" — the Arcade branch
+               was deleted and the landing page went on advertising it.
+               Replaced with the Garden, which is both real and the one
+               mechanic nothing else here has. -->
+          <div class="feat"><span class="feat-icon">🌱</span><span>A garden that wilts when you stop</span></div>
         </div>
         <button id="btn-start" class="btn-primary">Begin Training</button>
         <p class="landing-hint">No account needed — progress saves automatically, on this device</p>
@@ -394,7 +412,7 @@
             <span class="lobby-rotate-icon" aria-hidden="true">&#10024;</span>
           </div>
         </div>
-        <div class="lobby-brand">Unnamed&nbsp;<span class="accent">App</span></div>
+        <div class="lobby-brand"><span class="accent">Knell</span></div>
         <p class="lobby-welcome" id="lobby-welcome">Welcome back.</p>
         <div class="lobby-actions" id="lobby-actions">
           <svg class="lobby-star-lines" id="lobby-star-lines" aria-hidden="true"></svg>

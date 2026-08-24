@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — CORE / kernel
+// Knell — CORE / kernel
 // ------------------------------------------------
 // The ONLY things every branch is allowed to depend on:
 //   Dojo.state      shared runtime state (not persisted)

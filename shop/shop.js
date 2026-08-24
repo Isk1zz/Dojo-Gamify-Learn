@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — SHOP
+// Knell — SHOP
 // ------------------------------------------------
 // The sink for lightning charge. Cosmetic goods only — nothing here
 // buys progress, hints, retries or exam advantage, because the whole

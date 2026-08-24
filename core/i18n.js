@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — KERNEL / language
+// Knell — KERNEL / language
 // ------------------------------------------------
 // Two separate jobs that people conflate, kept apart here on purpose:
 //
@@ -38,6 +38,11 @@
 
 const I18N = (() => {
   const LANGS = ["en", "ru"];
+  // Keeps the old brand in the key on purpose. Renaming a storage key
+  // does not move the data, it orphans it — everyone would silently
+  // lose their language choice on the next load. Same reason db.js is
+  // still on "unit6-dojo-db". The name in a key is an address, not a
+  // label.
   const KEY = "cs-dojo-lang";
   const FALLBACK = "en";
 

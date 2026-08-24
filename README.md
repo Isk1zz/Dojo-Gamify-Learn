@@ -1,4 +1,4 @@
-# Unnamed App
+# Knell
 
 A study app that fights forgetting.
 

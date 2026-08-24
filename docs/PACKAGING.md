@@ -1,6 +1,6 @@
 # Packaging
 
-How to get CS Dojo onto a machine. In the order worth doing it.
+How to get Knell onto a machine. In the order worth doing it.
 
 ---
 

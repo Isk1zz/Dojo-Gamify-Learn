@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — LIBRARY / statistics
+// Knell — LIBRARY / statistics
 // ------------------------------------------------
 // Reads DB stats and renders the Stats modal. Read-only over every
 // other branch's data — it must never write progress.

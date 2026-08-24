@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — ADMIN / Admin Panel, Analytics & User Management
+// Knell — ADMIN / Admin Panel, Analytics & User Management
 // ------------------------------------------------
 // Provides administrative controls, advanced learning
 // & economy analytics, real-time event logging,

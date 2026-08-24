@@ -879,7 +879,7 @@ body {
 :where(#bg-decor-layer, #bg-decor-front, #decor-fx) {
   transition: opacity 0.28s ease, visibility 0s linear 0s;
 }
-html[data-study] :where(#bg-decor-layer, #bg-decor-front, #decor-fx) {
+html[data-study] :where(#bg-decor-layer, #bg-decor-front, #decor-fx, #brand-watermark) {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.28s ease, visibility 0s linear 0.28s;
@@ -1818,3 +1818,53 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   transition: width 0.6s ease;
 }
 
+
+/* ---- Brand watermark (#brand-watermark in index.html) ----
+   The wordmark as background art. Fixed, behind everything, tilted a
+   few degrees so it reads as a stamp rather than as a heading someone
+   forgot to centre.
+
+   Sized in vw so it scales with the viewport instead of needing
+   breakpoints, and clamped at both ends: below the floor it stops
+   reading as a mark at all, above the ceiling a single word starts
+   overflowing a wide monitor.
+
+   Deliberately NOT theme-accented. It sits under live text, and an
+   accent-coloured watermark competes with the accent used for the
+   things you are meant to click. --text at very low alpha reads as
+   texture; the accent would read as content. */
+#brand-watermark {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 0.28s ease, visibility 0s linear 0s;
+}
+#brand-watermark > span {
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 900;
+  font-size: clamp(5rem, 26vw, 22rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  transform: rotate(-8deg);
+  color: var(--text);
+  opacity: 0.045;
+  /* A faint top-down fade so the mark sinks into the background rather
+     than sitting on it as a flat block of grey. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 92%);
+          mask-image: linear-gradient(to bottom, #000 25%, transparent 92%);
+  user-select: none;
+}
+
+/* Light themes need less of it: the same alpha over a pale background
+   reads considerably heavier than over the dark one it was tuned on. */
+html[data-theme-mode="light"] #brand-watermark > span { opacity: 0.03; }
+
+@media (prefers-reduced-motion: reduce) {
+  #brand-watermark { transition: none; }
+}

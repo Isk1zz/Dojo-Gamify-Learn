@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — CORE / boot
+// Knell — CORE / boot
 // ------------------------------------------------
 // Loads last. Three jobs and no others:
 //   1. register every branch's screen with the Router

@@ -11,6 +11,11 @@
 // ================================================
 
 const DB = (() => {
+  // Two names behind the app's current one, and it stays that way.
+  // This key addresses every profile, every completed topic and every
+  // review schedule ever saved; renaming it with the app would wipe
+  // all of it for everyone, silently, on the next load. The migration
+  // from "unit6-dojo-progress" below is what that costs to do properly.
   const STORAGE_KEY = "unit6-dojo-db";
   const DB_VERSION = 9;
 

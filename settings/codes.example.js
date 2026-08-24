@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — cheat codes TEMPLATE (this file IS committed)
+// Knell — cheat codes TEMPLATE (this file IS committed)
 // ------------------------------------------------
 // Copy this file to settings/codes.js to enable codes locally:
 //

@@ -1,4 +1,4 @@
-# Unnamed App — Project Reference
+# Knell — Project Reference
 
 Everything about how this app works, why it's built this way, and what's still open.
 **Read this first if you're picking the project up cold.**

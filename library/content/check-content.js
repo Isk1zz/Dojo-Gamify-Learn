@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ================================================
-// CS Dojo — content checker.  NOT LOADED BY THE APP.
+// Knell — content checker.  NOT LOADED BY THE APP.
 // ------------------------------------------------
 // Do NOT add a <script> tag for this file. It is a command-line tool,
 // run by hand, that checks every course module against the rules in

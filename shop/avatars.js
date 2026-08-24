@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — SHOP / avatar catalogue (pure data)
+// Knell — SHOP / avatar catalogue (pure data)
 // ------------------------------------------------
 // Pure data. No DOM, no DB. Bought with $ wallet money (Garden
 // dividends, Arcade payouts) — never XP, mirroring the charge/money

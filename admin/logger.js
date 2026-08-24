@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — ADMIN / Logger & Telemetry
+// Knell — ADMIN / Logger & Telemetry
 // ------------------------------------------------
 // Hooks into Dojo.Bus and runtime error handlers to
 // capture an audit trail of events, financial changes,

@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — CORE / profiles
+// Knell — CORE / profiles
 // ------------------------------------------------
 // Profile creation, the name badge, and the switcher dropdown.
 // Every branch's data is per-profile, so switching profile must

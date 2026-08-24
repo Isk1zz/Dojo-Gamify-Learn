@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — CORE / lobby
+// Knell — CORE / lobby
 // ------------------------------------------------
 // The hub screen. Owns no content of its own — every tile is a
 // one-line summary a branch hands over, plus Router.go(...).

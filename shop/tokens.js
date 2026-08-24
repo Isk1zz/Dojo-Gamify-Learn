@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — SHOP / tokens
+// Knell — SHOP / tokens
 // ------------------------------------------------
 // A SECOND, separate currency from $ money — Tokens buy Library courses,
 // money buys Arcade/Garden things. Same "two currencies, deliberately

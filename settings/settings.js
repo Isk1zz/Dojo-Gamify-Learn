@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — SETTINGS
+// Knell — SETTINGS
 // ------------------------------------------------
 // Theme picking (owned themes only), data export/import, the admin
 // code box, and the legal placeholders. Owns no game data.
@@ -94,7 +94,7 @@
         <details class="legal-block">
           <summary>Terms of Service</summary>
           <p><em>Draft. Being reviewed before any paid release.</em></p>
-          <p>CS Dojo is provided as-is, with no warranty. It is a study aid, not
+          <p>Knell is provided as-is, with no warranty. It is a study aid, not
           accredited instruction, and passing a mastery exam here is not a
           qualification. Course material is written to be accurate and carries its
           sources so you can check it, but mistakes are possible \u2014 don't rely on

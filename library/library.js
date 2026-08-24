@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — LIBRARY (was: Courses)
+// Knell — LIBRARY (was: Courses)
 // ------------------------------------------------
 // Courses -> Units -> Topics -> Lesson chunks -> Mastery exam.
 // This is the only branch that touches course content. Content

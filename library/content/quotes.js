@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — Wisdom Pool (quotes.js)
+// Knell — Wisdom Pool (quotes.js)
 //
 // Shown after a chunk is completed. Drawn at random from the whole
 // pool so the same lines don't recur; if the chunk carries

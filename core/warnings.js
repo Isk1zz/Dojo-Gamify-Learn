@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — CORE / administrative notices
+// Knell — CORE / administrative notices
 // ------------------------------------------------
 // The delivery half of the warning system. admin/admin.js has always
 // been able to ISSUE warnings (DB.addWarning) and ADMIN.md has always

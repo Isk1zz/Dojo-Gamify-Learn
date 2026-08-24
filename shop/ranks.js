@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — RANKS (pure data + lookup)
+// Knell — RANKS (pure data + lookup)
 // ------------------------------------------------
 // XP is earned by studying and never spent. Rank is what it buys, and
 // rank is what hands out rewards. No prices, no balance, no sink.

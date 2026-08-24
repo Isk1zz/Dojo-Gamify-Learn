@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — SHOP / theme catalogue (pure data)
+// Knell — SHOP / theme catalogue (pure data)
 // ------------------------------------------------
 // Pure data. No DOM, no DB, no rendering. Two lists:
 //   THEMES          free, always available

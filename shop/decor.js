@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — SHOP / lobby decorations + scenery
+// Knell — SHOP / lobby decorations + scenery
 // ------------------------------------------------
 // Bought with $, layered over the lobby independent of theme/palette —
 // see core/theme.js's applyBgDecors for the rendering side and its

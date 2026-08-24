@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — CORE / theme painter
+// Knell — CORE / theme painter
 // ------------------------------------------------
 // Turns a theme id into CSS custom properties on :root. Knows
 // nothing about prices or ownership beyond asking DB.ownsTheme

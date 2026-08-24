@@ -695,6 +695,50 @@ same state, only one of them checking ownership.
   category change, which is a different screen and legitimately starts
   at the top.
 
+## Renamed to "Knell" (2026-08-24)
+The app is **Knell**, replacing "Unnamed App". A knell is the toll of a
+bell marking a death — chosen for an app whose whole mechanic is
+intervals coming due and a garden that wilts when they are missed.
+
+**Why the rename happened at all,** because this is the part worth
+keeping: the working name "CS Dojo" sits in an occupied and defended
+corner. [CS Dojo](https://www.csdojo.io) is an established programming-
+education channel, ClassDojo is a large edtech brand, and Coding Dojo
+holds registered USPTO marks on **CODING DOJO** for *educational
+services in computer programming* — the exact category — under an owner
+that paid $52.8M for the company. Three collisions, all in the same
+field.
+
+Changed: `<title>`, the manifest's `name` and `short_name`, the
+`apple-mobile-web-app-title`, the landing wordmark, the lobby wordmark,
+the welcome modal, the `CS Dojo —` banner comment atop 34 source files,
+and the README / PROJECT headings. The wordmarks lost their `&nbsp;` —
+that existed to hold a two-word name apart, and the accent span now
+wraps the whole single word instead of its second half.
+
+**Deliberately NOT renamed, and none of this is tidiness debt:**
+- **Every localStorage key.** `unit6-dojo-db` still addresses the entire
+  progress database, `cs-dojo-lang` the language, `cs-dojo-sim-*` the
+  mock-exam scores. Renaming a key does not migrate data, it orphans it
+  — every profile and every review schedule would vanish silently on the
+  next load. All three now carry a comment saying so, because this looks
+  exactly like leftover branding to anyone tidying up. The name in a key
+  is an address, not a label.
+- **The `Dojo` JS global** (247 references). An internal identifier is
+  not use of a mark in commerce, and renaming it buys nothing visible.
+- **The `cs_dojo` directory and the repo.** Same reasoning as last time.
+- **The history entries in this file.** A changelog that rewrites what
+  the app used to be called is not a changelog.
+
+`sw.js`'s CACHE_VERSION *was* renamed, to `knell-v1`. That one is safe
+precisely because it is a cache: activate deletes everything that isn't
+the current version, so a rename is just a bump — which index.html and
+the manifest needed anyway.
+
+Still open: the name has NOT been cleared. Search turned up nothing in
+software, but that is not clearance. Before any logo or store listing,
+run USPTO, EUIPO and ILPO in classes 9 and 41, and check the domain.
+
 ## Renamed to "Unnamed App" (2026-08-15)
 The app's user-facing name is now **Unnamed App**, replacing
 "Dojo道場" / "Dojo - Gamify & Learn". Changed in all five places it

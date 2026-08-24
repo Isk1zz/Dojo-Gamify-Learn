@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — SHOP / store
+// Knell — SHOP / store
 // ------------------------------------------------
 // The Shop. Two aisles: 🪙 Token packs and 💜 Support the Dojo.
 //

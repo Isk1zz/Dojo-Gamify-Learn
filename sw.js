@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — service worker
+// Knell — service worker
 // ------------------------------------------------
 // Makes the app installable and genuinely offline. It is the ONLY file
 // in the project that isn't loaded by index.html — the browser runs it
@@ -63,7 +63,13 @@
 // for "the exit button is dead" — the person hitting it is stuck now.
 // Bump when a cached copy is actively broken, not only when files are
 // added.
-const CACHE_VERSION = "cs-dojo-v7";
+// Renamed 2026-08-24 with the app: Knell. Safe to rename HERE and
+// nowhere else — a cache key is disposable by design (activate deletes
+// everything that isn't the current version), whereas the localStorage
+// keys in db.js, i18n.js and exam-sim.js address saved data and keep
+// their old names forever. The rename doubles as the bump that
+// index.html and the manifest need anyway.
+const CACHE_VERSION = "knell-v1";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

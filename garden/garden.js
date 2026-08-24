@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — GARDEN
+// Knell — GARDEN
 // ------------------------------------------------
 // Plants = topics. Growth stage is driven by the SM-2 review
 // interval, so the Garden pictures RETENTION, not coverage.

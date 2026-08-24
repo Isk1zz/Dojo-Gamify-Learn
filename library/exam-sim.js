@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — LIBRARY / mock exam
+// Knell — LIBRARY / mock exam
 // ------------------------------------------------
 // A rehearsal of the real thing, not another mastery exam. The mastery
 // exam checks one topic you have just read; this sits the whole paper
@@ -41,6 +41,8 @@
 // ================================================
 
 (() => {
+  // Old brand kept deliberately — see the note on i18n.js's KEY.
+  // Renaming this loses every recorded mock-exam score.
   const KEY_PREFIX = "cs-dojo-sim-";
 
   // Live attempt. Null between attempts, which is also how the render

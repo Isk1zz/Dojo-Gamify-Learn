@@ -1,4 +1,4 @@
-# CS Dojo — Architecture
+# Knell — Architecture
 
 **Read this before touching any folder. It is short on purpose.**
 

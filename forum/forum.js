@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — FORUM
+// Knell — FORUM
 // ------------------------------------------------
 // Replaces the Arcade (2026-08-15 decision). The tile, the route and
 // the screen are all real; the POSTS are not, and cannot be yet.

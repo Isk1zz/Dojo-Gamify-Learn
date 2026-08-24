@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — CORE / heads-up display
+// Knell — CORE / heads-up display
 // ------------------------------------------------
 // The always-on top strip: lightning charge, and (v5) wallet and
 // energy. Charge is EARNED here and SPENT in shop/. This file never

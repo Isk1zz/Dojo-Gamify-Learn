@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — LIBRARY / content registry
+// Knell — LIBRARY / content registry
 // ------------------------------------------------
 // The loader that turns course folders into the globals every branch
 // reads. Nothing here knows what a course is *about*.

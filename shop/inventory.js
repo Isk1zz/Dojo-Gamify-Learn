@@ -1,5 +1,5 @@
 // ================================================
-// CS Dojo — SHOP / inventory  (the "Custom" screen)
+// Knell — SHOP / inventory  (the "Custom" screen)
 // ------------------------------------------------
 // Everything the profile OWNS and can equip, in one place: themes,
 // background stripes, lobby style, star links, hexagram flags,
