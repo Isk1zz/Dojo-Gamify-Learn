@@ -41,28 +41,28 @@
   // not hand out participation trophies. Every check reads data that
   // already exists (DB.getStats/getStreak/getXp via Dojo.Ranks) — no new
   // fields, no new writes, this file stays read-only.
-  const BADGES = [
-    { id: "first-topic", icon: "\u{1F331}", name: "First Steps", desc: "Master your first topic",
+  const BADGES = I18N.resolve([
+    { id: "first-topic", icon: "\u{1F331}", name: { en: "First Steps", ru: "Первые шаги" }, desc: { en: "Master your first topic", ru: "Освоить первую тему" },
       earned: (s) => s.topicsCompleted >= 1 },
-    { id: "quarter", icon: "\u{1F4D8}", name: "Quarter Course", desc: "Reach 25% course completion",
+    { id: "quarter", icon: "\u{1F4D8}", name: { en: "Quarter Course", ru: "Четверть курса" }, desc: { en: "Reach 25% course completion", ru: "Пройти 25% курса" },
       earned: (s) => s.completionPct >= 25 },
-    { id: "halfway", icon: "\u{1F4D6}", name: "Halfway There", desc: "Reach 50% course completion",
+    { id: "halfway", icon: "\u{1F4D6}", name: { en: "Halfway There", ru: "Половина пути" }, desc: { en: "Reach 50% course completion", ru: "Пройти 50% курса" },
       earned: (s) => s.completionPct >= 50 },
-    { id: "complete", icon: "\u{1F393}", name: "Course Complete", desc: "Reach 100% course completion",
+    { id: "complete", icon: "\u{1F393}", name: { en: "Course Complete", ru: "Курс пройден" }, desc: { en: "Reach 100% course completion", ru: "Пройти курс полностью" },
       earned: (s) => s.completionPct >= 100 },
-    { id: "perfect-exam", icon: "\u{1F4AF}", name: "Perfect Exam", desc: "Score 100% on a mastery exam",
+    { id: "perfect-exam", icon: "\u{1F4AF}", name: { en: "Perfect Exam", ru: "Идеальный экзамен" }, desc: { en: "Score 100% on a mastery exam", ru: "Сдать экзамен на 100%" },
       earned: (s) => Object.values(s.topicStats || {}).some(t => t.bestScore >= 100) },
-    { id: "clean-record", icon: "\u{1F3C6}", name: "Clean Record", desc: "Pass 5+ exams with zero fails",
+    { id: "clean-record", icon: "\u{1F3C6}", name: { en: "Clean Record", ru: "Без осечек" }, desc: { en: "Pass 5+ exams with zero fails", ru: "Сдать 5+ экзаменов без провалов" },
       earned: (s) => s.examsTaken >= 5 && s.examsPassed === s.examsTaken },
-    { id: "sharp-shooter", icon: "\u{1F3AF}", name: "Sharp Shooter", desc: "90%+ accuracy over 50+ questions",
+    { id: "sharp-shooter", icon: "\u{1F3AF}", name: { en: "Sharp Shooter", ru: "Меткий стрелок" }, desc: { en: "90%+ accuracy over 50+ questions", ru: "Точность 90%+ на 50+ вопросах" },
       earned: (s) => s.miniQuizTotal >= 50 && s.miniQuizAccuracy >= 90 },
-    { id: "week-streak", icon: "\u{1F525}", name: "Week Streak", desc: "Hold a 7-day streak",
+    { id: "week-streak", icon: "\u{1F525}", name: { en: "Week Streak", ru: "Неделя подряд" }, desc: { en: "Hold a 7-day streak", ru: "Продержать серию 7 дней" },
       earned: (_s, streak) => !!streak && streak.count >= 7 },
-    { id: "month-streak", icon: "\u{1F525}\u{1F525}", name: "Month Streak", desc: "Hold a 30-day streak",
+    { id: "month-streak", icon: "\u{1F525}\u{1F525}", name: { en: "Month Streak", ru: "Месяц подряд" }, desc: { en: "Hold a 30-day streak", ru: "Продержать серию 30 дней" },
       earned: (_s, streak) => !!streak && streak.count >= 30 },
-    { id: "lab-manager", icon: "\u{1F97C}", name: "Lab Manager+", desc: "Reach rank 8 (Lab Manager) or higher",
+    { id: "lab-manager", icon: "\u{1F97C}", name: { en: "Lab Manager+", ru: "Заведующий и выше" }, desc: { en: "Reach rank 8 (Lab Manager) or higher", ru: "Дойти до 8-го ранга или выше" },
       earned: (_s, _streak, xp) => Dojo.Ranks ? Dojo.Ranks.rankFor(xp).n >= 8 : false }
-  ];
+  ]);
 
   // Earned badges, computed fresh each call — the one place both the
   // modal grid and core/profile.js's pin picker read from, so the two
@@ -94,7 +94,7 @@
     const earnedCount = BADGES.filter(b => b.earned(stats, streak, xp)).length;
     return `
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F3C5} Badges (${earnedCount}/${BADGES.length})</div>
+        <div class="stats-section-title">\u{1F3C5} ${I18N.t("stats.badges", { n: earnedCount, total: BADGES.length })}</div>
         <p class="settings-hint">Earned from real progress — nothing here is handed out for just opening the app.
           Tap an earned badge to pin it next to your name (up to 3).</p>
         <div class="badge-grid">${chips}</div>
@@ -231,8 +231,8 @@
       }).join("");
       weakHtml = `
         <div class="weak-section">
-          <div class="stats-section-title">🎯 Your weak spots</div>
-          <div class="weak-hint">Lowest recent scores. Tap one to start there.</div>
+          <div class="stats-section-title">🎯 ${I18N.t("stats.weakSpots")}</div>
+          <div class="weak-hint">${I18N.t("stats.weakHint")}</div>
           ${rows}
         </div>`;
     }
@@ -250,30 +250,30 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-value accent">${stats.completionPct}%</div>
-          <div class="stat-label">Overall Progress</div>
+          <div class="stat-label">${I18N.t("stats.overall")}</div>
         </div>
         <div class="stat-card">
           <div class="stat-value green">${stats.topicsCompleted}/${stats.totalTopics}</div>
-          <div class="stat-label">Topics Mastered</div>
+          <div class="stat-label">${I18N.t("stats.mastered")}</div>
         </div>
         <div class="stat-card">
           <div class="stat-value cyan">${stats.miniQuizAccuracy}%</div>
-          <div class="stat-label">Question Accuracy</div>
+          <div class="stat-label">${I18N.t("stats.qAccuracy")}</div>
         </div>
         <div class="stat-card">
           <div class="stat-value yellow">${stats.examAccuracy}%</div>
-          <div class="stat-label">Exam Accuracy</div>
+          <div class="stat-label">${I18N.t("stats.eAccuracy")}</div>
         </div>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-value accent">${stats.miniQuizCorrect}/${stats.miniQuizTotal}</div>
-          <div class="stat-label">Question Score</div>
+          <div class="stat-label">${I18N.t("stats.qScore")}</div>
         </div>
         <div class="stat-card">
           <div class="stat-value green">${stats.examsPassed}/${stats.examsTaken}</div>
-          <div class="stat-label">Exams Passed</div>
+          <div class="stat-label">${I18N.t("stats.examsPassed")}</div>
         </div>
       </div>
 

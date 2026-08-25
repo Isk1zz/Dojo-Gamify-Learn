@@ -44,33 +44,27 @@
 
     body.innerHTML = `
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F44F} Your reputation</div>
+        <div class="stats-section-title">\u{1F44F} ${I18N.t("forum.repTitle")}</div>
         <div class="forum-rep">${reputation()}</div>
         <p class="settings-hint">
-          Earned in the Garden. It is not a score you keep — it is the right to
-          <strong>give</strong>. Spend it on posts worth reading and the person who wrote
-          them goes up.
+          ${I18N.t("forum.repNote")}
         </p>
       </div>
 
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F4DC} The one rule</div>
+        <div class="stats-section-title">\u{1F4DC} ${I18N.t("forum.ruleTitle")}</div>
         <p class="settings-hint">
-          <strong>You cannot spend reputation on yourself.</strong> Standing is only ever what
-          other people gave you, which is what stops it becoming a number you can farm alone.
+          <strong>${I18N.t("forum.notYourself")}</strong> ${I18N.t("forum.ruleRest")}
         </p>
       </div>
 
       <div class="settings-section forum-empty">
-        <div class="stats-section-title">\u{1F6A7} Nobody's here yet — and that's not a bug</div>
+        <div class="stats-section-title">\u{1F6A7} ${I18N.t("forum.emptyTitle")}</div>
         <p class="settings-hint">
-          The Forum needs accounts to exist: posts, replies and reputation have to travel
-          between people, and right now this app keeps everything on your own device with no
-          server behind it. Two people running it share nothing.
+          ${I18N.t("forum.empty1")}
         </p>
         <p class="settings-hint">
-          It opens when the backend lands. Until then this room is empty on purpose —
-          seeding it with invented posts would look like a community and be a stage set.
+          ${I18N.t("forum.empty2")}
         </p>
       </div>`;
 

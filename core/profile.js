@@ -42,7 +42,7 @@
   }
 
   document.getElementById("btn-profile-save").addEventListener("click", () => {
-    const name = document.getElementById("profile-name-input").value.trim() || "Student";
+    const name = document.getElementById("profile-name-input").value.trim() || I18N.t("profile.defaultName");
     DB.createProfile(name);
     hideProfileModal();
     updateProfileBadge();
@@ -68,7 +68,7 @@
   function updateProfileBadge() {
     const profile = DB.getActiveProfile();
     if (!profile) return;
-    const name = profile.name || "Student";
+    const name = profile.name || I18N.t("profile.defaultName");
     const avatarId = DB.getAvatar ? DB.getAvatar() : null;
     const equippedIcon = avatarId && Dojo.avatarIcon ? Dojo.avatarIcon(avatarId) : null;
     document.getElementById("profile-avatar").textContent = equippedIcon || name.charAt(0).toUpperCase();

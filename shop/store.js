@@ -47,14 +47,14 @@
   // Star stays free and is never listed as purchasable: it's the
   // default a new profile starts on, and a default nobody owns would
   // mean a lobby that can't render itself. Everything else is bought.
-  const LAYOUTS = [
-    { id: "classic",  slot: "lobby", name: "Classic",       price: 0, icon: "📋",
-      desc: "The original stacked list." },
-    { id: "cards",    slot: "lobby", name: "Cards",         price: 0, icon: "🗃️",
-      desc: "Same tiles, softer card treatment." },
-    { id: "hexagram", slot: "links", name: "Star of David", price: 0, icon: "✡️",
-      desc: "Wires the Star's six tiles into two triangles." }
-  ];
+  const LAYOUTS = I18N.resolve([
+    { id: "classic",  slot: "lobby", name: { en: "Classic", ru: "Классика" },       price: 0, icon: "📋",
+      desc: { en: "The original stacked list.", ru: "Исходный список стопкой." } },
+    { id: "cards",    slot: "lobby", name: { en: "Cards", ru: "Карточки" },         price: 0, icon: "🗃️",
+      desc: { en: "Same tiles, softer card treatment.", ru: "Те же плитки, мягче оформление." } },
+    { id: "hexagram", slot: "links", name: { en: "Star of David", ru: "Звезда Давида" }, price: 0, icon: "✡️",
+      desc: { en: "Wires the Star's six tiles into two triangles.", ru: "Связывает шесть плиток звезды в два треугольника." } }
+  ]);
   const layoutKey = id => `layout_${id}`;
   function layoutPrice(id) {
     const l = LAYOUTS.find(x => x.id === id);
@@ -111,10 +111,10 @@
   }
 
   // Cosmetics are still owned/equipped in Custom; they just aren't sold.
-  const CATS = [
-    { id: "packs",    group: "tokens",  icon: "\u{1FA99}", label: "Token packs" },
-    { id: "patron",   group: "support", icon: "\u{1F49C}", label: "Support the Dojo" }
-  ];
+  const CATS = I18N.resolve([
+    { id: "packs",    group: "tokens",  icon: "\u{1FA99}", label: { en: "Token packs", ru: "Наборы токенов" } },
+    { id: "patron",   group: "support", icon: "\u{1F49C}", label: { en: "Support Knell", ru: "Поддержать Knell" } }
+  ]);
 
   function navHtml() {
     const group = (key, title) => `
@@ -135,7 +135,7 @@
     // for as markup rather than duplicated here.
     if (activeCat === "packs" && Dojo.tokenPacksPane) return Dojo.tokenPacksPane();
     if (activeCat === "patron" && Dojo.patronPane) return Dojo.patronPane();
-    return `<p class="settings-hint">Nothing here yet.</p>`;
+    return `<p class="settings-hint">${I18N.t("shop.emptyAisle")}</p>`;
   }
 
   function renderStore(payload) {

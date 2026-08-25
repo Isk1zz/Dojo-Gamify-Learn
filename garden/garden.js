@@ -31,15 +31,15 @@
   // rounder, more reachable numbers — the old 45d/120d tail meant
   // almost nobody would ever see a Tree or a Blossom.
   // `pays` is the daily dividend in $ (see claimDividends).
-  const GROWTH = [
-    { min: -1, icon: "\u{1F311}", name: "Fallow",   hint: "Not started",                 pays: 0 },
-    { min: 0,  icon: "\u{1F330}", name: "Seed",     hint: "Attempted, not yet mastered", pays: 1 },
-    { min: 1,  icon: "\u{1F331}", name: "Sprout",   hint: "Mastered, held up to 2 days", pays: 3 },
-    { min: 7,  icon: "\u{1F33F}", name: "Seedling", hint: "Held a week",                 pays: 5 },
-    { min: 21, icon: "\u{1F33E}", name: "Growing",  hint: "Held three weeks",            pays: 7 },
-    { min: 30, icon: "\u{1F333}", name: "Tree",     hint: "Held a month",                pays: 13 },
-    { min: 60, icon: "\u{1F338}", name: "Blossom",  hint: "Held two months",             pays: 17 }
-  ];
+  const GROWTH = I18N.resolve([
+    { min: -1, icon: "\u{1F311}", name: { en: "Fallow", ru: "Пар" },   hint: { en: "Not started", ru: "Не начата" },                 pays: 0 },
+    { min: 0,  icon: "\u{1F330}", name: { en: "Seed", ru: "Семя" },     hint: { en: "Attempted, not yet mastered", ru: "Начата, не освоена" }, pays: 1 },
+    { min: 1,  icon: "\u{1F331}", name: { en: "Sprout", ru: "Росток" },   hint: { en: "Mastered, held up to 2 days", ru: "Освоена, держится до 2 дней" }, pays: 3 },
+    { min: 7,  icon: "\u{1F33F}", name: { en: "Seedling", ru: "Саженец" }, hint: { en: "Held a week", ru: "Держится неделю" },                 pays: 5 },
+    { min: 21, icon: "\u{1F33E}", name: { en: "Growing", ru: "Рост" },  hint: { en: "Held three weeks", ru: "Держится три недели" },            pays: 7 },
+    { min: 30, icon: "\u{1F333}", name: { en: "Tree", ru: "Дерево" },     hint: { en: "Held a month", ru: "Держится месяц" },                pays: 13 },
+    { min: 60, icon: "\u{1F338}", name: { en: "Blossom", ru: "Цветение" },  hint: { en: "Held two months", ru: "Держится два месяца" },             pays: 17 }
+  ]);
   function growthFor(topicId) {
     const completed = DB.getCompletedTopics();
     const reviews = DB.getReviews();
@@ -156,13 +156,11 @@
     header.className = "garden-header";
     header.innerHTML = `
       <div class="garden-summary">
-        <span class="gs-num">${grown}</span> of ${ALL_TOPICS.length} planted
-        ${mature ? `<span class="gs-mature">\u00b7 ${mature} fully grown</span>` : ""}
+        <span class="gs-num">${grown}</span> ${I18N.t("garden.planted", { total: ALL_TOPICS.length })}
+        ${mature ? `<span class="gs-mature">${I18N.t("garden.fullyGrown", { n: mature })}</span>` : ""}
       </div>
       <p class="garden-note">
-        Plants grow with the <strong>review interval</strong>, not with how many topics
-        you've finished. Something you passed once is a sprout; something you've held
-        on to for months is a tree. Skip reviews and a plant drops back.
+        ${I18N.t("garden.note")}
       </p>`;
     body.appendChild(header);
 
@@ -173,10 +171,10 @@
            <div class="gd-title">\u{1F6BF} ${dueTopics.length} plant${dueTopics.length === 1 ? "" : "s"} need${dueTopics.length === 1 ? "s" : ""} watering</div>
            <div class="gw-list">${dueTopics.slice(0, 4).map(t => `${t.icon} ${t.title}`).join(" \u00b7 ")}${dueTopics.length > 4 ? ` \u00b7 +${dueTopics.length - 4} more` : ""}</div>
          </div>
-         <button id="btn-garden-review" class="btn-primary">Water the first <span class="arrow">\u2192</span></button>`
+         <button id="btn-garden-review" class="btn-primary">${I18N.t("garden.waterFirst")} <span class="arrow">\u2192</span></button>`
       : `<div class="gw-left">
-           <div class="gd-title">\u2713 Nothing needs watering</div>
-           <div class="gw-list">Every plant is holding. Come back when one comes due.</div>
+           <div class="gd-title">\u2713 ${I18N.t("garden.nothingToWater")}</div>
+           <div class="gw-list">${I18N.t("garden.allHolding")}</div>
          </div>`;
     body.appendChild(water);
     const reviewBtn = water.querySelector("#btn-garden-review");
@@ -236,15 +234,15 @@
     claim.className = "garden-dividends";
     claim.innerHTML = `
       <div class="gd-left">
-        <div class="gd-title">Daily harvest</div>
+        <div class="gd-title">${I18N.t("garden.dailyHarvest")}</div>
         <div class="gd-rows">${preview.rows.length
           ? preview.rows.map(r => `<span class="gd-row">${r.icon} ${r.count} \u00d7 $${r.pays}</span>`).join("")
-          : '<span class="gd-row">Nothing paying yet</span>'}</div>
+          : `<span class="gd-row">${I18N.t("garden.nothingPaying")}</span>`}</div>
       </div>
       <button id="btn-claim-dividends" class="btn-primary" ${wait > 0 || !preview.total ? "disabled" : ""}>
         ${preview.total
           ? (wait > 0 ? `Next in ${fmtWait(wait)}` : `Claim $${preview.total}`)
-          : "Nothing to claim"}
+          : I18N.t("garden.nothingToClaim")}
       </button>`;
     body.appendChild(claim);
     const claimBtn = claim.querySelector("#btn-claim-dividends");
@@ -279,7 +277,7 @@
       cell.className = `garden-cell${g === GROWTH[0] ? " fallow" : ""}${isDue ? " due" : ""}`;
       cell.setAttribute("title", `${t.title} \u2014 ${g.name}: ${g.hint}${isDue ? " \u2014 due for review" : ""}`);
       cell.innerHTML = `
-        ${isDue ? '<span class="gc-due" title="Due for review">\u{1F4A7}</span>' : ""}
+        ${isDue ? `<span class="gc-due" title="${I18N.t("garden.due")}">\u{1F4A7}</span>` : ""}
         <span class="gc-plant">${g.icon}</span>
         <span class="gc-label">${t.title}</span>
         <span class="gc-stage">${g.name}</span>`;

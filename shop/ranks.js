@@ -68,28 +68,28 @@
 // exists, since 795 stretches a lot further than it used to.
 // ================================================
 
-const RANKS = [
-  { n: 1,  xp: 0,      name: "Lab Intern",               abbr: "INT",  reward: { bgStripe: "diagonal" } },
-  { n: 2,  xp: 1200,   name: "Research Assistant I",     abbr: "RA1",  reward: { bgStripe: "crosshatch" } },
-  { n: 3,  xp: 3000,   name: "Research Assistant II",    abbr: "RA2",  reward: { bgStripe: "herringbone" } },
-  { n: 4,  xp: 5200,   name: "Lab Technician",           abbr: "TCH",  reward: { theme: "sakura" } },
-  { n: 5,  xp: 7800,   name: "Shift Supervisor",         abbr: "SUP",  reward: { theme: "paper" } },
-  { n: 6,  xp: 10800,  name: "Research Coordinator",     abbr: "CRD",  reward: { tokens: 100 } },
-  { n: 7,  xp: 14200,  name: "Senior Research Coordinator", abbr: "SCR", reward: { theme: "sumi" } },
-  { n: 8,  xp: 18000,  name: "Lab Manager",              abbr: "MGR",  reward: { tokens: 50 } },
-  { n: 9,  xp: 22200,  name: "Senior Lab Manager",       abbr: "SLM",  reward: { bgStripe: "lattice" } },
-  { n: 10, xp: 26800,  name: "Chief Technician",         abbr: "CHT",  reward: { theme: "terminal" } },
-  { n: 11, xp: 31800,  name: "Director of Operations",   abbr: "DOP",  reward: { bgStripe: "trellis" } },
-  { n: 12, xp: 37200,  name: "Master Technician",        abbr: "MTC",  reward: { tokens: 75 } },
-  { n: 13, xp: 43000,  name: "Principal Investigator",   abbr: "PI",   reward: { theme: "koi" } },
-  { n: 14, xp: 49400,  name: "Postdoctoral Researcher",  abbr: "PDR",  reward: { bgStripe: "origami" } },
-  { n: 15, xp: 56400,  name: "Project Lead",             abbr: "PL",   reward: { tokens: 200 } },
-  { n: 16, xp: 64000,  name: "Lead Investigator",        abbr: "LI",   reward: { theme: "ronin" } },
-  { n: 17, xp: 72200,  name: "Program Director",         abbr: "PD",   reward: { bgStripe: "sunburst" } },
-  { n: 18, xp: 81000,  name: "Senior Program Director",  abbr: "SPD",  reward: { tokens: 120 } },
-  { n: 19, xp: 90200,  name: "Vice President of R&D",    abbr: "VP",   reward: { theme: "fuji" } },
-  { n: 20, xp: 100000, name: "Nobel Laureate",           abbr: "NL",   reward: { theme: "kirigami" } }
-];
+const RANKS = I18N.resolve([
+  { n: 1,  xp: 0,      name: { en: "Lab Intern", ru: "Стажёр лаборатории" },               abbr: { en: "INT", ru: "СТЖ" },  reward: { bgStripe: "diagonal" } },
+  { n: 2,  xp: 1200,   name: { en: "Research Assistant I", ru: "Лаборант-исследователь I" },     abbr: { en: "RA1", ru: "ЛИ1" },  reward: { bgStripe: "crosshatch" } },
+  { n: 3,  xp: 3000,   name: { en: "Research Assistant II", ru: "Лаборант-исследователь II" },    abbr: { en: "RA2", ru: "ЛИ2" },  reward: { bgStripe: "herringbone" } },
+  { n: 4,  xp: 5200,   name: { en: "Lab Technician", ru: "Техник лаборатории" },           abbr: { en: "TCH", ru: "ТЕХ" },  reward: { theme: "sakura" } },
+  { n: 5,  xp: 7800,   name: { en: "Shift Supervisor", ru: "Начальник смены" },         abbr: { en: "SUP", ru: "НСМ" },  reward: { theme: "paper" } },
+  { n: 6,  xp: 10800,  name: { en: "Research Coordinator", ru: "Координатор исследований" },     abbr: { en: "CRD", ru: "КРД" },  reward: { tokens: 100 } },
+  { n: 7,  xp: 14200,  name: { en: "Senior Research Coordinator", ru: "Старший координатор исследований" }, abbr: { en: "SCR", ru: "СКР" }, reward: { theme: "sumi" } },
+  { n: 8,  xp: 18000,  name: { en: "Lab Manager", ru: "Заведующий лабораторией" },              abbr: { en: "MGR", ru: "ЗАВ" },  reward: { tokens: 50 } },
+  { n: 9,  xp: 22200,  name: { en: "Senior Lab Manager", ru: "Старший заведующий лабораторией" },       abbr: { en: "SLM", ru: "СЗЛ" },  reward: { bgStripe: "lattice" } },
+  { n: 10, xp: 26800,  name: { en: "Chief Technician", ru: "Главный техник" },         abbr: { en: "CHT", ru: "ГТХ" },  reward: { theme: "terminal" } },
+  { n: 11, xp: 31800,  name: { en: "Director of Operations", ru: "Директор по операциям" },   abbr: { en: "DOP", ru: "ДПО" },  reward: { bgStripe: "trellis" } },
+  { n: 12, xp: 37200,  name: { en: "Master Technician", ru: "Мастер-техник" },        abbr: { en: "MTC", ru: "МТХ" },  reward: { tokens: 75 } },
+  { n: 13, xp: 43000,  name: { en: "Principal Investigator", ru: "Руководитель исследования" },   abbr: { en: "PI", ru: "РИС" },   reward: { theme: "koi" } },
+  { n: 14, xp: 49400,  name: { en: "Postdoctoral Researcher", ru: "Научный сотрудник, постдок" },  abbr: { en: "PDR", ru: "НСП" },  reward: { bgStripe: "origami" } },
+  { n: 15, xp: 56400,  name: { en: "Project Lead", ru: "Руководитель проекта" },             abbr: { en: "PL", ru: "РПР" },   reward: { tokens: 200 } },
+  { n: 16, xp: 64000,  name: { en: "Lead Investigator", ru: "Ведущий исследователь" },        abbr: { en: "LI", ru: "ВИС" },   reward: { theme: "ronin" } },
+  { n: 17, xp: 72200,  name: { en: "Program Director", ru: "Директор программы" },         abbr: { en: "PD", ru: "ДПР" },   reward: { bgStripe: "sunburst" } },
+  { n: 18, xp: 81000,  name: { en: "Senior Program Director", ru: "Старший директор программы" },  abbr: { en: "SPD", ru: "СДП" },  reward: { tokens: 120 } },
+  { n: 19, xp: 90200,  name: { en: "Vice President of R&D", ru: "Вице-президент по разработке" },    abbr: { en: "VP", ru: "ВПР" },   reward: { theme: "fuji" } },
+  { n: 20, xp: 100000, name: { en: "Nobel Laureate", ru: "Нобелевский лауреат" },           abbr: { en: "NL", ru: "НЛ" },   reward: { theme: "kirigami" } }
+]);
 
 // Empty since the life-sim (the last thing that used a feature gate —
 // vitals, the life shop, the Story tab before it) was removed. Kept as

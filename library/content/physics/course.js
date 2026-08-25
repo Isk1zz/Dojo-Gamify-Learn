@@ -24,9 +24,9 @@
 
 Content.course({
   id: "physics",
-  title: "Physics",
+  title: { en: "Physics", ru: "Физика" },
   track: "science",
-  subtitle: "Motion, energy, waves, electricity and light",
+  subtitle: { en: "Motion, energy, waves, electricity and light", ru: "Движение, энергия, волны, электричество и свет" },
   icon: "\u{1F3D7}\u{FE0F}",
   available: false,
   units: []

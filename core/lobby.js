@@ -23,7 +23,7 @@
     state.currentCourse = null;
     const p = DB.getActiveProfile();
     document.getElementById("lobby-welcome").textContent =
-      p ? `Welcome back, ${p.name}.` : "Welcome.";
+      p ? I18N.t("lobby.welcomeBack", { name: p.name }) : I18N.t("lobby.welcome");
 
     // Re-sync the sky every time the lobby is shown. The switch below is
     // wired once at load, so on a profile switch its icon (and the

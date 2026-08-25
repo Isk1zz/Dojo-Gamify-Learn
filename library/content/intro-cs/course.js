@@ -82,8 +82,8 @@
       // Same reason units 2-4 sort where they do — numbered to match
       // the real course, built after 5-8.
       id: 1,
-      title: "Unit 1",
-      subtitle: "Computer Fundamentals",
+      title: { en: "Unit 1", ru: "Блок 1" },
+      subtitle: { en: "Computer Fundamentals", ru: "Основы устройства компьютера" },
       icon: "\u{1F9EE}",
       modules: mod(10, M(10))
     },
@@ -92,8 +92,8 @@
       // course. Listed first for the same reason unit 5 is: the map
       // should read in course order, not build order.
       id: 2,
-      title: "Unit 2",
-      subtitle: "Number Systems & Data Representation",
+      title: { en: "Unit 2", ru: "Блок 2" },
+      subtitle: { en: "Number Systems & Data Representation", ru: "Системы счисления и представление данных" },
       icon: "\u{1F522}",
       modules: mod(7, M(7))
     },
@@ -101,8 +101,8 @@
       // Same reason unit 2 sorts where it does \u2014 numbered to match the
       // real course, built after 5-8.
       id: 3,
-      title: "Unit 3",
-      subtitle: "Boolean Algebra & Logic Gates",
+      title: { en: "Unit 3", ru: "Блок 3" },
+      subtitle: { en: "Boolean Algebra & Logic Gates", ru: "Булева алгебра и логические элементы" },
       icon: "\u{1F500}",
       modules: mod(8, M(8))
     },
@@ -110,8 +110,8 @@
       // Same reason units 2-3 sort where they do — numbered to match
       // the real course, built after 5-8.
       id: 4,
-      title: "Unit 4",
-      subtitle: "Operating Systems",
+      title: { en: "Unit 4", ru: "Блок 4" },
+      subtitle: { en: "Operating Systems", ru: "Операционные системы" },
       icon: "\u{1F5A5}️",
       modules: mod(9, M(9))
     },
@@ -120,29 +120,29 @@
       // course's own numbering rather than the order it was written in.
       // Listed first so the map reads in course order, not build order.
       id: 5,
-      title: "Unit 5",
-      subtitle: "Databases",
+      title: { en: "Unit 5", ru: "Блок 5" },
+      subtitle: { en: "Databases", ru: "Базы данных" },
       icon: "\u{1F5C4}\uFE0F",
       modules: mod(6, M(6))
     },
     {
       id: 6,
-      title: "Unit 6",
-      subtitle: "Networks, Internet & Security",
+      title: { en: "Unit 6", ru: "Блок 6" },
+      subtitle: { en: "Networks, Internet & Security", ru: "Сети, интернет и безопасность" },
       icon: "\u{1F5A7}",
       modules: [...mod(1, M(1)), ...mod(2, M(2)), ...mod(3, M(3))]
     },
     {
       id: 7,
-      title: "Unit 7",
-      subtitle: "Programming Fundamentals",
+      title: { en: "Unit 7", ru: "Блок 7" },
+      subtitle: { en: "Programming Fundamentals", ru: "Основы программирования" },
       icon: "\u{1F4BB}",
       modules: mod(4, M(4))
     },
     {
       id: 8,
-      title: "Unit 8",
-      subtitle: "Emerging Technologies",
+      title: { en: "Unit 8", ru: "Блок 8" },
+      subtitle: { en: "Emerging Technologies", ru: "Новые технологии" },
       icon: "\u{1F9E0}",
       modules: mod(5, M(5))
       // Unit 8 continues: Cloud Computing, Big Data, Blockchain, IoT.
@@ -157,9 +157,9 @@
 
   Content.course({
     id: "intro-cs",
-    title: "Intro to CS",
+    title: { en: "Intro to CS", ru: "Введение в информатику" },
   track: "cs",
-    subtitle: "Networks, programming and emerging technologies",
+    subtitle: { en: "Networks, programming and emerging technologies", ru: "Сети, программирование и новые технологии" },
     icon: "\u{1F4BB}",
     available: true,
     // 700 -- raised from 100 on 2026-08-24. Was 250 before that, and

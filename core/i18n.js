@@ -331,7 +331,153 @@ const I18N = (() => {
     // The language control itself
     "lang.label":           { en: "Language",           ru: "Язык" },
     "lang.note":            { en: "Switching reloads the app. Progress is saved.",
-                              ru: "Переключение перезагрузит приложение. Прогресс сохранится." }
+                              ru: "Переключение перезагрузит приложение. Прогресс сохранится." },
+// Garden (pass 2)
+    "garden.waterFirst":    { en: "Water the first",    ru: "Полить первое" },
+    "garden.allHolding":    { en: "Every plant is holding. Come back when one comes due.",
+                              ru: "Все растения держатся. Возвращайтесь, когда подойдёт срок." },
+    "garden.nothingPaying": { en: "Nothing paying yet", ru: "Пока ничего не приносит" },
+    "garden.due":           { en: "Due for review",     ru: "Пора повторить" },
+
+    // Shop / Custom (pass 2)
+    "shop.emptyAisle":      { en: "Nothing here yet.",  ru: "Здесь пока пусто." },
+    "inv.clickToEquip":     { en: "Click an owned tile to switch it on",
+                              ru: "Нажмите на купленную плитку, чтобы включить" },
+    "inv.dragHere":         { en: "Drag something here to wear it",
+                              ru: "Перетащите сюда, чтобы надеть" },
+
+    // Settings (pass 2)
+    "set.openCustom":       { en: "Open Custom",        ru: "Открыть кастом" },
+    "set.hintsExample":     { en: "The small explainer text under section titles across the app — like this one.",
+                              ru: "Мелкие пояснения под заголовками разделов — вот такие." },
+    "set.showHints":        { en: "Show hints",         ru: "Показывать подсказки" },
+    "set.staysLocal":       { en: "Nothing you do here leaves your device.",
+                              ru: "Ничто из сделанного здесь не покидает ваше устройство." },
+    "set.terms":            { en: "Terms of Service",   ru: "Условия использования" },
+    "set.badCode":          { en: "Not a valid code.",  ru: "Неверный код." },
+
+    // Forum (pass 2)
+    "forum.notYourself":    { en: "You cannot spend reputation on yourself.",
+                              ru: "Нельзя тратить репутацию на себя." },
+
+    // Stats (pass 2)
+    "stats.weakSpots":      { en: "Your weak spots",    ru: "Ваши слабые места" },
+    "stats.weakHint":       { en: "Lowest recent scores. Tap one to start there.",
+                              ru: "Самые низкие недавние результаты. Нажмите, чтобы начать оттуда." },
+// ---- Interface pass 3 ----
+    // Garden
+    "garden.planted":       { en: "of {total} planted",  ru: "из {total} посажено" },
+    "garden.fullyGrown":    { en: "· {n} fully grown", ru: "· {n} выросли полностью" },
+    "garden.note":          { en: "Plants grow with the <strong>review interval</strong>, not with how many topics you've finished. Something you passed once is a sprout; something you've held on to for months is a tree. Skip reviews and a plant drops back.",
+                              ru: "Растения растут не от числа пройденных тем, а от <strong>интервала повторения</strong>. То, что вы сдали один раз, — росток; то, что держите месяцами, — дерево. Пропустите повторения, и растение откатится назад." },
+    "garden.dailyHarvest":  { en: "Daily harvest",       ru: "Дневной сбор" },
+
+    // Custom
+    "inv.preview":          { en: "Preview",             ru: "Предпросмотр" },
+
+    // Settings
+    "set.sound":            { en: "Sound effects",       ru: "Звуки" },
+    "set.apply":            { en: "Apply",               ru: "Применить" },
+    "set.privacy":          { en: "Privacy Policy",      ru: "Политика конфиденциальности" },
+    "set.draftNote":        { en: "Draft. Being reviewed before any paid release.",
+                              ru: "Черновик. Будет проверен до любого платного выпуска." },
+
+    // Forum
+    "forum.repNote":        { en: "Earned in the Garden. It is not a score you keep — it is the right to <strong>give</strong>. Spend it on posts worth reading and the person who wrote them goes up.",
+                              ru: "Зарабатывается в Саду. Это не счёт, который вы копите, а право <strong>отдавать</strong>. Тратьте её на записи, которые стоит читать, — и их автор поднимется." },
+    "forum.ruleRest":       { en: "Standing is only ever what other people gave you, which is what stops it becoming a number you can farm alone.",
+                              ru: "Ваше положение — это всегда только то, что вам дали другие. Именно поэтому его нельзя нафармить в одиночку." },
+
+    // Stats tiles
+    "stats.overall":        { en: "Overall Progress",    ru: "Общий прогресс" },
+    "stats.mastered":       { en: "Topics Mastered",     ru: "Тем освоено" },
+    "stats.qAccuracy":      { en: "Question Accuracy",   ru: "Точность по вопросам" },
+    "stats.eAccuracy":      { en: "Exam Accuracy",       ru: "Точность на экзаменах" },
+    "stats.qScore":         { en: "Question Score",      ru: "Счёт по вопросам" },
+    "stats.examsPassed":    { en: "Exams Passed",        ru: "Экзаменов сдано" },
+
+    // Library chrome
+    "lib.comingSoon":       { en: "Coming soon",         ru: "Скоро" },
+    "lib.courseComplete":   { en: "Course complete",     ru: "Курс пройден" },
+    "lib.dueTitle":         { en: "Due for review",      ru: "Пора повторить" },
+    "lib.dueHint":          { en: "Coming back to these now is worth more than new material.",
+                              ru: "Вернуться к ним сейчас полезнее, чем брать новое." },
+
+    // The enrollment contract
+    "contract.title":       { en: "Trainee Enrollment Contract", ru: "Договор о зачислении" },
+    "contract.intro":       { en: "By signing below, you (the <strong>Trainee</strong>) solemnly swear to:",
+                              ru: "Подписывая ниже, вы (<strong>Ученик</strong>) торжественно обязуетесь:" },
+    "contract.c1":          { en: "Read the material before guessing on the quiz",
+                              ru: "Читать материал до того, как гадать в вопросе" },
+    "contract.c2":          { en: "Accept that 80% is mastery, not 79.9%",
+                              ru: "Признать, что освоение — это 80%, а не 79,9%" },
+    "contract.c3":          { en: "Never blame the app for a fact you skimmed past",
+                              ru: "Не винить приложение в факте, который вы пролистали" },
+    "contract.c4":          { en: "Take a water break at least once per streak",
+                              ru: "Хотя бы раз за серию сделать перерыв на воду" },
+    "contract.clear":       { en: "Clear",               ru: "Стереть" },
+// ---- Interface pass 4: section titles and the prose under them ----
+    // These were missed by the earlier sweeps because the title starts
+    // with an emoji, so a "does this begin with a Latin letter" filter
+    // walked straight past every one of them.
+    "set.appearance":       { en: "Appearance",          ru: "Оформление" },
+    "set.appearanceNote":   { en: "Themes, lobby layout, colours, stripes, decorations and scenery all live in Custom now — one place to equip everything you own, instead of the same controls in two screens.",
+                              ru: "Темы, раскладка лобби, цвета, узоры, украшения и пейзаж теперь живут в Кастоме — одно место, где надевается всё ваше, вместо одних и тех же настроек на двух экранах." },
+    "set.hintsTitle":       { en: "Hints",               ru: "Подсказки" },
+    "set.soundTitle":       { en: "Sound",               ru: "Звук" },
+    "set.soundNote":        { en: "Short synthesized click/answer/reward sounds across the app — no audio files, generated on the fly.",
+                              ru: "Короткие синтезированные звуки нажатий, ответов и наград — без аудиофайлов, генерируются на лету." },
+    "set.unlockTitle":      { en: "Unlock code",         ru: "Код разблокировки" },
+    "set.unlockNote":       { en: "See <code>docs/CHEATCODES.md</code>.",
+                              ru: "См. <code>docs/CHEATCODES.md</code>." },
+    "set.legal":            { en: "Legal",               ru: "Правовое" },
+    "set.yourData":         { en: "Your data",           ru: "Ваши данные" },
+    "set.dataNote":         { en: "Progress is stored in this browser only. Export before clearing browser data or switching machines.",
+                              ru: "Прогресс хранится только в этом браузере. Выгрузите его перед очисткой данных браузера или сменой устройства." },
+    "set.export":           { en: "Export Data",         ru: "Выгрузить данные" },
+    "set.import":           { en: "Import Data",         ru: "Загрузить данные" },
+
+    // Forum
+    "forum.repTitle":       { en: "Your reputation",     ru: "Ваша репутация" },
+    "forum.ruleTitle":      { en: "The one rule",        ru: "Единственное правило" },
+    "forum.emptyTitle":     { en: "Nobody's here yet — and that's not a bug",
+                              ru: "Здесь пока никого — и это не баг" },
+    "forum.empty1":         { en: "The Forum needs accounts to exist: posts, replies and reputation have to travel between people, and right now this app keeps everything on your own device with no server behind it. Two people running it share nothing.",
+                              ru: "Форуму нужны учётные записи: записи, ответы и репутация должны ходить между людьми, а сейчас приложение держит всё на вашем устройстве и сервера за ним нет. Двое запустивших его не разделяют ничего." },
+    "forum.empty2":         { en: "It opens when the backend lands. Until then this room is empty on purpose — seeding it with invented posts would look like a community and be a stage set.",
+                              ru: "Он откроется, когда появится бэкенд. До тех пор комната пуста намеренно: набить её выдуманными записями значило бы изобразить сообщество, а получить декорацию." },
+
+    // Stats
+    "stats.badges":         { en: "Badges ({n}/{total})", ru: "Значки ({n}/{total})" },
+
+    // Garden
+    "garden.nothingToWater":{ en: "Nothing needs watering", ru: "Поливать нечего" },
+    "garden.nothingToClaim":{ en: "Nothing to claim",    ru: "Забирать нечего" },
+
+    // Lobby greeting
+    "lobby.welcomeBack":    { en: "Welcome back, {name}.", ru: "С возвращением, {name}." },
+    "lobby.welcome":        { en: "Welcome.",             ru: "Добро пожаловать." },
+
+    // Screen titles that had no data-i18n at all
+    "ui.screen.shop":       { en: "Shop",                ru: "Магазин" },
+    "ui.screen.custom":     { en: "Custom",              ru: "Кастом" },
+    "ui.screen.mastery":    { en: "Mastery Exam",        ru: "Экзамен на освоение" },
+    "ui.screen.review":     { en: "Review",              ru: "Повторение" },
+
+    // Landing features: the markup already pointed at these keys, and the
+    // keys were simply never written, so all three fell back to English.
+    "ui.landing.feat1":     { en: "Any course, one chunk at a time",
+                              ru: "Любой курс, по одному куску за раз" },
+    "ui.landing.feat2":     { en: "Spaced review that adapts to you",
+                              ru: "Интервальное повторение, подстроенное под вас" },
+    "ui.landing.feat3":     { en: "A garden that wilts when you stop",
+                              ru: "Сад, который вянет, когда вы бросаете" },
+
+    // The name a brand-new profile gets before anyone types one. This is
+    // SAVED data, not chrome: an existing profile keeps whatever it was
+    // created with, and switching language later does not rename anybody.
+    "profile.defaultName":  { en: "Student",             ru: "Ученик" },
+    "set.codePlaceholder":  { en: "Enter code...",      ru: "Введите код..." }
   };
 
   // Missing key returns the key itself rather than "" — a visible

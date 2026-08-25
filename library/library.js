@@ -209,7 +209,7 @@
           <span>${topicCount} topics</span>
           <span>·</span>
           <span>${pct}% complete</span>
-          ${!c.available ? '<span class="topic-badge ahead-badge">Coming soon</span>' : ""}
+          ${!c.available ? `<span class="topic-badge ahead-badge">${I18N.t("lib.comingSoon")}</span>` : ""}
           ${c.available && locked ? `<span class="topic-badge ahead-badge">🪙 ${coursePrice(c)}</span>` : ""}
         </div>
         <div class="course-progress"><div class="course-progress-fill" style="width:${pct}%"></div></div>
@@ -255,15 +255,15 @@
       <div class="modal-card contract-card">
         <div class="modal-close" id="contract-close">✕</div>
         <div class="contract-seal">📜</div>
-        <h2 class="modal-title">Trainee Enrollment Contract</h2>
+        <h2 class="modal-title">${I18N.t("contract.title")}</h2>
         <p class="contract-subtitle">${course.icon} ${course.title}</p>
         <div class="contract-body">
-          <p>By signing below, you (the <strong>Trainee</strong>) solemnly swear to:</p>
+          <p>${I18N.t("contract.intro")}</p>
           <ul class="contract-terms">
-            <li>Read the material before guessing on the quiz</li>
-            <li>Accept that 80% is mastery, not 79.9%</li>
-            <li>Never blame the app for a fact you skimmed past</li>
-            <li>Take a water break at least once per streak</li>
+            <li>${I18N.t("contract.c1")}</li>
+            <li>${I18N.t("contract.c2")}</li>
+            <li>${I18N.t("contract.c3")}</li>
+            <li>${I18N.t("contract.c4")}</li>
           </ul>
           <p class="contract-fineprint">Legally binding in absolutely no jurisdiction. The Dojo will remember anyway.</p>
         </div>
@@ -272,7 +272,7 @@
           <div class="contract-pad-line">Sign here ✍️</div>
         </div>
         <div class="chunk-actions">
-          <button id="contract-clear" class="btn-ghost">Clear</button>
+          <button id="contract-clear" class="btn-ghost">${I18N.t("contract.clear")}</button>
           <button id="contract-sign" class="btn-primary" disabled>Sign &amp; Enter</button>
         </div>
       </div>`;
@@ -672,7 +672,7 @@
           <span>\u{1F3C6}</span>
           <span class="roadmap-chest-amount">\u{1FA99}${COURSE_TOKEN_REWARD}</span>
         </div>
-        <div class="roadmap-chest-label">Course complete</div>
+        <div class="roadmap-chest-label">${I18N.t("lib.courseComplete")}</div>
       `;
       wrap.appendChild(chestNode);
     }
@@ -739,10 +739,10 @@
         due.innerHTML = `
           <div class="due-header">
             <span class="due-icon">🔁</span>
-            <span class="due-title">Due for review</span>
+            <span class="due-title">${I18N.t("lib.dueTitle")}</span>
             <span class="due-count">${dueTopics.length}</span>
           </div>
-          <div class="due-hint">Coming back to these now is worth more than new material.</div>
+          <div class="due-hint">${I18N.t("lib.dueHint")}</div>
           <div class="due-grid"></div>`;
         body.appendChild(due);
         const dueGrid = due.querySelector(".due-grid");
@@ -1272,7 +1272,7 @@
         ${analogyHtml}
         ${sourcesHtml}
         <div class="btn-row">
-          <button id="btn-next-phase" class="btn-primary">See Example <span class="arrow">→</span></button>
+          <button id="btn-next-phase" class="btn-primary">${I18N.t("next.explain")} <span class="arrow">→</span></button>
         </div>
       </div>
     `;
@@ -1297,7 +1297,7 @@
         </div>
         <div class="btn-row">
           <button id="btn-prev-phase" class="btn-ghost">← Back to explanation</button>
-          <button id="btn-next-phase" class="btn-primary">Answer Question <span class="arrow">→</span></button>
+          <button id="btn-next-phase" class="btn-primary">${I18N.t("next.example")} <span class="arrow">→</span></button>
         </div>
       </div>
     `;

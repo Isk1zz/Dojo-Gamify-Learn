@@ -36,9 +36,9 @@
     // what it is actually for — how the app BEHAVES, not how it looks.
     body.innerHTML = `
       <div class="settings-section">
-        <div class="stats-section-title">🎨 Appearance</div>
-        <p class="settings-hint">Themes, lobby layout, colours, stripes, decorations and scenery all live in Custom now — one place to equip everything you own, instead of the same controls in two screens.</p>
-        <button id="btn-settings-custom" class="btn-ghost">🎒 Open Custom</button>
+        <div class="stats-section-title">🎨 ${I18N.t("set.appearance")}</div>
+        <p class="settings-hint">${I18N.t("set.appearanceNote")}</p>
+        <button id="btn-settings-custom" class="btn-ghost">🎒 ${I18N.t("set.openCustom")}</button>
       </div>
       <div class="settings-section">
         <div class="stats-section-title">\u{1F310} ${I18N.t("lang.label")}</div>
@@ -52,36 +52,36 @@
         </div>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F4A1} Hints</div>
-        <p class="settings-hint">The small explainer text under section titles across the app — like this one.</p>
+        <div class="stats-section-title">\u{1F4A1} ${I18N.t("set.hintsTitle")}</div>
+        <p class="settings-hint">${I18N.t("set.hintsExample")}</p>
         <label class="hint-toggle-row">
           <input type="checkbox" id="hints-toggle" ${hintsOn ? "checked" : ""} />
-          <span>Show hints</span>
+          <span>${I18N.t("set.showHints")}</span>
         </label>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F50A} Sound</div>
-        <p class="settings-hint">Short synthesized click/answer/reward sounds across the app — no audio files, generated on the fly.</p>
+        <div class="stats-section-title">\u{1F50A} ${I18N.t("set.soundTitle")}</div>
+        <p class="settings-hint">${I18N.t("set.soundNote")}</p>
         <label class="hint-toggle-row">
           <input type="checkbox" id="sound-toggle" ${soundOn ? "checked" : ""} />
-          <span>Sound effects</span>
+          <span>${I18N.t("set.sound")}</span>
         </label>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F511} Unlock code</div>
-        <p class="settings-hint">See <code>docs/CHEATCODES.md</code>.</p>
+        <div class="stats-section-title">\u{1F511} ${I18N.t("set.unlockTitle")}</div>
+        <p class="settings-hint">${I18N.t("set.unlockNote")}</p>
         <div class="admin-row">
           <input id="admin-code-input" class="modal-input admin-input" type="text"
-                 placeholder="Enter code..." autocomplete="off" spellcheck="false" />
-          <button id="btn-admin-apply" class="btn-ghost">Apply</button>
+                 placeholder="${I18N.t("set.codePlaceholder")}" autocomplete="off" spellcheck="false" />
+          <button id="btn-admin-apply" class="btn-ghost">${I18N.t("set.apply")}</button>
         </div>
         <div id="admin-msg" class="settings-hint" style="margin-top:0.5rem;"></div>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F4C4} Legal</div>
+        <div class="stats-section-title">\u{1F4C4} ${I18N.t("set.legal")}</div>
         <details class="legal-block">
-          <summary>Privacy Policy</summary>
-          <p><strong>Nothing you do here leaves your device.</strong></p>
+          <summary>${I18N.t("set.privacy")}</summary>
+          <p><strong>${I18N.t("set.staysLocal")}</strong></p>
           <p>Your profile, progress, review schedule, statistics and settings are
           stored in this browser's local storage. There is no account, no server,
           no analytics and no third-party service of any kind \u2014 there is nowhere
@@ -92,8 +92,8 @@
           anywhere else and no way to recover it.</p>
         </details>
         <details class="legal-block">
-          <summary>Terms of Service</summary>
-          <p><em>Draft. Being reviewed before any paid release.</em></p>
+          <summary>${I18N.t("set.terms")}</summary>
+          <p><em>${I18N.t("set.draftNote")}</em></p>
           <p>Knell is provided as-is, with no warranty. It is a study aid, not
           accredited instruction, and passing a mastery exam here is not a
           qualification. Course material is written to be accurate and carries its
@@ -106,12 +106,12 @@
         </details>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F4BE} Your data</div>
-        <p class="settings-hint">Progress is stored in this browser only. Export before clearing browser data or switching machines.</p>
+        <div class="stats-section-title">\u{1F4BE} ${I18N.t("set.yourData")}</div>
+        <p class="settings-hint">${I18N.t("set.dataNote")}</p>
         <div class="stats-actions">
-          <button id="btn-export-2" class="btn-ghost">\u{1F4E5} Export Data</button>
+          <button id="btn-export-2" class="btn-ghost">\u{1F4E5} ${I18N.t("set.export")}</button>
           <label class="btn-ghost import-label">
-            \u{1F4E4} Import Data
+            \u{1F4E4} ${I18N.t("set.import")}
             <input type="file" id="btn-import-2" accept=".json" style="display:none;" />
           </label>
         </div>
@@ -189,7 +189,7 @@
         if (freshMsg) freshMsg.textContent = adminMsg;
         return;
       }
-      msg.textContent = "Not a valid code.";
+      msg.textContent = I18N.t("set.badCode");
     }
     if (applyBtn) applyBtn.addEventListener("click", applyCode);
     if (codeInput) codeInput.addEventListener("keydown", e => { if (e.key === "Enter") applyCode(); });

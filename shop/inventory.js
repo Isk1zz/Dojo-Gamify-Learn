@@ -74,12 +74,12 @@
       };
     };
     out.push({
-      key: "theme", group: "theme", icon: "🎨", title: "Colour themes", previewKind: "theme",
+      key: "theme", group: "theme", icon: "🎨", title: { en: "Colour themes", ru: "Цветовые темы" }, previewKind: "theme",
       items: (Dojo.THEMES || []).map(t => themeItem(t, false)),
       equip: id => { if (themeOwned(id)) (Dojo.equipTheme || (i => { DB.setTheme(i); Dojo.applyTheme(i); }))(id); }
     });
     out.push({
-      key: "awarded", group: "theme", icon: "✨", title: "Awarded themes", previewKind: "theme",
+      key: "awarded", group: "theme", icon: "✨", title: { en: "Awarded themes", ru: "Наградные темы" }, previewKind: "theme",
       items: (Dojo.PREMIUM_THEMES || []).map(t => themeItem(t, true)),
       equip: id => { if (Dojo.themeUnlocked && Dojo.themeUnlocked(id)) (Dojo.equipTheme || (i => { DB.setTheme(i); Dojo.applyTheme(i); }))(id); }
     });
@@ -89,7 +89,7 @@
     const stripes = (Dojo.BG_STRIPES || [])
       .filter(s => Dojo.bgStripeUnlocked && Dojo.bgStripeUnlocked(s.id));
     out.push({
-      key: "stripe", group: "style", icon: "\u{1F9F5}", title: "Background stripes",
+      key: "stripe", group: "style", icon: "\u{1F9F5}", title: { en: "Background stripes", ru: "Фоновые узоры" },
       items: [{ id: "none", name: "None", swatch: null, equipped: stripeNow === "none" }]
         .concat(stripes.map(s => ({
           id: s.id, name: s.name, swatch: `background-image:${s.css}`, equipped: s.id === stripeNow
@@ -106,7 +106,7 @@
     const ownsL = id => !Dojo.ownsLayout || Dojo.ownsLayout(id);
     const styleNow = DB.getLobbyStyle();
     out.push({
-      key: "lobby", group: "layout", icon: "\u{1F9E9}", title: "Lobby style", previewKind: "lobby",
+      key: "lobby", group: "layout", icon: "\u{1F9E9}", title: { en: "Lobby style", ru: "Стиль лобби" }, previewKind: "lobby",
       items: [["classic", "Classic"], ["cards", "Cards"], ["star", "Star"]]
         .map(([id, name]) => ({
           id, name, swatch: null,
@@ -123,7 +123,7 @@
     if (styleNow === "star") {
       const linksNow = DB.getStarLinks ? DB.getStarLinks() : "spokes";
       out.push({
-        key: "links", group: "layout", icon: "\u{1F517}", title: "Star links", previewKind: "links",
+        key: "links", group: "layout", icon: "\u{1F517}", title: { en: "Star links", ru: "Лучи звезды" }, previewKind: "links",
         items: [["spokes", "Spokes"], ["hexagram", "Star of David"]]
           .map(([id, name]) => ({
             id, name, swatch: null,
@@ -156,13 +156,13 @@
 
       if (linksNow === "hexagram") {
         out.push({
-          key: "flags", group: "style", icon: "\u{1F38C}", title: "Star of David colours", previewKind: "flags",
+          key: "flags", group: "style", icon: "\u{1F38C}", title: { en: "Star of David colours", ru: "Цвета звезды Давида" }, previewKind: "flags",
           items: paletteItems(DB.getHexFlags ? DB.getHexFlags() : "combined"),
           equip: id => DB.setHexFlags(id)
         });
       } else {
         out.push({
-          key: "spokes", group: "style", icon: "\u{1F517}", title: "Spoke colours", previewKind: "spokes",
+          key: "spokes", group: "style", icon: "\u{1F517}", title: { en: "Spoke colours", ru: "Цвета лучей" }, previewKind: "spokes",
           items: paletteItems(DB.getSpokeFlags ? DB.getSpokeFlags() : "combined"),
           equip: id => DB.setSpokeFlags(id)
         });
@@ -175,7 +175,7 @@
       const equippedAvatar = DB.getAvatar ? DB.getAvatar() : null;
       const table = Dojo.AVATARS || [];
       out.push({
-        key: "avatar", group: "theme", icon: "\u{1F464}", title: "Avatars",
+        key: "avatar", group: "theme", icon: "\u{1F464}", title: { en: "Avatars", ru: "Аватары" },
         items: owned.map(id => {
           const a = table.find(x => x.id === id);
           return { id, name: a ? a.name : id, glyph: a ? a.icon : "?", swatch: null,
@@ -191,7 +191,7 @@
     // means "currently toggled on," not "the one active choice."
     const activeDecors = DB.getBgDecors ? DB.getBgDecors() : [];
     out.push({
-      key: "decor", group: "style", icon: "\u{1F985}", title: "Decorations", previewKind: "decor", multi: true,
+      key: "decor", group: "style", icon: "\u{1F985}", title: { en: "Decorations", ru: "Украшения" }, previewKind: "decor", multi: true,
       items: (Dojo.BG_DECORS || []).map(d => {
         // Moon reads as "Sun" on a light theme — see Dojo.decorFace.
         const face = Dojo.decorFace ? Dojo.decorFace(d) : d;
@@ -215,7 +215,7 @@
     // The vitals-strip button flips this same state.
     const skyNow = DB.getSky ? DB.getSky() : "night";
     out.push({
-      key: "sky", group: "style", icon: "\u{1F304}", title: "Sky",
+      key: "sky", group: "style", icon: "\u{1F304}", title: { en: "Sky", ru: "Небо" },
       items: [
         { id: "night", name: "Night", glyph: "\u{1F319}", swatch: null, equipped: skyNow === "night" },
         { id: "day",   name: "Day",   glyph: "☀\u{FE0F}", swatch: null, equipped: skyNow === "day" }
@@ -230,7 +230,7 @@
     const sceneNow = DB.getScene ? DB.getScene() : "none";
     const ownsSc = id => !Dojo.ownsScene || Dojo.ownsScene(id);
     out.push({
-      key: "scene", group: "style", icon: "\u{1F3DE}\u{FE0F}", title: "Scenery", previewKind: "scene",
+      key: "scene", group: "style", icon: "\u{1F3DE}\u{FE0F}", title: { en: "Scenery", ru: "Пейзаж" }, previewKind: "scene",
       items: [{ id: "none", name: "None", glyph: "\u{2715}", swatch: null, equipped: sceneNow === "none" }]
         .concat((Dojo.SCENES || []).map(s => ({
           id: s.id, name: s.name, glyph: s.icon, swatch: null,
@@ -244,7 +244,8 @@
       }
     });
 
-    return out;
+    // Shelf titles are {en, ru} bags now; resolve them on the way out.
+    return I18N.resolve(out);
   }
 
   // ---- Tree ----
@@ -384,16 +385,16 @@
               ${slot && slot.multi
                 ? (equippedList.length
                     ? equippedList.map(it => `<span class="inv-dropzone-chip"><span class="inv-tile-art"${it.swatch ? ` style="${it.swatch}"` : ""}>${it.glyph || ""}</span><span>${it.name}</span></span>`).join("")
-                    : `<span class="inv-dropzone-hint">Click an owned tile to switch it on</span>`)
+                    : `<span class="inv-dropzone-hint">${I18N.t("inv.clickToEquip")}</span>`)
                 : (equipped
                     ? `<span class="inv-tile-art"${equipped.swatch ? ` style="${equipped.swatch}"` : ""}>${equipped.glyph || ""}</span><span>${equipped.name}</span>`
-                    : `<span class="inv-dropzone-hint">Drag something here to wear it</span>`)}
+                    : `<span class="inv-dropzone-hint">${I18N.t("inv.dragHere")}</span>`)}
             </div>
           </div>
           <div class="inv-tile-grid">${grid}</div>
         </div>
         <aside class="inv-preview" aria-label="Live lobby preview">
-          <div class="inv-preview-title">Preview</div>
+          <div class="inv-preview-title">${I18N.t("inv.preview")}</div>
           <div class="inv-preview-art">${previewHtml()}</div>
           ${preview ? `
             <div class="inv-preview-banner">
