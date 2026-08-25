@@ -10,7 +10,7 @@ Two topics, six chunks.
 | # | Chunk | Status of sourcing |
 |---|---|---|
 | 1 | The hands | **sourced** — Livy via Seneca, Juvenal |
-| 2 | The man with no name / Catiline | thin — needs the legality question |
+| 2 | Two failures: Catiline, then Octavian | **re-shaped** — see Zarecki chs. 6-7 |
 | 3 | Tullia | **sourced** — Zarecki ch. 4 |
 | 4 | Words that didn't exist | **NOT SOURCED** — the open question |
 | 5 | Arguing both sides | **sourced** — Zarecki ch. 1 |
@@ -144,6 +144,106 @@ Petrarch's view of Caesar as well.
 
 **Drop "Verona" unless separately sourced** — the volume does not say it in
 these passages, and I asserted it from memory.
+
+---
+
+## Zarecki chs. 6–7 + Epilogue (pp. 170–186, read from photographs)
+
+### The Rostra closes the circle — chunk 1's ending was already in chunk 1
+
+**20 April 43.** After the victories at Forum Gallorum and Mutina, Cicero
+received what he called the greatest reward for his labours: a crowd met him
+at his house and escorted him to the Forum, **where he triumphantly ascended
+the Rostra** (*ad Brut.* 1.3.2).
+
+**December 43.** His head is placed on that same Rostra, between his hands.
+
+Eight months. Same platform. That is the whole topic in one image, and it
+means chunk 1 does not need to explain why the Rostra mattered — it can
+simply say he had stood on it in triumph that spring.
+
+### The miscalculation that killed him
+
+Cicero was **open** about using the young Octavian. Of him he wrote:
+**"laudandum, ornandum, tollendum"** — *the youth must be praised, decorated
+with honours, and then pushed aside* (*Fam.* 11.20.2). Octavian **heard about
+it** and took umbrage.
+
+Zarecki: "Cicero's vaunted *prudentia* failed him … in Mutina's wake. In
+particular, we may find fault with him for not recognizing the threats to the
+Republic posed by Octavian and Lepidus." Cicero admitted on 27 July that he
+had been wrong about Octavian (*ad Brut.* 1.18.3).
+
+Chunk 2 was going to be about Catiline. It should probably be about **both**
+failures — the young man's and the old man's — because they rhyme: each time,
+he was certain, and each time the certainty was the problem. Which sets up
+chunk 5 (the skeptic who forgot to be one) beautifully.
+
+### The Republic's epitaph, in his own voice
+
+**ad Brut. 1.10.3**, mid-June 43:
+
+> *illudimur enim, Brute, tum militum deliciis, tum imperatorum insolentia.
+> tantum quisque se in re publica posse postulat quantum habet virium. non
+> ratio, non modus, non lex, non mos, non officium valet, non iudicium, non
+> existimatio civium, non posteritatis verecundia.*
+
+Zarecki's translation:
+
+> "We are being played, Brutus, by the vagaries of soldiers and the arrogance
+> of generals. **Each man demands as much political power as he has military
+> forces**; no longer do reason, due measure, law, custom, and duty have a
+> place, nor do sound judgment, the opinion of the people, nor the disapproval
+> of our descendants."
+
+And on **7 June**, to Decimus Brutus, four words: **"plane iam, Brute,
+frigeo"** — *I am quite frozen now, Brutus.* A spent force (*Fam.* 11.14.1).
+
+Also usable: **"I defended the Republic when I was a young man, and I shall
+not abandon it now that I am old"** (*Phil.* 2.118).
+
+### The death itself
+
+Early August 43: Octavian marches on Rome. Late November: Octavian, Antony and
+Lepidus make themselves triumvirs; proscription lists are drawn up; Cicero,
+his brother and his nephew are on them. **Cicero chose not to flee.** He died
+near his villa at **Caieta, 7 December 43**.
+
+**Plutarch, *Cic.* 48** has him meeting death calmly, "wordlessly offering his
+neck to his assassins." That **agrees with Livy** (fr. 60, above), who has him
+lean out of the litter and offer his neck unflinchingly. Two separate ancient
+accounts converging on the same gesture — safe to use.
+
+### The dark irony — the strongest single idea in the book
+
+From the Epilogue:
+
+> "In a darkly ironic twist, Cicero's efforts under the guidance of the
+> *rector*-ideal **in no small part caused the ultimate destruction of the
+> mixed constitution by forcing Antony, Octavian, and Lepidus into their
+> alliance**."
+
+His campaign to save the Republic from Antony is what drove Antony, Octavian
+and Lepidus together — and that alliance ended both the Republic and him. **He
+caused the thing he was trying to prevent.**
+
+Zarecki is careful, and we should be too: "Cicero could never have been, as we
+are now, the omniscient narrator of events." The point is not that he was a
+fool. It is that acting well on the best available reading can still produce
+the disaster. That belongs in chunk 6, and it is a far better ending than
+"and then he was killed."
+
+### One more for chunk 5
+
+> "Cicero was not a dogmatist, no matter how closely he followed the Stoics in
+> his philosophical works nor how vociferously he defended the very idea of
+> the mixed constitution."
+
+And Zarecki re-reads the famous indecision of 49 not as weakness but as method:
+his hesitation between Pompey and Caesar was "his attempt to determine which
+side offered the best chance for the creation of a moral state." That is
+*in utramque partem* applied to a real decision, at real cost — which is
+exactly the beat chunk 5 needs to stop being abstract.
 
 ---
 
