@@ -280,15 +280,15 @@
             <li>${I18N.t("contract.c3")}</li>
             <li>${I18N.t("contract.c4")}</li>
           </ul>
-          <p class="contract-fineprint">Legally binding in absolutely no jurisdiction. The Dojo will remember anyway.</p>
+          <p class="contract-fineprint">${I18N.t("contract.fineprint")}</p>
         </div>
         <div class="contract-pad-wrap">
           <canvas id="contract-canvas" class="contract-canvas" width="440" height="140"></canvas>
-          <div class="contract-pad-line">Sign here ✍️</div>
+          <div class="contract-pad-line">${I18N.t("contract.signHere")}</div>
         </div>
         <div class="chunk-actions">
           <button id="contract-clear" class="btn-ghost">${I18N.t("contract.clear")}</button>
-          <button id="contract-sign" class="btn-primary" disabled>Sign &amp; Enter</button>
+          <button id="contract-sign" class="btn-primary" disabled>${I18N.t("contract.sign")}</button>
         </div>
       </div>`;
 
@@ -441,8 +441,8 @@
     const toggle = document.createElement("div");
     toggle.className = "topic-view-toggle";
     toggle.innerHTML = `
-      <button class="tvt-btn${state.unitMapView === "map" ? " active" : ""}" data-view="map">\u{1F5FA}\u{FE0F} Map</button>
-      <button class="tvt-btn${state.unitMapView === "list" ? " active" : ""}" data-view="list">\u{1F4CB} List</button>`;
+      <button class="tvt-btn${state.unitMapView === "map" ? " active" : ""}" data-view="map">\u{1F5FA}\u{FE0F} ${I18N.t("ui.view.map")}</button>
+      <button class="tvt-btn${state.unitMapView === "list" ? " active" : ""}" data-view="list">\u{1F4CB} ${I18N.t("ui.view.list")}</button>`;
     toggle.querySelectorAll(".tvt-btn").forEach(b => {
       b.addEventListener("click", () => {
         state.unitMapView = b.getAttribute("data-view");
@@ -728,8 +728,8 @@
     const toggle = document.createElement("div");
     toggle.className = "topic-view-toggle";
     toggle.innerHTML = `
-      <button class="tvt-btn${state.topicMapView === "map" ? " active" : ""}" data-view="map">\u{1F5FA}\u{FE0F} Map</button>
-      <button class="tvt-btn${state.topicMapView === "list" ? " active" : ""}" data-view="list">\u{1F4CB} List</button>`;
+      <button class="tvt-btn${state.topicMapView === "map" ? " active" : ""}" data-view="map">\u{1F5FA}\u{FE0F} ${I18N.t("ui.view.map")}</button>
+      <button class="tvt-btn${state.topicMapView === "list" ? " active" : ""}" data-view="list">\u{1F4CB} ${I18N.t("ui.view.list")}</button>`;
     toggle.querySelectorAll(".tvt-btn").forEach(b => {
       b.addEventListener("click", () => {
         state.topicMapView = b.getAttribute("data-view");
@@ -1258,7 +1258,7 @@
     if (chunk.explain.analogy) {
       analogyHtml = `
         <div class="analogy-box">
-          <div class="analogy-label">💡 Analogy</div>
+          <div class="analogy-label">💡 ${I18N.t("chunk.analogy")}</div>
           <div class="analogy-text">${chunk.explain.analogy}</div>
         </div>`;
     }
@@ -1274,7 +1274,7 @@
         </li>`).join("");
       sourcesHtml = `
         <details class="sources-box">
-          <summary class="sources-label">📚 Sources &amp; further reading</summary>
+          <summary class="sources-label">📚 ${I18N.t("chunk.sources")}</summary>
           <ul class="sources-list">${items}</ul>
         </details>`;
     }
@@ -1311,7 +1311,7 @@
           <div class="example-flow">${stepsHtml}</div>
         </div>
         <div class="btn-row">
-          <button id="btn-prev-phase" class="btn-ghost">← Back to explanation</button>
+          <button id="btn-prev-phase" class="btn-ghost">← ${I18N.t("chunk.backToExplain")}</button>
           <button id="btn-next-phase" class="btn-primary">${I18N.t("next.example")} <span class="arrow">→</span></button>
         </div>
       </div>
@@ -1352,7 +1352,7 @@
       const isCorrect = state.quizAnswer === q.correct;
       feedbackHtml = `
         <div class="quiz-feedback ${isCorrect ? "correct" : "wrong"}">
-          <div class="fb-title">${isCorrect ? "✅ Correct!" : "❌ Not quite."}</div>
+          <div class="fb-title">${isCorrect ? I18N.t("quiz.correct") : I18N.t("quiz.notQuite")}</div>
           <div>${q.explanation}</div>
         </div>`;
     }
@@ -1364,7 +1364,7 @@
     // Recall's own final button (renderRecall) is the one that
     // genuinely says "Take the Mastery Exam".
     const goesToRecallNext = chunk.recall && !state.inRetry;
-    const nextBtnText = goesToRecallNext ? "Continue →" : (isLastChunk ? "Take Mastery Exam 🏆" : "Next Chunk →");
+    const nextBtnText = goesToRecallNext ? `${I18N.t("btn.continue")} →` : (isLastChunk ? `${I18N.t("btn.masteryExam")} 🏆` : `${I18N.t("btn.nextChunk")} →`);
 
     body.innerHTML = `
       <div class="chunk-section">
@@ -1562,7 +1562,7 @@
       const isCorrect = state.examAnswers[idx] === q.correct;
       feedbackHtml = `
         <div class="quiz-feedback ${isCorrect ? "correct" : "wrong"}">
-          <div class="fb-title">${isCorrect ? "✅ Correct!" : `❌ Wrong — the answer is ${letters[q.correct]}.`}</div>
+          <div class="fb-title">${isCorrect ? I18N.t("quiz.correct") : I18N.t("quiz.wrongIs", { letter: letters[q.correct] })}</div>
         </div>`;
     }
 
@@ -1570,20 +1570,20 @@
 
     body.innerHTML = `
       <div class="exam-header">
-        <h2>${topic.icon} ${topic.title}${state.finalQuizActive ? "" : " — Mastery Exam"}</h2>
+        <h2>${topic.icon} ${topic.title}${state.finalQuizActive ? "" : I18N.t("exam.suffix")}</h2>
         <p>${state.finalQuizActive
-          ? "Cumulative — drawn from all 8 units. Score 80% or higher to pass."
-          : "Score 80% or higher to master this topic and start its review schedule."}</p>
+          ? I18N.t("exam.cumulative")
+          : I18N.t("exam.scoreToMaster")}</p>
       </div>
-      <div class="exam-q-counter">Question ${idx + 1} of ${total}</div>
+      <div class="exam-q-counter">${I18N.t("exam.questionCounter", { n: idx + 1, total })}</div>
       <div class="exam-question-card">
         <div class="quiz-question">${q.question}</div>
         <div class="quiz-options">${optionsHtml}</div>
         ${feedbackHtml}
         <div class="btn-row">
           ${!state.examSubmitted[idx] ? `<button id="btn-exam-submit" class="btn-primary" ${state.examAnswers[idx] === null ? "disabled" : ""}>${I18N.t("btn.checkAnswer")}</button>` : ""}
-          ${state.examSubmitted[idx] && !isLast ? `<button id="btn-exam-next" class="btn-primary">Next Question <span class="arrow">→</span></button>` : ""}
-          ${state.examSubmitted[idx] && isLast ? `<button id="btn-exam-finish" class="btn-primary">See Results 🏆</button>` : ""}
+          ${state.examSubmitted[idx] && !isLast ? `<button id="btn-exam-next" class="btn-primary">${I18N.t("btn.nextQuestion")} <span class="arrow">→</span></button>` : ""}
+          ${state.examSubmitted[idx] && isLast ? `<button id="btn-exam-finish" class="btn-primary">${I18N.t("btn.seeResults")} 🏆</button>` : ""}
         </div>
       </div>
     `;
@@ -1660,15 +1660,21 @@
     // the material is.
     state.examMustRedoTopic = !passed && state.examAttempts >= 2;
 
-    document.getElementById("btn-to-topics").textContent = "Back to Topics";
+    document.getElementById("btn-to-topics").textContent = I18N.t("exam.backToTopics");
     document.getElementById("result-icon").textContent = passed ? "🎉" : (state.examMustRedoTopic ? "🔁" : "📚");
-    document.getElementById("result-title").textContent = passed ? "Topic Mastered!" : "Not Quite Yet";
-    document.getElementById("btn-retry").textContent = state.examMustRedoTopic ? "Redo Topic" : "Retry Exam";
+    document.getElementById("result-title").textContent = passed ? I18N.t("exam.mastered") : I18N.t("exam.notYet");
+    document.getElementById("btn-retry").textContent = state.examMustRedoTopic ? I18N.t("exam.redoTopic") : I18N.t("exam.retry");
+    // "1 day" vs "N days" is handled in JS, not the {var} templater --
+    // Russian needs three plural forms (1 / 2-4 / 5+), English only two.
+    const dayKey = nextIn === 1 ? "exam.timingDays"
+      : (nextIn % 10 >= 2 && nextIn % 10 <= 4 && !(nextIn % 100 >= 12 && nextIn % 100 <= 14)) ? "exam.timingDaysFew"
+      : "exam.timingDaysMany";
+    const timing = I18N.t(dayKey, { n: nextIn });
     document.getElementById("result-desc").textContent = passed
-      ? `You scored ${correct}/${total} on "${topic.title}". It'll come back for review in ${nextIn} day${nextIn === 1 ? "" : "s"} — that's when it does the most good.`
+      ? I18N.t("exam.descPassed", { correct, total, title: topic.title, timing })
       : state.examMustRedoTopic
-        ? `You scored ${correct}/${total} — that's two attempts under 80%. Rather than a third try at the same exam, go back through "${topic.title}" from the start.`
-        : `You scored ${correct}/${total}, and 80% masters the topic. Rather than re-reading, go straight back to the questions you missed — that's what actually moves the needle.`;
+        ? I18N.t("exam.descRedo", { correct, total, title: topic.title })
+        : I18N.t("exam.descRetry", { correct, total, title: topic.title });
     const scoreEl = document.getElementById("result-score");
     scoreEl.textContent = `${pct}%`;
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;

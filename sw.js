@@ -102,7 +102,34 @@
 // "humanities" shelf in library.js and the i18n key behind its label. A
 // stale index.html against a fresh library.js gives a shelf with no course
 // under it.
-const CACHE_VERSION = "knell-v16";
+// Bumped for three contract strings that survived every earlier
+// translation pass: "Sign & Enter", "Sign here", and the fineprint line,
+// which also still said "Dojo" instead of "Knell". Found during a live
+// walkthrough of the Philosophy course.
+// Bumped again in the same walkthrough: the topic-map back button
+// ("← Units") had no data-i18n at all and was missed by every earlier
+// sweep because it carries no emoji and sits in a two-element flex
+// wrapper my filters did not check.
+// Bumped a third time in the same walkthrough: the Map/List view
+// toggle on the unit-map and topic-map screens (4 buttons, 2 screens)
+// carried no data-i18n and no I18N.t call anywhere.
+// Bumped a fourth time: the "Analogy" and "Sources & further reading"
+// labels inside every lesson chunk carried no I18N.t call. These show on
+// EVERY chunk of EVERY course with an analogy or a source list, so this
+// was the widest-reaching gap found in the walkthrough.
+// Bumped a fifth time: the predict-phase "Back to explanation" button.
+// Bumped a sixth time: the whole mastery-exam result screen (title,
+// two buttons, the score description with day-count pluralisation) was
+// entirely hardcoded English. The widest single gap found in this
+// walkthrough -- it shows after every exam on every course.
+// Bumped a seventh time: the exam header (title suffix, subtitle,
+// question counter) and the quiz-phase next-chunk button duplicated
+// English strings that renderRecall already had translated via
+// existing btn.* keys -- the two render paths had simply drifted apart.
+// Bumped an eighth time: quiz feedback ("Correct!" / "Wrong — the
+// answer is X") and the exam-navigation buttons (Next Question, See
+// Results) were hardcoded independently in two render paths.
+const CACHE_VERSION = "knell-v24";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

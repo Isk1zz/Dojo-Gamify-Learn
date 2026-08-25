@@ -201,6 +201,7 @@ const I18N = (() => {
     "btn.topics":           { en: "← Topics",           ru: "← К темам" },
     "btn.nextChunk":        { en: "Next chunk",         ru: "Следующий блок" },
     "btn.masteryExam":      { en: "Take the Mastery Exam", ru: "Перейти к экзамену" },
+    "btn.continue":         { en: "Continue",           ru: "Далее" },
     "btn.showAnswer":       { en: "Show Answer",        ru: "Показать ответ" },
 
     // Flashcard self-assessment
@@ -266,6 +267,49 @@ const I18N = (() => {
     "ui.back.lobby":        { en: "← Lobby",            ru: "← В лобби" },
     "ui.back.courses":      { en: "← Courses",          ru: "← К курсам" },
     "ui.back.unit":         { en: "← Unit",             ru: "← К блоку" },
+    "ui.back.unitList":     { en: "← Units",            ru: "← К блокам" },
+    "ui.view.map":          { en: "Map",                ru: "Карта" },
+    "ui.view.list":         { en: "List",               ru: "Список" },
+    "chunk.analogy":        { en: "Analogy",            ru: "Аналогия" },
+    "chunk.sources":        { en: "Sources & further reading", ru: "Источники и дополнительное чтение" },
+    "chunk.backToExplain":  { en: "Back to explanation", ru: "К объяснению" },
+
+    // Mastery-exam result screen — found untranslated in a live
+    // walkthrough of the Philosophy course, 2026-08-25. The two
+    // description sentences build a "{timing}" / day-count phrase in
+    // JS rather than fighting the {var} templating over pluralisation.
+    "exam.backToTopics":    { en: "Back to Topics",      ru: "К темам" },
+    "exam.mastered":        { en: "Topic Mastered!",     ru: "Тема освоена!" },
+    "exam.notYet":          { en: "Not Quite Yet",       ru: "Пока не совсем" },
+    "exam.retry":           { en: "Retry Exam",          ru: "Пересдать" },
+    "exam.redoTopic":       { en: "Redo Topic",          ru: "Пройти тему заново" },
+    "exam.descPassed":      { en: "You scored {correct}/{total} on \"{title}\". It'll come back for review {timing} — that's when it does the most good.",
+                              ru: "Вы набрали {correct}/{total} по теме «{title}». Она вернётся на повторение {timing} — вот тогда от этого будет больше всего пользы." },
+    "exam.timingDays":      { en: "in {n} day",          ru: "через {n} день" },
+    "exam.timingDaysFew":   { en: "in {n} days",         ru: "через {n} дня" },
+    "exam.timingDaysMany":  { en: "in {n} days",         ru: "через {n} дней" },
+    "exam.descRedo":        { en: "You scored {correct}/{total} — that's two attempts under 80%. Rather than a third try at the same exam, go back through \"{title}\" from the start.",
+                              ru: "Вы набрали {correct}/{total} — это уже вторая попытка ниже 80%. Вместо третьего захода на тот же экзамен пройдите тему «{title}» заново, с начала." },
+    "exam.descRetry":       { en: "You scored {correct}/{total}, and 80% masters the topic. Rather than re-reading, go straight back to the questions you missed — that's what actually moves the needle.",
+                              ru: "Вы набрали {correct}/{total}, а для освоения темы нужно 80%. Вместо перечитывания сразу возвращайтесь к вопросам, где ошиблись, — именно это и сдвигает результат." },
+    // "8" is not a placeholder -- FINAL_QUIZ_TOPIC is a single global
+    // constant tied to intro-cs specifically, and 8 was a literal in
+    // the original English too. No course object is in scope here to
+    // compute it from, so this stays a fixed fact, not a template.
+    "exam.suffix":          { en: " — Mastery Exam",     ru: " — экзамен на освоение" },
+    "exam.cumulative":      { en: "Cumulative — drawn from all 8 units. Score 80% or higher to pass.",
+                              ru: "Итоговый — вопросы из всех 8 блоков. Наберите 80% или больше, чтобы сдать." },
+    "exam.scoreToMaster":   { en: "Score 80% or higher to master this topic and start its review schedule.",
+                              ru: "Наберите 80% или больше, чтобы освоить тему и запустить график её повторения." },
+    "exam.questionCounter": { en: "Question {n} of {total}", ru: "Вопрос {n} из {total}" },
+
+    // Quiz feedback -- two independent render sites (chunk quiz, exam
+    // question) that had each hardcoded their own copy of this text.
+    "quiz.correct":         { en: "✅ Correct!",       ru: "✅ Верно!" },
+    "quiz.notQuite":        { en: "❌ Not quite.",     ru: "❌ Не совсем." },
+    "quiz.wrongIs":         { en: "❌ Wrong — the answer is {letter}.", ru: "❌ Неверно — правильный ответ: {letter}." },
+    "btn.nextQuestion":     { en: "Next Question",     ru: "Следующий вопрос" },
+    "btn.seeResults":       { en: "See Results",       ru: "К результатам" },
     "ui.screen.garden":     { en: "Your Garden",        ru: "Ваш сад" },
     "ui.screen.settings":   { en: "Settings",           ru: "Настройки" },
     "ui.screen.career":     { en: "Career",             ru: "Карьера" },
@@ -416,6 +460,10 @@ const I18N = (() => {
     "contract.c4":          { en: "Take a water break at least once per streak",
                               ru: "Хотя бы раз за серию сделать перерыв на воду" },
     "contract.clear":       { en: "Clear",               ru: "Стереть" },
+    "contract.sign":        { en: "Sign & Enter",       ru: "Подписать и войти" },
+    "contract.signHere":    { en: "Sign here ✍️",       ru: "Распишитесь здесь ✍️" },
+    "contract.fineprint":   { en: "Legally binding in absolutely no jurisdiction. Knell will remember anyway.",
+                              ru: "Юридической силы не имеет ни в одной юрисдикции. Knell всё равно запомнит." },
 // ---- Interface pass 4: section titles and the prose under them ----
     // These were missed by the earlier sweeps because the title starts
     // with an emoji, so a "does this begin with a Latin letter" filter
