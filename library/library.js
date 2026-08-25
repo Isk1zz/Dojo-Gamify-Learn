@@ -149,14 +149,28 @@
     // problem only gets worse as courses are added. A course with no
     // `track` falls into "other" rather than vanishing.
     const TRACKS = [
-      { id: "cs",      label: "\u{1F4BB} Computer Science" },
-      { id: "science", label: "\u{1F52C} Sciences" },
-      { id: "other",   label: "\u{1F4DA} Other" }
+      { id: "cs",      label: "\u{1F4BB} " + I18N.t("track.cs") },
+      { id: "science", label: "\u{1F52C} " + I18N.t("track.science") },
+      { id: "other",   label: "\u{1F4DA} " + I18N.t("track.other") }
     ];
     const byTrack = new Map(TRACKS.map(t => [t.id, []]));
     COURSES.forEach(c => byTrack.get(byTrack.has(c.track) ? c.track : "other").push(c));
 
-    TRACKS.forEach(t => {
+    // Anything not built yet sinks. A shelf that opens with four "Coming
+    // soon" cards reads as an empty library, when in fact two courses are
+    // finished and sitting below them. Order within each group is left
+    // alone — this only moves the unbuilt ones down, it does not sort.
+    byTrack.forEach(list => list.sort((a, b) => (a.available === b.available ? 0 : a.available ? -1 : 1)));
+
+    // ...and a whole TRACK with nothing built in it sinks too, for the
+    // same reason: Sciences is four scaffolds today, and it should not
+    // stand between the reader and the courses they can actually open.
+    const ordered = [...TRACKS].sort((a, b) => {
+      const has = id => (byTrack.get(id) || []).some(c => c.available);
+      return has(a.id) === has(b.id) ? 0 : has(a.id) ? -1 : 1;
+    });
+
+    ordered.forEach(t => {
       const list = byTrack.get(t.id);
       if (!list.length) return;          // no empty headings
 

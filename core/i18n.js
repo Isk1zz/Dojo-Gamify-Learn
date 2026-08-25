@@ -477,7 +477,12 @@ const I18N = (() => {
     // SAVED data, not chrome: an existing profile keeps whatever it was
     // created with, and switching language later does not rename anybody.
     "profile.defaultName":  { en: "Student",             ru: "Ученик" },
-    "set.codePlaceholder":  { en: "Enter code...",      ru: "Введите код..." }
+    "set.codePlaceholder":  { en: "Enter code...",      ru: "Введите код..." },
+
+    // Library shelves
+    "track.cs":             { en: "Computer Science",   ru: "Информатика" },
+    "track.science":        { en: "Sciences",           ru: "Естественные науки" },
+    "track.other":          { en: "Other",              ru: "Прочее" }
   };
 
   // Missing key returns the key itself rather than "" — a visible

@@ -98,7 +98,7 @@
 // Bumped for interface translation pass 2: 40 new i18n keys, and the
 // shop/garden/stats catalogues turned into {en, ru} bags resolved through
 // I18N.resolve. A stale pairing shows raw keys or half-translated tiles.
-const CACHE_VERSION = "knell-v14";
+const CACHE_VERSION = "knell-v15";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
