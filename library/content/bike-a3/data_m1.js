@@ -1427,6 +1427,267 @@ const MODULE_A3 = {
           correct: 0
         }
       ]
+    },
+    {
+      // ---- Тема написана НАМИ, а не министерством ----
+      // Первые шесть тем построены вокруг официального банка вопросов:
+      // все 40 вопросов министерства разошлись по ним ровно по одному
+      // разу. Эта тема — единственная, где вопросов министерства нет
+      // вовсе: знаков в банке A3 попросту не спрашивают, а ездить, не
+      // зная их, нельзя.
+      //
+      // Поэтому все пять её examQuestions помечены `official: false`, и
+      // officialPool() в library/exam-sim.js их отбрасывает. Пробный
+      // экзамен обязан остаться симуляцией тех самых сорока — иначе он
+      // перестаёт измерять то, ради чего существует.
+      //
+      // Номера знаков сверены с הודעת התעבורה (קביעת לוח תמרורים)
+      // и перепроверены по каталогу tamrurim.co.il. Две поправки к
+      // первоначальному плану всплыли именно на сверке:
+      //   · совмещённая дорожка — 228, а НЕ 226 (226 — только пешеходам)
+      //   · запрет пешеходам и велосипедам — 216, а НЕ 217
+      // Номера велосипедных светофоров подтвердить не удалось, поэтому
+      // они описаны по форме сигнала и без номера.
+      id: "bike-signs",
+      title: { ru: "Знаки, которые адресованы вам", en: "The Signs Addressed to You" },
+      desc: { ru: "Дорожки и полосы, запреты, переходы и зоны — двенадцать знаков, без которых правила висят в воздухе", en: "Paths and lanes, prohibitions, crossings and zones — twelve signs, without which the rules float free" },
+      icon: "\u{1F6B4}",
+      chunks: [
+        {
+          title: { ru: "Дорожка или полоса: где вам ехать", en: "Path or Lane: Where You Belong" },
+          glossary: [
+            { term: { ru: "Знак 227", en: "Sign 227" }, definition: { ru: "Дорожка для движения велосипедов. Отдельное полотно, моторному транспорту въезд запрещён.", en: "A path for bicycle traffic. Separate ground; motor vehicles may not enter." } },
+            { term: { ru: "Знак 226", en: "Sign 226" }, definition: { ru: "Дорожка ТОЛЬКО для пешеходов. Велосипеду нельзя — знак, который путают с велосипедным чаще всех.", en: "A path for pedestrians ONLY. No bicycles — the sign most often mistaken for a cycle one." } },
+            { term: { ru: "Знак 228", en: "Sign 228" }, definition: { ru: "Совмещённая дорожка: пешеходы и велосипеды на одном полотне, без разделения.", en: "A shared path: pedestrians and bicycles on the same ground, undivided." } },
+            { term: { ru: "Знак 229", en: "Sign 229" }, definition: { ru: "Раздельные дорожки: своя половина пешеходам, своя велосипедам.", en: "Separate paths: one side for pedestrians, one for bicycles." } },
+            { term: { ru: "Знаки 224 и 225", en: "Signs 224 and 225" }, definition: { ru: "Начало и конец велополосы — выделенного коридора на самой проезжей части. 224 односторонняя: ехать только по указанному направлению.", en: "Start and end of a cycle lane — a marked corridor on the carriageway itself. 224 is one-way: ride only in the direction shown." } }
+          ],
+          predict: {
+            question: { ru: "Вдоль улицы идёт велодорожка, обозначенная знаком. Проезжая часть свободна и ехать по ней быстрее. Что говорит закон?", en: "A signed cycle path runs along the street. The carriageway is clear and riding on it would be faster. What does the law say?" },
+            options: [
+              { ru: "Дорожка — рекомендация; выбор за велосипедистом", en: "The path is a recommendation; the choice is the rider's" },
+              { ru: "Ехать по проезжей части запрещено", en: "Riding on the carriageway is forbidden" },
+              { ru: "Можно по проезжей части, если не мешать машинам", en: "The carriageway is allowed if you do not obstruct cars" },
+              { ru: "Зависит от того, есть ли на дорожке пешеходы", en: "It depends on whether there are pedestrians on the path" }
+            ],
+            reveal: { ru: "Обозначенная знаком дорожка не предлагает — она обязывает. Дальше разберём, чем дорожка отличается от полосы и почему эта разница решает, что вокруг вас окажется.", en: "A signed path does not offer — it obliges. Next: how a path differs from a lane, and why that difference decides what ends up around you." }
+          },
+          explain: {
+            blocks: [
+              { text: { ru: `Знаки для велосипедиста делятся на два вида, и путать их дорого. Есть <strong>дорожка</strong>: отдельное от проезжей части полотно, куда моторному транспорту въезд запрещён вообще. И есть <strong>полоса</strong>: выделенный коридор на самой проезжей части, вдоль которого в метре от вас идут машины.<br><br>Разница не в оформлении знака, а в том, что окажется вокруг вас. Официальное пояснение к знаку 224 говорит это прямо: в отличие от дорожки, где велосипедист соседствует с пешеходами, здесь речь о настоящей полосе на проезжей части, рядом с полосами моторного транспорта.`, en: `Signs for a cyclist come in two kinds, and confusing them is expensive. There is the <strong>path</strong>: ground separate from the carriageway, which motor vehicles may not enter at all. And there is the <strong>lane</strong>: a marked corridor on the carriageway itself, with cars running a metre away from you.<br><br>The difference is not in how the sign looks but in what ends up around you. The official note to sign 224 says so outright: unlike a path, where a rider shares space with pedestrians, this is a real lane on the carriageway, beside the lanes of motor traffic.` } },
+              { heading: { ru: "Четыре знака про дорожки", en: "Four signs about paths" }, text: { ru: `<strong>227</strong> — дорожка для движения велосипедов. <strong>226</strong> — дорожка <em>только для пешеходов</em>: вам туда нельзя, и именно её чаще всего принимают за велосипедную. <strong>228</strong> — дорожка <strong>совмещённая</strong>: пешеходы и велосипеды на одном полотне. <strong>229</strong> — дорожки <strong>раздельные</strong>: пешеходам своя половина, велосипедам своя.<br><br>228 и 229 похожи внешне и требуют противоположного поведения. На совмещённой вы обязаны считаться с пешеходом на всём полотне: он может идти где угодно, и он прав. На раздельной у вас есть своя половина — и заходить на пешеходную вы не должны так же, как он на вашу.`, en: `<strong>227</strong> — a path for bicycle traffic. <strong>226</strong> — a path for <em>pedestrians only</em>: not for you, and the one most often taken for a cycle sign. <strong>228</strong> — a <strong>shared</strong> path: pedestrians and bicycles on the same ground. <strong>229</strong> — <strong>separate</strong> paths: one side for pedestrians, one for bicycles.<br><br>228 and 229 look alike and demand opposite behaviour. On a shared path you must give way to a pedestrian anywhere on it: they may walk where they like, and they are right. On a separate path you have your own side — and you must stay off theirs exactly as they must stay off yours.` } },
+              { heading: { ru: "Знак не разрешает, а обязывает", en: "A sign does not permit — it obliges" }, text: { ru: `Здесь легко ошибиться в силе правила. Если вдоль дороги идёт велодорожка, обозначенная знаком, то ехать по любой другой части дороги <em>запрещено</em>. Не «стоит держаться дорожки», а нельзя с неё съезжать — даже если проезжая часть свободнее и быстрее.<br><br>Знаки 224 и 225 отмечают начало и конец велополосы. Конец полосы не отнимает у вас дорогу: вы просто возвращаетесь к общему правилу и едете по правому краю.`, en: `The strength of the rule is easy to get wrong. Where a signed cycle path runs along the road, riding on any other part of it is <em>forbidden</em>. Not "you should stick to the path" — you may not leave it, even when the carriageway is emptier and faster.<br><br>Signs 224 and 225 mark the start and end of a cycle lane. The end of the lane does not take the road away from you: you simply return to the general rule and ride near the right-hand edge.` } }
+            ],
+            analogy: { ru: `Разница между дорожкой и полосой — как между тротуаром и обочиной. По тротуару вы идёте, не думая о машинах: их там нет по устройству места. На обочине вы идёте по той же дороге, просто с краю, и всё держится на внимательности того, кто едет мимо. Знак сообщает не только куда вам можно, но и в какой из этих двух ситуаций вы окажетесь через секунду.`, en: `The difference between a path and a lane is the difference between a pavement and a hard shoulder. On a pavement you walk without thinking about cars: by the design of the place there are none. On a shoulder you are on the same road, merely at its edge, and everything rests on the attention of whoever is passing. The sign tells you not only where you may go but which of those two situations you will be in a second from now.` },
+            sources: [
+              { ref: { ru: `<bdi>הודעת התעבורה (קביעת לוח תמרורים), התשע״א-2010</bdi>. Полный текст: nevo.co.il/law_html/law01/500_427.htm`, en: `Traffic Notice (Determination of the Sign Table), 5771-2010 — <bdi>הודעת התעבורה (קביעת לוח תמרורים), התשע״א-2010</bdi>. Full text: nevo.co.il/law_html/law01/500_427.htm` }, note: { ru: `Дословные определения: 224 — <bdi>«נתיב חד-סטרי לתנועת אופניים»</bdi>, 225 — <bdi>«קצה הנתיב לאופניים»</bdi>, 227 — <bdi>«שביל לתנועת אופניים»</bdi>, 228 — <bdi>«שביל משותף להולכי רגל ולתנועת אופניים»</bdi>, 229 — <bdi>«שביל נפרד להולכי רגל בלבד, ושביל נפרד לתנועת אופניים בלבד»</bdi>.`, en: `Verbatim definitions: 224 <bdi>«נתיב חד-סטרי לתנועת אופניים»</bdi>, 225 <bdi>«קצה הנתיב לאופניים»</bdi>, 227 <bdi>«שביל לתנועת אופניים»</bdi>, 228 <bdi>«שביל משותף להולכי רגל ולתנועת אופניים»</bdi>, 229 <bdi>«שביל נפרד להולכי רגל בלבד, ושביל נפרד לתנועת אופניים בלבד»</bdi>.` } },
+              { ref: { ru: `<bdi>תקנות התעבורה, התשכ״א-1961, תקנה 129(ב)</bdi>. Полный текст: nevo.co.il/law_html/law01/p230_011.htm`, en: `Israeli Traffic Regulations 1961, reg. 129(b) — <bdi>תקנות התעבורה, התשכ״א-1961</bdi>. Full text: nevo.co.il/law_html/law01/p230_011.htm` }, note: { ru: `Норма, превращающая знак из разрешения в обязанность: при обозначенной велодорожке ехать по остальной дороге нельзя.`, en: `The rule that turns the sign from a permission into a duty: where a cycle path is signed, the rest of the road is out of bounds.` } }
+            ]
+          },
+          example: {
+            label: { ru: "Один маршрут, четыре знака", en: "One route, four signs" },
+            steps: [
+              { ru: `Начало улицы, знак 227 — дорожка ваша, едете по ней, и съезжать на проезжую часть нельзя.`, en: `Start of the street, sign 227 — the path is yours, ride it, and leaving it for the carriageway is not allowed.` },
+              { ru: `Дорожка упирается в знак 228 — дальше полотно общее с пешеходами: скорость вниз, пешеход прав на всей ширине.`, en: `The path meets sign 228 — from here the ground is shared with pedestrians: slow down, and the pedestrian is right across the full width.` },
+              { ru: `Дальше знак 226 — только пешеходам. Вам сюда нельзя: слезаете и ведёте велосипед рядом.`, en: `Then sign 226 — pedestrians only. Not for you: dismount and walk the bicycle.` },
+              { ru: `Улица кончается знаком 225 — велополоса закончилась. Никакого запрета: возвращаетесь к правому краю проезжей части.`, en: `The street ends at sign 225 — the cycle lane is over. No prohibition: you return to the right-hand edge of the carriageway.` }
+            ]
+          },
+          quiz: {
+            question: { ru: "Вы едете по дорожке со знаком 228. Впереди пешеход идёт посередине, разговаривая по телефону, и не слышит звонка. Как правильно?", en: "You are riding on a path signed 228. Ahead, a pedestrian walks down the middle on the phone and does not hear your bell. What is correct?" },
+            options: [
+              { ru: "Объехать по встречной стороне дорожки, не снижая скорости: на совмещённой дорожке стороны не закреплены.", en: "Pass on the oncoming side without slowing: on a shared path the sides are not assigned." },
+              { ru: "Продолжать звонить и держать скорость — пешеход обязан уступить велосипедисту на велодорожке.", en: "Keep ringing and hold your speed — a pedestrian must yield to a cyclist on a cycle path." },
+              { ru: "Сбросить скорость и объезжать так, чтобы любое его движение вас не задело: на совмещённой дорожке он прав на всей ширине.", en: "Slow down and pass with room for any move he makes: on a shared path he is entitled to the full width." },
+              { ru: "Съехать на проезжую часть и обогнать его там, вернувшись на дорожку после.", en: "Drop onto the carriageway, overtake there and rejoin the path afterwards." }
+            ],
+            correct: 2,
+            explanation: { ru: `228 — дорожка совмещённая, и это ключ ко всему вопросу: у пешехода тут нет «своей половины», которую он нарушает. Он вправе идти где угодно по полотну, в том числе непредсказуемо. Вариант про обязанность пешехода уступать переворачивает норму: совмещённая дорожка предназначена и ему тоже. А съезд на проезжую часть — прямое нарушение תקנה 129(ב): при обозначенной дорожке остальная дорога для вас закрыта.`, en: `228 is a shared path, and that is the whole of the question: the pedestrian has no "own side" here to stray from. He is entitled to walk anywhere on it, unpredictably included. The option about pedestrians yielding inverts the rule — a shared path is meant for him too. And dropping onto the carriageway breaks reg. 129(b) outright: where a path is signed, the rest of the road is closed to you.` }
+          },
+          recall: {
+            prompt: { ru: "Чем дорожка отличается от полосы, и что означают знаки 226, 227, 228 и 229?", en: "How does a path differ from a lane, and what do signs 226, 227, 228 and 229 mean?" },
+            answer: { ru: `Дорожка — отдельное от проезжей части полотно, куда моторному транспорту нельзя; полоса — выделенный коридор на самой проезжей части, рядом с машинами. 227 — дорожка для велосипедов. 226 — только для пешеходов, вам нельзя. 228 — совмещённая: пешеход прав на всей ширине. 229 — раздельные: у каждого своя половина. 224 и 225 — начало и конец велополосы. Главное: обозначенная знаком дорожка не рекомендация, а обязанность — ехать по остальной дороге запрещено.`, en: `A path is ground separate from the carriageway, closed to motor vehicles; a lane is a marked corridor on the carriageway itself, beside the cars. 227 — a path for bicycles. 226 — pedestrians only, not for you. 228 — shared: the pedestrian is entitled to the full width. 229 — separate: each side has its own. 224 and 225 — start and end of a cycle lane. The main point: a signed path is not a recommendation but a duty — riding on the rest of the road is forbidden.` },
+            points: [
+              { ru: `Дорожка — без машин; полоса — на проезжей части рядом с ними`, en: `Path — no cars; lane — on the carriageway beside them` },
+              { ru: `227 велосипедам, 226 только пешеходам`, en: `227 bicycles, 226 pedestrians only` },
+              { ru: `228 совмещённая, 229 раздельные`, en: `228 shared, 229 separate` },
+              { ru: `Есть знак — ехать по остальной дороге запрещено`, en: `Sign present — the rest of the road is forbidden` }
+            ]
+          },
+          wisdomTags: ["precision", "evidence"]
+        },
+
+        {
+          title: { ru: "Запреты и пересечения", en: "Prohibitions and Crossings" },
+          glossary: [
+            { term: { ru: "Знак 412", en: "Sign 412" }, definition: { ru: "Въезд велосипедам запрещён. Адресован именно вам, остальным движение разрешено.", en: "No entry for bicycles. Addressed to you specifically; others may still pass." } },
+            { term: { ru: "Знак 216", en: "Sign 216" }, definition: { ru: "Запрещён въезд пешеходам и велосипедам (и ряду других участников).", en: "No entry for pedestrians and bicycles (among other users)." } },
+            { term: { ru: "Разметка 811", en: "Marking 811" }, definition: { ru: "Обычный пешеходный переход. Верхом по нему ехать нельзя — только вести велосипед рядом.", en: "An ordinary pedestrian crossing. No riding across — walk the bicycle instead." } },
+            { term: { ru: "Разметка 812", en: "Marking 812" }, definition: { ru: "Переход для велосипедистов. Единственное место, где дорогу разрешено пересекать верхом.", en: "A cyclist crossing. The one place you may cross the road while riding." } }
+          ],
+          explain: {
+            blocks: [
+              { text: { ru: `Два запрещающих знака стоит различать, потому что они запрещают разное. <strong>412</strong> — въезд запрещён <em>велосипедам</em>: адресован лично вам, остальным ехать можно. <strong>216</strong> — запрещён въезд и пешеходам, и велосипедам, наряду с некоторыми другими участниками.<br><br>Разница практическая. Под 412 вы можете слезть и пройти пешком — запрет касается велосипеда как транспортного средства. Под 216 нельзя и это: перекрыт сам проход.`, en: `Two prohibition signs are worth telling apart, because they prohibit different things. <strong>412</strong> is no entry for <em>bicycles</em>: addressed to you personally, while others may still ride. <strong>216</strong> bars both pedestrians and bicycles, along with certain other users.<br><br>The difference is practical. Under 412 you may dismount and walk through — the ban is on the bicycle as a vehicle. Under 216 you may not even do that: the way through itself is closed.` } },
+              { heading: { ru: "Два перехода, которые выглядят одинаково", en: "Two crossings that look alike" }, text: { ru: `На асфальте есть две разметки, и они решают, можно ли вам ехать. <strong>811</strong> — обычный пешеходный переход: пересекать его <em>верхом</em> нельзя, нужно слезть и перекатить велосипед, и в этот момент вы пешеход со всеми его правами. <strong>812</strong> — переход для велосипедистов: по нему разрешено ехать верхом.<br><br>Норма формулирует это как исключение из запрета: пересекать переход верхом нельзя, <em>кроме</em> перехода для велосипедистов, обозначенного знаком 812. Именно поэтому в экзаменационном банке исключения не видно — вопрос там про обычный переход.`, en: `There are two markings on the asphalt, and they decide whether you may ride. <strong>811</strong> is an ordinary pedestrian crossing: you may not cross it <em>mounted</em>; dismount and walk the bicycle over, and at that moment you are a pedestrian with every right of one. <strong>812</strong> is a cyclist crossing: riding across is permitted.<br><br>The rule frames this as an exception to a ban: no riding across a crossing, <em>except</em> a cyclist crossing marked with sign 812. Which is exactly why the exception is invisible in the question bank — the question there is about an ordinary crossing.` } },
+              { heading: { ru: "Односторонняя улица, которая для вас двусторонняя", en: "The one-way street that is two-way for you" }, text: { ru: `Есть знак, отмечающий улицу с односторонним движением для моторного транспорта, где велосипедистам разрешено ехать и во встречном направлении. Это не вольность и не местный обычай, а отдельно обозначенный режим.<br><br>Практический вывод один: одностороннее движение само по себе не говорит вам, можно встречно или нет. Смотрите, каким знаком улица обозначена, а не на стрелку на асфальте.`, en: `There is a sign marking a street that is one-way for motor traffic but where cyclists may also ride against it. This is not a liberty taken or a local custom but a separately signed arrangement.<br><br>One practical consequence: a one-way street does not by itself tell you whether riding against it is allowed. Read which sign the street carries, not the arrow painted on the asphalt.` } }
+            ],
+            analogy: { ru: `812 рядом с 811 — как отдельная касса рядом с общей очередью: та же стена, тот же вход, но правила прохода разные, и разница написана на полу, а не объявлена вслух. Кто не читает под ногами, встаёт в общую очередь и уверен, что другой не существует. Здесь цена вопроса не минуты ожидания, а протокол.`, en: `812 beside 811 is like a separate till beside the main queue: the same wall, the same entrance, but different rules for getting through, and the difference is written on the floor rather than announced. Anyone not reading underfoot joins the main queue convinced the other does not exist. Here the price is not minutes of waiting but a citation.` },
+            sources: [
+              { ref: { ru: `<bdi>תקנות התעבורה, התשכ״א-1961, תקנה 129(ז)</bdi>. Полный текст: nevo.co.il/law_html/law01/p230_011.htm`, en: `Israeli Traffic Regulations 1961, reg. 129(g) — <bdi>תקנות התעבורה, התשכ״א-1961</bdi>. Full text: nevo.co.il/law_html/law01/p230_011.htm` }, note: { ru: `Дословно: <bdi>«לא יעבור רוכב אופניים במעבר חציה ברכיבה אלא במעבר חציה לרוכבי אופניים המסומן בתמרור 812»</bdi> — верхом нельзя, КРОМЕ перехода 812.`, en: `Verbatim: <bdi>«לא יעבור רוכב אופניים במעבר חציה ברכיבה אלא במעבר חציה לרוכבי אופניים המסומן בתמרור 812»</bdi> — no riding across, EXCEPT a 812 crossing.` } },
+              { ref: { ru: `<bdi>הודעת התעבורה (קביעת לוח תמרורים), התשע״א-2010</bdi>. Полный текст: nevo.co.il/law_html/law01/500_427.htm`, en: `Traffic Notice (Determination of the Sign Table), 5771-2010 — <bdi>הודעת התעבורה (קביעת לוח תמרורים), התשע״א-2010</bdi>. Full text: nevo.co.il/law_html/law01/500_427.htm` }, note: { ru: `412 — <bdi>«אסורה הכניסה לאופניים»</bdi>; 216 — <bdi>«אסורה הכניסה להולכי רגל, לאופניים»</bdi>; 812 — <bdi>«מעבר חציה לאופניים»</bdi>, 811 — переход для пешеходов.`, en: `412 <bdi>«אסורה הכניסה לאופניים»</bdi>; 216 <bdi>«אסורה הכניסה להולכי רגל, לאופניים»</bdi>; 812 <bdi>«מעבר חציה לאופניים»</bdi>; 811 the pedestrian crossing.` } }
+            ]
+          },
+          example: {
+            label: { ru: "Перекрёсток: что читать под колесом", en: "A junction: what to read under your wheel" },
+            steps: [
+              { ru: `Подъезжаете к переходу. Первое, что смотрите, — разметка: 811 или 812.`, en: `You approach a crossing. The first thing you read is the marking: 811 or 812.` },
+              { ru: `812 — едете верхом, но осторожно и убедившись, что дорога свободна.`, en: `812 — ride across, but carefully and having checked the road is clear.` },
+              { ru: `811 — слезаете и перекатываете велосипед: только так переход становится вашим.`, en: `811 — dismount and walk it over: only then is the crossing yours.` },
+              { ru: `За переходом знак 412 — велосипедам въезд запрещён. Слезть и пройти пешком можно, ехать нельзя.`, en: `Beyond the crossing, sign 412 — no entry for bicycles. Dismounting and walking through is fine; riding is not.` }
+            ]
+          },
+          quiz: {
+            question: { ru: "Перед вами разметка 812. Дорога свободна. Что разрешено?", en: "The marking ahead of you is 812. The road is clear. What is permitted?" },
+            options: [
+              { ru: "Ничего нового: любой переход пересекают только пешком, ведя велосипед рядом.", en: "Nothing new: every crossing is taken on foot, walking the bicycle." },
+              { ru: "Пересечь дорогу верхом — 812 обозначает переход для велосипедистов, и это прямое исключение из общего запрета.", en: "Cross while riding — 812 marks a cyclist crossing, an explicit exception to the general ban." },
+              { ru: "Пересечь верхом, но только если рядом нет пешеходов: при пешеходах правило возвращается к общему.", en: "Cross while riding, but only if no pedestrians are near: with pedestrians the general rule returns." },
+              { ru: "Пересечь верхом на любом переходе — 812 лишь напоминает о том, что и так разрешено.", en: "Cross while riding at any crossing — 812 merely reminds you of what is already allowed." }
+            ],
+            correct: 1,
+            explanation: { ru: `Норма построена как запрет с одним исключением, и 812 — это оно. Первый вариант — распространённая ошибка: он верен для обычного перехода 811 и неверен здесь. Третий добавляет условие, которого в норме нет: требование осторожности есть всегда, но оно не отменяет самого разрешения. Четвёртый переворачивает логику — исключение потому и исключение, что на остальные переходы не распространяется.`, en: `The rule is built as a ban with a single exception, and 812 is it. The first option is the common error: true of an ordinary 811 crossing, false here. The third adds a condition the rule does not contain — care is always required, but it does not cancel the permission. The fourth inverts the logic: an exception is an exception precisely because it does not extend to the other crossings.` }
+          },
+          recall: {
+            prompt: { ru: "Чем 412 отличается от 216, и что меняет разметка 812 по сравнению с 811?", en: "How does 412 differ from 216, and what does marking 812 change compared with 811?" },
+            answer: { ru: `412 запрещает въезд велосипедам: можно слезть и пройти пешком, потому что запрет касается велосипеда как транспортного средства. 216 запрещает въезд и пешеходам, и велосипедам — пройти тоже нельзя. 811 — обычный пешеходный переход: верхом нельзя, нужно слезть и вести велосипед, и тогда вы пешеход. 812 — переход для велосипедистов, единственное место, где разрешено пересекать дорогу верхом; это прямое исключение из общего запрета.`, en: `412 bars bicycles: you may dismount and walk through, because the ban is on the bicycle as a vehicle. 216 bars pedestrians as well as bicycles — walking through is out too. 811 is an ordinary pedestrian crossing: no riding, dismount and walk, and then you are a pedestrian. 812 is a cyclist crossing, the one place you may cross while riding; it is an explicit exception to the general ban.` },
+            points: [
+              { ru: `412 — велосипедам нельзя, пешком можно`, en: `412 — no bicycles, on foot is fine` },
+              { ru: `216 — нельзя и пешком`, en: `216 — not even on foot` },
+              { ru: `811 — слезть и вести`, en: `811 — dismount and walk` },
+              { ru: `812 — единственный переход, где можно верхом`, en: `812 — the only crossing you may ride across` }
+            ]
+          },
+          wisdomTags: ["precision", "humility"]
+        },
+
+        {
+          title: { ru: "Предупреждения и зоны", en: "Warnings and Zones" },
+          glossary: [
+            { term: { ru: "Знак 137", en: "Sign 137" }, definition: { ru: "Предупреждение о движении велосипедов поблизости. Адресован водителям — то есть защищает вас.", en: "A warning of bicycle traffic nearby. Addressed to drivers — that is, it protects you." } },
+            { term: { ru: "Знак 222", en: "Sign 222" }, definition: { ru: "Зона успокоенного движения: улица, устроенная так, чтобы транспорт ехал медленно.", en: "A traffic-calming zone: a street arranged so that traffic moves slowly." } },
+            { term: { ru: "Знак 223", en: "Sign 223" }, definition: { ru: "Конец зоны успокоенного движения — дальше обычные правила улицы.", en: "End of the traffic-calming zone — ordinary street rules resume." } },
+            { term: { ru: "Велосипедный светофор", en: "Bicycle traffic light" }, definition: { ru: "Сигнал с силуэтом велосипеда: красный — не начинать, зелёный — переезжать осторожно. Адресован вам, а не пешеходам рядом.", en: "A signal showing a bicycle: red — do not start, green — cross with care. Addressed to you, not to the pedestrians beside you." } }
+          ],
+          explain: {
+            blocks: [
+              { text: { ru: `Не всякий важный для вас знак обращён к вам. <strong>137</strong> предупреждает о движении велосипедов поблизости, и адресован он водителям: там, где велосипедная дорожка пересекает дорогу или идёт вдоль неё. Вы этот знак не исполняете — вы им защищены.<br><br>Знать его стоит по другой причине. Он показывает, где закон ожидает встречи машины с велосипедом. А значит, там же водитель ожидает вас — и там же он вас ищет глазами. За пределами этих мест не ищет.`, en: `Not every sign that matters to you is addressed to you. <strong>137</strong> warns of bicycle traffic nearby, and it speaks to drivers: where a cycle path crosses the road or runs along it. You do not obey this sign — you are protected by it.<br><br>It is worth knowing for a different reason. It marks where the law expects a car to meet a bicycle. Which means that is where a driver expects you, and where his eyes go looking. Outside those places they do not.` } },
+              { heading: { ru: "Зона успокоенного движения", en: "The traffic-calming zone" }, text: { ru: `<strong>222</strong> отмечает начало зоны успокоенного движения, <strong>223</strong> — её конец. Это улица, устроенная так, чтобы транспорт двигался медленно: сужения, приподнятые площадки, изломанная траектория.<br><br>Для велосипедиста такая зона — редкий случай, когда разница в скорости с машинами почти исчезает. Отсюда и главная её ловушка: медленно едущий автомобиль воспринимается как безопасный, и дистанцию начинают сокращать — свою и чужую. Скорость упала, но масса осталась прежней.`, en: `<strong>222</strong> marks the start of a traffic-calming zone, <strong>223</strong> its end. It is a street built so that traffic moves slowly: narrowings, raised tables, a broken line of travel.<br><br>For a cyclist such a zone is the rare case where the speed difference with cars nearly vanishes. Hence its main trap: a slow-moving car reads as a safe one, and distances start shrinking — yours and theirs. The speed has fallen; the mass has not.` } },
+              { heading: { ru: "Светофор, который ваш", en: "The traffic light that is yours" }, text: { ru: `На перекрёстках с велосипедной инфраструктурой ставят светофоры с силуэтом велосипеда: красный — не начинать движение, а если вы уже на проезжей части, освободить её немедленно; зелёный — переезжать осторожно.<br><br>Важно, что рядом часто стоит пешеходный светофор с другим ритмом. Смотреть надо на свой: совпадение фаз не гарантировано, и «у пешеходов зелёный» не значит, что зелёный у вас.`, en: `At junctions with cycle infrastructure there are signals showing a bicycle: red — do not set off, and if you are already on the carriageway, clear it at once; green — cross with care.<br><br>What matters is that a pedestrian signal often stands beside it on a different rhythm. Watch your own: the phases are not guaranteed to coincide, and "the pedestrians have green" does not mean you do.` } }
+            ],
+            analogy: { ru: `Знак 137 работает как табличка «осторожно, дети» у школы: она обращена не к детям. Ребёнку от неё никакой инструкции, но именно там водитель сбрасывает скорость и начинает смотреть по сторонам. Ваша выгода не в том, чтобы этот знак исполнять, а в том, чтобы знать, где вас ждут — и трезво понимать, что в сотне метров дальше уже не ждут.`, en: `Sign 137 works like a "children crossing" plate outside a school: it is not addressed to the children. It gives a child no instruction, yet that is exactly where a driver slows and starts looking around. Your gain is not in obeying it but in knowing where you are expected — and in seeing clearly that a hundred metres further along, you are not.` },
+            sources: [
+              { ref: { ru: `<bdi>הודעת התעבורה (קביעת לוח תמרורים), התשע״א-2010</bdi>. Полный текст: nevo.co.il/law_html/law01/500_427.htm`, en: `Traffic Notice (Determination of the Sign Table), 5771-2010 — <bdi>הודעת התעבורה (קביעת לוח תמרורים), התשע״א-2010</bdi>. Full text: nevo.co.il/law_html/law01/500_427.htm` }, note: { ru: `137 — <bdi>«תנועת אופניים בקרבת מקום»</bdi>; 222 — <bdi>«אזור מיתון תנועה»</bdi>; 223 — <bdi>«קצה אזור מיתון תנועה»</bdi>. Велосипедные светофоры описаны в таблице как сигнал с фигурой велосипеда, красной и зелёной; номер здесь намеренно не назван, поскольку подтвердить его по первоисточнику не удалось.`, en: `137 <bdi>«תנועת אופניים בקרבת מקום»</bdi>; 222 <bdi>«אזור מיתון תנועה»</bdi>; 223 <bdi>«קצה אזור מיתון תנועה»</bdi>. The bicycle signals appear in the table as a light showing a bicycle in red and green; the number is deliberately not given here, since it could not be confirmed against the primary source.` } },
+              { ref: { ru: `<bdi>תקנות התעבורה, התשכ״א-1961, תקנה 129</bdi>. Полный текст: nevo.co.il/law_html/law01/p230_011.htm`, en: `Israeli Traffic Regulations 1961, reg. 129 — <bdi>תקנות התעבורה, התשכ״א-1961</bdi>. Full text: nevo.co.il/law_html/law01/p230_011.htm` }, note: { ru: `Общие обязанности велосипедиста на дороге, в рамках которых действуют и зона успокоенного движения, и сигналы светофора.`, en: `The general duties of a rider on the road, within which both the calming zone and the signals operate.` } }
+            ]
+          },
+          example: {
+            label: { ru: "Проезд через жилой квартал", en: "Riding through a residential quarter" },
+            steps: [
+              { ru: `Знак 222 — въезжаете в зону успокоенного движения: машины медленные, но дистанцию держите как обычно.`, en: `Sign 222 — you enter a calming zone: the cars are slow, but keep your distance as usual.` },
+              { ru: `Перекрёсток, светофор с силуэтом велосипеда красный, а пешеходный зелёный. Ждёте: фазы разные, ваш сигнал — свой.`, en: `A junction: the bicycle signal is red while the pedestrian one is green. You wait: the phases differ, and your signal is your own.` },
+              { ru: `Знак 137 на выезде — здесь водители предупреждены о вас. Это лучшее место для пересечения потока, а не худшее.`, en: `Sign 137 at the exit — here drivers are warned about you. This is the best place to cross the flow, not the worst.` },
+              { ru: `Знак 223 — зона кончилась, скорости вокруг растут. Ваше преимущество в скорости исчезло первым.`, en: `Sign 223 — the zone is over and the speeds around you rise. Your parity in speed was the first thing to go.` }
+            ]
+          },
+          quiz: {
+            question: { ru: "Вы у перекрёстка. Пешеходный светофор загорелся зелёным, велосипедный — красный. Дорога пуста. Как правильно?", en: "You are at a junction. The pedestrian signal has turned green, the bicycle signal is red. The road is empty. What is correct?" },
+            options: [
+              { ru: "Ехать: зелёный пешеходный распространяется на всех, кто пересекает дорогу в этом месте.", en: "Ride on: a green pedestrian signal covers everyone crossing at that point." },
+              { ru: "Ехать: при пустой дороге сигнал теряет смысл, он регулирует только конфликт с транспортом.", en: "Ride on: with an empty road the signal is moot, it only manages conflict with traffic." },
+              { ru: "Слезть с велосипеда и перейти как пешеход, поскольку пешеходный сигнал зелёный.", en: "Dismount and walk across as a pedestrian, since the pedestrian signal is green." },
+              { ru: "Ждать своего сигнала: фазы двух светофоров не обязаны совпадать, и вам адресован тот, что с велосипедом.", en: "Wait for your own signal: the two phases need not coincide, and the one showing a bicycle is addressed to you." }
+            ],
+            correct: 3,
+            explanation: { ru: `Велосипедный светофор существует именно потому, что его фаза может отличаться от пешеходной — иначе он был бы не нужен. Пустая дорога ничего не меняет: сигнал не спрашивает, видите ли вы помеху, и очень часто вы её не видите как раз потому, что она ещё не в поле зрения. Третий вариант формально изобретателен, но переход с велосипедом в руках занимает больше времени, чем рассчитана пешеходная фаза для налегке идущего человека.`, en: `A bicycle signal exists precisely because its phase can differ from the pedestrian one — otherwise it would be redundant. An empty road changes nothing: the signal does not ask whether you can see a hazard, and very often you cannot see it exactly because it is not in view yet. The third option is formally inventive, but walking a bicycle across takes longer than a pedestrian phase timed for someone on foot and unencumbered.` }
+          },
+          recall: {
+            prompt: { ru: "Кому адресован знак 137, что означают 222 и 223, и на какой светофор смотреть велосипедисту?", en: "Who is sign 137 addressed to, what do 222 and 223 mean, and which signal should a cyclist watch?" },
+            answer: { ru: `137 предупреждает о движении велосипедов поблизости и адресован водителям — вы им защищены, а не обязаны. Пользу извлекаете так: там водитель вас ожидает и ищет глазами, а вне таких мест — нет. 222 — начало зоны успокоенного движения, 223 — её конец; там скорости машин низкие, но масса прежняя, и дистанцию сокращать нельзя. Светофор с силуэтом велосипеда адресован вам, и его фаза не обязана совпадать с пешеходной: зелёный у пешеходов не означает зелёный у вас.`, en: `137 warns of bicycle traffic nearby and speaks to drivers — it protects you rather than binding you. The use you get from it: there a driver expects you and goes looking, and outside such places he does not. 222 starts a traffic-calming zone and 223 ends it; the speeds there are low but the mass is unchanged, so distances must not shrink. A signal showing a bicycle is addressed to you, and its phase need not match the pedestrian one: their green is not your green.` },
+            points: [
+              { ru: `137 — водителям, не вам; там вас ищут глазами`, en: `137 — to drivers, not you; that is where you are looked for` },
+              { ru: `222 начало, 223 конец зоны успокоенного движения`, en: `222 starts, 223 ends the calming zone` },
+              { ru: `Смотреть на светофор с велосипедом, а не на пешеходный`, en: `Watch the bicycle signal, not the pedestrian one` },
+              { ru: `Скорость упала — масса нет`, en: `Speed fell — mass did not` }
+            ]
+          },
+          wisdomTags: ["humility", "planning"]
+        }
+      ],
+      // Ни один из этих пяти вопросов не министерский: знаков в банке A3
+      // нет. `official: false` держит их вне пула пробного экзамена —
+      // см. officialPool() в library/exam-sim.js.
+      examQuestions: [
+        {
+          official: false,
+          question: { ru: "Какой знак обозначает совмещённую дорожку для пешеходов и велосипедов?", en: "Which sign marks a path shared by pedestrians and bicycles?" },
+          options: [
+            { ru: "228", en: "228" },
+            { ru: "226", en: "226" },
+            { ru: "229", en: "229" },
+            { ru: "227", en: "227" }
+          ],
+          correct: 0,
+          explanation: { ru: `228 — совмещённая дорожка. 226 — только для пешеходов, 227 — только для велосипедов, 229 — раздельные дорожки, у каждого своя половина.`, en: `228 is the shared path. 226 is pedestrians only, 227 bicycles only, and 229 separate paths with a side for each.` }
+        },
+        {
+          official: false,
+          question: { ru: "Вдоль дороги идёт велодорожка, обозначенная знаком. Можно ли ехать по проезжей части?", en: "A signed cycle path runs along the road. May you ride on the carriageway?" },
+          options: [
+            { ru: "Да, если это не мешает движению транспорта", en: "Yes, provided it does not obstruct traffic" },
+            { ru: "Нет: при обозначенной велодорожке ехать по остальной дороге запрещено", en: "No: where a cycle path is signed, riding elsewhere on the road is forbidden" },
+            { ru: "Да, велодорожка носит рекомендательный характер", en: "Yes, a cycle path is advisory" },
+            { ru: "Да, если на дорожке есть пешеходы", en: "Yes, if there are pedestrians on the path" }
+          ],
+          correct: 1,
+          explanation: { ru: `תקנה 129(ב) формулирует это как запрет, а не как предпочтение: есть обозначенная дорожка — остальная дорога для вас закрыта.`, en: `Reg. 129(b) states this as a prohibition rather than a preference: where a path is signed, the rest of the road is closed to you.` }
+        },
+        {
+          official: false,
+          question: { ru: "Что обозначает разметка 812?", en: "What does marking 812 indicate?" },
+          options: [
+            { ru: "Конец велосипедной полосы", en: "The end of a cycle lane" },
+            { ru: "Обычный пешеходный переход", en: "An ordinary pedestrian crossing" },
+            { ru: "Переход для велосипедистов, который разрешено пересекать верхом", en: "A cyclist crossing, which may be ridden across" },
+            { ru: "Запрет въезда велосипедам", en: "A prohibition on bicycles entering" }
+          ],
+          correct: 2,
+          explanation: { ru: `812 — единственное место, где закон разрешает пересекать дорогу верхом. Обычный переход — 811, по нему велосипед ведут рядом. Конец полосы — 225, запрет въезда — 412.`, en: `812 is the one place the law allows crossing while riding. The ordinary crossing is 811, where the bicycle is walked. The end of a lane is 225 and the entry ban is 412.` }
+        },
+        {
+          official: false,
+          question: { ru: "Знак 412 запрещает въезд велосипедам. Что вам всё же разрешено?", en: "Sign 412 bars bicycles from entering. What are you still allowed to do?" },
+          options: [
+            { ru: "Слезть и пройти пешком, ведя велосипед рядом", en: "Dismount and walk through, wheeling the bicycle" },
+            { ru: "Проехать медленно, если нет пешеходов", en: "Ride through slowly if there are no pedestrians" },
+            { ru: "Проехать, если велосипед электрический", en: "Ride through if the bicycle is electric" },
+            { ru: "Ничего: проход закрыт полностью", en: "Nothing: the way through is closed entirely" }
+          ],
+          correct: 0,
+          explanation: { ru: `412 запрещает въезд велосипеду как транспортному средству — сойдя с него, вы становитесь пешеходом. Полностью проход закрывает 216, запрещающий въезд и пешеходам, и велосипедам.`, en: `412 bars the bicycle as a vehicle — step off it and you are a pedestrian. The way is closed entirely by 216, which bars pedestrians as well as bicycles.` }
+        },
+        {
+          official: false,
+          question: { ru: "На перекрёстке пешеходный светофор зелёный, а светофор с силуэтом велосипеда красный. Что делать велосипедисту?", en: "At a junction the pedestrian signal is green and the signal showing a bicycle is red. What should a cyclist do?" },
+          options: [
+            { ru: "Ехать: зелёный пешеходный распространяется и на велосипедистов", en: "Ride on: the green pedestrian signal covers cyclists too" },
+            { ru: "Ехать, если дорога свободна", en: "Ride on if the road is clear" },
+            { ru: "Ждать зелёного на своём светофоре — фазы не обязаны совпадать", en: "Wait for green on your own signal — the phases need not coincide" },
+            { ru: "Ехать, поскольку велосипедный светофор носит информационный характер", en: "Ride on, since the bicycle signal is informational" }
+          ],
+          correct: 2,
+          explanation: { ru: `Велосипедный светофор существует именно потому, что его фаза может отличаться от пешеходной. Свободная дорога ничего не меняет: помеха часто ещё вне поля зрения.`, en: `A bicycle signal exists precisely because its phase can differ from the pedestrian one. A clear road changes nothing: the hazard is often still out of sight.` }
+        }
+      ]
     }
   ]
 };

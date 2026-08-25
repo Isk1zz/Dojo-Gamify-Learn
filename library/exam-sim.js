@@ -78,7 +78,16 @@
     const out = [];
     (course.units || []).forEach(unitId => {
       (UNIT_TOPICS[unitId] || []).forEach(topic => {
-        (topic.examQuestions || []).forEach(q => out.push(q));
+        // Exam questions are official BY DEFAULT: every one of them came
+        // from the Ministry's own bank, which is what makes this a
+        // simulation of the real forty rather than a quiz of our own.
+        //
+        // A topic written by us (the road-signs topic) carries questions
+        // that are ours, and they must stay out of that pool or the mock
+        // exam quietly stops being the thing it claims to be. They opt
+        // out with `official: false` — explicit, and visible in the
+        // content next to the question it disqualifies.
+        (topic.examQuestions || []).forEach(q => { if (q.official !== false) out.push(q); });
         (topic.chunks || []).forEach(c => {
           if (c.quiz && c.quiz.official) out.push(c.quiz);
         });

@@ -1266,7 +1266,7 @@
 
     body.innerHTML = `
       <div class="chunk-section">
-        <div class="chunk-phase explain">📖 Explanation</div>
+        <div class="chunk-phase explain">📖 ${I18N.t("phase.explain")}</div>
         <h2 class="chunk-title">${chunk.title}</h2>
         ${blocksHtml}
         ${analogyHtml}
@@ -1289,7 +1289,7 @@
 
     body.innerHTML = `
       <div class="chunk-section">
-        <div class="chunk-phase example">🧪 Example</div>
+        <div class="chunk-phase example">🧪 ${I18N.t("phase.example")}</div>
         <h2 class="chunk-title">${chunk.title}</h2>
         <div class="example-box">
           <div class="example-label">${chunk.example.label}</div>
@@ -1353,7 +1353,7 @@
 
     body.innerHTML = `
       <div class="chunk-section">
-        <div class="chunk-phase quiz">❓ Question</div>
+        <div class="chunk-phase quiz">❓ ${I18N.t("phase.apply")}</div>
         <h2 class="chunk-title">${chunk.title}</h2>
         <div class="quiz-question">${q.question}</div>
         <div class="quiz-options">${optionsHtml}</div>

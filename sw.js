@@ -90,7 +90,12 @@
 // Bumped for core/crypto.js: a new file in band 1. A cached index.html
 // without its tag means Dojo.Crypto is simply absent, and every caller
 // has to guess whether that means "not supported here" or "stale cache".
-const CACHE_VERSION = "knell-v9";
+// Bumped for the road-signs topic in bike-a3: data_m1.js gained a
+// seventh topic, and exam-sim.js gained the `official: false` guard that
+// keeps that topic's questions out of the mock exam. Cached apart, the
+// mock exam would draw 45 questions and stop being a simulation of the
+// Ministry's forty.
+const CACHE_VERSION = "knell-v10";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
