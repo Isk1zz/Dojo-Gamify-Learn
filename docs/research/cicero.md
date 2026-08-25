@@ -10,7 +10,7 @@ Two topics, six chunks.
 | # | Chunk | Status of sourcing |
 |---|---|---|
 | 1 | The hands | **sourced** — Livy via Seneca, Juvenal |
-| 2 | Two failures: Catiline, then Octavian | **re-shaped** — see Zarecki chs. 6-7 |
+| 2 | Two failures: Catiline, then Octavian | **sourced** — Rawson p. 557, Zarecki, Phil. 2.11 |
 | 3 | Tullia | **sourced** — Zarecki ch. 4 |
 | 4 | Making Latin hold a thought | **sourced** — von Albrecht ch. 4; angle corrected |
 | 5 | Arguing both sides | **sourced** — Zarecki ch. 1 |
@@ -501,12 +501,46 @@ beat about what gets kept and what does not.
 
 ---
 
+## Chunk 2 — Catiline: both sides, already held
+
+I had this filed as the last open question. It is not open; the material was
+already in two sources, and the chunk is **better for not resolving it**.
+
+**The defence.** Rawson, p. 557:
+
+> Clodius "in 58 B.C. passed a bill exiling Cicero on the ground that he had
+> put a number of the self-confessed conspirators to death without public trial
+> in 63 B.C. **Cicero could answer that the Senate had voted for this action,
+> and that an emergency decree deployed by it had deprived the men concerned of
+> their status as citizens, which alone entitled them to trial.**"
+
+Zarecki adds that he was careful about the sequence:
+
+> "As consul he had **not arrested** the Catilinarian conspirators **until he
+> was under the aegis of the *senatus consultum ultimum***, and he could **with
+> no small measure of truth** claim that he had always acted in concert with the
+> wishes of the Senate (*Phil.* 2.11)."
+
+**The prosecution.** Rome convicted him in the only way a republic can: five
+years later it passed a law and sent him into exile for it. Rawson: "the great
+nobles, too, did not or could not help him, and he left Italy in despair."
+
+**Do not resolve it in the chunk.** Two serious scholars decline to, and the
+Romans themselves split — the Senate authorised it in 63 and the people
+exiled him for it in 58. The chunk is not asking whether he was guilty. It is
+showing a man who was **certain**, twice, and paid both times: certain about
+the conspirators at 43, certain he could manage Octavian at 63. Leaving the
+legal question genuinely open is what makes the point land, and it is also
+what is true.
+
+---
+
 ## Still open
 
-**One thing only: the legality of the Catilinarian executions** (chunk 2). Was
-the *senatus consultum ultimum* sufficient authority to put citizens to death
-without trial, or did Cicero overreach? Rawson gives both sides in a sentence
-(p. 557) but not the scholarly argument. Everything else is sourced.
+**Nothing.** All six chunks are sourced. What has NOT been sent is von
+Albrecht batches 2–6 — the "Selected Analytic Studies" that follow the
+synopsis. Chapters 1–4 are the synopsis and they are held; the studies are
+close readings of individual passages and are not needed for this build.
 
 <details><summary>Closed — kept for the record</summary>
 
