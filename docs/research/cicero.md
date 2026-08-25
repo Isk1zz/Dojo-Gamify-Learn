@@ -389,7 +389,126 @@ used participles — *causae efficientes*, *adiuvantes*, *antecedentes*,
 
 ---
 
+## Rawson (Gale / Scribner's *Ancient Writers*, 1982)
+
+**Rawson, Elizabeth, "Cicero (106–43 B.C.)", in *Ancient Writers: Greece and
+Rome*. New York: Charles Scribner's Sons, 1982, pp. 555–581.** Rawson wrote
+*Cicero: A Portrait*; this is the same scholar at encyclopedia length.
+
+### She restores two words I struck
+
+> "It appears that such words as ***qualitas, essentia, and moralis* were first
+> coined by Cicero** on the model of Greek philosophical terms, and later taken
+> up by other writers; **we are not usually aware of this when we employ
+> 'quality,' 'essence,' or 'moral.'**" (p. 573)
+
+So *essentia* and *moralis* are back, on a named scholar's authority, and
+*qualitas* now has two independent sources. *humanitas*, *individuum* and
+*quantitas* remain unsourced and stay out.
+
+The final list for chunk 4:
+
+| Word | Status | Source |
+|---|---|---|
+| *qualitas* | coined | von Albrecht p. 35; Rawson p. 573 |
+| *perceptio* | coined | von Albrecht p. 35 |
+| *probabilitas* | coined | von Albrecht p. 35 |
+| *evidentia* | coined | von Albrecht p. 35 |
+| *essentia* | coined | Rawson p. 573 |
+| *moralis* | coined | Rawson p. 573 |
+| *intellegentia* | **propagated, not coined** | von Albrecht p. 35 |
+
+### And she confirms the syntax argument, with a teachable example
+
+> "But **the real problem lies in the syntax**, which Cicero discusses less than
+> the vocabulary. Even the fact that **Latin has no definite article**, as Greek
+> has, provides a problem — **it is easier to talk unambiguously about 'the
+> good' in Greek or English than it is in Latin.** And Cicero was too sensitive
+> to the nature of Latin to force it into unnatural patterns; as a result he
+> sometimes translates the same Greek word or phrase differently in different
+> contexts, or uses a paraphrase." (p. 573)
+
+*Τὸ ἀγαθόν* — "the good" — is a phrase Latin cannot say cleanly, because it
+has no word for "the". That is the concrete example chunk 4 was missing, and
+it independently corroborates von Albrecht.
+
+### The line the chunk should probably end on
+
+> "His great adversary in politics, Julius Caesar, paid him the most magnificent
+> of compliments in saying that **he had extended the boundaries of the Roman
+> spirit** — implying perhaps that his own achievement in extending the
+> boundaries of the empire to Gaul was a lesser one." (p. 555)
+
+The conqueror of Gaul, about the man he defeated in politics.
+
+### Chunk 2 — the panic at Arpinum
+
+Rawson puts it directly after quoting *Phil.* 2.118 ("I shall not tremble
+before your daggers"):
+
+> "**One would not accuse Cicero of insincerity; doubtless he passionately
+> believed every word as he penned it.** But when … he heard that Antony … was
+> marching up Italy toward Rome with a strong force, though he made up his mind
+> to go to the capital, **he fell on the way into a panic lest Antony catch up
+> with him and bolted to his remote birthplace at Arpinum**, to return to Rome
+> only when Antony had left it." (p. 568)
+
+He wrote the defiance, meant it, and ran. Rawson's refusal to call it
+insincerity is the whole point — that is what self-deception looks like from
+inside, and it belongs in the topic exactly as she frames it.
+
+### Chunk 3 — the *Consolatio* sharpened
+
+> "Famous in antiquity was the Consolation that he wrote for himself on the
+> death of his daughter, Tullia; the genre was a well-recognized one, but
+> **Cicero says that nobody else had ever written one to himself**." (p. 577)
+
+Not "he wrote a consolation." He wrote the **first one anybody had ever
+addressed to himself** — and it is lost.
+
+### The *Hortensius*, and Augustine
+
+The lost protreptic that turned Augustine to philosophy. Augustine, quoted
+p. 573–4:
+
+> "I came in the usual course of study to a work of one Cicero … **This book
+> indeed changed my whole way of feeling. It changed my prayers to thee, O
+> Lord**, it gave me different plans and desires. Suddenly all vain aspirations
+> lost their value; and I was left with an unbelievable fire in my heart,
+> desiring the deathless qualities of wisdom."
+
+The book that turned Augustine toward God does not survive. That is a chunk-6
+beat about what gets kept and what does not.
+
+### Small things worth having
+
+- **Quintilian**: Cicero is the name "**not of a man, but of eloquence
+  itself**." (p. 555)
+- **Livy's verdict**: "a great and memorable man, **whose qualities it would
+  require a Cicero to praise**." (p. 579)
+- His boyhood motto, from Homer: "**Always to be the best and far to excel all
+  others.**" (p. 556)
+- **Cato's jibe** during the consulship, as a Cicero speech mocking Stoicism
+  got laughs: "**What a comic consul we have.**" (p. 562)
+- He wept **real** tears in court; the prosecution in *pro Plancio* jeered at
+  his *lacrimula*, "little tear," and he retorted "say rather whole floods."
+  He once delivered a peroration **holding a baby**. (pp. 560–61)
+- **Tiro knew shorthand** and published Cicero's speaking notes after his
+  death — lost. (p. 560)
+- Rawson confirms the Petrarch shock: the letters to Atticus were "a severe
+  shock … **The detached contemplative philosopher that Cicero had seemed to be
+  to the Middle Ages was not to be found here.**" (p. 579)
+
+---
+
 ## Still open
+
+**One thing only: the legality of the Catilinarian executions** (chunk 2). Was
+the *senatus consultum ultimum* sufficient authority to put citizens to death
+without trial, or did Cicero overreach? Rawson gives both sides in a sentence
+(p. 557) but not the scholarly argument. Everything else is sourced.
+
+<details><summary>Closed — kept for the record</summary>
 
 **Chunk 4, the coinages.** Nothing here settles which Latin words Cicero
 actually minted versus adapted versus merely fixed in use. *N.D.* 1.7 above
@@ -404,3 +523,5 @@ Philosophy*.
 **Chunk 2, the legality of the Catilinarian executions.** The *senatus
 consultum ultimum* question. Zarecki touches the conspiracy but not the legal
 argument.
+
+</details>
