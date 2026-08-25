@@ -12,7 +12,7 @@ Two topics, six chunks.
 | 1 | The hands | **sourced** — Livy via Seneca, Juvenal |
 | 2 | Two failures: Catiline, then Octavian | **re-shaped** — see Zarecki chs. 6-7 |
 | 3 | Tullia | **sourced** — Zarecki ch. 4 |
-| 4 | Words that didn't exist | **NOT SOURCED** — the open question |
+| 4 | Making Latin hold a thought | **sourced** — von Albrecht ch. 4; angle corrected |
 | 5 | Arguing both sides | **sourced** — Zarecki ch. 1 |
 | 6 | The letters / Petrarch | **sourced** — Pieper & van der Velden |
 
@@ -244,6 +244,148 @@ his hesitation between Pompey and Caesar was "his attempt to determine which
 side offered the best chance for the creation of a moral state." That is
 *in utramque partem* applied to a real decision, at real cost — which is
 exactly the beat chunk 5 needs to stop being abstract.
+
+---
+
+## Chunk 4 — SOURCED, and the angle was wrong
+
+**von Albrecht, M., *Cicero's Style: A Synopsis. Followed by Selected Analytic
+Studies*. Leiden: Brill, 2003.** Ch. 4 "Consistency in Cicero's Style",
+pp. 125–144, read from photographs.
+
+My pitch was "the man who invented the words." **Von Albrecht says almost the
+opposite, and the truth is better.**
+
+### He was cautious about coining, not prolific
+
+> "For all his merits in the field of terminology, Cicero, as **a creator of a
+> cultivated Latin prose style, was less interested in the invention of new
+> words than in the appropriate use of the extant vocabulary**." (p. 142)
+
+And a direct warning against exactly the claim I was going to make:
+
+> "if scholars study Cicero as a 'creator of words,' they run the risk of
+> distracting our attention from the following points: **Cicero was not eager
+> to create new words at any costs, nor can we always decide whether words
+> first attested in his writings were created by him.**" (p. 142)
+
+> "some other words which first appear in Cicero **cannot have been created by
+> him**, but must have existed either in current or in technical language" —
+> e.g. *adversaria* (account-books), *agrarius*, *architectura*. (p. 142)
+
+> "In his efforts to Latinize Greek technical terms, Cicero, as a rule,
+> proceeded **with much caution** and avoided expressions that might have
+> sounded strange to a Roman audience. Even so, **some of his neologisms …
+> gained no acceptance**." (p. 142)
+
+The example given for a rejected coinage is his rendering of Greek *ποιότης*.
+**The photograph is not legible enough to read the Latin word** — it may be
+*qualitas*, which would be a striking detail since that word plainly did
+survive. **Do not print it until the text is confirmed.**
+
+### Why he could not just coin his way out
+
+The obstacles are structural, and they make the real story:
+
+> "the subject matter and the terminology were new to the Latin reader …
+> **there is no article in Latin**, nor is there an equivalent for the verbal
+> adjectives (ending in *-τέος*), and Latin is less flexible in its use of
+> prepositions and participles. Finally, **neologisms are hardly accepted in
+> Latin**." (p. 129)
+
+So:
+
+> "In a language using a small number of words, the skillful way in which they
+> are placed in sentences and conjoined with other words gains in importance
+> (*subtilis iunctura*, 'shrewd conjoining'). Often, therefore, **Cicero must
+> compensate for a limited Latin vocabulary through style**." (p. 129)
+
+Norden's formulation of the underlying problem:
+
+> "At the height of its stylistic perfection, literary Latin had an **extremely
+> poor vocabulary**. It is precisely the striving of the authors for
+> *elegantia* and *urbanitas* that caused the elimination of certain words."
+> (quoted p. 136)
+
+### Von Albrecht's own verdict — the sentence chunk 4 is built on
+
+> "**The creation of this prose style, which largely was the work of Cicero,
+> remains actually one of the greatest exploits in Western civilization.
+> Cicero laid the foundations for the language of abstract thought in
+> Latin.**" (p. 136)
+
+Note what it says and does not say: he laid the *foundations for the language
+of abstract thought* — by building a **style** that could carry abstraction,
+in a language whose vocabulary was too small and which resisted new words.
+That is a harder and more interesting thing than minting nouns.
+
+### The concrete mechanism, for the worked example
+
+> "Creative use of the participle is found as early as the *De Inventione*,
+> whereas **it is lacking in the non-Ciceronian parallel text *ad Herennium***.
+> In this area Cicero made a considerable contribution to the development of
+> Latin style." (p. 143)
+
+He extended predicative participles to all cases — hence *cogitanti mihi*,
+"while I was pondering," which von Albrecht notes became **the standard opening
+of classroom compositions** for centuries. Two contemporary texts on the same
+subject, one with the device and one without: that is a rare clean control, and
+it is exactly the kind of evidence a chunk can show rather than assert.
+
+### And a gift for the reader
+
+> "**It is in Cicero's letters that we find most new words.** They often have a
+> humorous or ironical touch: *sullaturit* ('he wants to become a Sulla'),
+> *proscripturit* ('he thirsts for proscriptions')." (p. 142)
+
+The words he actually invented were mostly **jokes in private letters** —
+verbs meaning "to be in the mood for a massacre." That belongs in the topic;
+it is funny, it is true, and it cuts the marble.
+
+### What chunk 4 now says
+
+Not "he invented the words." Rather: **he made a small, stiff, neologism-hostile
+language able to hold an abstract thought — and mostly not by inventing
+words at all.** Which also repairs the join with chunk 3: *N.D.* 1.7 has him
+saying he did it for the Republic, having nothing else left to do.
+
+---
+
+### The word list, settled
+
+**von Albrecht ch. 1, p. 35**, section "Philosophical Treatises: Neologisms":
+
+> "The lasting influence of many terms coined by Cicero attests to the quality
+> of the Latin equivalents he found, **especially in the field of abstract
+> nouns**. Some of Cicero's new words would make philosophical history:
+> ***qualitas, perceptio, probabilitas, evidentia***. A word attested before
+> Cicero but **propagated** by him is ***intellegentia***."
+
+So the honest list is four coinages and one word he did not coin but carried.
+That also resolves the illegible photograph above: *qualitas* is credited to
+him **and** it plainly survived, so whatever rejected coinage p. 142 names, it
+is not that one. Leave the rejected-neologism point out unless the text is
+read directly.
+
+**Four of the six words I claimed are not supported anywhere in chapters 1–3:**
+*moralis*, *humanitas*, *essentia*, *individuum*, *quantitas* — zero
+occurrences. They may still be defensible from other sources (*De Fato* 1 has
+Cicero discussing his rendering of ἠθικός in his own voice), but **nothing
+goes into a chunk on my memory of it.** Only *qualitas*, *perceptio*,
+*probabilitas*, *evidentia*, *intellegentia*.
+
+**And this is a better list than mine was.** *Probabilitas*, *perceptio*,
+*evidentia*, *intellegentia* — the words he minted are the vocabulary of
+**knowing**: probability, perception, evidence, understanding. The man whose
+philosophy was that certainty is unavailable built the Latin words for
+weighing things short of certainty. Chunks 4 and 5 are the same chunk seen
+twice, and neither of them needs the join explained.
+
+His actual techniques, from the same page: a single Latin word (often then
+explained), analogous suffixes, matching compounds, quoting the Greek
+alongside, periphrasis, or several synonyms at once. For Stoic causation he
+used participles — *causae efficientes*, *adiuvantes*, *antecedentes*,
+*antepositae* (*De Fato* 14.33, 18.41).
 
 ---
 
