@@ -488,5 +488,237 @@ const MODULE_PHIL_ROME = {
         }
       ]
     }
+    ,
+
+    // ============================================================
+    // ТЕМА 3 — что он думал
+    // ============================================================
+    {
+      id: "cicero-thought",
+      title: { ru: "Что он думал", en: "What He Argued" },
+      desc: { ru: "Республика, которую он хотел, долг, который дороже удобства, и как он готовился к собственной смерти", en: "The Republic he wanted, a duty worth more than convenience, and how he prepared for his own death" },
+      icon: "\u{2696}️",
+      chunks: [
+        {
+          title: { ru: "Республика, которую он хотел", en: "The Republic He Wanted" },
+          glossary: [
+            { term: { ru: "Rector rei publicae", en: "Rector rei publicae" }, definition: { ru: "«Правящий государством» — идеал Цицерона: не царь, а гражданин, ведущий государство знанием законов, личным примером и влиянием на мнение, а не силой.", en: "\"The one who steers the state\" — Cicero's ideal: not a king, but a citizen who guides the state through knowledge of the laws, personal example and influence on opinion, never force." } },
+            { term: { ru: "Смешанная конституция", en: "Mixed constitution" }, definition: { ru: "Сочетание монархии, аристократии и демократии в одном устройстве. По Цицерону, именно оно делает государство устойчивым — и именно таким он считал Рим.", en: "A blend of monarchy, aristocracy and democracy in one system. Cicero held this to be what makes a state stable — and held Rome to be the best example of it." } }
+          ],
+          predict: {
+            question: { ru: "В теме 1 Цицерон дважды был «уверен» — с Катилиной и с Октавианом — и оба раза платил. Против какого стандарта он мог сам себя мерить?", en: "In Topic 1, Cicero was \"certain\" twice — with Catiline and with Octavian — and paid both times. Against what standard might he have been measuring himself?" },
+            options: [
+              { ru: "Против воли большинства в народном собрании", en: "Against the will of the majority in the popular assembly" },
+              { ru: "Против собственного идеала правителя, которого сам же и описал", en: "Against his own ideal of a statesman, which he himself had written" },
+              { ru: "Против военных заслуг, как Помпей и Цезарь", en: "Against military achievement, like Pompey and Caesar" },
+              { ru: "Ни против чего — решения принимались спонтанно", en: "Against nothing — the decisions were made on impulse" }
+            ],
+            reveal: { ru: "У него был написанный идеал, и это меняет всю тему 1: он не просто ошибался — он мерил себя по стандарту, который сам сформулировал в трактате о государстве.", en: "He had a written ideal, and that changes the whole of Topic 1: he was not simply wrong — he was measuring himself against a standard he had formulated himself, in a treatise on the state." }
+          },
+          explain: {
+            blocks: [
+              { text: { ru: `В трактате «О государстве» Цицерон — устами Сципиона Эмилиана — доказывает то же, что до него доказывали греки: лучшее устройство не монархия, не аристократия и не демократия по отдельности, а <strong>их смесь</strong>. Каждая форма в одиночку скатывается в свою испорченную версию; смешанная — держит равновесие. Рим, по Цицерону, был лучшим живым примером этого равновесия — пока не начал его терять.<br><br>Государству, по его мысли, нужен не царь, а <strong>rector rei publicae</strong> — гражданин, который его ведёт.`, en: `In *On the Republic*, Cicero — through Scipio Aemilianus — argues what the Greeks had argued before him: the best constitution is neither monarchy, aristocracy nor democracy alone, but <strong>a mixture</strong> of the three. Each form alone decays into its own corrupt version; a mixed one holds its balance. Rome, in his view, was the best living example of that balance — until it began losing it.<br><br>What such a state needs, he argued, is not a king but a <strong>rector rei publicae</strong> — a citizen who steers it.` } },
+              { heading: { ru: "Не сила, а влияние", en: "Not force, but influence" }, text: { ru: `Важно, чем rector НЕ является. Не военачальник: Цицерон нигде не даёт ему военной роли, хотя почти все его исторические образцы, включая Сципиона, славу заслужили на войне. Он ведёт государство знанием законов, личным примером и <strong>влиянием на общественное мнение</strong> — не приказом.<br><br>И ещё одна деталь, которую легко пропустить: даже красноречие, собственный главный дар Цицерона, у идеального правителя должно быть простым и сдержанным — не тем оружием толпы, каким он владел сам в судах.`, en: `What matters is what the rector is <em>not</em>. Not a military commander: Cicero gives him no military role anywhere, even though nearly all his historical models, Scipio included, earned their fame in war. He leads through knowledge of the laws, personal example, and <strong>influence on public opinion</strong> — not command.<br><br>And one detail easy to miss: even eloquence, Cicero's own greatest gift, is supposed to be simple and restrained in the ideal statesman — not the crowd-weapon he himself wielded in the courts.` } },
+              { heading: { ru: "Сон Сципиона", en: "Scipio's dream" }, text: { ru: `Трактат заканчивается сном: Сципион возносится на небеса, и дед объясняет ему, что настоящих государственных мужей боги награждают бессмертием — а земная слава, увиденная оттуда, ничтожна. Урок не «не гонись за славой», а честнее: <em>гонись за правильным, а слава пусть будет побочным следствием</em>.<br><br>Именно этим стандартом он мерил себя в теме 1 — и именно поэтому оба его «дважды уверен» были не просто тактическими промахами, а срывами собственного идеала.`, en: `The treatise ends in a dream: Scipio is carried up to the heavens, and his grandfather explains that the gods reward genuine statesmen with immortality — while earthly fame, seen from there, is small. The lesson is not "don't chase glory" but the more honest version: <em>chase what is right, and let glory be a side effect.</em><br><br>This is precisely the standard he was measuring himself against in Topic 1 — and precisely why both of his "certain twice" moments were not merely tactical errors, but failures of his own ideal.` } }
+            ],
+            analogy: { ru: `Идеал rector-а работает как чертёж, который архитектор сам начертил и потом сам же нарушил при стройке в спешке. Чертёж не становится хуже от того, что здание вышло кривым — но кривизну теперь видно точнее, потому что есть с чем сравнивать. У Цицерона было ровно так: собственный текст стал линейкой для его же ошибок.`, en: `The rector ideal works like a blueprint an architect draws himself and then violates on his own rushed building site. The blueprint is none the worse for the building coming out crooked — but the crookedness is now visible with precision, because there is something to measure it against. That is exactly Cicero's position: his own text became the ruler for his own mistakes.` },
+            sources: [
+              { ref: { ru: `Rawson, E., «Cicero (106–43 B.C.)», в <em>Ancient Writers: Greece and Rome</em>, New York: Charles Scribner's Sons, 1982, с. 570–571.`, en: `Rawson, E., "Cicero (106–43 B.C.)", in <em>Ancient Writers: Greece and Rome</em>, New York: Charles Scribner's Sons, 1982, pp. 570–571.` }, note: { ru: `Смешанная конституция как синтез трёх форм и Рим как её лучший пример; что rector-ов может быть несколько и он ведёт влиянием, а не силой; отсутствие у него военной роли и требование простой, сдержанной речи; пересказ Сна Сципиона.`, en: `The mixed constitution as a synthesis of the three forms and Rome as its best example; that there may be more than one rector, leading by influence rather than force; his lack of a military role and the requirement of plain, restrained speech; the retelling of Scipio's dream.` } },
+              { ref: { ru: `Zarecki, J., <em>Cicero's Ideal Statesman in Theory and Practice</em>, London: Bloomsbury, 2014, гл. 3–4; Cicero, <em>De Re Publica</em> 6.12.`, en: `Zarecki, J., <em>Cicero's Ideal Statesman in Theory and Practice</em>, London: Bloomsbury, 2014, chs. 3–4; Cicero, <em>De Re Publica</em> 6.12.` }, note: { ru: `Разбор rector-идеала как личного кодекса поведения Цицерона на протяжении всей гражданской войны и после неё — то есть ровно тот стандарт, которым он мерил и Катилину, и Октавиана.`, en: `The analysis of the rector-ideal as Cicero's own personal code of conduct through the civil war and after — precisely the standard he measured both Catiline and Octavian against.` } }
+            ]
+          },
+          example: {
+            label: { ru: "Один текст, два срыва из темы 1", en: "One text, two failures from Topic 1" },
+            steps: [
+              { ru: `Идеал: rector ведёт влиянием и примером, никогда — силой без разбора.`, en: `The ideal: the rector leads by influence and example, never by indiscriminate force.` },
+              { ru: `63 год: он казнил заговорщиков без суда — сила там, где идеал требовал закона.`, en: `63 BC: he executed the conspirators without trial — force where the ideal demanded law.` },
+              { ru: `44–43 годы: он рассчитывал управлять Октавианом влиянием — и не рассчитал его собственную волю.`, en: `44–43 BC: he expected to steer Octavian through influence — and misjudged Octavian's own will.` },
+              { ru: `Оба раза — не случайная ошибка, а срыв собственного, письменно зафиксированного стандарта.`, en: `Both times, not a random mistake, but a failure of his own, written-down standard.` }
+            ]
+          },
+          quiz: {
+            question: { ru: "Какую роль Цицерон НЕ отводит своему идеальному правителю?", en: "Which role does Cicero NOT give his ideal statesman?" },
+            options: [
+              { ru: "Знание законов", en: "Knowledge of the laws" },
+              { ru: "Личный пример", en: "Personal example" },
+              { ru: "Военное командование", en: "Military command" },
+              { ru: "Влияние на общественное мнение", en: "Influence on public opinion" }
+            ],
+            correct: 2,
+            explanation: { ru: `Rector нигде не описан как военачальник, хотя почти все исторические образцы Цицерона, включая самого Сципиона, прославились именно на войне. Это осознанный пропуск: правитель у Цицерона ведёт государство убеждением и примером, а не оружием.`, en: `The rector is nowhere described as a military commander, even though almost all of Cicero's historical models, Scipio included, earned their fame in war. The omission is deliberate: Cicero's statesman leads the state through persuasion and example, not weapons.` }
+          },
+          recall: {
+            prompt: { ru: "Что такое rector rei publicae, и почему этот идеал важен для понимания темы 1?", en: "What is the rector rei publicae, and why does this ideal matter for understanding Topic 1?" },
+            answer: { ru: `Rector — не царь, а гражданин, ведущий смешанную конституцию (монархию, аристократию и демократию в одном устройстве) знанием законов, личным примером и влиянием на мнение, никогда — военной силой. Сон Сципиона в конце трактата обещает таким людям бессмертие, а земную славу называет ничтожной со стороны. Это тот самый стандарт, по которому в теме 1 Цицерон измерял себя дважды — с Катилиной и с Октавианом, — и дважды сорвался: применил силу там, где идеал требовал закона, и переоценил своё влияние там, где не рассчитал чужую волю.`, en: `The rector is not a king but a citizen who leads a mixed constitution (monarchy, aristocracy and democracy in one system) through knowledge of the laws, personal example, and influence on opinion — never military force. Scipio's dream, closing the treatise, promises such people immortality and calls earthly fame small when viewed from above. This is the very standard Cicero measured himself against twice in Topic 1 — with Catiline and with Octavian — and failed twice: he used force where the ideal demanded law, and overestimated his influence where he misjudged another man's will.` },
+            points: [
+              { ru: `Rector — не царь; ведёт влиянием, не силой`, en: `Rector — not a king; leads by influence, not force` },
+              { ru: `Смешанная конституция: монархия + аристократия + демократия`, en: `Mixed constitution: monarchy + aristocracy + democracy` },
+              { ru: `Никакой военной роли, даже у образцов вроде Сципиона`, en: `No military role, even for models like Scipio` },
+              { ru: `Сон Сципиона: бессмертие за дело, не за славу`, en: `Scipio's dream: immortality for the deed, not the fame` }
+            ]
+          },
+          wisdomTags: ["planning", "humility"]
+        },
+
+        {
+          title: { ru: "Долг, когда он дорого стоит", en: "Duty When It Costs Something" },
+          glossary: [
+            { term: { ru: "Honestum и utile", en: "Honestum and utile" }, definition: { ru: "Честное (нравственно верное) и полезное (выгодное). Центральный вопрос «Об обязанностях»: могут ли они по-настоящему противоречить друг другу.", en: "The honourable (morally right) and the useful (advantageous). The central question of On Duties: whether the two can ever genuinely conflict." } },
+            { term: { ru: "Calliditas", en: "Calliditas" }, definition: { ru: "Хитрость, ловкость без нравственной основы. Цицерон отличает её от мудрости (sapientia): ум без добра — не мудрость, а именно это.", en: "Cunning, cleverness with no moral foundation. Cicero distinguishes it from wisdom (sapientia): intelligence without goodness is not wisdom, but exactly this." } }
+          ],
+          explain: {
+            blocks: [
+              { text: { ru: `«Об обязанностях» он писал в 44 году — тем же летом, что и в теме 1: без Туллии, без политической роли, зная, что рискует, и обращаясь не к publike, а к собственному сыну, студенту в Афинах. Это его последнее и самое читаемое сочинение — в Англии его столетиями знали под именем <em>«Tully's Offices»</em>.<br><br>Главный вопрос книги: может ли честное (<strong>honestum</strong>) по-настоящему противоречить полезному (<strong>utile</strong>)? Его ответ — нет: конфликт между ними всегда мнимый.`, en: `He wrote *On Duties* in 44 BC — the same summer as Topic 1: without Tullia, without a political role, aware he was taking a risk, and addressing not the public but his own son, a student in Athens. It is his last and most-read work — in England it was known for centuries as <em>"Tully's Offices."</em><br><br>The book's central question: can the honourable (<strong>honestum</strong>) genuinely conflict with the useful (<strong>utile</strong>)? His answer: no — the conflict is always only apparent.` } },
+              { heading: { ru: "Мудрость без добра — не мудрость", en: "Wisdom without goodness is not wisdom" }, text: { ru: `Он определяет две ключевые добродетели правителя, те же, что стоят за rector-идеалом: <strong>sapientia</strong> — «знание божественного и человеческого» — и <strong>prudentia</strong> — «знание, к чему стремиться и чего избегать».<br><br>И здесь его формулировка бьёт точно: sapientia неотделима от нравственной доброты, потому что <em>ум без добра — не мудрость, а хитрость</em> (<strong>calliditas</strong>). Умный расчёт без честности — это не более высокая форма ума. Это просто другое слово для обмана.`, en: `He names two central statesman's virtues, the same pair behind the rector ideal: <strong>sapientia</strong> — "knowledge of divine and human affairs" — and <strong>prudentia</strong> — "knowledge of what must be sought and what must be avoided."<br><br>And here his formulation lands precisely: sapientia cannot be separated from moral goodness, because <em>intelligence without goodness is not wisdom but cunning</em> (<strong>calliditas</strong>). Clever calculation without honesty is not a higher form of intelligence. It is simply another word for deceit.` } },
+              { heading: { ru: "Написано против конкретного человека", en: "Written against a specific man" }, text: { ru: `Книга не абстрактна. Он прямо обвиняет Цезаря в <strong>temeritas</strong> — безрассудстве, попиравшем «все законы божеские и человеческие» ради власти, которую тот вообразил себе. Цезарь для него — доказательство от противного: ум без доброты, обращённый в тиранию.<br><br>И последняя строка первой книги звучит почти как предупреждение самому себе на будущий год: <em>«острее укус вновь обретённой свободы, чем свободы, никогда не терявшейся»</em>.`, en: `The book is not abstract. He accuses Caesar directly of <strong>temeritas</strong> — recklessness that trampled "all laws of gods and men" for a supremacy Caesar had imagined for himself. Caesar functions as proof by contradiction: intelligence without goodness, turned into tyranny.<br><br>And the closing line of Book One reads almost like a warning to himself for the year ahead: <em>"the fangs of a liberty regained are sharper than those of a liberty never repressed."</em>` } }
+            ],
+            analogy: { ru: `Различие между sapientia и calliditas — как различие между врачом и отравителем, знающими одну и ту же химию. Знание идентично; решает не объём ума, а то, ради чего он применён. Назвать отравителя «умным» технически верно и морально бесполезно — примерно это и хочет сказать Цицерон, ставя добро внутрь самого определения мудрости, а не рядом с ним.`, en: `The distinction between sapientia and calliditas is like the distinction between a doctor and a poisoner who know the same chemistry. The knowledge is identical; what decides is not the amount of intelligence but what it serves. Calling the poisoner "clever" is technically accurate and morally useless — which is roughly Cicero's point in placing goodness inside the very definition of wisdom, rather than beside it.` },
+            sources: [
+              { ref: { ru: `Zarecki, J., <em>Cicero's Ideal Statesman in Theory and Practice</em>, London: Bloomsbury, 2014, гл. 5; Cicero, <em>De Officiis</em> 1.63, 1.153, 1.26, 2.24.`, en: `Zarecki, J., <em>Cicero's Ideal Statesman in Theory and Practice</em>, London: Bloomsbury, 2014, ch. 5; Cicero, <em>De Officiis</em> 1.63, 1.153, 1.26, 2.24.` }, note: { ru: `Определения sapientia и prudentia (1.153); что мудрость без добра — calliditas (1.63); обвинение Цезаря в temeritas, попирающем законы (1.26); строка о свободе (2.24).`, en: `The definitions of sapientia and prudentia (1.153); that wisdom without goodness is calliditas (1.63); the charge that Caesar's temeritas trampled the laws (1.26); the line about liberty (2.24).` } },
+              { ref: { ru: `Rawson, E., «Cicero (106–43 B.C.)», в <em>Ancient Writers: Greece and Rome</em>, New York: Charles Scribner's Sons, 1982, с. 577.`, en: `Rawson, E., "Cicero (106–43 B.C.)", in <em>Ancient Writers: Greece and Rome</em>, New York: Charles Scribner's Sons, 1982, p. 577.` }, note: { ru: `Датировка (44 год, сыну в Афинах), тезис о honestum и utile и английское прозвище «Tully's Offices».`, en: `The dating (44 BC, to his son in Athens), the honestum/utile thesis, and the English nickname "Tully's Offices."` } }
+            ]
+          },
+          example: {
+            label: { ru: "Один и тот же ум, два разных имени", en: "The same intelligence, two different names" },
+            steps: [
+              { ru: `Человек находит выгодный, но нечестный способ решить проблему.`, en: `A person finds a profitable but dishonest way to solve a problem.` },
+              { ru: `Расчёт безупречен: цель достигнута, риск минимален.`, en: `The calculation is flawless: the goal is met, the risk is minimal.` },
+              { ru: `По Цицерону, называть это «мудростью» неверно — это calliditas, хитрость без добра.`, en: `By Cicero's account, calling this "wisdom" is wrong — it is calliditas, cunning without goodness.` },
+              { ru: `Разница не в уме, а в том, ради чего он применён — и это единственное, что стоит называть sapientia.`, en: `The difference is not in the intelligence but in what it serves — and only that deserves to be called sapientia.` }
+            ]
+          },
+          quiz: {
+            question: { ru: "Как Цицерон отвечает на вопрос, может ли честное (honestum) противоречить полезному (utile)?", en: "How does Cicero answer whether the honourable (honestum) can conflict with the useful (utile)?" },
+            options: [
+              { ru: "Да, и в этом случае нужно выбирать полезное", en: "Yes, and in that case one should choose the useful" },
+              { ru: "Да, и выбор всегда зависит от обстоятельств", en: "Yes, and the choice always depends on circumstance" },
+              { ru: "Нет — конфликт между ними только кажущийся", en: "No — the conflict between them is only apparent" },
+              { ru: "Вопрос он оставляет открытым, не давая ответа", en: "He leaves the question open, giving no answer" }
+            ],
+            correct: 2,
+            explanation: { ru: `Это и есть стержень книги: подлинного конфликта между честным и полезным не существует, а то, что кажется таким конфликтом, — ошибка в расчёте полезного, а не исключение из правила. Он строит на этом же различении и разбор Цезаря: тот считал свои действия полезными для себя, но именно потому, что они не были честными, они не были полезны и ему самому в итоге.`, en: `That is the spine of the book: no genuine conflict between the honourable and the useful exists, and what looks like one is a miscalculation of the useful, not an exception to the rule. He builds his reading of Caesar on the same distinction: Caesar thought his actions useful to himself, but precisely because they were not honourable, they were not, in the end, useful to him either.` }
+          },
+          recall: {
+            prompt: { ru: "Что означает различие между sapientia и calliditas, и как оно применено к Цезарю?", en: "What is the sapientia/calliditas distinction, and how is it applied to Caesar?" },
+            answer: { ru: `Sapientia — «знание божественного и человеческого» — по Цицерону неотделима от нравственной доброты: ум без добра называется не мудростью, а calliditas, хитростью. Цезарь служит доказательством от противного — он обвинён в temeritas, безрассудстве, попиравшем законы ради власти, которую он вообразил себе; его ум был реальным, но, лишённый честности, не был sapientia. Книга написана в 44 году сыну в Афинах, тем летом, что описано в теме 1, и центральный тезис — что честное и полезное никогда по-настоящему не противоречат друг другу.`, en: `Sapientia — "knowledge of divine and human affairs" — is, for Cicero, inseparable from moral goodness: intelligence without goodness is not wisdom but calliditas, cunning. Caesar serves as proof by contradiction — accused of temeritas, recklessness that trampled the laws for a supremacy he had imagined for himself; his intelligence was real, but lacking honesty it was not sapientia. The book was written in 44 BC to his son in Athens, the same summer described in Topic 1, and its central claim is that the honourable and the useful never genuinely conflict.` },
+            points: [
+              { ru: `Sapientia требует нравственной доброты`, en: `Sapientia requires moral goodness` },
+              { ru: `Ум без добра — calliditas, хитрость`, en: `Intelligence without goodness — calliditas, cunning` },
+              { ru: `Цезарь: temeritas, попиравшая законы`, en: `Caesar: temeritas that trampled the laws` },
+              { ru: `Тезис книги: честное и полезное не противоречат друг другу`, en: `The book's thesis: the honourable and the useful do not conflict` }
+            ]
+          },
+          wisdomTags: ["evidence", "correction"]
+        },
+
+        {
+          title: { ru: "Как встречать смерть", en: "How to Face Death" },
+          glossary: [
+            { term: { ru: "Tusculanae Disputationes", en: "Tusculan Disputations" }, definition: { ru: "Диалоги, написанные в его вилле в Тускуле в 45 году — том же году, что и смерть Туллии. Меньше техники, больше прямого убеждения читателя и себя самого.", en: "Dialogues written at his villa at Tusculum in 45 BC — the same year as Tullia's death. Less technical than his other works, more a direct attempt to persuade the reader, and himself." } },
+            { term: { ru: "Commentatio mortis", en: "Commentatio mortis" }, definition: { ru: "«Изучение смерти» — формула, которой Цицерон описывает саму философию: вся жизнь философа есть подготовка к смерти, отделение духа от тела ещё при жизни.", en: "\"A study of death\" — the phrase Cicero uses for philosophy itself: the whole life of a philosopher is a rehearsal for death, separating the spirit from the body while still alive." } }
+          ],
+          explain: {
+            blocks: [
+              { text: { ru: `«Тускуланские беседы» он написал в 45 году в собственной вилле — в тот же год, что и смерть Туллии из темы 1. Книга менее техническая, чем его другие философские труды: меньше разбора школ, больше прямого убеждения — не только читателя, но, как замечают исследователи, и самого автора.<br><br>Первая книга целиком посвящена одному вопросу: как перестать бояться смерти.`, en: `He wrote the *Tusculan Disputations* in 45 BC at his own villa — the same year as Tullia's death in Topic 1. The book is less technical than his other philosophical works: less comparison of schools, more direct persuasion — not only of the reader but, as scholars have noted, of the author himself.<br><br>The first book is devoted entirely to one question: how to stop fearing death.` } },
+              { heading: { ru: "Вся жизнь философа — изучение смерти", en: "The whole life of a philosopher is a study of death" }, text: { ru: `Его формула, которую он приписывает Сократу: <strong>«вся жизнь философов есть изучение смерти»</strong>. Не потому, что философы одержимы концом, а потому что каждый раз, отвлекая дух от тела — от удовольствия, от имущества, от общественных дел, — человек тренирует ровно то умение, что понадобится в самом конце: отделить дух от тела насовсем.<br><br>Отсюда его вывод, звучащий почти как упражнение: <em>«приучимся отделяться от тела — то есть приучимся умирать»</em>, — и тогда сам переход не будет промедлен.`, en: `His formula, attributed to Socrates: <strong>"the whole life of philosophers is a study of death."</strong> Not because philosophers are morbid, but because every time a person calls the spirit away from the body — from pleasure, from possessions, from public business — they are practising exactly the skill the very end will require: separating spirit from body for good.<br><br>His conclusion reads almost like a drill: <em>"let us accustom ourselves to separating from the body — that is, let us accustom ourselves to dying"</em> — so that the passage itself will not be slowed.` } },
+              { heading: { ru: "Слова, которые он потом исполнил", en: "The words he later kept" }, text: { ru: `Восемнадцать месяцев спустя, на дороге у Кайеты, — тема 1: он высунулся из носилок и подставил шею, не дрогнув. Ливий пишет об этом почти без пафоса, как о факте.<br><br>Между «Тускуланскими беседами» и той дорогой лежит именно то время, что описано в темах 1 и 2 этого курса: гибель дочери, разгром республики, письма Петрарке ещё неведомому потомку. Он писал о том, как не бояться смерти, за полтора года до того, как ему пришлось это на самом деле не бояться — и, судя по единственному дошедшему рассказу, у него получилось.`, en: `Eighteen months later, on the road near Caieta — Topic 1: he leaned out of the litter and offered his neck without flinching. Livy records it almost without pathos, as a plain fact.<br><br>Between the *Tusculan Disputations* and that road lies exactly the span this course has covered: his daughter's death, the Republic's collapse, a letter Petrarch had not yet been born to receive. He wrote about not fearing death eighteen months before he actually had to not fear it — and, on the one account that survives, he did.` } }
+            ],
+            analogy: { ru: `«Тускуланские беседы» работают как записка, которую пишешь себе накануне трудного дня — не потому, что уверен в исходе, а чтобы прочитать её именно тогда, когда испугаешься. Большинство таких записок никогда не проверяются: день проходит спокойно, и записка остаётся просто утешением. Записка Цицерона оказалась исключением: день настал, и есть свидетель, что он её прочитал.`, en: `The Tusculan Disputations work like a note you write yourself the night before a hard day — not because you are certain how it ends, but so you have something to read exactly when you get frightened. Most such notes are never tested: the day passes quietly, and the note stays only a comfort. Cicero's turned out to be the exception: the day came, and there is a witness that he read it.` },
+            sources: [
+              { ref: { ru: `Rawson, E., «Cicero (106–43 B.C.)», в <em>Ancient Writers: Greece and Rome</em>, New York: Charles Scribner's Sons, 1982, с. 574–575; Cicero, <em>Tusculanae Disputationes</em> 1.30.74.`, en: `Rawson, E., "Cicero (106–43 B.C.)", in <em>Ancient Writers: Greece and Rome</em>, New York: Charles Scribner's Sons, 1982, pp. 574–575; Cicero, <em>Tusculan Disputations</em> 1.30.74.` }, note: { ru: `Датировка, место написания, «менее технический» и более личный характер книги, и перевод формулы commentatio mortis и призыва «приучимся отделяться от тела».`, en: `The dating, the place of composition, the book's "less technical" and more personal character, and the translation of the commentatio mortis formula and the call to "accustom ourselves to separating from the body."` } },
+              { ref: { ru: `Zarecki, J., <em>Cicero's Ideal Statesman in Theory and Practice</em>, London: Bloomsbury, 2014, гл. 4 (список шести сочинений 45 года, включая Tusculanae Disputationes); Pieper, Ch. & van der Velden, B. (ред.), <em>Reading Cicero's Final Years</em>, Berlin: De Gruyter, 2020, с. 17 (сцена гибели).`, en: `Zarecki, J., <em>Cicero's Ideal Statesman in Theory and Practice</em>, London: Bloomsbury, 2014, ch. 4 (the list of six works of 45 BC, including the Tusculan Disputations); Pieper, Ch. & van der Velden, B. (eds.), <em>Reading Cicero's Final Years</em>, Berlin: De Gruyter, 2020, p. 17 (the death scene).` }, note: { ru: `Место Tusculanae Disputationes среди шести сочинений, написанных в год смерти Туллии, и рассказ Ливия о подставленной шее, замыкающий круг к теме 1.`, en: `The Tusculan Disputations' place among the six works written in the year of Tullia's death, and Livy's account of the offered neck, closing the circle back to Topic 1.` } }
+            ]
+          },
+          example: {
+            label: { ru: "Восемнадцать месяцев между текстом и дорогой", en: "Eighteen months between the text and the road" },
+            steps: [
+              { ru: `45 год, вилла в Тускуле: он пишет, что вся жизнь философа — подготовка к смерти.`, en: `45 BC, the villa at Tusculum: he writes that a philosopher's whole life is a rehearsal for death.` },
+              { ru: `Он формулирует упражнение: приучаться отделять дух от тела заранее.`, en: `He formulates the exercise: practise separating spirit from body in advance.` },
+              { ru: `Проходит около полутора лет — гибель республики, проскрипции.`, en: `About a year and a half passes — the Republic's collapse, the proscriptions.` },
+              { ru: `Декабрь 43-го, дорога у Кайеты: он подставляет шею, не дрогнув. По единственному свидетельству — исполнил написанное.`, en: `December 43, the road near Caieta: he offers his neck without flinching. By the one surviving account, he kept what he wrote.` }
+            ]
+          },
+          quiz: {
+            question: { ru: "Какую формулу Цицерон приписывает Сократу в первой книге «Тускуланских бесед»?", en: "What formula does Cicero attribute to Socrates in the first book of the Tusculan Disputations?" },
+            options: [
+              { ru: "«Познай самого себя»", en: "\"Know thyself\"" },
+              { ru: "«Вся жизнь философов есть изучение смерти»", en: "\"The whole life of philosophers is a study of death\"" },
+              { ru: "«Добродетель довлеет себе для счастья»", en: "\"Virtue is sufficient unto itself for happiness\"" },
+              { ru: "«Ничего сверх меры»", en: "\"Nothing in excess\"" }
+            ],
+            correct: 1,
+            explanation: { ru: `Формула держит на себе всю первую книгу: не изучение смерти как одержимость концом, а как ежедневная практика — отвлечение духа от тела ради удовольствия, имущества или дел тренирует то же самое умение, что понадобится один раз окончательно.`, en: `The formula carries the whole first book: not a study of death as an obsession with the end, but as a daily practice — calling the spirit away from the body, whether from pleasure, possessions or business, trains the very skill that will be needed once, finally.` }
+          },
+          recall: {
+            prompt: { ru: "О чём «Тускуланские беседы», когда они написаны, и как это связано со сценой из темы 1?", en: "What are the Tusculan Disputations about, when were they written, and how does that connect to the scene in Topic 1?" },
+            answer: { ru: `Написаны в 45 году на вилле в Тускуле, в год смерти Туллии — книга менее техническая и более личная, чем прочие. Первая книга целиком о том, как перестать бояться смерти; формула, приписанная Сократу, — «вся жизнь философов есть изучение смерти», а вывод — приучаться отделять дух от тела заранее, тренировкой. Через полтора года, в декабре 43-го, на дороге у Кайеты (тема 1), он, по рассказу Ливия, высунулся из носилок и подставил шею, не дрогнув — то есть, судя по единственному свидетельству, исполнил то, что сам же и написал.`, en: `Written in 45 BC at the villa at Tusculum, the year of Tullia's death — a book less technical and more personal than his others. The first book is entirely about how to stop fearing death; the formula attributed to Socrates is "the whole life of philosophers is a study of death," and the conclusion is to practise separating spirit from body in advance. Eighteen months later, in December 43, on the road near Caieta (Topic 1), by Livy's account he leaned out of the litter and offered his neck without flinching — that is, on the one surviving account, he kept what he had written.` },
+            points: [
+              { ru: `45 год, Тускул, год смерти Туллии`, en: `45 BC, Tusculum, the year of Tullia's death` },
+              { ru: `«Вся жизнь философов есть изучение смерти»`, en: `"The whole life of philosophers is a study of death"` },
+              { ru: `Упражнение: приучаться отделять дух от тела`, en: `The exercise: practise separating spirit from body` },
+              { ru: `Дорога у Кайеты — он исполнил написанное`, en: `The road near Caieta — he kept what he wrote` }
+            ]
+          },
+          wisdomTags: ["planning", "self-knowledge"]
+        }
+      ],
+      examQuestions: [
+        {
+          question: { ru: "Какую форму государственного устройства Цицерон считал наиболее устойчивой?", en: "Which form of government did Cicero consider most stable?" },
+          options: [
+            { ru: "Чистую демократию", en: "Pure democracy" },
+            { ru: "Просвещённую монархию", en: "Enlightened monarchy" },
+            { ru: "Смешанную конституцию из трёх форм разом", en: "A mixed constitution of all three forms at once" },
+            { ru: "Власть Сената без народного собрания", en: "Senate rule with no popular assembly" }
+          ],
+          correct: 2,
+          explanation: { ru: `Каждая форма в одиночку, по его мысли, скатывается в свою испорченную версию; смешанная держит равновесие. Рим он считал лучшим живым примером такого равновесия.`, en: `Each form alone, in his view, decays into its own corrupt version; a mixed one holds its balance. He held Rome to be the best living example of that balance.` }
+        },
+        {
+          question: { ru: "Кем, по Цицерону, НЕ является rector rei publicae?", en: "What is the rector rei publicae, by Cicero's account, NOT?" },
+          options: [
+            { ru: "Гражданином, ведущим личным примером", en: "A citizen who leads by personal example" },
+            { ru: "Царём с абсолютной властью", en: "A king with absolute power" },
+            { ru: "Знатоком законов", en: "An expert in the laws" },
+            { ru: "Человеком, влияющим на общественное мнение", en: "Someone who influences public opinion" }
+          ],
+          correct: 1,
+          explanation: { ru: `Rector — не царь, и Цицерон нигде не даёт ему военной роли, хотя почти все его исторические образцы прославились на войне. Ведёт он влиянием и знанием, не приказом.`, en: `The rector is not a king, and Cicero gives him no military role anywhere, even though almost all his historical models earned fame in war. He leads through influence and knowledge, not command.` }
+        },
+        {
+          question: { ru: "Как Цицерон отличает sapientia (мудрость) от calliditas (хитрости)?", en: "How does Cicero distinguish sapientia (wisdom) from calliditas (cunning)?" },
+          options: [
+            { ru: "Sapientia требует нравственной доброты, calliditas — только ума", en: "Sapientia requires moral goodness, calliditas only intelligence" },
+            { ru: "Sapientia — врождённый дар, calliditas — приобретённый навык", en: "Sapientia is innate, calliditas is a learned skill" },
+            { ru: "Разницы нет — это синонимы в его текстах", en: "There is no difference — they are synonyms in his texts" },
+            { ru: "Sapientia доступна только философам, calliditas — всем", en: "Sapientia is available only to philosophers, calliditas to everyone" }
+          ],
+          correct: 0,
+          explanation: { ru: `Ум без нравственной доброты — не мудрость, а именно calliditas. Цицерон строит на этом различении и свой разбор Цезаря: ум был, добра не было.`, en: `Intelligence without moral goodness is not wisdom but exactly calliditas. Cicero builds his reading of Caesar on this very distinction: the intelligence was there, the goodness was not.` }
+        },
+        {
+          question: { ru: "В каком году и где написаны «Об обязанностях» (De Officiis)?", en: "When and where was On Duties (De Officiis) written?" },
+          options: [
+            { ru: "В 63 году, во время консульства", en: "In 63 BC, during his consulship" },
+            { ru: "В 45 году, на вилле в Тускуле", en: "In 45 BC, at the villa at Tusculum" },
+            { ru: "В 44 году, обращено к сыну в Афинах", en: "In 44 BC, addressed to his son in Athens" },
+            { ru: "После его смерти, издано Тироном", en: "After his death, published by Tiro" }
+          ],
+          correct: 2,
+          explanation: { ru: `Последнее и самое читаемое его сочинение, написанное сыну-студенту тем летом 44 года, что описано в теме 1 — без Туллии, без политической роли, с ощущением риска.`, en: `His last and most-read work, written to his student son that same summer of 44 BC described in Topic 1 — without Tullia, without a political role, with a sense of risk.` }
+        },
+        {
+          question: { ru: "Какую формулу приводит Цицерон в «Тускуланских беседах», говоря о философии?", en: "What formula does Cicero give in the Tusculan Disputations when speaking of philosophy?" },
+          options: [
+            { ru: "«Философия — служанка риторики»", en: "\"Philosophy is the servant of rhetoric\"" },
+            { ru: "«Вся жизнь философов есть изучение смерти»", en: "\"The whole life of philosophers is a study of death\"" },
+            { ru: "«Философия начинается с удивления»", en: "\"Philosophy begins in wonder\"" },
+            { ru: "«Незнание есть начало мудрости»", en: "\"Ignorance is the beginning of wisdom\"" }
+          ],
+          correct: 1,
+          explanation: { ru: `Формула, приписанная Сократу: каждое отвлечение духа от тела при жизни — тренировка того самого разделения, что понадобится один раз окончательно.`, en: `The formula attributed to Socrates: every calling of the spirit away from the body during life trains the very separation that will be needed once, finally.` }
+        }
+      ]
+    }
   ]
 };

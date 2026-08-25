@@ -134,7 +134,11 @@
 // wired into any UI yet -- Dojo.Cloud.isConfigured() is false until
 // SUPABASE_URL/ANON_KEY are filled in, so this bump is precautionary,
 // not because anything user-facing changed.
-const CACHE_VERSION = "knell-v25";
+// Bumped for Philosophy topic 3: "Что он думал" -- De Re Publica (the
+// rector ideal, retroactively explaining topic 2's Catiline/Octavian
+// beats), De Officiis (sapientia vs calliditas), Tusculan Disputations
+// (closes the circle back to topic 1's death scene).
+const CACHE_VERSION = "knell-v26";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
