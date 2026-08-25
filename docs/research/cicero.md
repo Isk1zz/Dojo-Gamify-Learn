@@ -4,8 +4,9 @@ Working notes for the Philosophy course's Cicero topic. **Not content.** This
 is the sourced material the chunks get written from, with citations attached
 so nothing has to be re-found later.
 
-Agreed arc (2026-08-24): death → rise → collapse → what he made from it.
-Two topics, six chunks.
+Agreed arc: death → rise → collapse → what he made from it → what he
+argued. **Three topics, nine chunks** (topic 3 added 2026-08-25, closing
+the loop: chunk 9 returns to chunk 1's death scene).
 
 | # | Chunk | Status of sourcing |
 |---|---|---|
@@ -15,6 +16,9 @@ Two topics, six chunks.
 | 4 | Making Latin hold a thought | **sourced** — von Albrecht ch. 4; angle corrected |
 | 5 | Arguing both sides | **sourced** — Zarecki ch. 1 |
 | 6 | The letters / Petrarch | **sourced** — Pieper & van der Velden |
+| 7 | The Republic he wanted | **sourced** — Rawson pp. 570–571, Zarecki ch. 3 |
+| 8 | Duty when it costs something | **sourced** — Rawson p. 577, Zarecki ch. 5, Off. 1.26/1.63/1.153/2.24 |
+| 9 | How to face death | **sourced** — Rawson pp. 574–575, Tusc. 1.30.74 |
 
 ---
 
@@ -560,7 +564,109 @@ argument.
 
 </details>
 
+## Topic 3 — "What He Argued" — BUILT 2026-08-25, sources banked
+
+Written from material that was in the conversation but had never been
+written into this file — which is exactly the failure this bank exists to
+prevent, and it was caught in the review immediately after. Banked now.
+
+### Chunk 1 — De Re Publica, the mixed constitution and the rector
+
+**Rawson 1982, pp. 570–571:**
+
+- "he argues, as many Greeks had done, that a mixture of the three basic
+  forms, monarchy, oligarchy, and democracy, is best and stablest, and
+  that **Rome is the best of several examples of this mixed
+  constitution**."
+  - *Note the wording:* Rawson writes **oligarchy**, the course text says
+    *аристократия* / aristocracy. Both are standard renderings of
+    Cicero's *optimates*; aristocracy is the usual name for the
+    uncorrupted form. Flagged rather than silently reconciled.
+- "It used to be thought that he was advocating a quasi-monarchic
+  protector of the constitution, but **it is now generally agreed that
+  there could be more than one such rector or gubernator** guiding or
+  steering the state, and that he was to rely **solely on example,
+  knowledge of the laws, and influence on public opinion**."
+- "It is remarkable that in this work Cicero shows himself very aware of
+  the power of oratory to mislead; **his rector, unlike the ideal
+  statesman of the De Oratore, will speak simply and briefly**."
+- Scipio's Dream: "his protagonist is transported to the heavens, where
+  he is told by **his grandfather Scipio Africanus, the conqueror of
+  Hannibal**, that true statesmen are rewarded by the gods with
+  immortality; from his present position Aemilianus can see that the
+  earth is an insignificant ball and realize that **fame on earth,
+  though it is the proper reward for a statesman, is evanescent**."
+
+**Zarecki 2014 (ch. 3, and the Epilogue):** no military role for the
+rector — "He never embraced the idea of a military position for the
+rector, though many of his historical models, especially Scipio, had
+earned renown on the battlefield." Also ch. 3: "The surviving sections of
+De Re Publica give no indication that Cicero discussed the military
+responsibilities of the rector."
+
+### Chunk 2 — De Officiis
+
+**Rawson 1982, p. 577:** "He also wrote a much longer work, **De Officiis
+or On Duties, for his son**, who was then, as we saw, a student at
+Athens." And p. 573 on its reception: "**Though much admired in the
+Renaissance, when it was known in England as 'Tully's Offices'**."
+
+**Zarecki 2014, ch. 5**, with the primary citations:
+- *sapientia* is "knowledge of divine and human affairs as well as the
+  union of the gods and the community of man"; *prudentia* is "the
+  knowledge of what must be sought and what must be avoided"
+  (**Off. 1.153**).
+- "**Sapientia cannot be separated from moral goodness, for wisdom
+  without goodness is cunning (calliditas)**" (**Off. 1.63**).
+- Caesar's *temeritas*: "who, on account of the sovereign power which he
+  had contrived for himself by his depraved imagination, **trampled
+  underfoot all laws of gods and men**" (**Off. 1.26**).
+- "the fangs of a liberty regained are sharper than those of a liberty
+  never repressed" — *acriores autem morsus sunt intermissae libertatis
+  quam retentae* (**Off. 2.24**).
+  - **Book TWO.** The first draft of the chunk called this "the closing
+    line of Book One," which was wrong on both counts. Fixed.
+
+### Chunk 3 — Tusculan Disputations
+
+**Rawson 1982, pp. 574–575:** "The Tusculan Disputations, **set in
+Cicero's villa at Tusculum**, outside Rome, are rather different in
+character and **much less technical**. … here Cicero is again using all
+his rhetorical armory, in order to help his readers — **and, it cannot be
+doubted, himself** — to despise death, to endure pain…"
+
+- **"Set in," not "written at."** That is the dialogue's dramatic
+  setting. The first draft claimed he composed it there; corrected.
+
+**Tusc. 1.30.74**, Rawson's translation: "**For the whole life of
+philosophers, as the same man (Socrates) says, is a study of death.** …
+But to separate the spirit from the body, what is it but to learn to
+die? And so, believe me, **let us make this our study, and let us sever
+ourselves from our bodies, that is, let us accustom ourselves to
+dying.**"
+
+### Chronology check — done, and it caught two errors
+
+The Tusculans belong to the six works Zarecki dates to the six months
+after Tullia's death (Feb 45), so roughly spring–summer 45. Cicero died
+7 December 43. That interval is **about two and a half years**, not the
+"eighteen months" the first draft claimed — twice, in both languages.
+
+The same sentence also listed **Tullia's death** as falling *between* the
+Tusculans and the road, when it precedes them; and referred to a letter
+**Petrarch** would "receive," when Petrarch wrote *to* Cicero fourteen
+centuries later and received nothing. Both cut. What actually sits in
+that window and now appears instead: Caesar's assassination (Mar 44), the
+Antony fight, the proscriptions.
+
+---
+
 ## OPEN — the substantive philosophy is not in the course (2026-08-25)
+
+> **CLOSED 2026-08-25 by topic 3 above.** Kept for the record because the
+> gap analysis is still the reason the topic has the shape it has. The
+> "likely shape of the fix" it proposed — a third topic rather than
+> retrofitting the existing six — is what was built.
 
 Flagged by the user immediately after the build: the six chunks cover the
 man (death, rise, grief) and his *method* (chunk 5, Academic skepticism —

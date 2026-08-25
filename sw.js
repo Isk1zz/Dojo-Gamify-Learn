@@ -138,7 +138,12 @@
 // rector ideal, retroactively explaining topic 2's Catiline/Octavian
 // beats), De Officiis (sapientia vs calliditas), Tusculan Disputations
 // (closes the circle back to topic 1's death scene).
-const CACHE_VERSION = "knell-v26";
+// Bumped for the topic-3 accuracy review: six factual corrections
+// (Tusculans set-at vs written-at, a two-and-a-half-year interval called
+// eighteen months, Tullia listed in the wrong window, a backwards
+// Petrarch clause, Off. 2.24 miscited as Book One), one RU typo, and a
+// quiz-answer rebalance that pulled C off the 45% ceiling.
+const CACHE_VERSION = "knell-v27";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
