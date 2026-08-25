@@ -559,3 +559,48 @@ consultum ultimum* question. Zarecki touches the conspiracy but not the legal
 argument.
 
 </details>
+
+## OPEN — the substantive philosophy is not in the course (2026-08-25)
+
+Flagged by the user immediately after the build: the six chunks cover the
+man (death, rise, grief) and his *method* (chunk 5, Academic skepticism —
+how he thought). They do not cover what he actually argued on the big
+questions. That is a real gap, not a framing choice.
+
+Missing, roughly in order of how load-bearing each is to "Cicero the
+philosopher" specifically:
+
+- **De Officiis — duty and the honestum vs. utile question.** His most-read
+  work for two thousand years (see Rawson: "known in England as 'Tully's
+  Offices'"). Whether the honourable and the useful can ever conflict is
+  the whole book's spine, and it is nowhere in the current build.
+- **De Re Publica — the mixed constitution and the rector.** Zarecki's
+  entire thesis (already sourced, ch. 2-3 unused so far) is built on this:
+  Cicero's argument that a blend of monarchy/aristocracy/democracy is the
+  stablest form, and the *rector rei publicae* ideal that Chapter 2 of
+  our own build gestures at (Catiline, Octavian) without ever naming or
+  explaining. We use the CONSEQUENCE of the idea without ever stating the
+  idea.
+  - **Already have the material.** Zarecki ch. 3 (banked, unused): the
+    rector's required virtues (sapientia, prudentia), why Cicero rejected
+    a military role for the rector, and the Scipio's Dream material on
+    statesman-immortality.
+- **The ethical schools compared — Academica / De Finibus.** Chunk 5
+  covers the SKEPTICAL METHOD (how to weigh evidence) but not what the
+  method was applied TO: his comparison of Stoic, Epicurean and Academic
+  positions on what makes a life good. This is a different and larger
+  question than probabilism.
+- **Tusculan Disputations — death, pain, virtue as sufficient for
+  happiness.** Untouched. The most quotable of the philosophical works
+  and the most directly about how to live.
+
+**Likely shape of the fix:** a third topic ("Что он думал" / "The
+Arguments") rather than retrofitting these into the existing six chunks,
+which are already at the model's word ceiling and built around the
+biographical arc. De Re Publica is the natural first chunk of a new
+topic, since Zarecki ch. 3 is already sourced and unused, and it also
+retroactively explains the "rector" behaviour already described in
+chunk 2 without the reader having been told what it was.
+
+Paused here — user is on a break, explicitly asked to leave it and pick
+up later. Do not start writing chunks until resumed.
