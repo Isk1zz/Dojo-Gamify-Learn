@@ -151,6 +151,7 @@
     const TRACKS = [
       { id: "cs",      label: "\u{1F4BB} " + I18N.t("track.cs") },
       { id: "science", label: "\u{1F52C} " + I18N.t("track.science") },
+      { id: "humanities", label: "\u{1F3F5}\uFE0F " + I18N.t("track.humanities") },
       { id: "other",   label: "\u{1F4DA} " + I18N.t("track.other") }
     ];
     const byTrack = new Map(TRACKS.map(t => [t.id, []]));

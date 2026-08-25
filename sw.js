@@ -98,7 +98,11 @@
 // Bumped for interface translation pass 2: 40 new i18n keys, and the
 // shop/garden/stats catalogues turned into {en, ru} bags resolved through
 // I18N.resolve. A stale pairing shows raw keys or half-translated tiles.
-const CACHE_VERSION = "knell-v15";
+// Bumped for the Philosophy course: two new content files, a new
+// "humanities" shelf in library.js and the i18n key behind its label. A
+// stale index.html against a fresh library.js gives a shelf with no course
+// under it.
+const CACHE_VERSION = "knell-v16";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

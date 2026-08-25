@@ -482,6 +482,7 @@ const I18N = (() => {
     // Library shelves
     "track.cs":             { en: "Computer Science",   ru: "Информатика" },
     "track.science":        { en: "Sciences",           ru: "Естественные науки" },
+    "track.humanities":     { en: "Humanities",         ru: "Гуманитарные науки" },
     "track.other":          { en: "Other",              ru: "Прочее" }
   };
 
