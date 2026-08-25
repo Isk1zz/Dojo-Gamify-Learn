@@ -129,7 +129,12 @@
 // Bumped an eighth time: quiz feedback ("Correct!" / "Wrong — the
 // answer is X") and the exam-navigation buttons (Next Question, See
 // Results) were hardcoded independently in two render paths.
-const CACHE_VERSION = "knell-v24";
+// Bumped for the Supabase client scaffolding: core/supabase.js is a
+// new file in band 1, and the supabase-js CDN script is new too. Not
+// wired into any UI yet -- Dojo.Cloud.isConfigured() is false until
+// SUPABASE_URL/ANON_KEY are filled in, so this bump is precautionary,
+// not because anything user-facing changed.
+const CACHE_VERSION = "knell-v25";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

@@ -23,7 +23,28 @@
 > and it survives the vendor swap. Translate as you implement.
 
 
-Status: **planning only, nothing built.** Written 2026-08-13.
+Status: **Phase 1-3 scaffolding built, 2026-08-25.** Schema and RLS
+exist (`supabase/migrations/0001_init.sql`), client plumbing exists
+(`core/supabase.js`), neither is wired into the UI yet and neither has
+been run against a real project. Written 2026-08-13.
+
+**What exists now:**
+- `profiles` and `progress` tables, RLS scoped to own-row read/write.
+- `economy` table, RLS scoped to own-row READ ONLY -- no write policy
+  exists at all, which is the enforcement (see the migration file's
+  comments). This is Phase 3 done first, not deferred to "later."
+- `handle_new_user()` trigger seeds all three rows at signup.
+- `core/supabase.js`: auth (signUp/signIn/signOut/session) and
+  pull/push helpers for profiles + progress. `economy` only has
+  `pull()` -- no `push()`, on purpose.
+
+**What does NOT exist yet:**
+- SUPABASE_URL / SUPABASE_ANON_KEY are blank in core/supabase.js.
+- The migration has not been run against the live project.
+- No sign-in UI. core/profile.js is untouched.
+- No localStorage -> cloud migration path.
+- No economy-mutation RPCs (award_xp, spend_tokens, claim_dividend, ...)
+  -- the vault exists, nothing can be put in or taken out of it yet.
 
 This is the roadmap for moving Dojo off "localStorage on one device" and
 onto real accounts with a real database, plus what's actually required

@@ -731,6 +731,14 @@
        secure context (https or localhost) — Dojo.Crypto.isAvailable()
        reports that rather than throwing. -->
   <script src="core/crypto.js"></script>
+  <!-- Supabase client (see core/supabase.js). The first real
+       dependency this project has -- CDN, not npm, so there is still
+       no build step. Requires SUPABASE_URL / SUPABASE_ANON_KEY to be
+       filled in at the top of core/supabase.js; until then
+       Dojo.Cloud.isConfigured() reports false and nothing else in the
+       app calls into it. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="core/supabase.js"></script>
   <script src="core/sfx.js"></script>
   <script src="data/db.js"></script>
   <script src="admin/logger.js"></script>
