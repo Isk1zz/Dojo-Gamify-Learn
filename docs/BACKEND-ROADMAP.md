@@ -84,6 +84,58 @@ they conflict:**
    has far more headroom than Firebase Spark ever did, but "don't write
    on every keystroke" is good practice regardless of quota.
 
+### Plan verified against the actual code — 2026-08-27
+
+The steps below were written from the roadmap's own reasoning, not from
+reading the current source. Checked afterwards; four things came back,
+two of which change what gets built. Recorded here rather than silently
+patched into the steps, because the *reason* a step changed matters as
+much as the change.
+
+**1. The schema is clean — verified mechanically, not by eye.** A script
+extracted all 42 top-level keys from `data/db.js`'s `defaultProfile()`
+and every column from `0001_init.sql`, and compared them: **42/42 map,
+zero orphan columns.** The camelCase→snake_case split across
+profiles/progress/economy is correct and complete. This was the single
+highest-risk assumption in the whole plan (a schema written from a
+`defaultProfile()` that had since drifted would corrupt every migrated
+account) and it holds.
+
+**2. Step 2 was already built — before this plan proposed building it.**
+`DB.exportData()` / `DB.importData(file)` exist in `data/db.js` (~line
+1526) and are already wired into Settings, `library/stats.js`, and the
+admin panel. The implementation is *better* than what Step 2 specified:
+it validates the file shape, **refuses backups from a newer `DB_VERSION`
+rather than silently dropping fields it can't understand**, treats a
+version-less file as oldest-known so every migration runs, and routes
+the import through the same `migrate()` path a normal load uses instead
+of writing unvalidated JSON to storage. Step 2 is rewritten below from
+"build this" to "harden what exists", which is a much smaller job.
+
+**3. The schema silently deletes multi-profile. OPEN — see below.**
+`profiles.id` is `uuid primary key references auth.users(id)`, and
+`progress`/`economy` are keyed the same way: **one auth account = exactly
+one profile.** But multi-profile is a live, user-facing feature today —
+`DB.createProfile`/`listProfiles`/`setActiveProfile` all exist, and
+`core/profile.js:193` renders a profile switcher whenever
+`profiles.length > 1`, with theme, wallet, garden and inventory all
+per-profile. Nothing in the plan noticed this. It is a schema-level
+decision and it must be made **before Step 1**, because it determines
+whether `profiles` can keep `auth.users(id)` as its primary key.
+
+**4. `buy_course` has no server-side price to look up.** Step 5 says the
+price is "looked up server-side from a Postgres table, never trusted
+from the client" — correct as a principle, but that table does not
+exist. Prices live in the client-side course manifests
+(`library/content/*/course.js`'s `priceTokens`), and the patron discount
+(`coursePrice()` in `shop/tokens.js`) is applied client-side from
+`patron_tier`. Making this real needs a `courses` table in Postgres,
+which then makes price a **duplicated source of truth** with the JS
+manifests — so it also needs a check that the two agree, in the same
+spirit as `check-content.js`. Noted in Step 5, not yet designed.
+
+---
+
 ### Step 0 — DECIDED 2026-08-27: email, password, nickname, country
 Settled field-by-field, smallest piece first:
 - **Email** — yes. Needed for password reset and cross-device sign-in.
@@ -113,6 +165,40 @@ to reverse the decision above (which was explicit and confirmed), just
 a known cost to weigh against whatever making login mandatory is
 solving for.
 
+### Step 0b — BLOCKING, UNDECIDED: what happens to multi-profile?
+Finding 3 above. This must be answered before Step 1, because it decides
+whether `profiles.id` can stay `references auth.users(id)` — changing a
+primary key after real rows exist is exactly the migration nobody wants
+to write. Three options:
+
+- **(a) One account = one profile.** Multi-profile is retired: the
+  switcher in `core/profile.js` goes, and existing local profiles are
+  handled at Step 4 by asking which one to claim (the rest stay in the
+  local export, not silently deleted). Simplest by far, schema is
+  already correct for it, and it matches how almost every account-based
+  app behaves. Cost: a real feature is removed, and anyone currently
+  using several profiles on a shared device loses that.
+- **(b) One account holds many profiles.** `profiles` grows its own
+  `id uuid primary key default gen_random_uuid()` plus a
+  `user_id uuid references auth.users(id)`, and `progress`/`economy`
+  key off *profile* id, not user id. Keeps the feature intact. Cost:
+  every RLS policy becomes a join (`user_id` is no longer the row's own
+  key), `handle_new_user()` seeds one default profile instead of one
+  row per table, and the economy question gets awkward — are tokens
+  per-profile or per-account? Bought-with-real-money tokens sitting on
+  one of five profiles is a support problem waiting to happen.
+- **(c) Keep multi-profile local-only.** Cloud sync applies to the
+  active profile; others stay device-local. Cheapest to build, but it
+  means "my progress is saved online" is true for one profile and
+  quietly false for the rest — the kind of half-truth that costs trust
+  exactly when someone loses data.
+
+**Recommendation: (a).** With login mandatory (Step 3), the account
+*is* the identity — multi-profile existed to let several people share
+one device with no accounts, which is the problem accounts solve
+directly. (b) is defensible but the token question makes it worse than
+it looks, and (c) is the only one that can silently lose data.
+
 ### Step 1 — Stand up the real Supabase project
 Create the project (free tier), run `supabase/migrations/0001_init.sql`
 against it for real — it has never touched a live database — and fill
@@ -124,18 +210,33 @@ Supabase dashboard shows three seeded rows with `handle_new_user()`'s
 defaults — proving the trigger and RLS both fired correctly before any
 app code depends on them.
 
-### Step 2 — Local export/import, BEFORE anything touches real accounts
-The backup mechanism has to exist first, not as an afterthought bolted
-onto migration. A "Download my data" button in Settings that serializes
-the current `DB` profile to a JSON file the user can save anywhere —
-this is useful **today**, with zero accounts involved, and it's the
-thing that makes every later step reversible: if a cloud migration ever
-goes wrong, this file is the independent, user-held copy of record. An
-"Import" counterpart restores from that file, validated against the
-same shape `data/db.js`'s `migrate()` already checks. **Done looks
-like:** export → wipe the profile → import round-trips every field
-losslessly, verified against a real profile with study history, not an
-empty one.
+### Step 2 — Harden the export/import that already exists
+**Revised: this was specified as new work and is already built.** See
+finding 2 above — `DB.exportData()`/`importData()` exist, are wired into
+three places, and already do the version-safety work this step would
+have asked for. The backup mechanism the rest of the plan leans on is
+therefore **already in place**, which makes every later step reversible
+starting now rather than starting after a build.
+
+What is genuinely missing is smaller, and all of it is about the
+*import* direction, which is the destructive one:
+
+- **Import replaces the entire database, all profiles, in one shot**,
+  and nothing takes a backup of what is about to be overwritten. The
+  fix is one line of sequencing, not a feature: auto-export the current
+  state immediately before applying an import, so a mis-clicked restore
+  is recoverable. Cheap, and it removes the only irreversible action in
+  the app.
+- **No confirmation step** on an action that discards all local
+  progress.
+- **Verify the round-trip on a profile with real history**, not an empty
+  one — export → wipe → import, checking `reviews` (the SM-2 schedule)
+  field by field, since that is the single most valuable thing a user
+  owns and the easiest to lose silently.
+
+**Done looks like:** an import of a deliberately corrupt file leaves the
+existing profile untouched (already true — worth a regression test), and
+a good import is preceded by an automatic backup file being written.
 
 ### Step 3 — Sign-in UI
 Built into the existing `core/profile.js` modal — it already owns "who
@@ -145,11 +246,31 @@ password, nickname, optional country.
 
 **Login is mandatory upfront — DECIDED 2026-08-27, overrides Phase 1
 point 4 below.** Nobody reaches the study loop without signing up
-first; there is no anonymous/offline play and no "claim your progress
-later" flow. This simplifies Step 4 (no local-history-to-claim case to
-handle for a first-time visitor — a genuinely new visitor has no local
-profile yet, since the gate sits before any studying happens) but see
-the tension noted in Step 0 before treating this as free of cost.
+first; there is no anonymous play and no "claim your progress later"
+flow. This simplifies Step 4 (no local-history-to-claim case to handle
+for a first-time visitor — a genuinely new visitor has no local profile
+yet, since the gate sits before any studying happens) but see the
+tension noted in Step 0 before treating this as free of cost.
+
+**Critical distinction this decision must NOT be implemented as:
+"mandatory account" ≠ "mandatory connectivity."** This app is an
+offline-first installable PWA — `sw.js` caches the whole thing precisely
+so it works with no network. A login gate written naively (block the app
+whenever there is no valid live session) would break that outright:
+someone studying on a plane, or simply past their refresh-token expiry
+while offline, gets locked out of an app that is fully cached on their
+own device and needs nothing from the network to teach them anything.
+
+**So gate on "has this device ever completed a sign-in", not "is a
+session currently valid."** Supabase persists its session (JWT +
+refresh token) in `localStorage`, so this is a local read, not a network
+call. First launch requires connectivity exactly once, to create the
+account; after that, study runs offline against local state and syncs
+whenever a session can next be refreshed. A stale/expired session
+downgrades to "offline, will sync later" — surfaced honestly with the
+Step 6 notice — and only *sync* is blocked, never studying. Re-auth is
+requested when the network is back, not demanded at the moment it
+lapses.
 **Done looks like:** sign up, sign in, sign out, and a wrong-password
 error all work against the real project from Step 1, on a throwaway
 test account.
@@ -181,7 +302,26 @@ server-side instead of trusting whatever the client sends:
 | `award_xp(amount)` | `addXp` | Per-call cap, so a forged huge value can't jump rank in one call |
 | `add_wallet` / `spend_wallet` | `addMoney`/`spendMoney` | Balance never goes negative; **no path exists that converts `$` into `tokens`, ever** — see Flag 1 |
 | `claim_dividend` | `claimDividends` | One claim per 24h server-side (`last_dividend_claim`), not client-timed |
-| `spend_tokens` / `buy_course(course_id)` | `spendTokens`/`buyCourse` | Price is looked up server-side from a Postgres table, never trusted from the client; balance checked atomically so two concurrent buys can't both succeed off one balance |
+| `spend_tokens` / `buy_course(course_id)` | `spendTokens`/`buyCourse` | Price looked up server-side, never trusted from the client; patron discount applied from `economy.patron_tier`, also server-side; balance checked atomically so two concurrent buys can't both succeed off one balance. **Needs a `courses` table that does not exist yet — see below.** |
+
+**The `buy_course` prerequisite (finding 4).** There is no server-side
+price today: `priceTokens` lives in each `library/content/*/course.js`
+manifest and the patron discount is applied client-side by
+`coursePrice()` in `shop/tokens.js`. So this RPC needs a `courses`
+table (`id text primary key, price_tokens int not null, available
+boolean`) populated from those manifests — at which point **price has
+two sources of truth**, and the JS manifest and the Postgres row can
+drift apart. Two ways to keep that honest, decide before building:
+- **(a)** Postgres owns price; the client fetches it and the manifest's
+  `priceTokens` becomes display-only fallback for offline/unauthenticated
+  rendering. Correct, and makes the client's copy explicitly untrusted.
+- **(b)** The manifest stays canonical and a check script asserts the
+  Postgres rows match, in the same spirit as `check-content.js` — cheaper,
+  but drift is only caught when someone runs the check.
+
+Recommendation: **(a)**, because the whole point of this step is that the
+client's number is not to be believed; leaving the client's copy
+authoritative-but-mirrored re-opens the door by habit.
 | `grant_tokens(amount, receipt_id)` | `buyPack` (currently a demo stub) | Only callable from a payment-webhook-verified context once real payment is wired — never directly by the client |
 
 **Done looks like:** with the client's Supabase session, a direct

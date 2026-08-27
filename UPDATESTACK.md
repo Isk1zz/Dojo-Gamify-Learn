@@ -26,11 +26,29 @@ no economy-mutation RPCs (award_xp/spend_tokens/claim_dividend/...).
 Full breakdown in `docs/BACKEND-ROADMAP.md`'s status header. **Concrete,
 ordered build plan (2026-08-27, replaces the old Firebase-flavored
 "Suggested order")** is in that doc's "The account-system build plan"
-section, right below the status header — 8 steps, Step 0 (what data to
-collect) is the only one waiting on you, Step 1 needs a real Supabase
-project before anything else can be tested. Backup/data-safety (local
-export/import) is deliberately Step 2, before sign-in exists at all —
-it's useful standalone and it's what makes every later step reversible.
+section, right below the status header.
+
+**Then verified against the actual source, same day** — see that doc's
+"Plan verified against the actual code". Four findings, two of which
+changed the plan:
+1. Schema checked mechanically against `defaultProfile()`: **42/42
+   fields map, zero orphans.** The highest-risk assumption held.
+2. **Step 2 was already built** — `DB.exportData()`/`importData()` have
+   existed all along, wired into Settings/stats/admin, and handle
+   version safety better than the step specified. Rewritten from "build
+   it" to "harden it" (add a pre-import auto-backup; import currently
+   replaces everything with no confirmation and no undo).
+3. **BLOCKING, undecided: the schema silently kills multi-profile.**
+   One `auth.users` id = one profile row, but `core/profile.js` renders
+   a live profile switcher today. Must be answered before Step 1 —
+   it decides the primary key. Three options + a recommendation are in
+   the doc as Step 0b.
+4. `buy_course` has no server-side price to look up — prices live in
+   the client-side course manifests. Needs a `courses` table, which
+   creates a two-sources-of-truth problem; options in Step 5.
+
+Waiting on you: Step 0b (multi-profile) and Step 1 (a real Supabase
+project — nothing can be tested against a live DB until it exists).
 
 **Settled 2026-08-16: the database is Supabase, not Firebase.** The two
 labels had been contradicting each other in this file for weeks; asked
