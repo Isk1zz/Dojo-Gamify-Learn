@@ -35,6 +35,13 @@
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   name text not null default 'Student',
+  -- Optional/skippable at signup (BACKEND-ROADMAP.md Step 0, decided
+  -- 2026-08-27). Only confirmed purpose: surfacing country-adapted
+  -- courses (e.g. bike-a3 is Israel-specific) to the right audience.
+  -- Not a tax/legal/Diia field -- nothing reads it for that today, and
+  -- it should not silently grow into one without that being decided
+  -- separately.
+  country text,
   avatar text,
   owned_avatars text[] not null default '{}',
   pinned_badges text[] not null default '{}',

@@ -84,12 +84,34 @@ they conflict:**
    has far more headroom than Firebase Spark ever did, but "don't write
    on every keystroke" is good practice regardless of quota.
 
-### Step 0 — Decide what you actually collect
-**Yours to decide, not mine — hours, no code.** Recommendation from
-Phase 0 below still stands: email + password, nothing else. No phone,
-no country, no documents, unless something forces it. This has to be
-settled before Step 3 (the sign-in form's field list follows directly
-from the answer).
+### Step 0 — DECIDED 2026-08-27: email, password, nickname, country
+Settled field-by-field, smallest piece first:
+- **Email** — yes. Needed for password reset and cross-device sign-in.
+- **Password** — yes, implied by using email/password auth.
+- **Nickname** — yes, its own field at signup (not reused from any
+  local profile name, since signup now happens before studying — see
+  the login-gate decision below). Maps to `profiles.name`, already in
+  the schema.
+- **Country** — yes, but **optional/skippable**, and scoped: its only
+  confirmed purpose is surfacing country-adapted courses (e.g. bike-a3
+  is Israel-specific) to the right audience, not tax/legal/Diia
+  purposes. Nothing legal currently reads this field. **New column,
+  not yet in `0001_init.sql`** — add `country text` (nullable) to
+  `profiles` before Step 1 runs the migration for real.
+- **Everything else** (phone, documents) — no, per the standing
+  recommendation and Flag 2.
+
+**Also decided here, bigger than a field: login is mandatory upfront**,
+not the anonymous-first model Phase 1 point 4 and the original Step 3
+assumed. See Step 3 below for what that changes.
+
+**Tension worth naming, not yet resolved:** UPDATESTACK.md's
+Popularization section flags "a stranger meets a purchase before they
+meet the product" as the app's top distribution problem — a login wall
+adds a *second* thing a stranger meets before the product. Not a reason
+to reverse the decision above (which was explicit and confirmed), just
+a known cost to weigh against whatever making login mandatory is
+solving for.
 
 ### Step 1 — Stand up the real Supabase project
 Create the project (free tier), run `supabase/migrations/0001_init.sql`
@@ -118,16 +140,26 @@ empty one.
 ### Step 3 — Sign-in UI
 Built into the existing `core/profile.js` modal — it already owns "who
 are you" and the multi-profile concept, so this is a new tab on
-something that exists, not a new screen. Email/password only (per Step
-0). **Anonymous-first, matching Phase 1 point 4**: nothing forces
-sign-in before studying — a "Save my progress" prompt after a real
-accomplishment (finishing a topic, hitting a streak) is the natural
-moment to offer it, not a wall on first launch. **Done looks like:**
-sign up, sign in, sign out, and a wrong-password error all work against
-the real project from Step 1, on a throwaway test account.
+something that exists, not a new screen. Fields per Step 0: email,
+password, nickname, optional country.
+
+**Login is mandatory upfront — DECIDED 2026-08-27, overrides Phase 1
+point 4 below.** Nobody reaches the study loop without signing up
+first; there is no anonymous/offline play and no "claim your progress
+later" flow. This simplifies Step 4 (no local-history-to-claim case to
+handle for a first-time visitor — a genuinely new visitor has no local
+profile yet, since the gate sits before any studying happens) but see
+the tension noted in Step 0 before treating this as free of cost.
+**Done looks like:** sign up, sign in, sign out, and a wrong-password
+error all work against the real project from Step 1, on a throwaway
+test account.
 
 ### Step 4 — One-time upload migration (the "claim" flow)
-On first real sign-in, if `localStorage` has a profile and the cloud
+With login now mandatory (Step 3), this step only matters for people
+who already have local progress from *before* the gate shipped — a
+genuinely first-time visitor after that point has no local profile to
+migrate. Still needed as long as any pre-gate local profile exists. On
+first real sign-in, if `localStorage` has a profile and the cloud
 row is still at `handle_new_user()`'s zeroed defaults, upload the local
 profile once. **The local copy is never deleted** — Phase 1's rule,
 restated because it's the one most tempting to "clean up" later. Guard
