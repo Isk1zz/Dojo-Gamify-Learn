@@ -150,7 +150,12 @@
 // a working unit count for lazy/unloaded courses); Garden no longer
 // force-opens an empty course plot on first paint; the sign-contract
 // modal explains signing plants the course's first Garden seed.
-const CACHE_VERSION = "knell-v29";
+// Bumped for the live Supabase connection: core/supabase.js now carries
+// a real project URL and publishable key instead of two empty strings.
+// A stale copy is the version that still believes the backend is not
+// configured, so every Cloud call throws the "not configured" error --
+// which reads exactly like a broken backend rather than a cached file.
+const CACHE_VERSION = "knell-v30";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

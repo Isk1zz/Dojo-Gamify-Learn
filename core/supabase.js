@@ -25,7 +25,7 @@
 // direct table write.
 //
 // ---- Configuration ----
-// SUPABASE_URL and SUPABASE_ANON_KEY are safe to hardcode and commit —
+// SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY are safe to hardcode and commit —
 // the anon key is designed to sit in client code. It authenticates as
 // the "anonymous/public" Postgres role; RLS is what actually protects
 // data, not secrecy of this key. The service_role key is the one that
@@ -33,11 +33,21 @@
 // ================================================
 
 (() => {
-  const SUPABASE_URL = "";       // fill in from Project Settings -> API
-  const SUPABASE_ANON_KEY = "";  // fill in from Project Settings -> API
+  const SUPABASE_URL = "https://sadelbwxiplsbisvyzsx.supabase.co";
+  // Supabase renamed these in 2026: what the header below calls the
+  // "anon key" is now the PUBLISHABLE key (sb_publishable_...). Same
+  // role, same safety property — it is meant to sit in client code and
+  // RLS is what actually protects the data. The old anon/service_role
+  // pair still exists under a "Legacy API keys" tab; this project uses
+  // the new format.
+  //
+  // Its counterpart is the SECRET key (sb_secret_..., formerly
+  // service_role). That one bypasses RLS completely and must never
+  // appear in this file, in this repo, or anywhere a browser can read.
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_co6T7kHmuZ00IGB_6gOQ4A_YR5P7WIM";
 
   function isConfigured() {
-    return !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+    return !!(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
   }
 
   let client = null;
@@ -45,7 +55,7 @@
     if (!isConfigured()) {
       throw new Error(
         "[Cloud] Supabase is not configured. Set SUPABASE_URL and " +
-        "SUPABASE_ANON_KEY at the top of core/supabase.js — both come " +
+        "SUPABASE_PUBLISHABLE_KEY at the top of core/supabase.js — both come " +
         "from Project Settings > API in the Supabase dashboard, and " +
         "neither is a secret."
       );
@@ -57,7 +67,7 @@
           "<script src> tag in index.html is BEFORE core/supabase.js."
         );
       }
-      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
     }
     return client;
   }
