@@ -7,7 +7,11 @@ example, asks a question. Passing a topic's mastery exam does not mark it
 finished; it schedules it for spaced review. The Garden is that schedule made
 visible: topics you are losing are plants that need watering.
 
-Offline-first, no build step, no dependencies, no server.
+No build step, no dependencies. Runs entirely on `localStorage` today —
+that's the current implementation, not the destination: the plan is an
+online database (Supabase) that holds progress across devices and
+actually enforces the rules (course ownership, the economy), not just a
+client-side flag anyone can edit in devtools. See `docs/BACKEND-ROADMAP.md`.
 
 ## The end goal
 
@@ -24,9 +28,12 @@ this starts, not where it is meant to end: the Garden pays **reputation**, and
 reputation can only ever be spent on *other people's* posts — never your own.
 See `forum/FORUM.md`.
 
-That third loop needs a backend. Everything is `localStorage` today, so two
-people running this share nothing. The Supabase port at the top of
-`UPDATESTACK.md` is the precondition, not a nice-to-have.
+That third loop needs a backend — but it's not the only reason for one.
+Everything is `localStorage` today: progress doesn't follow you across
+devices, and course ownership is a flag the client trusts, which means
+it's a flag anyone can edit. The Supabase port at the top of
+`UPDATESTACK.md` fixes both, with the Forum as one thing it unlocks
+rather than the reason it exists.
 
 ## Running
 

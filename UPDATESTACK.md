@@ -6,6 +6,15 @@ left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
 ## TOP OF STACK — Supabase backend port
+**Scope note, 2026-08-27: this is not just the Forum's precondition
+anymore.** Earlier framing (below, and in README/PROJECT.md) sold this
+purely as "the Forum needs accounts." The actual target is broader:
+`progress` moves off single-device `localStorage` onto the database, and
+`economy` stops being a client-trusted flag — RLS is what makes course
+ownership real instead of editable in devtools (see SECURITY AUDIT
+finding #1 near the bottom of this file). The Forum is one consumer of
+this backend, not the reason for it.
+
 **Phase 1-3 scaffolding built, 2026-08-25 — not wired in yet.** Schema
 + RLS exist (`supabase/migrations/0001_init.sql`: `profiles`/`progress`
 own-row RLS, `economy` READ-ONLY with no write policy at all, which
@@ -1245,11 +1254,28 @@ stranger meets a purchase before they meet the product. #1 and #2 below
 still pay off before anything else, and #4 moved from "medium effort" to
 "the thing standing between the app and its first user".
 
-## Long-term roadmap (later — needs the account/backend question settled first)
+## Long-term roadmap
+
+**Plan shifted 2026-08-27: the online database is no longer a someday
+item waiting on a person to be free — it's the active plan.** The old
+framing below ("offline/local-only on purpose... waits on that") was
+written when nobody on the team knew databases and a friend who did was
+the whole plan. That's stale: Phase 1-3 Supabase scaffolding is already
+built (see TOP OF STACK) precisely because building toward it started
+without waiting for that friend. Progress storage AND system
+enforcement — not just the Forum — are now expected to live server-side:
+`localStorage` stays the offline cache and first-run experience, but
+the source of truth moves to Supabase, and course ownership stops being
+a client-side flag anyone can edit in devtools (SECURITY AUDIT finding
+#1, below). Everything under "Blocked on the backend" is blocked on
+*wiring*, not on the vendor decision or on someone learning databases —
+both of those are already settled.
+
 - Finish out the web app, then port to iOS and Android.
-- Real account system + online database — currently offline/local-only
+- ~~Real account system + online database — currently offline/local-only
   (see landing page copy) on purpose, because nobody on the team knows
   databases yet. A friend who does is expected to be free "later" — this
   whole line (accounts, online DB, and everything above that's "Blocked
   on the backend") waits on that, rather than being half-designed now by
-  someone who'd be guessing at the DB side.
+  someone who'd be guessing at the DB side.~~ Superseded by the note
+  above.

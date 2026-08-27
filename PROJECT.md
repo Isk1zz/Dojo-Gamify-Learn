@@ -15,9 +15,12 @@ A study app that fights forgetting. Content is broken into small chunks; each ch
 teaches one idea, shows a worked example, and asks a question. Passing a topic's mastery
 exam schedules it for spaced review rather than marking it finished forever.
 
-Open `index.html` in a browser. No build step, no server, no npm. That constraint is
-deliberate — it means the app works offline, forever, with no maintenance surface.
-**Don't add a build step or a dependency without a very good reason.**
+Open `index.html` in a browser. No build step, no npm. That's the current
+implementation, not a permanent commitment — no server is temporary, tracked
+at the top of `UPDATESTACK.md`; the plan is Supabase as the system of record
+for progress and the economy, with `localStorage` staying as the offline
+cache once that lands. **Don't add a build step or a dependency without a
+very good reason.**
 
 Live at `Isk1zz.github.io/Dojo-Gamify-Learn` (GitHub Pages, branch `main`, root).
 
@@ -34,9 +37,12 @@ The third loop is why the first two are shaped the way they are. The Garden pays
 reputation, and reputation can only be spent on *other people's* posts — never your
 own, so standing can never be self-farmed. See `forum/FORUM.md`.
 
-It needs a backend: everything is `localStorage`, so two people running this share
-nothing. The Supabase port at the top of `UPDATESTACK.md` is a **precondition** for
-the Forum, not an enhancement.
+It needs a backend — and so does the rest of the app, not just this loop.
+Everything is `localStorage` today: progress is single-device, and course
+ownership (`shop/tokens.js`'s `ownsCourse`) is a client-trusted flag, which
+the 2026-08-13 security audit confirmed is directly editable in devtools.
+The Supabase port at the top of `UPDATESTACK.md` is a **precondition** for
+the Forum and the fix for that paywall hole — one port, two payoffs.
 
 ### Currencies
 
@@ -373,7 +379,11 @@ plus Garden, Career, Custom, Shop, Forum, Settings and Admin.
 - Warning notices actually reach the user (they were recorded and never shown)
 
 **Not built:**
-- Accounts / backend — **the blocker for the Forum**, and therefore for loop 3
+- Accounts / backend — scaffolding exists (`supabase/migrations/0001_init.sql`,
+  `core/supabase.js`, built 2026-08-25) but isn't wired into the UI yet.
+  **The blocker for the Forum** (loop 3), and also the fix for the client-
+  side-only paywall — not just a Forum precondition. See `UPDATESTACK.md`'s
+  TOP OF STACK.
 - Four more Unit 8 modules — Cloud Computing, Big Data, Blockchain, IoT & Sensors, VR
 - The five-phase chunk flow: `predict → explain → example → apply → recall`.
   Adding a **predict** question before instruction exploits the pretesting effect;
