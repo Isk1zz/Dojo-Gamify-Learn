@@ -6,6 +6,16 @@ left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
 ## TOP OF STACK — Supabase backend port
+**Phase 1-3 scaffolding built, 2026-08-25 — not wired in yet.** Schema
++ RLS exist (`supabase/migrations/0001_init.sql`: `profiles`/`progress`
+own-row RLS, `economy` READ-ONLY with no write policy at all, which
+*is* the enforcement) and a client wrapper exists (`core/supabase.js`:
+auth + pull/push for profiles+progress, `economy` pull-only). Neither
+has touched the UI and neither has run against a real project — no
+URL/anon key set, no sign-in screen, no localStorage→cloud migration,
+no economy-mutation RPCs (award_xp/spend_tokens/claim_dividend/...).
+Full breakdown in `docs/BACKEND-ROADMAP.md`'s status header.
+
 **Settled 2026-08-16: the database is Supabase, not Firebase.** The two
 labels had been contradicting each other in this file for weeks; asked
 and answered. `docs/BACKEND-ROADMAP.md` is still written against
@@ -1053,6 +1063,42 @@ cache-first strategy can pin a broken build.
   **10 Tokens = $1** — a generous conversion now, not a loss-sink.
   `shop/tokens.js`'s `exchangeTokens()`/`exchangeQuote()`, wired through
   `shop/store.js`'s new `exchange` category.
+
+## Still open — needs your input (2026-08-27 batch)
+- **Lobby flashes cards → star topology on first paint — reported
+  again, not yet diagnosed.** A near-identical bug ("first ever opening
+  uses cards not star") was fixed in Batch 43 (`core/profile.js`
+  repainting the lobby after profile creation), but this report is
+  worded differently — an EXISTING profile's first paint of a session
+  visibly switches layout after the fact, not a brand-new profile. Not
+  yet confirmed whether Batch 43's fix has a gap or this is a distinct
+  cause (e.g. a second render pass using a different default before
+  `DB` finishes loading the real `lobbyStyle`).
+- **First-time onboarding: offer topology/style customization instead
+  of silently defaulting.** Ask, verbatim: explain briefly why, do it in
+  a few minimal steps, don't bombard with data, mini chunks, appealing
+  choices. Not started. Natural pairing with the bug above — whatever
+  causes the flash is also the moment a first-run picker would need to
+  hook into, so worth scoping together rather than sequentially.
+
+## Shipped 2026-08-27 — course audit + About-this-course
+Asked: validate every reference/unit across the newly-built Cicero
+topic 3, answer "what does this course sell on" for all three built
+courses, and add an About section for each. Full account in the git
+log (`About-this-course everywhere it's needed, plus the bugs that
+surfaced fixing it`) and `BACKLOG.md`; summary here since this was a
+multi-part ask:
+- One mis-cited reference found and fixed (*De Re Publica* 6.12 → 6.15),
+  mirrored into `docs/research/cicero.md`.
+- `about` manifest field wired end-to-end (registry.js/KNOWN_KEYS, new
+  i18n key, content for all three courses, both languages), rendered on
+  unit-select AND the pre-purchase buy modal (the first cut missed the
+  buy modal — reported and fixed same session).
+- Two bugs the buy-modal wiring surfaced, both fixed: unit count read 0
+  for a lazy/unloaded course (intro-cs) at buy time; Garden force-opened
+  an empty course plot on first paint. Sign-contract modal also gained a
+  line explaining WHY signing matters (it plants the course's first
+  Garden seed).
 
 ## Still open — needs your input
 - **Admin panel: warning notices still don't reach the user.** Settled
