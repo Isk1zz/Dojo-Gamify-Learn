@@ -280,6 +280,7 @@
             <li>${I18N.t("contract.c3")}</li>
             <li>${I18N.t("contract.c4")}</li>
           </ul>
+          <p class="contract-plant-note">${I18N.t("contract.plantNote")}</p>
           <p class="contract-fineprint">${I18N.t("contract.fineprint")}</p>
         </div>
         <div class="contract-pad-wrap">
@@ -380,9 +381,19 @@
   function showCourseBuyModal(course, onUnlocked) {
     const overlay = document.getElementById("course-buy-modal");
     if (!overlay) { Router.go("token-shop"); return; }
-    const unitList = course.units
-      .map(id => UNITS.find(u => u.id === id))
-      .filter(Boolean);
+    // A lazy course (intro-cs) hasn't loaded its units into memory yet
+    // at buy time -- that only happens once it's entered, which is
+    // gated BEHIND this very purchase. Same fallback the course-card
+    // grid already uses: unitOutline's counts, not the (empty) real
+    // units.
+    const loaded = !Content.isLoaded || Content.isLoaded(course.id);
+    const unitList = loaded
+      ? course.units.map(id => UNITS.find(u => u.id === id)).filter(Boolean)
+      : (course.unitOutline || []).map(u => ({
+          icon: "\u{1F4D8}",
+          title: I18N.t("course.unitLine", { id: u.id }),
+          subtitle: I18N.t("course.unitTopics", { n: u.topics })
+        }));
     const tokens = DB.getTokens();
     const afford = tokens >= coursePrice(course);
 
@@ -393,16 +404,21 @@
         <div class="contract-seal">${course.icon}</div>
         <h2 class="modal-title">${course.title}</h2>
         <p class="contract-subtitle">${course.subtitle}</p>
+        ${course.about ? `
+          <details class="sources-box course-about" open>
+            <summary class="sources-label">\u{1F4D3} ${I18N.t("course.about")}</summary>
+            <div class="course-about-body">${course.about}</div>
+          </details>` : ""}
         <div class="contract-body">
-          <p>${unitList.length} units:</p>
+          <p>${I18N.t("course.unitsCount", { n: unitList.length })}</p>
           <ul class="contract-terms">
             ${unitList.map(u => `<li>${u.icon} ${u.title} — ${u.subtitle}</li>`).join("")}
           </ul>
         </div>
         <div class="chunk-actions">
           ${afford
-            ? `<button id="course-buy-confirm" class="btn-primary">Unlock for 🪙 ${coursePrice(course)}</button>`
-            : `<button id="course-buy-getmore" class="btn-primary">Need 🪙 ${coursePrice(course) - tokens} more — Token Shop</button>`}
+            ? `<button id="course-buy-confirm" class="btn-primary">${I18N.t("course.unlockFor")} 🪙 ${coursePrice(course)}</button>`
+            : `<button id="course-buy-getmore" class="btn-primary">${I18N.t("course.needMore", { n: "🪙 " + (coursePrice(course) - tokens) })}</button>`}
         </div>
       </div>`;
 
@@ -434,6 +450,22 @@
     const completedTopics = DB.getCompletedTopics();
     const course = COURSES.find(c => c.id === state.currentCourse);
     const unitsToShow = course ? UNITS.filter(u => course.units.includes(u.id)) : UNITS;
+
+    // "What is this course and who is it for" — the course manifest's
+    // `about` field, if it has one. Sits above the unit list because
+    // this screen is the first thing after entering a course, which is
+    // where the question actually gets asked. Collapsed by default:
+    // someone on their fifth session does not need the pitch again,
+    // and <details> remembers nothing, which is the right amount of
+    // memory for this.
+    if (course && course.about) {
+      const about = document.createElement("details");
+      about.className = "sources-box course-about";
+      about.innerHTML = `
+        <summary class="sources-label">\u{1F4D3} ${I18N.t("course.about")}</summary>
+        <div class="course-about-body">${course.about}</div>`;
+      body.appendChild(about);
+    }
 
     // Same List/Map toggle as the topic screen, same reason it's
     // session-only — see renderTopicMap.

@@ -51,6 +51,52 @@
     icon: "\u{1F3F5}️",
     track: "humanities",
     available: true,
+
+    about: {
+      ru: `<p><strong>Это не обзор «великих мыслителей».</strong> Это один человек,
+        рассмотренный достаточно близко, чтобы его жизнь и его идеи начали
+        объяснять друг друга.</p>
+      <p>Цицерон удобен для этого как никто другой: от него дошло больше текста,
+        чем почти от кого-либо в античности, включая <em>частные письма</em>, которые
+        он никому не показывал. Мы знаем не только что он утверждал публично, но и
+        как он вёл себя, когда думал, что никто не смотрит. Эти две вещи не всегда
+        совпадают — и вот на этом зазоре курс и построен.</p>
+      <p>Девять глав идут не по хронологии, а по нарастанию: сначала смерть, потом
+        как он до неё дошёл, потом что он успел сделать, и только в конце —
+        что он, собственно, думал. К последней главе становится видно, что его
+        философия была не украшением биографии, а инструментом, которым он
+        пользовался — и один раз он проверил его на себе окончательно.</p>
+      <p><strong>Каждое утверждение подкреплено источником.</strong> Под каждой главой
+        два реальных издания с номерами страниц и параграфов: Роусон, фон Альбрехт,
+        Зарецки, плюс сами античные тексты. Там, где источники расходятся или молчат,
+        курс говорит об этом прямо, а не выбирает удобное.</p>
+      <span class="ca-for"><strong>Для кого:</strong> для тех, кому интересно не
+        «что говорил философ», а <em>выдержала ли его философия столкновение с его
+        собственной жизнью</em>. Никакой подготовки не требуется — ни латыни, ни
+        истории Рима.</span>`,
+      en: `<p><strong>This is not a survey of "great thinkers."</strong> It is one man,
+        looked at closely enough that his life and his ideas begin to explain each
+        other.</p>
+      <p>Cicero suits this better than almost anyone: more of his writing survives
+        than of nearly any other ancient figure, including <em>private letters</em>
+        he showed to nobody. We know not only what he argued in public but how he
+        behaved when he thought no one was watching. Those two things do not always
+        agree — and the gap between them is what this course is built on.</p>
+      <p>Nine chapters, ordered not by chronology but by escalation: the death
+        first, then how he arrived at it, then what he managed to make, and only at
+        the end what he actually argued. By the last chapter it is clear that his
+        philosophy was not decoration on a biography but a tool he used — and once,
+        finally, tested on himself.</p>
+      <p><strong>Every claim is sourced.</strong> Two real editions under every
+        chapter, with page and section numbers: Rawson, von Albrecht, Zarecki, plus
+        the ancient texts themselves. Where the sources disagree or fall silent, the
+        course says so rather than picking the convenient reading.</p>
+      <span class="ca-for"><strong>Who it is for:</strong> anyone more interested in
+        <em>whether a philosophy survived contact with the life of the person who
+        wrote it</em> than in what the philosopher said. No preparation needed —
+        no Latin, no Roman history.</span>`
+    },
+
     units
   });
 })();

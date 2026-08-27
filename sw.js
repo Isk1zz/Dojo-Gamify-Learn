@@ -143,7 +143,14 @@
 // eighteen months, Tullia listed in the wrong window, a backwards
 // Petrarch clause, Off. 2.24 miscited as Book One), one RU typo, and a
 // quiz-answer rebalance that pulled C off the 45% ceiling.
-const CACHE_VERSION = "knell-v27";
+// Bumped for the About-this-course blocks: a new `about` manifest field
+// carried through registry.js, rendered on unit-select, with content for
+// all three built courses. Also fixes a mis-cited De Re Publica section.
+// Bumped again: About block now also in the pre-purchase buy modal (with
+// a working unit count for lazy/unloaded courses); Garden no longer
+// force-opens an empty course plot on first paint; the sign-contract
+// modal explains signing plants the course's first Garden seed.
+const CACHE_VERSION = "knell-v29";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

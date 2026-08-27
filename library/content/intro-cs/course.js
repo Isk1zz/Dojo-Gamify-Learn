@@ -176,6 +176,35 @@
     // or the rank rewards go up.
     priceTokens: 700,
 
+    about: {
+      ru: `<p><strong>Широкая основа информатики — восемь блоков, 48 тем</strong> —
+        от того, как устроен компьютер, до того, как работает интернет.</p>
+      <p>Что внутри: устройство компьютера, системы счисления и представление данных,
+        булева алгебра и логические элементы, операционные системы, базы данных,
+        сети и безопасность, основы программирования и новые технологии.</p>
+      <p>Курс отвечает не на вопрос «как написать код», а на более редкий и более
+        полезный: <strong>почему всё это устроено именно так</strong>. Почему число в
+        памяти выглядит именно так, почему пакет доходит, почему база не теряет
+        данные при сбое. Такие вещи не устаревают вместе с языками и фреймворками.</p>
+      <p>Это самый большой курс в приложении, и открывается он целиком — все восемь
+        блоков сразу, без поэтапной выдачи.</p>
+      <span class="ca-for"><strong>Для кого:</strong> для тех, кто начинает с нуля
+        или хочет закрыть дыры в основаниях. Программировать заранее уметь не нужно.</span>`,
+      en: `<p><strong>A broad foundation in computer science — eight units, 48
+        topics</strong> — from how a computer is built to how the internet works.</p>
+      <p>What's inside: computer fundamentals, number systems and data representation,
+        boolean algebra and logic gates, operating systems, databases, networks and
+        security, programming fundamentals, and emerging technologies.</p>
+      <p>The course answers not "how do I write code" but the rarer and more useful
+        question: <strong>why is any of it built this way</strong>. Why a number looks
+        like that in memory, why a packet arrives, why a database survives a crash.
+        Things that do not expire along with languages and frameworks.</p>
+      <p>It is the largest course in the app, and it opens in full — all eight units
+        at once, with nothing drip-fed.</p>
+      <span class="ca-for"><strong>Who it is for:</strong> anyone starting from zero,
+        or filling gaps in the foundations. No prior programming required.</span>`
+    },
+
     // No <script> tags for these — registry.js injects them on open.
     // Order matters only in that unit 6 wants 1-3 together; they are
     // loaded in sequence, so any order that lists all ten is correct.

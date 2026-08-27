@@ -597,6 +597,17 @@ prevent, and it was caught in the review immediately after. Banked now.
   earth is an insignificant ball and realize that **fame on earth,
   though it is the proper reward for a statesman, is evanescent**."
 
+  **Citation correction (found in the reference-validation pass, after
+  this section was first banked):** the chunk originally pinned this
+  claim to *Rep.* 6.12. Wrong passage — Zarecki quotes 6.12 as Africanus
+  telling Scipio he will be dictator at 56, nothing to do with statesman
+  immortality. The immortality claim is 6.15 ("the sole method by which
+  a man can become one of the immortal *rectores civitatis* is by
+  discharging their duty to the *res publica*"); the "fame is evanescent"
+  half has no section number in anything held here, so the chunk now
+  cites the Dream as a whole (ch. 3, "Scipio's Dream") plus 6.15 for the
+  immortality half specifically.
+
 **Zarecki 2014 (ch. 3, and the Epilogue):** no military role for the
 rector — "He never embraced the idea of a military position for the
 rector, though many of his historical models, especially Scipio, had

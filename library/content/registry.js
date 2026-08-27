@@ -162,7 +162,7 @@ const Content = (() => {
   const KNOWN_KEYS = new Set([
     "id", "title", "subtitle", "icon", "track", "available",
     "priceTokens", "examSim", "units", "unitObjects",
-    "lazyFiles", "unitOutline", "unitsFactory", "loaded"
+    "lazyFiles", "unitOutline", "unitsFactory", "loaded", "about"
   ]);
 
   function build() {
@@ -224,6 +224,11 @@ const Content = (() => {
         // predicted, and it happened.
         lazyFiles: c.lazyFiles || null,
         unitOutline: c.unitOutline || null,
+
+        // Long-form "what is this course and who is it for", shown on
+        // the unit-select screen. Optional: a course without one simply
+        // renders no About block.
+        about: c.about || null,
 
         units: unitObjects.map(u => u.id),
         unitObjects

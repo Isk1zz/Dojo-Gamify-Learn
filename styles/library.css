@@ -736,6 +736,42 @@
   font-size: 0.82rem;
   line-height: 1.55;
 }
+/* Opaque, unlike .sources-box. That box holds three lines of citations
+   and the drifting clouds behind it read as texture; this one holds five
+   paragraphs, and decor scrolling through a wall of prose is just hard
+   to read. unit-select is not a STUDY_SCREEN, so the decor is not
+   hidden here the way it is in a lesson -- the block covers itself. */
+/* Inside the buy modal the block can be long; let the card scroll
+   rather than overflow the viewport. */
+#course-buy-modal .modal-card {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+#course-buy-modal .course-about { text-align: left; }
+
+.course-about {
+  margin: 0 0 1.25rem;
+  background: var(--bg-card);
+  position: relative;
+  z-index: 1;
+}
+.course-about-body {
+  padding: 0.9rem 1.2rem 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+.course-about-body p { margin: 0 0 0.85rem; }
+.course-about-body p:last-child { margin-bottom: 0; }
+.course-about-body strong { color: var(--text); font-weight: 600; }
+.course-about-body .ca-for {
+  display: block;
+  margin-top: 0.9rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.85rem;
+}
+
 .source-item { margin-bottom: 0.7rem; opacity: 0.82; }
 .source-item:last-child { margin-bottom: 0; }
 .source-ref { display: block; }
@@ -1062,6 +1098,7 @@
 .contract-body > p { margin-bottom: 0.5rem; }
 .contract-terms { margin: 0 0 0.75rem 1.1rem; }
 .contract-terms li { margin-bottom: 0.3rem; }
+.contract-plant-note { font-size: 0.8rem; color: var(--text-dim); margin: 0 0 0.4rem; }
 .contract-fineprint { font-size: 0.72rem; font-style: italic; color: var(--text-muted); }
 
 .contract-pad-wrap {

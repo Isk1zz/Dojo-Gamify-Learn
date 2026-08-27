@@ -143,12 +143,15 @@
       // Open the course that needs watering; failing that, the one with
       // anything planted; failing that, the first. Never all of them —
       // opening everything is the same wall of beds with extra clicks.
+      // No blind COURSES[0] fallback: a freshly-bought course with
+      // nothing planted (e.g. intro-cs the moment you enter it) has no
+      // reason to spring open on the very first paint. Fold by default;
+      // open only a course that actually has something to show for it.
       const pick =
         COURSES.find(c => (c.unitObjects || []).some(u =>
           (UNIT_TOPICS[u.id] || []).some(t => due.includes(t.id)))) ||
         COURSES.find(c => (c.unitObjects || []).some(u =>
-          (UNIT_TOPICS[u.id] || []).some(t => growthFor(t.id) !== GROWTH[0]))) ||
-        COURSES[0];
+          (UNIT_TOPICS[u.id] || []).some(t => growthFor(t.id) !== GROWTH[0])));
       if (pick) openCourses.add(pick.id);
     }
 
