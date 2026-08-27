@@ -55,6 +55,155 @@ items there change what you should build, not just how.
 
 ---
 
+## The account-system build plan (2026-08-27)
+
+This supersedes Phases 1/3/4 below wherever they still speak Firebase —
+those stay for the reasoning, this is the concrete, ordered, Supabase-
+real version of the same plan. Every step names what "done" looks like,
+so it's checkable, not just describable.
+
+**Four things every step below is weighed against, in this order when
+they conflict:**
+
+1. **Never lose a user's data.** Nothing overwrites a profile without a
+   proven-good copy existing somewhere else first. This is Step 2, and
+   it comes *before* sign-in exists at all — an export button that
+   works on the current, local-only app is a backup mechanism whether
+   or not accounts ever ship.
+2. **Safety.** The client never gets to assert anything about money.
+   Every `economy` mutation is a `SECURITY DEFINER` Postgres function,
+   never a table write — that's the whole point of the schema already
+   in place. Passwords never touch anything but the one `signUp`/
+   `signIn` call; nothing else in this app should ever see one.
+3. **Usability.** Offline/local play keeps working, unmodified, at
+   every single step until the last one. A person who never signs in
+   should never notice any of this exists. Signing in is a *claim* on
+   progress you already have, never a wipe-and-restart.
+4. **Efficiency.** Batch writes — once per study session, not once per
+   click. Supabase's free tier (500 MB DB, 5 GB bandwidth/mo, 50k MAU)
+   has far more headroom than Firebase Spark ever did, but "don't write
+   on every keystroke" is good practice regardless of quota.
+
+### Step 0 — Decide what you actually collect
+**Yours to decide, not mine — hours, no code.** Recommendation from
+Phase 0 below still stands: email + password, nothing else. No phone,
+no country, no documents, unless something forces it. This has to be
+settled before Step 3 (the sign-in form's field list follows directly
+from the answer).
+
+### Step 1 — Stand up the real Supabase project
+Create the project (free tier), run `supabase/migrations/0001_init.sql`
+against it for real — it has never touched a live database — and fill
+in `SUPABASE_URL`/`SUPABASE_ANON_KEY` at the top of `core/supabase.js`
+(both are safe to commit; the anon key is meant to be public, RLS is
+the actual protection). **Done looks like:** a throwaway test account
+can sign up, and `select * from profiles/progress/economy` in the
+Supabase dashboard shows three seeded rows with `handle_new_user()`'s
+defaults — proving the trigger and RLS both fired correctly before any
+app code depends on them.
+
+### Step 2 — Local export/import, BEFORE anything touches real accounts
+The backup mechanism has to exist first, not as an afterthought bolted
+onto migration. A "Download my data" button in Settings that serializes
+the current `DB` profile to a JSON file the user can save anywhere —
+this is useful **today**, with zero accounts involved, and it's the
+thing that makes every later step reversible: if a cloud migration ever
+goes wrong, this file is the independent, user-held copy of record. An
+"Import" counterpart restores from that file, validated against the
+same shape `data/db.js`'s `migrate()` already checks. **Done looks
+like:** export → wipe the profile → import round-trips every field
+losslessly, verified against a real profile with study history, not an
+empty one.
+
+### Step 3 — Sign-in UI
+Built into the existing `core/profile.js` modal — it already owns "who
+are you" and the multi-profile concept, so this is a new tab on
+something that exists, not a new screen. Email/password only (per Step
+0). **Anonymous-first, matching Phase 1 point 4**: nothing forces
+sign-in before studying — a "Save my progress" prompt after a real
+accomplishment (finishing a topic, hitting a streak) is the natural
+moment to offer it, not a wall on first launch. **Done looks like:**
+sign up, sign in, sign out, and a wrong-password error all work against
+the real project from Step 1, on a throwaway test account.
+
+### Step 4 — One-time upload migration (the "claim" flow)
+On first real sign-in, if `localStorage` has a profile and the cloud
+row is still at `handle_new_user()`'s zeroed defaults, upload the local
+profile once. **The local copy is never deleted** — Phase 1's rule,
+restated because it's the one most tempting to "clean up" later. Guard
+against double-upload (a second sign-in on the same device must not
+re-clobber cloud progress with a now-stale local snapshot) by checking
+a `migrated_at` marker before ever pushing. **Done looks like:** a
+profile with real study history migrates once, correctly, and a second
+sign-in from the same browser is a no-op rather than a second upload.
+
+### Step 5 — Economy RPCs (the step that actually closes the paywall hole)
+Everything before this is plumbing; this is the payoff. One
+`SECURITY DEFINER` Postgres function per mutation the client currently
+performs directly against `localStorage` in `data/db.js`/`garden/
+garden.js`/`shop/tokens.js` — each validates its own business rule
+server-side instead of trusting whatever the client sends:
+
+| RPC | Mirrors (client-side today) | Validates |
+|---|---|---|
+| `award_xp(amount)` | `addXp` | Per-call cap, so a forged huge value can't jump rank in one call |
+| `add_wallet` / `spend_wallet` | `addMoney`/`spendMoney` | Balance never goes negative; **no path exists that converts `$` into `tokens`, ever** — see Flag 1 |
+| `claim_dividend` | `claimDividends` | One claim per 24h server-side (`last_dividend_claim`), not client-timed |
+| `spend_tokens` / `buy_course(course_id)` | `spendTokens`/`buyCourse` | Price is looked up server-side from a Postgres table, never trusted from the client; balance checked atomically so two concurrent buys can't both succeed off one balance |
+| `grant_tokens(amount, receipt_id)` | `buyPack` (currently a demo stub) | Only callable from a payment-webhook-verified context once real payment is wired — never directly by the client |
+
+**Done looks like:** with the client's Supabase session, a direct
+`update economy set tokens = 99999` fails (no policy permits it — this
+is already true today, verifiable now, before any RPC exists), while
+`select buy_course('bike-a3')` succeeds exactly when the balance
+actually covers the price and fails otherwise, tested against both
+sides of that boundary.
+
+### Step 6 — Ongoing sync, merge-safe
+Once signed in, push `progress` in a batch at natural checkpoints
+(finishing a chunk, finishing an exam, closing the tab) rather than on
+every state change. **Merge policy is per-field, not whole-document
+last-write-wins** — two devices studying different topics must union,
+not overwrite:
+- `completed_topics`, `completed_chunks`, `seen_quotes` — set union.
+- `reviews` (the SM-2 schedule) — per-topic, keep whichever side has
+  the later `due` date; this is the single most valuable thing a user
+  owns and the one field where silently picking the wrong side is
+  worst.
+- `stats`, `streak` — additive counters merge by max/sum as the field
+  implies; never a blind overwrite.
+- Settings-shaped fields (`theme`, `lobby_style`, etc., on `profiles`)
+  are fine as last-write-wins — cosmetics, no data loss risk.
+A `cloud sync failed, working locally` notice (same honesty pattern as
+the existing `db:saveFailed` warning) covers the offline case — sync
+failing must never block studying. **Done looks like:** two browser
+sessions signed into the same test account, each completing a
+*different* topic while offline from each other, reconcile to both
+topics completed after both come back online — not one clobbering the
+other.
+
+### Step 7 — Legal pack, in parallel, before real payments go live
+Privacy policy, ToS (including "virtual currency has no cash value,
+non-refundable" — Flag 1), a real account-deletion path that actually
+deletes (`auth.users` cascade already covers this at the schema level —
+the missing piece is a UI button and confirmation flow, not new
+schema), and data export (Step 2's button already satisfies GDPR Art.
+20 for free, having been built for backup reasons first). Full checklist
+in Phase 5 below — nothing there has changed, only that Step 2 already
+covers one line item early.
+
+### What "done" looks like overall, and the rollback plan
+The whole plan is reversible at every step because Step 2 exists before
+Step 3: at any point, a user's local export is the ground truth
+independent of whatever the cloud side is doing. If a migration or sync
+step is ever found to corrupt or lose data post-launch, the response is
+"re-import from the last export," not "hope the last cloud write was
+the good one." Consider requiring a fresh export immediately before
+Step 4 runs for any given user, as cheap insurance for a step that only
+ever needs to work once per person.
+
+---
+
 ## What this actually fixes (and what it doesn't)
 
 The security audit (UPDATESTACK.md) found that the whole paywall is

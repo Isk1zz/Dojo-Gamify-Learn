@@ -23,7 +23,14 @@ auth + pull/push for profiles+progress, `economy` pull-only). Neither
 has touched the UI and neither has run against a real project — no
 URL/anon key set, no sign-in screen, no localStorage→cloud migration,
 no economy-mutation RPCs (award_xp/spend_tokens/claim_dividend/...).
-Full breakdown in `docs/BACKEND-ROADMAP.md`'s status header.
+Full breakdown in `docs/BACKEND-ROADMAP.md`'s status header. **Concrete,
+ordered build plan (2026-08-27, replaces the old Firebase-flavored
+"Suggested order")** is in that doc's "The account-system build plan"
+section, right below the status header — 8 steps, Step 0 (what data to
+collect) is the only one waiting on you, Step 1 needs a real Supabase
+project before anything else can be tested. Backup/data-safety (local
+export/import) is deliberately Step 2, before sign-in exists at all —
+it's useful standalone and it's what makes every later step reversible.
 
 **Settled 2026-08-16: the database is Supabase, not Firebase.** The two
 labels had been contradicting each other in this file for weeks; asked
