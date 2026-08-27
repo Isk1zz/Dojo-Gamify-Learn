@@ -50,10 +50,22 @@ changed the plan:
    the client-side course manifests. Needs a `courses` table, which
    creates a two-sources-of-truth problem; options in Step 5.
 
-**Waiting on you: only Step 1 now** — a real Supabase project. Nothing
-can be tested against a live DB until one exists, and every remaining
-step (sign-in, migration, economy RPCs, sync) needs one to verify
-against. Every decision the plan was blocked on is settled.
+**STEP 1 DONE 2026-08-27 — the backend is live.** Project `Knell App DB`
+(`sadelbwxiplsbisvyzsx`, eu-west-1, free). Migration ran, seeding
+trigger verified (2 signups → 2/2/2 rows), and **the paywall hole is
+provably closed**: signed in as a real user and ran the cheat attempts
+straight at the REST API — a million tokens, both paid courses for
+free, self-promotion to admin. All three changed zero rows, while a
+control write to `progress` succeeded, proving RLS is selectively
+configured rather than blanket-broken. Full table in the roadmap doc.
+
+One implementation gotcha recorded there, worth knowing before writing
+any sync code: **a blocked write returns HTTP 200 with `[]`, not 403.**
+RLS hides the row from the UPDATE rather than erroring. Check the
+returned row count, never the status code.
+
+**Next: Step 3 (sign-in UI) or Step 2 (pre-import auto-backup).**
+Neither is blocked on anything now.
 
 **Settled 2026-08-16: the database is Supabase, not Firebase.** The two
 labels had been contradicting each other in this file for weeks; asked

@@ -230,16 +230,53 @@ it looks, and (c) is the only one that can silently lose data.
 
 </details>
 
-### Step 1 — Stand up the real Supabase project
-Create the project (free tier), run `supabase/migrations/0001_init.sql`
-against it for real — it has never touched a live database — and fill
-in `SUPABASE_URL`/`SUPABASE_ANON_KEY` at the top of `core/supabase.js`
-(both are safe to commit; the anon key is meant to be public, RLS is
-the actual protection). **Done looks like:** a throwaway test account
-can sign up, and `select * from profiles/progress/economy` in the
-Supabase dashboard shows three seeded rows with `handle_new_user()`'s
-defaults — proving the trigger and RLS both fired correctly before any
-app code depends on them.
+### Step 1 — DONE 2026-08-27. Project live, security model proven.
+Project `Knell App DB` (`sadelbwxiplsbisvyzsx`, eu-west-1, free tier).
+Migration ran clean. `core/supabase.js` carries the real URL and
+publishable key.
+
+**Naming note:** Supabase replaced the `anon`/`service_role` pair with
+`sb_publishable_…` / `sb_secret_…` during 2026. The constant is now
+`SUPABASE_PUBLISHABLE_KEY`; the legacy pair still exists behind a
+"Legacy API keys" tab and is not used here.
+
+**Seeding verified.** Two signups → two `auth.users` rows →
+`handle_new_user()` created exactly one row in each of profiles,
+progress, economy. Counted `2 / 2 / 2 / 2`.
+
+**The security model is no longer an assumption.** Signed in as a real
+confirmed user and ran the attacks a cheating client would run, against
+the REST API directly (not through `Dojo.Cloud`, which is a wrapper an
+attacker would simply skip):
+
+| Attack | Result |
+|---|---|
+| `PATCH economy {tokens: 999999}` | **blocked** — 0 rows |
+| `PATCH economy {inventory: [both paid courses]}` | **blocked** — 0 rows |
+| `PATCH economy {is_admin: true}` | **blocked** — 0 rows |
+| *control:* `PATCH progress {completed_topics}` | **allowed**, as designed |
+
+Read-back after all three: `tokens 0, inventory [], is_admin false` —
+untouched. The control write landed, which is the half that matters
+just as much: this proves RLS is *selectively* configured, not that
+the database is broken and refusing everything.
+
+**Gotcha that will bite Step 5/6 — write it down now.** A blocked write
+returns **HTTP 200 with an empty array `[]`**, not 403. Postgres RLS
+makes the row invisible to the UPDATE rather than raising an error, so
+0 rows change and the request "succeeds". Any client code that treats
+2xx as success will silently believe a rejected economy write worked.
+**Check the returned row count, never the status code.** This is also
+why every economy mutation has to go through an RPC that can return a
+real success/failure value.
+
+**Housekeeping:** `tester@knell.app` and two `knell-test-*@gmail.com`
+rows are test users; delete them before launch. Email confirmation is
+**ON** and should stay on — it was briefly going to be disabled to make
+session testing easier, which would have traded a real protection (a
+typo'd address delivering someone's account to a stranger, and password
+reset being untrustworthy) for tester convenience. The seeding check was
+done in SQL instead, needing no session at all.
 
 ### Step 2 — Harden the export/import that already exists
 **Revised: this was specified as new work and is already built.** See
