@@ -25,13 +25,16 @@
     document.getElementById("lobby-welcome").textContent =
       p ? I18N.t("lobby.welcomeBack", { name: p.name }) : I18N.t("lobby.welcome");
 
-    // Re-sync the sky every time the lobby is shown. The switch below is
-    // wired once at load, so on a profile switch its icon (and the
-    // data-sky attribute driving sun/moon/stars/clouds) could still be
-    // showing the PREVIOUS profile's sky — caught live: a fresh profile
+    // Re-sync the sky every time the lobby is shown: on a profile switch
+    // the data-sky attribute driving sun/moon/stars/clouds could still be
+    // showing the PREVIOUS profile's sky — caught live, a fresh profile
     // read `night` from the DB while the page still rendered day.
+    //
+    // This used to also call renderDayNight() to repaint the lobby
+    // switch's icon. That switch is gone (see below); the vitals-strip
+    // button that replaced it re-renders with the strip on every screen
+    // change, so it needs nothing here.
     if (Dojo.syncSkyToTheme) Dojo.syncSkyToTheme();
-    renderDayNight();
 
     // "Cards" is a re-skin of these same six tiles, not a rearrangement
     // — see styles/base.css's .lobby-style-cards. "Star" DOES rearrange
@@ -558,24 +561,15 @@
   if (plusBtn) plusBtn.addEventListener("click", () => stepSparks(1));
   renderSparkCount();
 
-  // ---- Day/night switch (lobby dials) ----
-  // Shows the state you'd switch TO: sun at night, moon by day. Same
-  // state as the vitals-strip chip and the Custom "Sky" slot — all three
-  // call Dojo.toggleSky, none of them keep their own copy.
-  function renderDayNight() {
-    const btn = document.getElementById("lobby-daynight");
-    if (!btn) return;
-    const isDay = (DB.getSky ? DB.getSky() : "night") === "day";
-    btn.textContent = isDay ? "🌙" : "☀️";
-    btn.title = isDay ? "Switch to night" : "Switch to day";
-  }
-  const dayNightBtn = document.getElementById("lobby-daynight");
-  if (dayNightBtn) dayNightBtn.addEventListener("click", () => {
-    if (Dojo.toggleSky) Dojo.toggleSky();
-    renderDayNight();
-  });
-  renderDayNight();
-  if (Dojo.Bus) Dojo.Bus.on("sky:changed", renderDayNight);
+  // The lobby used to carry its own day/night switch here, pinned under
+  // the sun/moon. Removed 2026-08-27: the vitals-strip button
+  // (core/hud.js's #vital-daynight) is the same control with the same
+  // state, and it shows on EVERY screen rather than only this one — so
+  // the lobby copy was strictly redundant. It was also the fragile one,
+  // having needed three positioning attempts before settling on
+  // position:fixed to stay out of the flex flow. Custom's "Sky" slot is
+  // the third way in and stays; it's a settings surface, not a duplicate
+  // of a lobby control.
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(relayoutIfStarLobbyActive);

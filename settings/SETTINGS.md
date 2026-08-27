@@ -24,23 +24,19 @@ Stylesheet: `styles/settings.css`.
    the Resume tile toggles visibility on its own, so a fixed CSS
    nth-child angle would leave a gap at its slot whenever it's hidden.
    See `styles/base.css`.
-4. **Codes** — loaded from `settings/codes.js`, which is **gitignored and not
-   deployed**. Copy `settings/codes.example.js` to `settings/codes.js` to
-   enable them locally. Without that file the whole section hides and the code
-   strings aren't in the shipped JS at all.
+4. **Codes — REMOVED 2026-08-27.** Settings used to carry an "Unlock code"
+   box. It is gone, along with `settings/codes.js`, `codes.example.js`,
+   and `DB.applyAdminCode`/`ADMIN_CODES` in `data/db.js`.
 
-   | Code | Effect |
-   |---|---|
-   | `admin613` | Marks every topic complete |
-   | `parnasa100` | +$100 to the wallet |
-   | `agrala` | Refills tickets to full (the Arcade is gone; tickets remain in DB) |
-   | `capmyrank` | Jumps to the top of the rank ladder |
-   | `nullmyrank` | Resets XP to zero |
+   The **Admin panel** (`admin/admin.js`, Ctrl+Shift+A) already did
+   everything the box did — grant XP/Tokens/Cash, unlock every unit, mark
+   topics complete, toggle admin — behind a real `isAdmin` gate rather
+   than a string anyone could type into a settings field. Two doors to the
+   same privileged room, and this was the one with no lock.
 
-   Full reference with the reasoning: **`docs/CHEATCODES.md`**.
-
-   `admin613` deliberately does not touch reviews, stats or the wallet, so a
-   cheated profile still looks cheated in Stats.
+   **Becoming admin is unchanged:** create a profile with the secret name
+   (`data/db.js`'s `SECRET_ADMIN_NAME` -> `applyAdminStart`). That path
+   never went through the code box.
 5. **Your data** — export/import. Progress is localStorage only.
 6. **Legal** — Privacy Policy (written and accurate) and a Terms of Service
    draft. Reasoning, the licence decision and the pre-release checklist are in

@@ -155,7 +155,11 @@
 // A stale copy is the version that still believes the backend is not
 // configured, so every Cloud call throws the "not configured" error --
 // which reads exactly like a broken backend rather than a cached file.
-const CACHE_VERSION = "knell-v30";
+// Bumped for the cheat-code removal: Settings lost its Unlock-code box,
+// index.html lost the settings/codes.js tag, i18n.js lost five keys and
+// db.js lost applyAdminCode. A stale index.html against a fresh
+// settings.js renders a code box whose handler no longer exists.
+const CACHE_VERSION = "knell-v31";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

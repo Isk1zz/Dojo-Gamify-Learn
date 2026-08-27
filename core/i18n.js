@@ -404,7 +404,6 @@ const I18N = (() => {
     "set.staysLocal":       { en: "Nothing you do here leaves your device.",
                               ru: "Ничто из сделанного здесь не покидает ваше устройство." },
     "set.terms":            { en: "Terms of Service",   ru: "Условия использования" },
-    "set.badCode":          { en: "Not a valid code.",  ru: "Неверный код." },
 
     // Forum (pass 2)
     "forum.notYourself":    { en: "You cannot spend reputation on yourself.",
@@ -427,7 +426,6 @@ const I18N = (() => {
 
     // Settings
     "set.sound":            { en: "Sound effects",       ru: "Звуки" },
-    "set.apply":            { en: "Apply",               ru: "Применить" },
     "set.privacy":          { en: "Privacy Policy",      ru: "Политика конфиденциальности" },
     "set.draftNote":        { en: "Draft. Being reviewed before any paid release.",
                               ru: "Черновик. Будет проверен до любого платного выпуска." },
@@ -483,9 +481,6 @@ const I18N = (() => {
     "set.soundTitle":       { en: "Sound",               ru: "Звук" },
     "set.soundNote":        { en: "Short synthesized click/answer/reward sounds across the app — no audio files, generated on the fly.",
                               ru: "Короткие синтезированные звуки нажатий, ответов и наград — без аудиофайлов, генерируются на лету." },
-    "set.unlockTitle":      { en: "Unlock code",         ru: "Код разблокировки" },
-    "set.unlockNote":       { en: "See <code>docs/CHEATCODES.md</code>.",
-                              ru: "См. <code>docs/CHEATCODES.md</code>." },
     "set.legal":            { en: "Legal",               ru: "Правовое" },
     "set.yourData":         { en: "Your data",           ru: "Ваши данные" },
     "set.dataNote":         { en: "Progress is stored in this browser only. Export before clearing browser data or switching machines.",
@@ -533,7 +528,6 @@ const I18N = (() => {
     // SAVED data, not chrome: an existing profile keeps whatever it was
     // created with, and switching language later does not rename anybody.
     "profile.defaultName":  { en: "Student",             ru: "Ученик" },
-    "set.codePlaceholder":  { en: "Enter code...",      ru: "Введите код..." },
 
     // Library shelves
     "track.cs":             { en: "Computer Science",   ru: "Информатика" },

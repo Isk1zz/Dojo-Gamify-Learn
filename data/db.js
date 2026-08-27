@@ -424,54 +424,21 @@ const DB = (() => {
     return id;
   }
 
-  // `unlockallunits` — deliberately distinct from `applyAdminStart`,
-  // not an alias of it. That one marks every topic AND chunk complete
-  // (adminaccount / the old admin613), which is "done," not "reachable
-  // but fresh." This one only flips whether the "finish the previous
-  // unit" prereq is enforced (library.js's three lock checks: unit-
-  // select's list view, its map/roadmap view, and the deck builder) —
-  // every unit becomes clickable, but nothing inside it is touched, so
-  // it still shows as ungraded/new content to actually study.
-  function applyUnlockAllUnits(profileId) {
-    const db = load();
-    const p = db.profiles[profileId];
-    if (!p) return;
-    p.unitsUnlocked = true;
-    save(db);
-  }
-
   function getUnitsUnlocked() {
     const p = getActiveProfile();
     return !!(p && p.unitsUnlocked);
   }
 
-  // Both secrets, reachable without creating a new profile — typing a
-  // name only works from the "new profile" screen, so anyone who
-  // already has one (i.e. everyone past their first launch) had no way
-  // to reach either at all. Settings' code box (committed, ships to
-  // production — unlike the gitignored settings/codes.js) checks both
-  // directly. Applies to whichever profile is ACTIVE, not a new one.
-  // Returns the message to show, or null for "not a valid code" — the
-  // caller doesn't need to know which code matched to react correctly.
-  const ADMIN_CODES = {
-    [SECRET_ADMIN_NAME]: {
-      fn: applyAdminStart,
-      msg: "Admin start applied — unlocked, wallet at $50,000, rank maxed."
-    },
-    unlockallunits: {
-      fn: applyUnlockAllUnits,
-      msg: "All units unlocked — topics and chunks are still fresh, nothing marked complete."
-    }
-  };
-
-  function applyAdminCode(input) {
-    const entry = ADMIN_CODES[(input || "").trim().toLowerCase()];
-    if (!entry) return null;
-    const db = load();
-    if (!db.activeProfileId || !db.profiles[db.activeProfileId]) return null;
-    entry.fn(db.activeProfileId);
-    return entry.msg;
-  }
+  // ADMIN_CODES / applyAdminCode / applyUnlockAllUnits lived here and
+  // were removed 2026-08-27 with Settings' Unlock-code box, their only
+  // caller. The Admin panel does all of it behind an isAdmin gate
+  // instead of a typed string.
+  //
+  // applyAdminStart above STAYS: createProfile still calls it for the
+  // secret profile name, which remains the way to become admin. The
+  // `unitsUnlocked` FIELD also stays (library.js's lock checks read it,
+  // and admin/admin.js sets it directly) — only the code-box path to
+  // setting it is gone.
 
   function setActiveProfile(id) {
     const db = load();
@@ -1583,7 +1550,6 @@ const DB = (() => {
     init,
     getActiveProfile,
     createProfile,
-    applyAdminCode,
     getUnitsUnlocked,
     setActiveProfile,
     updateProfileName,

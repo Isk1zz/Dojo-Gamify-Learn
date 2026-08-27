@@ -68,16 +68,6 @@
         </label>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F511} ${I18N.t("set.unlockTitle")}</div>
-        <p class="settings-hint">${I18N.t("set.unlockNote")}</p>
-        <div class="admin-row">
-          <input id="admin-code-input" class="modal-input admin-input" type="text"
-                 placeholder="${I18N.t("set.codePlaceholder")}" autocomplete="off" spellcheck="false" />
-          <button id="btn-admin-apply" class="btn-ghost">${I18N.t("set.apply")}</button>
-        </div>
-        <div id="admin-msg" class="settings-hint" style="margin-top:0.5rem;"></div>
-      </div>
-      <div class="settings-section">
         <div class="stats-section-title">\u{1F4C4} ${I18N.t("set.legal")}</div>
         <details class="legal-block">
           <summary>${I18N.t("set.privacy")}</summary>
@@ -141,58 +131,15 @@
 
 
 
-    // Codes come from settings/codes.js, which is GITIGNORED and not
-    // deployed. If the file isn't there, window.DOJO_CODES is undefined,
-    // the whole section hides, and the code strings are nowhere in the
-    // shipped JS to be found.
+    // The Unlock-code box lived here and was removed 2026-08-27: the
+    // Admin panel (admin/admin.js, Ctrl+Shift+A) does everything it did
+    // — grant XP/Tokens/Cash, unlock every unit, toggle admin — behind a
+    // real isAdmin gate rather than a typed string. Two doors to the
+    // same privileged room, and this was the one anyone could try.
     //
-    // This is the only way to actually hide them. A private repo hides
-    // the source, not the site: Pages serves this file to everyone, and
-    // devtools reads it. The fix is not shipping the strings at all.
-    const CODES = window.DOJO_CODES ? window.DOJO_CODES(DB, Dojo) : null;
-
-    const applyBtn = document.getElementById("btn-admin-apply");
-    const codeInput = document.getElementById("admin-code-input");
-    const msg = document.getElementById("admin-msg");
-    function applyCode() {
-      const val = (codeInput.value || "").trim();
-      // Local dev codes (settings/codes.js) first — gitignored, so this
-      // is `null` on the deployed site and the branch never runs there.
-      const fn = CODES ? CODES[val] : null;
-      if (fn) {
-        const result = fn();
-        codeInput.value = "";
-        msg.textContent = result;
-        if (Dojo.renderVitals) Dojo.renderVitals();
-        return;
-      }
-      // The codes that ship everywhere — see data/db.js's ADMIN_CODES /
-      // applyAdminCode. Checked second so a local dev code with the
-      // same text (there isn't one, but if there ever were) still wins.
-      // Returns the message to show, or null for "not a valid code" —
-      // this file doesn't need to know which code matched.
-      const adminMsg = DB.applyAdminCode(val);
-      if (adminMsg) {
-        if (Dojo.renderVitals) Dojo.renderVitals();
-        if (Dojo.updateProfileBadge) Dojo.updateProfileBadge();
-        // XP (and therefore rank, and every rank-gated theme/stripe
-        // reward) just changed — the charge bar reads DB.getXp() fresh,
-        // but nothing repaints it on its own outside the normal
-        // award-XP flow.
-        if (Dojo.renderCharge) Dojo.renderCharge();
-        // Full re-render so the theme/stripe grids immediately reflect
-        // the new unlock state — re-fetch admin-msg after, since this
-        // tears down and rebuilds every element in the body, including
-        // the one `msg` currently points at.
-        renderSettings();
-        const freshMsg = document.getElementById("admin-msg");
-        if (freshMsg) freshMsg.textContent = adminMsg;
-        return;
-      }
-      msg.textContent = I18N.t("set.badCode");
-    }
-    if (applyBtn) applyBtn.addEventListener("click", applyCode);
-    if (codeInput) codeInput.addEventListener("keydown", e => { if (e.key === "Enter") applyCode(); });
+    // Becoming admin in the first place is UNAFFECTED: that has always
+    // been a secret PROFILE NAME (data/db.js's createProfile ->
+    // applyAdminStart), never this box.
 
     const customBtn = document.getElementById("btn-settings-custom");
     if (customBtn) customBtn.addEventListener("click", () => Router.go("inventory"));

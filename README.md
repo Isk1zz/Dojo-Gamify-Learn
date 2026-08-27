@@ -75,7 +75,6 @@ all unlocked from the start — the Shop sells courses and nothing else.
 | know what's in flight right now | `UPDATESTACK.md` |
 | see what changed | `docs/CHANGELOG.md` |
 | ship it somewhere | `docs/PACKAGING.md` |
-| find a cheat code | `docs/CHEATCODES.md` |
 | deal with licensing | `docs/LEGAL.md` |
 
 Each folder is a self-contained branch. To work on one you need
