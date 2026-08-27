@@ -165,11 +165,38 @@ to reverse the decision above (which was explicit and confirmed), just
 a known cost to weigh against whatever making login mandatory is
 solving for.
 
-### Step 0b — BLOCKING, UNDECIDED: what happens to multi-profile?
-Finding 3 above. This must be answered before Step 1, because it decides
-whether `profiles.id` can stay `references auth.users(id)` — changing a
-primary key after real rows exist is exactly the migration nobody wants
-to write. Three options:
+### Step 0b — DECIDED 2026-08-27: one account = one profile
+Option (a) below. **The schema needs no change** — `profiles.id
+references auth.users(id)` was already written for this, so Step 1 is
+unblocked and `0001_init.sql` can run as it stands.
+
+**What retiring multi-profile actually touches** (traced, not guessed):
+
+| File | Call | What happens |
+|---|---|---|
+| `core/profile.js:189,211` | `listProfiles`/`setActiveProfile` | The switcher block (`if (profiles.length > 1)`) goes at Step 3, when the login gate ships |
+| `core/profile.js:46` | `createProfile` | **Stays.** One profile still gets created — it just becomes a consequence of signing up rather than a thing the user does repeatedly |
+| `admin/admin.js:117,769,779,790,870,883` | all four | **Needs its own decision, later.** The admin panel's user table is built on local profiles; under real accounts that list has to come from the server instead. Out of scope until Step 3 exists, but it is the reason `DB.listProfiles` cannot simply be deleted |
+
+So: **remove the switcher UI, keep the DB functions.** The plural
+machinery stays because the admin panel still uses it and because Step 4
+needs to enumerate pre-existing local profiles to ask which one to
+claim. Nothing gets deleted from `data/db.js` in this step.
+
+**Step 4 consequence:** a user with several local profiles is asked
+which one to claim, once. The others are **not** deleted — they stay in
+`localStorage` and in any export file, per the "never lose data"
+priority. They simply stop being reachable from the UI once the switcher
+is gone, which is a strong argument for prompting an export before Step
+4 runs for anyone with more than one.
+
+<details>
+<summary>The three options as they were weighed (kept for the reasoning)</summary>
+
+This had to be answered before Step 1, because it decides whether
+`profiles.id` can stay `references auth.users(id)` — changing a primary
+key after real rows exist is exactly the migration nobody wants to
+write. Three options:
 
 - **(a) One account = one profile.** Multi-profile is retired: the
   switcher in `core/profile.js` goes, and existing local profiles are
@@ -198,6 +225,10 @@ to write. Three options:
 one device with no accounts, which is the problem accounts solve
 directly. (b) is defensible but the token question makes it worse than
 it looks, and (c) is the only one that can silently lose data.
+
+**Chosen: (a).**
+
+</details>
 
 ### Step 1 — Stand up the real Supabase project
 Create the project (free tier), run `supabase/migrations/0001_init.sql`

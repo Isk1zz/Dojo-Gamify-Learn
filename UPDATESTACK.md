@@ -38,17 +38,22 @@ changed the plan:
    version safety better than the step specified. Rewritten from "build
    it" to "harden it" (add a pre-import auto-backup; import currently
    replaces everything with no confirmation and no undo).
-3. **BLOCKING, undecided: the schema silently kills multi-profile.**
-   One `auth.users` id = one profile row, but `core/profile.js` renders
-   a live profile switcher today. Must be answered before Step 1 —
-   it decides the primary key. Three options + a recommendation are in
-   the doc as Step 0b.
+3. ~~BLOCKING: the schema silently kills multi-profile.~~ **DECIDED
+   2026-08-27: one account = one profile.** The schema was already
+   written for this, so nothing changes there and Step 1 is unblocked.
+   The switcher UI in `core/profile.js` goes when the login gate ships;
+   `DB.listProfiles`/`createProfile` etc. all **stay**, because the
+   admin panel is built on them and Step 4 needs to enumerate
+   pre-existing local profiles to ask which one to claim. Full
+   trace-of-what-it-touches in the doc's Step 0b.
 4. `buy_course` has no server-side price to look up — prices live in
    the client-side course manifests. Needs a `courses` table, which
    creates a two-sources-of-truth problem; options in Step 5.
 
-Waiting on you: Step 0b (multi-profile) and Step 1 (a real Supabase
-project — nothing can be tested against a live DB until it exists).
+**Waiting on you: only Step 1 now** — a real Supabase project. Nothing
+can be tested against a live DB until one exists, and every remaining
+step (sign-in, migration, economy RPCs, sync) needs one to verify
+against. Every decision the plan was blocked on is settled.
 
 **Settled 2026-08-16: the database is Supabase, not Firebase.** The two
 labels had been contradicting each other in this file for weeks; asked
