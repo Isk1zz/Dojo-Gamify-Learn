@@ -1272,6 +1272,15 @@ multi-part ask:
 - Lobby topology: proposed Trunk line / Binary orbit / Ladder rungs.
   Recommended Trunk line. Star shipped and iterated on since this was
   raised — likely moot now, confirm before scoping.
+- **Pentagram topology — new idea, 2026-08-27, image reference only.**
+  A five-point star drawn as one continuous stroke (five nodes, each
+  connected to the two non-adjacent ones — the same "connect every
+  vertex by skipping one" construction as the hexagram in
+  `starLinks: "hexagram"`, one point fewer). Not scoped: no node count
+  vs. the current six/seven-tile lobby has been reconciled, and
+  `layoutLobbyRadial` (core/lobby.js) would need a pentagram-specific
+  angle+link table the way hexagram already has its own. Closest
+  existing precedent to build from: `starLinks`'s hexagram mode.
 - **Weather VFX for the (Star) lobby** — clickable clouds that randomly
   set a weather effect, from a large reference list spanning six
   categories (standard atmospheric, liquid precip, frozen/mixed precip,
