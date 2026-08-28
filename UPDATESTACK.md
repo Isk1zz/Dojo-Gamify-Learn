@@ -5,6 +5,71 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## Queued 2026-08-27, session paused mid-Step-3 — six items
+
+Session was paused with the account gate half-verified (a stale-lobby
+`renderDayNight` crash was found live, not yet confirmed fixed) and a
+list of asks that came in faster than they could be actioned. Recorded
+here rather than lost.
+
+1. **Password hashing — verify, don't assume.** Supabase Auth hashes
+   passwords server-side (bcrypt) before they ever reach a table; the
+   app never sees or stores a plaintext password, and `core/auth.js`
+   only ever calls `Dojo.Cloud.signUp`/`signIn`, never touches a
+   `password` column directly. This is very likely already true by
+   construction, but "very likely" isn't "verified" — the SECURITY
+   AUDIT section below only checked what THIS codebase does; it never
+   checked Supabase's own storage. Confirm from Supabase's own docs/
+   dashboard before marking this settled.
+
+2. **Sign-in/sign-up needs the same attack pass Step 1's economy check
+   got.** That check proved a signed-in user can't rewrite `economy`.
+   It did NOT test the auth surface itself: rate-limit behavior on
+   repeated failed logins, whether the publishable key alone can
+   enumerate whether an email is registered, session-fixation/replay,
+   and what `core/auth.js`'s error-message mapping leaks (e.g. does
+   "email already registered" on signup let someone confirm an address
+   exists?). Do this before Step 3 is called done, not after.
+
+3. **BLOCKING finding, not a request: the admin bootstrap is still a
+   public string.** `SECRET_ADMIN_NAME` (`data/db.js`) is a plain
+   constant in shipped, view-source-able JS — this is SECURITY AUDIT
+   finding #2 below, still open. A request came in to replace it with a
+   new secret string; **not done, on purpose** — a stronger string is
+   exactly as publicly readable as the current one, so swapping it
+   would look like a fix while changing nothing. The candidate string
+   that was proposed is also now sitting in a chat log, which is its
+   own reason not to use it as a real secret anywhere.
+
+   **The real fix, and it's now buildable:** make `isAdmin` a
+   server-side-only flag — an `economy`-style column with no client
+   write policy, set only via direct SQL or a future admin RPC — instead
+   of a client-recognized string at all. This retires
+   `SECRET_ADMIN_NAME`/`ADMIN_CODES`'s bootstrap path entirely rather
+   than patching it. Natural follow-on to Step 5 (economy RPCs), same
+   pattern.
+
+4. **Full cybersecurity pass on the Admin panel + "other parts."**
+   Requested but not scoped. Given (3), should probably happen together
+   with moving `isAdmin` server-side rather than as a separate pass on
+   the current client-only version.
+
+5. **Visual cleanup of background decorations** — birds, clouds, "and
+   else." Read as: the ambient decoration layer (`#bg-decor-layer`,
+   Stars/Eagles/Clouds/Moon, per BACKLOG's 2026-08-15 batch) wants a
+   pass for restraint/visibility, not a functional bug. Not scoped —
+   needs a concrete "too much of X" or "Y is distracting" to act on,
+   same as every other vague visual ask in this file gets deferred until
+   scoped.
+
+6. **Process ask: a session dedicated fully to account dev, separated
+   from everything else.** Stated reason: "sometimes its in the way" —
+   account/backend work interleaved with unrelated fixes (the lobby
+   switch, the cheat-code panel) mid-session made both harder to track.
+   Worth honoring next time this thread of work resumes: one session,
+   one focus, rather than folding backend steps into whatever else comes
+   up.
+
 ## TOP OF STACK — Supabase backend port
 **Scope note, 2026-08-27: this is not just the Forum's precondition
 anymore.** Earlier framing (below, and in README/PROJECT.md) sold this
