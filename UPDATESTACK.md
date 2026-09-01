@@ -5,6 +5,36 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## DECIDED 2026-08-27: country restrictions apply at PAYMENT, not signup
+
+Asked for as "countries from registration should be according to payment
+restrictions and laws". Settled the other way round, deliberately:
+**anyone may register and study from anywhere; the country check belongs
+at the moment money changes hands.**
+
+Why not at registration: studying is free. Someone in a country you
+cannot take payment from is still a legitimate user, and gating signup
+would turn a *payment* restriction into a *product* restriction — losing
+free users for a rule that does not apply to them. The legal barrier
+exists at the transaction, so the check goes there.
+
+**Nothing to build yet, and that is the finding.** `buyPack` in
+`shop/tokens.js` is still a stub; there is no payment provider, no
+processor account, and no real money path. A country gate today would
+guard a function that takes no payments. When a provider is wired, the
+gate goes in the same place as the price check — server-side, in the
+RPC, never in the client — and the `profiles.country` field collected at
+signup (optional, already in the schema) is what it reads.
+
+**Two things to settle when that happens, neither of which is code:**
+- Which restriction actually binds — your payment provider's supported-
+  country list, sanctions/export rules, or consumer-law obligations in
+  the buyer's country. These are different lists and the strictest wins.
+- Whether a self-declared country is enough, or whether the provider's
+  own geolocation/card-country signal is authoritative. Self-declared is
+  trivially editable; the provider's is not. Flag 2 (never collect
+  identity documents) still applies either way.
+
 ## 🚨 LAUNCH BLOCKERS — must be done before anyone real signs up
 
 Two switches are deliberately set to the wrong thing for production,
