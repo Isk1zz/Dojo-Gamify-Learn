@@ -35,6 +35,46 @@
       accent: "#6366f1", light: "#818cf8",
       deep: "#0a0e1a", card: "#111827", hover: "#1a2235", surface: "#151c2e",
       bolt: ["#0ea5e9", "#38bdf8", "#7dd3fc"] },
+    {
+      // ---- Phosphor ----
+      // A green-on-black CRT terminal, in the register of the old
+      // hacker-wargame sites: pure black ground, one acid-green accent
+      // doing all the work, and scanlines.
+      //
+      // Two things make this theme different from every other one here,
+      // and both are deliberate:
+      //
+      // 1. `deep` is TRUE black (#000), not the near-black every other
+      //    dark theme uses. The others soften it because a pure-black
+      //    card on a pure-black page loses its edges; here that flatness
+      //    IS the look, so the cards lift by a hair (#050805) and the
+      //    green border does the separating instead of a lighter fill.
+      //
+      // 2. The `bg` is a repeating-linear-gradient, which core/theme.js
+      //    already treats as a "busy pattern" theme (see stripeCssFor and
+      //    applyBgDecors): it blanks background stripes AND the drifting
+      //    clouds/stars/moon. That suppression is usually a cost paid to
+      //    stop two patterns fighting. Here it is the point — a terminal
+      //    with clouds drifting over it is not a terminal.
+      //
+      // Scanlines are 1px on a 3px pitch at low alpha. Tighter reads as
+      // moiré on a hi-dpi screen; heavier turns body text to mush.
+      //
+      // Lives in THEMES rather than PREMIUM_THEMES despite having a
+      // `bg`, which is otherwise a premium-only field. Premium themes
+      // are RANK-gated now (themeUnlocked -> DB.ownsTheme / Ranks),
+      // not price-gated, so `price: 0` does not make one free — it
+      // would still be locked until a rank granted it. Nothing in
+      // THEMES is gated at all, and paintTheme reads `t.bg` whichever
+      // list the theme came from, so the pattern works here too.
+      id: "phosphor", name: { en: "Phosphor", ru: "Фосфор" }, price: 0,
+      tagline: "Green on black, scanlines and all",
+      swatch: "#00ff41", accent: "#00ff41", light: "#5cff8f",
+      deep: "#000000", card: "#050805", hover: "#0c150c", surface: "#070d07",
+      bolt: ["#008f11", "#00ff41", "#b9ffcb"],
+      bg: "repeating-linear-gradient(0deg, rgba(0,255,65,0.05) 0px, rgba(0,255,65,0.05) 1px, transparent 1px, transparent 3px)," +
+          "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,255,65,0.07), transparent 65%)"
+    },
     { id: "ember", name: { en: "Ember", ru: "Уголёк" }, price: 0, swatch: "#f97316",
       accent: "#f97316", light: "#fb923c",
       deep: "#140d08", card: "#1f1510", hover: "#2b1d15", surface: "#241a13",
