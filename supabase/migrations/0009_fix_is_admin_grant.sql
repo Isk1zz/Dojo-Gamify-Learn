@@ -1,7 +1,7 @@
 -- ================================================
--- Knell — 0008: is_admin() must be callable by authenticated
+-- Knell — 0009: is_admin() must be callable by authenticated
 -- ------------------------------------------------
--- 0007 revoked EXECUTE on public.is_admin() from authenticated, copying
+-- 0008 revoked EXECUTE on public.is_admin() from authenticated, copying
 -- the lockdown 0006 applied to require_uid(). That was wrong here, and
 -- it broke every read on all four forum tables:
 --
