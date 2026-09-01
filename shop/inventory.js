@@ -124,7 +124,7 @@
       const linksNow = DB.getStarLinks ? DB.getStarLinks() : "spokes";
       out.push({
         key: "links", group: "layout", icon: "\u{1F517}", title: { en: "Star links", ru: "Лучи звезды" }, previewKind: "links",
-        items: [["spokes", "Spokes"], ["hexagram", "Star of David"]]
+        items: [["spokes", "Spokes"], ["hexagram", "Star of David"], ["pentagram", "Pentagram"]]
           .map(([id, name]) => ({
             id, name, swatch: null,
             equipped: ownsL(id) && id === linksNow,

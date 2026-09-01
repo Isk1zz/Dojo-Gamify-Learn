@@ -444,9 +444,65 @@
     // walks a single 7-pointed path instead of closing two triangles,
     // so that case falls back to spokes rather than drawing something
     // lopsided and calling it a hexagram.
-    const wantHexagram = DB.getStarLinks && DB.getStarLinks() === "hexagram";
+    const linkMode = (DB.getStarLinks && DB.getStarLinks()) || "spokes";
+    const wantHexagram = linkMode === "hexagram";
     let links;
-    if (wantHexagram && n === 6) {
+
+    if (linkMode === "pentagram") {
+      // ---- Pentagram ----
+      // Deliberately NOT built from tile positions, unlike the hexagram.
+      //
+      // The hexagram connects the six ring NODES, which is why it needs
+      // exactly six and falls back to spokes at seven. A pentagram needs
+      // five, and the ring is six (seven with Resume) — so a node-based
+      // pentagram would be dead code that never once drew. Inscribing it
+      // in the orbit circle instead makes it independent of how many
+      // tiles happen to be visible: it is a figure the ring contains,
+      // not a graph over the tiles.
+      //
+      // The classic construction: five points evenly spaced, each joined
+      // to the one TWO steps away, which closes as a single unbroken
+      // path 0-2-4-1-3-0. That single-stroke property is what makes a
+      // pentagram read as one figure rather than five separate chords.
+      const PR = orbitR * 0.82;   // inside the tiles, so it never collides
+      const pt = i => {
+        const a = (-90 + rot * 0.6 + i * 72) * Math.PI / 180;
+        return [cx + PR * Math.cos(a), cy + PR * Math.sin(a)];
+      };
+
+      // Same flag palette the other two modes use, so switching flags in
+      // Custom restyles all three rather than only some.
+      const mode = (DB.getSpokeFlags && DB.getSpokeFlags()) || "combined";
+      const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.combined;
+      const y0 = (cy - PR).toFixed(1), y1g = (cy + PR).toFixed(1);
+      const flag = HEX_FLAGS[pair[0]] || HEX_FLAGS.ukraine;
+      const defs =
+        `<defs><linearGradient id="pentGrad" gradientUnits="userSpaceOnUse" ` +
+        `x1="0" y1="${y0}" x2="0" y2="${y1g}">` +
+        flag.stops.map(([off, col]) => `<stop offset="${off}%" stop-color="${col}"/>`).join("") +
+        `</linearGradient></defs>`;
+
+      const edges = [0, 1, 2, 3, 4].map(k => {
+        const [ax, ay] = pt((k * 2) % 5);
+        const [bx, by] = pt(((k + 1) * 2) % 5);
+        return { ax, ay, bx, by };
+      });
+
+      // Backing strokes first, then the coloured ones — same reason as
+      // the hexagram: otherwise one chord's dark backing cuts across
+      // another's colour where they cross, and a pentagram crosses
+      // itself five times.
+      //
+      // Inline style rather than a stroke="" attribute, also as there:
+      // a presentation attribute loses to the generic
+      // the generic star-lines rule, which would repaint the whole
+      // figure in the theme accent.
+      links = defs +
+        edges.map(e => line(e.ax, e.ay, e.bx, e.by, "pent-back")).join("") +
+        edges.map(e => line(e.ax, e.ay, e.bx, e.by, "pent-edge",
+          `style="stroke:url(#pentGrad)"`)).join("");
+
+    } else if (wantHexagram && n === 6) {
       // Two flags, one per triangle. Painted with userSpaceOnUse
       // gradients spanning the figure top-to-bottom rather than
       // objectBoundingBox ones: a straight line's bounding box is flat

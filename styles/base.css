@@ -1932,6 +1932,45 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   stroke: rgba(0, 0, 0, 0.55); stroke-width: 7;
   stroke-linecap: round; stroke-dasharray: none; opacity: 0.5;
 }
+/* ---- Pentagram ----
+   Thinner than the hexagram's edges and softly lit, because the two are
+   doing different jobs: the hexagram is a bold emblem sitting ON the
+   ring, this is a figure suspended INSIDE it, behind the tiles. Heavy
+   strokes here would compete with the tiles for attention instead of
+   framing them.
+
+   Drawn twice like the hexagram, and for the same reason — a dark
+   backing keeps a light gradient legible on Paper and Frost, where a
+   white band would otherwise disappear into the page. It matters more
+   here: a pentagram crosses itself five times, so any stroke that
+   vanishes takes the figure's readability with it. */
+.lobby-style-star .lobby-star-lines line.pent-back {
+  stroke: rgba(0, 0, 0, 0.4); stroke-width: 4.5;
+  stroke-linecap: round; stroke-dasharray: none; opacity: 0.45;
+}
+.lobby-style-star .lobby-star-lines line.pent-edge {
+  stroke-width: 2; stroke-linecap: round; stroke-dasharray: none;
+  opacity: 0.9;
+  /* The glow is the whole point of "pretty" here. Two shadows rather
+     than one: a tight bright halo for the line itself and a wide soft
+     one for the bloom, which is what stops it reading as a flat vector
+     and starts it reading as lit. currentColor would be wrong — the
+     stroke is a gradient, so the glow is keyed to the theme accent
+     instead and the two colours sit deliberately apart. */
+  filter: drop-shadow(0 0 3px var(--accent-glow-strong))
+          drop-shadow(0 0 10px var(--accent-glow));
+  animation: pent-breathe 6s ease-in-out infinite;
+}
+/* Slow, shallow, and never fully dim: a figure that pulses hard reads as
+   an alert. This is closer to a candle than a notification. */
+@keyframes pent-breathe {
+  0%, 100% { opacity: 0.78; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lobby-style-star .lobby-star-lines line.pent-edge { animation: none; opacity: 0.9; }
+}
+
 .lobby-style-star .lobby-star-lines line.hex-edge {
   stroke-width: 4.5; stroke-linecap: round;
   stroke-dasharray: none; opacity: 0.95;

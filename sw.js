@@ -198,7 +198,10 @@
 // Bumped: poking a bird now looses an arrow at it -- 75% miss, 17%
 // stuck (flies on wounded), 8% downed (tumbles out of the sky), with
 // feather counts reworked to tell you which happened.
-const CACHE_VERSION = "knell-v42";
+// Bumped for the pentagram star-links mode: core/lobby.js draws it,
+// base.css styles it, and Custom lists it alongside Spokes and Star of
+// David.
+const CACHE_VERSION = "knell-v43";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
