@@ -75,7 +75,23 @@
   // Star layout's hub button — Flashcards' home in that topology only
   // (see core/lobby.js's STAR_ORDER comment). Inert in Classic/Cards,
   // where .lobby-hub stays display:none and the real tile handles it.
-  on("btn-lobby-hub-flashcards", () => Dojo.openFlashcardsHub && Dojo.openFlashcardsHub());
+  //
+  // In the PENTAGRAM topology the ring must be exactly five, so Resume
+  // is moved here when there is something to resume — core/lobby.js
+  // sets data-pent-hub="resume" and swaps the icon. The id stays
+  // "flashcards" because it addresses an element, not a behaviour;
+  // renaming it would touch index.html and the CSS for no gain.
+  on("btn-lobby-hub-flashcards", (e) => {
+    const el = e && e.currentTarget;
+    if (el && el.dataset.pentHub === "resume") {
+      // Same call the real Resume tile makes below -- resumeAt needs the
+      // saved position, it does not look it up itself.
+      const pos = DB.getPosition();
+      if (!pos) return Dojo.showLobby();
+      return Dojo.resumeAt(pos);
+    }
+    if (Dojo.openFlashcardsHub) Dojo.openFlashcardsHub();
+  });
 
   ["btn-back-lobby", "btn-back-lobby2", "btn-back-lobby3",
    "btn-back-lobby4", "btn-back-lobby6"]

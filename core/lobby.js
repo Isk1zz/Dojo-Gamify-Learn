@@ -392,7 +392,56 @@
     const hubOnlyTile = document.getElementById("btn-lobby-flashcards");
     if (hubOnlyTile) hubOnlyTile.style.display = "none";
 
-    const tiles = STAR_ORDER
+    // ---- The pentagram needs the ring to BE five ----
+    // Five points cannot host six tiles (seven with Resume), so this
+    // mode trims the ring to exactly five rather than drawing a figure
+    // the tiles ignore.
+    //
+    // Custom is the one that goes: it is reachable from Settings ->
+    // Appearance, so nothing becomes unreachable — it loses a shortcut,
+    // not a destination. Resume is the other over-count, and it goes to
+    // the HUB rather than being dropped, because "carry on where you
+    // were" is the most hub-shaped action there is and Flashcards
+    // (which normally sits there) is itself reachable from the Library.
+    // Resume only exists when there is a saved position, so on a fresh
+    // profile the hub keeps Flashcards and nothing moves.
+    const pentagramRing = (DB.getStarLinks && DB.getStarLinks() === "pentagram");
+    const hubBtn = document.getElementById("btn-lobby-hub-flashcards");
+    const resumeTile = document.getElementById("btn-lobby-resume");
+    let ringOrder = STAR_ORDER;
+
+    if (pentagramRing) {
+      const customTile = document.getElementById("btn-lobby-stats");
+      if (customTile) customTile.style.display = "none";
+      ringOrder = STAR_ORDER.filter(id =>
+        id !== "btn-lobby-stats" && id !== "btn-lobby-resume");
+
+      // Hand the hub to Resume when there is something to resume.
+      const canResume = resumeTile && resumeTile.style.display !== "none";
+      if (hubBtn) {
+        hubBtn.dataset.pentHub = canResume ? "resume" : "";
+        hubBtn.innerHTML = canResume ? "<span>\u26A1</span>" : "<span>\u{1F4D1}</span>";
+        hubBtn.setAttribute("aria-label", canResume ? "Continue" : "Flashcards");
+      }
+      if (resumeTile) resumeTile.style.display = "none";
+    } else {
+      // Leaving pentagram mode: put back everything it hid.
+      //
+      // tile() does NOT restore these on its own while the lobby style
+      // stays "star" — only a style CHANGE re-runs that path — so
+      // switching links alone left Custom hidden forever. Caught in
+      // testing, and it is the same class of bug as the flashcards tile
+      // note above: anything this function hides, it has to un-hide.
+      const customTile = document.getElementById("btn-lobby-stats");
+      if (customTile && customTile.style.display === "none") customTile.style.display = "flex";
+      if (hubBtn && hubBtn.dataset.pentHub) {
+        hubBtn.dataset.pentHub = "";
+        hubBtn.innerHTML = "<span>\u{1F4D1}</span>";
+        hubBtn.setAttribute("aria-label", "Flashcards");
+      }
+    }
+
+    const tiles = ringOrder
       .map(id => document.getElementById(id))
       .filter(el => el && el.style.display !== "none");
 
@@ -464,23 +513,16 @@
       // to the one TWO steps away, which closes as a single unbroken
       // path 0-2-4-1-3-0. That single-stroke property is what makes a
       // pentagram read as one figure rather than five separate chords.
-      // 0.60, not 0.82. The first attempt reached far enough that its
-      // points landed UNDER the ring tiles and the apex disappeared
-      // behind the top one — the figure read as decapitated. Pulled in
-      // until it clears the tiles' inner edge with room to spare, so it
-      // is unmistakably a figure the ring CONTAINS rather than something
-      // tangled in it.
-      const PR = orbitR * 0.60;
-
-      // Fixed upright, not counter-rotating with the ring. Rotating it
-      // was the other half of the mess: 5 points against 6 tiles drift
-      // in and out of alignment forever, so it looked accidental at
-      // every angle. A pentagram is a seal — it should sit still while
-      // the ring turns around it.
-      const pt = i => {
-        const a = (-90 + i * 72) * Math.PI / 180;
-        return [cx + PR * Math.cos(a), cy + PR * Math.sin(a)];
-      };
+      // Now that the ring IS five (see the trim above), the star is drawn
+      // through the tiles themselves rather than inscribed behind them —
+      // "everything attached to the points". nodeAt is the same function
+      // the tiles are positioned with, so the vertices land exactly on
+      // tile centres by construction and cannot drift out of register.
+      //
+      // It also means the figure turns WITH the ring, which is correct
+      // now and was wrong before: previously five fixed points sat
+      // behind six rotating tiles and looked accidental at every angle.
+      const pt = i => nodeAt(i % n);
 
       // ONE colour, not a gradient. The vertical flag gradient split the
       // figure into a blue top half and a yellow bottom half, which
