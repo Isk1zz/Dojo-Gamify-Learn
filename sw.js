@@ -192,7 +192,10 @@
 // sign-in and every sync -- without it the HUD showed 0 tokens while the
 // account held 5000. Also disables the demo token-pack stub, which
 // credited local tokens the server-side paywall correctly ignores.
-const CACHE_VERSION = "knell-v40";
+// Bumped for nickname login: sign-in accepts an email OR a nickname
+// (0007 adds the lookup RPC + a unique index), the field is relabelled
+// per mode, and sign-up rejects a taken nickname up front.
+const CACHE_VERSION = "knell-v41";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

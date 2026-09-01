@@ -154,6 +154,20 @@
     // the economy table for why this is not an oversight.
   };
 
+  // Resolves a nickname to its account email so sign-in can accept
+  // either (0007). Returns null when there is no such nickname.
+  async function emailForNickname(nickname) {
+    const { data, error } = await getClient().rpc("email_for_nickname", { nickname });
+    if (error) throw error;
+    return data || null;
+  }
+
+  async function nicknameAvailable(nickname) {
+    const { data, error } = await getClient().rpc("nickname_available", { nickname });
+    if (error) throw error;
+    return !!data;
+  }
+
   // Server-side purchase (0003/0004). Returns the RPC's own verdict:
   // { status: "bought"|"already_owned", charged, tokens_left }. Throws
   // on refusal, so "insufficient tokens" cannot be mistaken for success
@@ -183,7 +197,7 @@
 
   Dojo.Cloud = {
     isConfigured,
-    deleteAccount, buyCourse, awardXp,
+    deleteAccount, buyCourse, awardXp, emailForNickname, nicknameAvailable,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),
     progress: table("progress"),

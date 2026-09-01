@@ -96,6 +96,11 @@
     // forms so often autofill the wrong thing.
     $("auth-password").setAttribute("autocomplete",
       next === "up" ? "new-password" : "current-password");
+    // Sign-IN accepts an email or a nickname; sign-UP needs a real
+    // address, because confirmation and password reset both go there.
+    const lbl = $("auth-email-label");
+    if (lbl) lbl.textContent = I18N.t(next === "up" ? "auth.email" : "auth.emailOrNick");
+    $("auth-email").setAttribute("type", next === "up" ? "email" : "text");
     showError("");
   }
 
@@ -157,6 +162,18 @@
     showError("");
     try {
       if (mode === "up") {
+        // Nicknames are unique now (they are a login identifier), so a
+        // clash has to be caught HERE. Letting signUp succeed first
+        // would create an auth account whose profile row then fails its
+        // unique constraint -- an orphaned account nobody can name.
+        try {
+          const free = await Dojo.Cloud.nicknameAvailable(nickname);
+          if (!free) { showError(I18N.t("auth.nicknameTaken")); return; }
+        } catch (e) {
+          // Availability check unreachable: fall through and let the
+          // signup attempt decide, rather than blocking on a check.
+          console.info("[auth] nickname check skipped:", e.message);
+        }
         await Dojo.Cloud.signUp(email, password);
         // Email confirmation is ON, so no session comes back and the
         // person cannot sign in yet. Say that explicitly — a login that
@@ -183,7 +200,17 @@
       }
 
       // ---- sign in ----
-      await Dojo.Cloud.signIn(email, password);
+      // The field accepts an email OR a nickname (0007). An "@" is the
+      // discriminator: nicknames cannot contain one, because the schema
+      // has no rule forbidding it but an address always has it. If it
+      // looks like a nickname, resolve it to an email first.
+      let loginEmail = email;
+      if (!email.includes("@")) {
+        const found = await Dojo.Cloud.emailForNickname(email);
+        if (!found) throw new Error("Invalid login credentials");
+        loginEmail = found;
+      }
+      await Dojo.Cloud.signIn(loginEmail, password);
 
       let pending = null;
       try { pending = JSON.parse(localStorage.getItem("knell-pending-signup") || "null"); }

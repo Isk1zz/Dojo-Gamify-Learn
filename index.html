@@ -375,10 +375,11 @@
             <label class="auth-label" for="auth-nickname" data-i18n="auth.nickname">Nickname</label>
             <input id="auth-nickname" class="modal-input" type="text" maxlength="30"
                    autocomplete="nickname" spellcheck="false" />
+            <p class="auth-note settings-hint" data-i18n="auth.nicknameNote"></p>
           </div>
 
           <div class="auth-row">
-            <label class="auth-label" for="auth-email" data-i18n="auth.email">Email</label>
+            <label class="auth-label" for="auth-email" id="auth-email-label" data-i18n="auth.emailOrNick">Email or nickname</label>
             <input id="auth-email" class="modal-input" type="email"
                    autocomplete="email" autocapitalize="none" spellcheck="false" />
           </div>
