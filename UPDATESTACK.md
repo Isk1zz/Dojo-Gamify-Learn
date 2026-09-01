@@ -12,15 +12,21 @@ Session was paused with the account gate half-verified (a stale-lobby
 list of asks that came in faster than they could be actioned. Recorded
 here rather than lost.
 
-1. **Password hashing — verify, don't assume.** Supabase Auth hashes
-   passwords server-side (bcrypt) before they ever reach a table; the
-   app never sees or stores a plaintext password, and `core/auth.js`
-   only ever calls `Dojo.Cloud.signUp`/`signIn`, never touches a
-   `password` column directly. This is very likely already true by
-   construction, but "very likely" isn't "verified" — the SECURITY
-   AUDIT section below only checked what THIS codebase does; it never
-   checked Supabase's own storage. Confirm from Supabase's own docs/
-   dashboard before marking this settled.
+1. **Password hashing — client side VALIDATED 2026-08-27, server side
+   still unverified.** Audited every `password` reference across
+   `core/auth.js`, `core/supabase.js` and `data/db.js`: the only ones
+   that exist are the local variable read from the form and the two
+   calls that hand it to `supabase.auth.signUp` /
+   `signInWithPassword`. It is never written to localStorage (auth.js
+   stores exactly two keys — the gate marker and a
+   `{nickname, country}` pending-signup blob, no credential), never
+   put in a profile field, never logged. So nothing in THIS codebase
+   persists a password anywhere.
+
+   What remains genuinely unverified is Supabase's own storage —
+   `auth.users.encrypted_password` is expected to be a bcrypt hash,
+   but that has not been looked at. Confirm from the dashboard or
+   their docs before calling this settled.
 
 2. **Sign-in/sign-up needs the same attack pass Step 1's economy check
    got.** That check proved a signed-in user can't rewrite `economy`.
@@ -40,6 +46,36 @@ here rather than lost.
    would look like a fix while changing nothing. The candidate string
    that was proposed is also now sitting in a chat log, which is its
    own reason not to use it as a real secret anywhere.
+
+   **CONFIRMED EXPLOITABLE 2026-08-27, and worse than written above.**
+   Validating this item found a SECOND public admin door that nothing
+   had recorded: `admin/admin.js` line 51 carries
+   `MASTER_ADMIN_KEYS = ["adminaccount", "admin613"]`, and the panel's
+   "not authorized" screen accepts either one as a Master Authorization
+   Key, calling `DB.setAdminStatus(p.id, true)` on a match.
+
+   Demonstrated live, not reasoned about: a freshly created non-admin
+   profile typed `admin613` into that challenge and came out with
+   `isAdmin === true` and all seven cheat tools (`cheat-unlock-all`,
+   `cheat-complete-all`, `cheat-add-xp`, `cheat-add-tokens`,
+   `cheat-add-money`, `cheat-reset-reviews`, `cheat-reset-profile`)
+   rendered and usable.
+
+   Two things make this worse than finding #2 alone:
+   - **`admin613` is already burned.** It was one of the cheat codes
+     committed in `0a4a2d2` and is in git history permanently (see
+     SECURITY AUDIT finding #3 below, which called those codes "inert
+     on the deployed site" — that was true of `settings/codes.js`, but
+     NOT of this constant, which ships).
+   - **Removing the Settings cheat box did not close this.** That
+     commit's message says the Admin panel gates "behind an isAdmin
+     gate rather than a string anyone could type" — incomplete. The
+     gate is `isAdmin` **OR** a typed public string, so the second door
+     was left standing while the first was bricked up.
+
+   This does not change the fix (server-side `isAdmin`, below); it
+   raises the priority and adds `MASTER_ADMIN_KEYS` to the list of what
+   that fix has to retire.
 
    **The real fix, and it's now buildable:** make `isAdmin` a
    server-side-only flag — an `economy`-style column with no client
