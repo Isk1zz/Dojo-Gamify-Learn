@@ -2089,3 +2089,160 @@ html[data-theme-mode="light"] #brand-watermark > span { opacity: 0.03; }
   font-size: 0.8rem; line-height: 1.6; color: var(--text-muted);
   margin-bottom: 0;
 }
+
+
+/* ============================================================
+   PHOSPHOR — theme CHARACTER, not just palette
+   ------------------------------------------------------------
+   Every other theme is a set of colours: swap them and the app looks
+   different but behaves the same visually. Phosphor is the first one
+   whose look depends on things a colour variable cannot express — a
+   green-tinted rounded card is not a terminal, it is a rounded card
+   that happens to be green. That was exactly the gap: the palette
+   applied everywhere while Classic and Cards kept their soft, filled,
+   proportional-font character and read as "normal app, tinted".
+
+   Four devices carry the look, and all four are structural:
+     1. square corners        — a terminal has no rounded rects
+     2. outlined, not filled  — glyphs and rules on black, nothing solid
+     3. monospace             — the single strongest signal of the genre
+     4. hollow wordmark       — the outlined headers from the reference
+
+   Scoped entirely under [data-theme="phosphor"] (set by core/theme.js),
+   so no other theme is touched and removing the theme removes all of
+   this with it.
+   ============================================================ */
+
+/* ---- 1. Square everything ----
+   A blanket radius override rather than a per-component list: the
+   component list would go stale the moment anything new is added, and
+   "this theme has no rounded corners" is a rule, not a set of
+   exceptions. Circles are exempt below. */
+html[data-theme="phosphor"] .lobby-tile,
+html[data-theme="phosphor"] .topic-card,
+html[data-theme="phosphor"] .course-card,
+html[data-theme="phosphor"] .modal-card,
+html[data-theme="phosphor"] .settings-section,
+html[data-theme="phosphor"] .btn-primary,
+html[data-theme="phosphor"] .btn-ghost,
+html[data-theme="phosphor"] .modal-input,
+html[data-theme="phosphor"] .sources-box,
+html[data-theme="phosphor"] .legal-block,
+html[data-theme="phosphor"] .garden-course,
+html[data-theme="phosphor"] .auth-tabs,
+html[data-theme="phosphor"] .auth-tab,
+html[data-theme="phosphor"] .sync-notice {
+  border-radius: 0;
+}
+
+/* The ring nodes and the hub stay circular — the Star topology IS
+   circles, and squaring those would not read as "terminal", it would
+   read as broken. */
+html[data-theme="phosphor"].lobby-style-star .lobby-tile,
+html[data-theme="phosphor"] .lobby-hub,
+html[data-theme="phosphor"] .profile-avatar {
+  border-radius: 50%;
+}
+
+/* ---- 2. Outlined, not filled ----
+   The reference is bright rules and text on pure black with almost no
+   solid fills. The default primary tile is a solid accent block, which
+   is the single most un-terminal element on the screen — it becomes an
+   outline that brightens on hover instead. */
+html[data-theme="phosphor"] .lobby-tile,
+html[data-theme="phosphor"] .topic-card,
+html[data-theme="phosphor"] .course-card {
+  background: transparent;
+  border: 1px solid rgba(0, 255, 65, 0.35);
+  box-shadow: none;
+}
+html[data-theme="phosphor"] .lobby-tile:hover,
+html[data-theme="phosphor"] .topic-card:hover,
+html[data-theme="phosphor"] .course-card:hover {
+  background: rgba(0, 255, 65, 0.06);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.25);
+}
+html[data-theme="phosphor"] .lobby-tile.primary {
+  background: transparent;
+  border-color: var(--accent);
+  box-shadow: 0 0 14px rgba(0, 255, 65, 0.3);
+}
+html[data-theme="phosphor"] .btn-primary {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  box-shadow: none;
+}
+html[data-theme="phosphor"] .btn-primary:hover {
+  background: rgba(0, 255, 65, 0.12);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.3);
+}
+
+/* ---- 3. Monospace ----
+   Applied to the CHROME, deliberately not to lesson prose: 300 words of
+   monospace body text is genuinely harder to read, and this theme should
+   cost nothing in comprehension. Titles, labels, buttons and stats take
+   it; .explain-blocks and friends keep the reading font. */
+html[data-theme="phosphor"] .lobby-tile,
+html[data-theme="phosphor"] .topic-title,
+html[data-theme="phosphor"] .topic-meta,
+html[data-theme="phosphor"] .stats-section-title,
+html[data-theme="phosphor"] .modal-title,
+html[data-theme="phosphor"] .btn-primary,
+html[data-theme="phosphor"] .btn-ghost,
+html[data-theme="phosphor"] .auth-tab,
+html[data-theme="phosphor"] .auth-label,
+html[data-theme="phosphor"] .topbar-title,
+html[data-theme="phosphor"] .profile-name-display,
+html[data-theme="phosphor"] .vital-wallet,
+html[data-theme="phosphor"] .vital-tokens {
+  font-family: var(--mono);
+  letter-spacing: -0.01em;
+}
+
+/* ---- 4. The hollow wordmark ----
+   The outlined headers from the reference. -webkit-text-stroke has no
+   standard equivalent with this reach, but it degrades safely: where it
+   is unsupported the text simply renders solid in the accent colour,
+   which is still correct-looking rather than broken.
+
+   The glow sits on a text-shadow rather than a filter so it hugs the
+   stroke instead of blooming the whole box. */
+html[data-theme="phosphor"] .lobby-brand,
+html[data-theme="phosphor"] .landing-title {
+  color: transparent;
+  /* Weight drops from 900. -webkit-text-stroke is drawn CENTRED on the
+     glyph outline, so half of it travels inward -- and at 900 the
+     counters (the enclosed holes in e, a, o) are already tight, so a
+     1.5px stroke closed the e into a blob. Reported as "e looks
+     broken", and it was.
+
+     Two changes, both needed: a lighter face opens the counters back
+     up, and a thinner stroke stops eating them. Letter-spacing widens
+     because an outlined glyph reads visually heavier than a filled one
+     and the default tracking is set for filled. */
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  -webkit-text-stroke: 1px var(--accent);
+  text-shadow: 0 0 16px rgba(0, 255, 65, 0.4);
+}
+html[data-theme="phosphor"] .lobby-brand .accent,
+html[data-theme="phosphor"] .landing-title .accent {
+  color: transparent;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: transparent;
+}
+
+/* A terminal's caret. Small, and only on the lobby greeting so it reads
+   as a prompt rather than as decoration sprayed everywhere. */
+html[data-theme="phosphor"] .lobby-welcome::after {
+  content: "_";
+  color: var(--accent);
+  animation: phosphor-caret 1.1s steps(1) infinite;
+}
+@keyframes phosphor-caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="phosphor"] .lobby-welcome::after { animation: none; }
+}

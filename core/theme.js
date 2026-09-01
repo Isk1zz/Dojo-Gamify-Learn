@@ -239,6 +239,14 @@
     // be locked together today, but sky is a scene, not a colour mode.
     document.documentElement.dataset.themeMode = t.mode === "light" ? "light" : "dark";
 
+    // The theme ID itself, so a theme can restyle STRUCTURE and not just
+    // colour. Most themes are a palette and need nothing here; a few have
+    // a character that a palette cannot carry -- Phosphor squares off
+    // every corner, outlines the tiles instead of filling them, and goes
+    // monospace, none of which is expressible as a colour variable.
+    // Scoped with [data-theme="..."] in base.css.
+    document.documentElement.dataset.theme = t.id || "";
+
     const tx = t.mode === "light" ? LIGHT_TEXT : DARK_TEXT;
     root.setProperty("--text", tx.text);
     root.setProperty("--text-dim", tx.dim);
