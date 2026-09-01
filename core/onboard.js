@@ -1,9 +1,9 @@
 // ================================================
 // Knell — CORE / first-run appearance
 // ------------------------------------------------
-// Offers a new account a look before they start studying. Small steps,
-// shape before paint: layout, then (only in Star) how its tiles are
-// wired, then colour.
+// Offers a new account a look before they start studying. Two steps,
+// shape before paint: the LOOK (every layout, with Star's three
+// topologies spelled out as their own entries), then the colour.
 //
 // ---- Why a bottom bar and not a modal with thumbnails ----
 // The obvious build is a grid of preview images. It is also the worst
@@ -50,16 +50,28 @@
     return all.map(t => ({ id: t.id, name: t.name, swatch: t.swatch }));
   }
 
-  const LAYOUT_CHOICES = () => I18N.resolve([
-    { id: "star",    name: { en: "Star",    ru: "Звезда" } },
-    { id: "cards",   name: { en: "Cards",   ru: "Карточки" } },
-    { id: "classic", name: { en: "Classic", ru: "Классика" } }
-  ]);
-
-  const LINK_CHOICES = () => I18N.resolve([
-    { id: "spokes",    name: { en: "Spokes",        ru: "Лучи" } },
-    { id: "hexagram",  name: { en: "Star of David", ru: "Звезда Давида" } },
-    { id: "pentagram", name: { en: "Pentagram",     ru: "Пентаграмма" } }
+  // ---- Every LOOK, in one list ----
+  // Star's three topologies are spelled out here rather than hidden
+  // behind a second question. They are not a sub-setting of Star in any
+  // way that matters to someone choosing: spokes, Star of David and
+  // pentagram look as different from each other as Cards looks from
+  // Classic — and the pentagram even changes which tiles are ON the
+  // ring. Burying two of the five available looks one step deeper meant
+  // most people would never see them.
+  //
+  // Each entry carries BOTH settings, so picking one is a single
+  // decision rather than a layout choice plus a follow-up.
+  const LOOK_CHOICES = () => I18N.resolve([
+    { id: "star:spokes",    layout: "star",    links: "spokes",
+      name: { en: "Star — spokes",        ru: "Звезда — лучи" } },
+    { id: "star:hexagram",  layout: "star",    links: "hexagram",
+      name: { en: "Star — Star of David", ru: "Звезда — Звезда Давида" } },
+    { id: "star:pentagram", layout: "star",    links: "pentagram",
+      name: { en: "Star — pentagram",     ru: "Звезда — пентаграмма" } },
+    { id: "cards",          layout: "cards",
+      name: { en: "Cards",                ru: "Карточки" } },
+    { id: "classic",        layout: "classic",
+      name: { en: "Classic",              ru: "Классика" } }
   ]);
 
   // ---- Steps ---------------------------------------------------------
@@ -80,43 +92,46 @@
   //
   // So: layout -> wiring (only in Star) -> colour. Wiring sits next to
   // layout because it is a property OF the layout, not a peer of it.
+  // TWO steps now, not three: shape then paint.
+  //
+  // Layout and links used to be separate questions, with links appearing
+  // only in Star. Folding Star's topologies into the one list is better
+  // on both counts it was meant to serve -- there are FEWER steps, and
+  // yet MORE of the app is actually seen, because the two topologies
+  // that were one level down are now in the same flick as everything
+  // else. It also removes the step count changing mid-flow, which was
+  // the source of a re-entry bug.
   function steps() {
-    const list = [
+    return [
       {
-        key: "layout",
+        key: "look",
         label: () => I18N.t("onb.stepLayout"),
         why:   () => I18N.t("onb.whyLayout"),
-        items: LAYOUT_CHOICES,
-        get:   () => DB.getLobbyStyle(),
-        set:   id => { DB.setLobbyStyle(id); if (Dojo.showLobby) Dojo.showLobby(); }
+        items: LOOK_CHOICES,
+        // The current look is the PAIR. Star with different wiring is a
+        // different entry, so both halves have to match.
+        get: () => {
+          const style = DB.getLobbyStyle();
+          if (style !== "star") return style;
+          return "star:" + ((DB.getStarLinks && DB.getStarLinks()) || "spokes");
+        },
+        set: id => {
+          const pick = LOOK_CHOICES().find(l => l.id === id);
+          if (!pick) return;
+          DB.setLobbyStyle(pick.layout);
+          if (pick.links && DB.setStarLinks) DB.setStarLinks(pick.links);
+          if (Dojo.showLobby) Dojo.showLobby();
+        }
+      },
+      {
+        key: "theme",
+        label: () => I18N.t("onb.stepTheme"),
+        why:   () => I18N.t("onb.whyTheme"),
+        items: themeChoices,
+        get:   () => DB.getTheme(),
+        set:   id => { if (Dojo.equipTheme) Dojo.equipTheme(id); else DB.setTheme(id); }
       }
     ];
-
-    // Only asked when it can matter — the links are invisible in Classic
-    // and Cards, so offering them there is a question with no visible
-    // answer. This is the "mini chunks" rule doing real work: the step
-    // count adapts rather than padding itself out.
-    if (DB.getLobbyStyle() === "star") {
-      list.push({
-        key: "links",
-        label: () => I18N.t("onb.stepLinks"),
-        why:   () => I18N.t("onb.whyLinks"),
-        items: LINK_CHOICES,
-        get:   () => (DB.getStarLinks && DB.getStarLinks()) || "spokes",
-        set:   id => { DB.setStarLinks(id); if (Dojo.showLobby) Dojo.showLobby(); }
-      });
-    }
-
-    list.push({
-      key: "theme",
-      label: () => I18N.t("onb.stepTheme"),
-      why:   () => I18N.t("onb.whyTheme"),
-      items: themeChoices,
-      get:   () => DB.getTheme(),
-      set:   id => { if (Dojo.equipTheme) Dojo.equipTheme(id); else DB.setTheme(id); }
-    });
-
-    return list;
   }
 
   let stepIdx = 0;
