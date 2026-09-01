@@ -323,6 +323,32 @@
       </div>
     </div>
 
+    <!-- ====== First-run appearance (core/onboard.js) ======
+         A BAR, not a modal, and deliberately so: everything above it
+         stays live, so cycling with < > restyles the real lobby and the
+         app itself is the preview. A modal with thumbnails would need a
+         second copy of every design, kept in sync forever, and still
+         could not show what a theme feels like at full size. -->
+    <div id="onboard-bar" style="display:none;">
+      <div class="onb-left">
+        <div class="onb-step" id="onb-step"></div>
+        <div class="onb-why" id="onb-why"></div>
+      </div>
+      <div class="onb-picker">
+        <button id="onb-prev" class="onb-arrow" type="button" aria-label="Previous">&#8249;</button>
+        <div class="onb-valuewrap">
+          <div class="onb-value" id="onb-value"></div>
+          <div class="onb-count" id="onb-count"></div>
+        </div>
+        <button id="onb-next-item" class="onb-arrow" type="button" aria-label="Next">&#8250;</button>
+      </div>
+      <div class="onb-right">
+        <span class="onb-progress" id="onb-progress"></span>
+        <button id="onb-skip" class="btn-ghost onb-skip" data-i18n="onb.skip">Skip</button>
+        <button id="onb-next" class="btn-primary onb-go"></button>
+      </div>
+    </div>
+
     <!-- ====== Delete account (settings/settings.js) ======
          No close X and no click-outside dismiss: the only ways out are
          Cancel or actually deleting. Same reasoning as the warning
@@ -902,6 +928,7 @@
   <script src="core/migrate-cloud.js"></script>
   <script src="core/auth.js"></script>
   <script src="core/sync.js"></script>
+  <script src="core/onboard.js"></script>
   <script src="library/library.js"></script>
   <script src="library/stats.js"></script>
   <script src="library/exam-sim.js"></script>

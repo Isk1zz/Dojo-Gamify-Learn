@@ -329,6 +329,26 @@ const I18N = (() => {
     "shop.buyFailed":       { en: "Purchase failed — check your connection",
                               ru: "Покупка не прошла — проверьте соединение" },
 
+    // ---- First-run appearance (core/onboard.js) ----
+    // The "why" lines are one sentence each on purpose. This is three
+    // decisions before someone has studied anything, so each step gets
+    // exactly enough to make the choice meaningful and not a word more.
+    "onb.stepTheme":        { en: "Pick a colour",      ru: "Выберите цвет" },
+    "onb.whyTheme":         { en: "The whole app changes as you flick through — take the one you'd want to look at daily.",
+                              ru: "Всё приложение меняется, пока вы листаете — выберите то, на что приятно смотреть каждый день." },
+    "onb.stepLayout":       { en: "Pick a layout",      ru: "Выберите вид" },
+    "onb.whyLayout":        { en: "How the lobby arranges itself. Star puts everything in a ring; the others are lists.",
+                              ru: "Как устроено главное меню. «Звезда» — кольцо, остальные — списки." },
+    "onb.stepLinks":        { en: "Pick the wiring",    ru: "Выберите связи" },
+    "onb.whyLinks":         { en: "The figure drawn between the Star's tiles.",
+                              ru: "Фигура, соединяющая плитки «Звезды»." },
+    "onb.next":             { en: "Next",               ru: "Далее" },
+    "onb.done":             { en: "Lock it in",         ru: "Оставить так" },
+    "onb.skip":             { en: "Skip",               ru: "Пропустить" },
+    "onb.changeLater":      { en: "Change any of this later in Custom",
+                              ru: "Всё это можно поменять позже в «Кастоме»" },
+    "onb.reopen":           { en: "Preview looks",     ru: "Примерить вид" },
+
     // ---- Cloud sync (core/sync.js) ----
     "sync.offline":         { en: "Cloud sync failed — working locally. Your progress is safe on this device.",
                               ru: "Синхронизация не удалась — работаем локально. Прогресс сохранён на устройстве." },

@@ -36,6 +36,15 @@
     // change, so it needs nothing here.
     if (Dojo.syncSkyToTheme) Dojo.syncSkyToTheme();
 
+    // First run only, and only once there is a profile — see
+    // core/onboard.js. Deferred a tick so the lobby is fully painted
+    // behind the bar before it appears; the whole point is that the app
+    // is the preview, and a bar over a half-drawn lobby previews
+    // nothing.
+    if (Dojo.Onboard && !Dojo.Onboard.alreadySeen()) {
+      setTimeout(() => Dojo.Onboard.maybeOffer(), 350);
+    }
+
     // "Cards" is a re-skin of these same six tiles, not a rearrangement
     // — see styles/base.css's .lobby-style-cards. "Star" DOES rearrange
     // them, into a hub-and-spoke circle of nodes — see layoutLobbyRadial

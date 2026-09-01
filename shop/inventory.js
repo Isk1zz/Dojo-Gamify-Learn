@@ -376,6 +376,7 @@
         <nav class="inv-tree">
           <div class="inv-owned-count">🎒 ${owned} unlocked</div>
           ${tree}
+          <button id="btn-inventory-preview" class="btn-ghost inv-shop-btn">\u25C0\u25B6 ${I18N.t("onb.reopen")}</button>
           <button id="btn-inventory-shop" class="btn-ghost inv-shop-btn">🛒 Shop</button>
         </nav>
         <div class="inv-main">
@@ -481,6 +482,18 @@
 
     // Leaving mid-preview must not carry a never-bought theme out to the
     // rest of the app — same guard Settings uses on its own back button.
+    // Reopens the first-run appearance picker on demand. Same bar, same
+    // live-preview behaviour — it just is not gated on "never seen" when
+    // reached this way. Routes to the lobby first, because the picker
+    // previews the LOBBY and running it from the Custom screen would
+    // preview a screen the choices barely change.
+    const previewBtn = document.getElementById("btn-inventory-preview");
+    if (previewBtn) previewBtn.addEventListener("click", () => {
+      if (!Dojo.Onboard) return;
+      if (Dojo.Router) Dojo.Router.go("lobby");
+      setTimeout(() => Dojo.Onboard.open(), 260);
+    });
+
     // Bound once: this button lives outside #inventory-body and survives
     // every re-render, so re-binding on each render would stack handlers.
     const backBtn = document.getElementById("btn-back-inventory");

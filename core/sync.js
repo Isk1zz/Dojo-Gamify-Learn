@@ -188,6 +188,30 @@
     };
   }
 
+  // ---- Appearance -----------------------------------------------------
+  // Theme, layout, star links, palettes, scenery, sky. These live on
+  // `profiles`, not `progress`, and were not being synced at all — the
+  // one-time claim pushed them and nothing ever updated them again, so
+  // picking a theme stayed on the device it was picked on.
+  //
+  // LAST-WRITE-WINS, unlike progress, and that is correct rather than
+  // lazy: there is no such thing as losing data here. Two devices
+  // disagreeing about a colour has exactly one sensible answer — the
+  // most recent choice — whereas two devices disagreeing about a review
+  // schedule needs the careful per-field merge above. Cosmetics are the
+  // one place a blind overwrite is the RIGHT behaviour.
+  //
+  // Mirrors core/migrate-cloud.js's PROFILE_MAP; reused from there
+  // rather than restated, so the two cannot drift.
+  function toProfileRow(p) {
+    const map = (Dojo.CloudMigrate && Dojo.CloudMigrate.PROFILE_MAP) || {};
+    const row = {};
+    for (const [field, col] of Object.entries(map)) {
+      if (p[field] !== undefined) row[col] = p[field];
+    }
+    return row;
+  }
+
   // ---- Economy: pull ONLY, and overwrite ------------------------------
   // The opposite direction from everything else here. progress is MERGED
   // because both sides can legitimately advance it; economy is
@@ -245,6 +269,17 @@
 
       await Dojo.Cloud.progress.push(toRow(merged));
       applyLocally(merged);
+
+      // Appearance rides along on the same trip rather than getting its
+      // own request. Best-effort and AFTER progress: if only one of the
+      // two lands it must be the irreplaceable one, and a theme that
+      // syncs a few minutes late costs nobody anything.
+      try {
+        const row = toProfileRow(local);
+        if (Object.keys(row).length) await Dojo.Cloud.profiles.push(row);
+      } catch (e) {
+        console.info("[sync] appearance did not push:", e.message);
+      }
 
       // Economy comes DOWN on every sync. Best-effort on purpose: a
       // progress sync that succeeded must not be reported as failed

@@ -2270,3 +2270,73 @@ html[data-theme="phosphor"] .lobby-welcome::after {
 @media (prefers-reduced-motion: reduce) {
   html[data-theme="phosphor"] .lobby-welcome::after { animation: none; }
 }
+
+
+/* ============================================================
+   FIRST-RUN APPEARANCE BAR (core/onboard.js)
+   ------------------------------------------------------------
+   Anchored to the bottom and nothing else. It must never cover the
+   lobby it is previewing — that is the entire premise — so it is short,
+   full-width, and the app scrolls behind it untouched.
+   ============================================================ */
+#onboard-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 70;
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-accent);
+  /* Upward shadow only: it lifts off the page it sits on. */
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.45);
+  animation: onb-rise 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+@keyframes onb-rise {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { #onboard-bar { animation: none; } }
+
+.onb-left { flex: 1 1 auto; min-width: 0; }
+.onb-step { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.onb-why  { font-size: 0.78rem; color: var(--text-dim); line-height: 1.45; margin-top: 0.15rem; }
+
+/* The picker is the centre of gravity — arrows big enough to hit
+   repeatedly, because flicking back and forth to compare two options is
+   the main thing anyone does here. */
+.onb-picker {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.3rem 0.4rem; border-radius: 10px;
+  background: var(--bg-surface); border: 1px solid var(--border-accent);
+}
+.onb-arrow {
+  width: 34px; height: 34px; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  border: 0; border-radius: 8px; cursor: pointer;
+  background: transparent; color: var(--accent);
+  font-size: 1.4rem; line-height: 1;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.onb-arrow:hover { background: var(--accent-glow); transform: scale(1.08); }
+.onb-arrow:active { transform: scale(0.94); }
+
+/* Fixed width so the bar does not jitter as names of different lengths
+   cycle through — a control that reflows while you use it feels broken. */
+.onb-valuewrap { min-width: 8.5rem; text-align: center; }
+.onb-value { font-size: 0.92rem; font-weight: 700; color: var(--text); }
+.onb-count { font-size: 0.68rem; color: var(--text-muted); font-family: var(--mono); }
+
+.onb-right { flex: 0 0 auto; display: flex; align-items: center; gap: 0.6rem; }
+.onb-progress { font-size: 0.72rem; color: var(--text-muted); font-family: var(--mono); }
+.onb-skip { padding: 0.45rem 0.8rem; font-size: 0.82rem; }
+.onb-go   { padding: 0.5rem 1.1rem; }
+
+/* On a phone the three groups cannot share a row. The picker leads,
+   because it is the control; the explanation moves under it and the
+   actions sit last. */
+@media (max-width: 720px) {
+  #onboard-bar { flex-wrap: wrap; gap: 0.6rem; padding: 0.7rem 0.8rem; }
+  .onb-left { order: 2; flex: 1 1 100%; }
+  .onb-picker { order: 1; flex: 1 1 100%; justify-content: space-between; }
+  .onb-right { order: 3; flex: 1 1 100%; justify-content: flex-end; }
+  .onb-why { font-size: 0.74rem; }
+}

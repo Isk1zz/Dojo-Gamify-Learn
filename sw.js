@@ -201,7 +201,9 @@
 // Bumped for the pentagram star-links mode: core/lobby.js draws it,
 // base.css styles it, and Custom lists it alongside Spokes and Star of
 // David.
-const CACHE_VERSION = "knell-v50";
+// Bumped for the first-run appearance picker: core/onboard.js is a NEW
+// file, with its bar markup in index.html and onb.* strings in i18n.
+const CACHE_VERSION = "knell-v54";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
