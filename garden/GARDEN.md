@@ -1,4 +1,4 @@
-# garden/ — plants and dividends
+# garden/ — plants and what they are worth
 
 Plants are topics. Growth stage is driven by the **SM-2 review interval**, not
 by how many topics are finished — so the Garden pictures *retention*, not
@@ -7,20 +7,27 @@ rendered as a picture; don't turn it into a completion tracker.
 
 Stylesheet: `styles/garden.css`.
 
-## Growth stages (v5)
+## Growth stages (v6)
 
-| Stage | Interval | Pays/day |
+| Stage | Interval | Weight |
 |---|---|---|
 | 🌑 Fallow | never attempted | — |
-| 🌰 Seed | attempted, not mastered | $1 |
-| 🌱 Sprout | mastered, ≤2d | $3 |
-| 🌿 Seedling | ≥7d | $5 |
-| 🌾 Growing | ≥21d | $7 |
-| 🌳 Tree | ≥30d | $13 |
-| 🌸 Blossom | ≥60d | $17 |
+| 🌰 Seed | attempted, not mastered | — |
+| 🌱 Sprout | mastered, ≤2d | 1 |
+| 🌿 Seedling | ≥7d | 1 |
+| 🌾 Growing | ≥21d | 2 |
+| 🌳 Tree | ≥30d | 2 |
+| 🌸 Blossom | ≥60d | 3 |
 
 Thresholds were 6/16/45/120 in v4; the long tail meant almost nobody would
-ever see a Tree. `pays` lives in this table, not in `db.js`.
+ever see a Tree. The column was `pays` until v6 — see *What the Garden is
+worth* below for why it is now `weight`.
+
+**`weight` mirrors the server's `garden_weight()` and must keep mirroring
+it.** The server tiers on interval (≥60 → 3, ≥21 → 2, anything else mastered
+→ 1, unmastered → 0); this table is the same split spelled out per stage. If
+you move a threshold here, move it in the migration too, or the app will
+promise an allowance the server refuses to grant.
 
 ## Grouped by course
 
@@ -48,7 +55,7 @@ retention: **a topic due for review is a plant that needs watering.**
 - A panel at the top of the screen counts them and starts the first one via
   `Dojo.startNextDueReview()` (owned by `library/`).
 - `gardenSummary()` leads with the watering count, because that is the part
-  with a deadline; dividends come second.
+  with a deadline; the explainer comes last.
 - **Watering is a flashcard deck, not a topic replay.** It used to re-walk
   every chunk plus the exam again; now it's a quick "knew it / didn't" pass
   built straight from each chunk's existing quiz — see the *Flashcard
@@ -58,25 +65,53 @@ retention: **a topic due for review is a plant that needs watering.**
 The lobby has no review tile. Don't add one back — two entry points for the
 same action is how the Garden becomes decoration again.
 
-## Dividends
-One claim per 24 hours (`DB.getLastDividendClaim`). Pays the sum of every
-plant's `pays`. This is the main non-gambling income line, and it is
-deliberately tied to review interval: **the way to earn more is to keep
-remembering things**, not to grind.
+## What the Garden is worth (v6 — replaces Dividends)
 
-`claimDividends()` returns the amount actually paid — 0 means "nothing to pay"
-or "too soon". Never animate a payout that didn't land.
+The Garden pays nothing directly any more. It does two things instead:
+
+1. Sets the **daily reputation allowance** for the forum —
+   `min(5, weight / 5)`.
+2. Its **surplus** above that cap exchanges into `$` for cosmetics.
+
+A folded panel on the screen explains both, and carries the live weight and
+allowance in its head so it is worth reading even shut. It reuses the
+course-plot fold (`.gc-head` / `.gc-inner`) rather than adding a second kind
+of collapsible.
+
+### Why the dividend panel is gone rather than disabled
+Dividends were cut by decision, but the panel outlived the decision and kept
+paying — `DB.addMoney` straight into the wallet, client-side, with no RPC
+behind it and nothing on the server able to confirm it. Harmless only while
+`$` bought nothing; a money printer the moment themes move into the shop,
+and a flat contradiction of the rule that `$` comes from reputation surplus.
+A panel that pays out for a system nobody kept is worse than no panel.
+
+### gardenWeight() walks completed topics, NOT ALL_TOPICS
+This is the correctness of the whole figure. `ALL_TOPICS` holds only the
+courses whose content is currently loaded, so someone with six mastered
+topics in a course they are not studying right now read as **weight 0 while
+the server said 10**. The server counts `completed_topics` and has no idea
+what the client has loaded. Count anything else here and the two disagree.
+
+Everything the panel shows is **advisory**. The server recomputes it in
+`garden_weight()` and `rep_allowance()` from its own copy of the progress and
+takes nothing from the client. If the two ever disagree, the server is right
+and the display is the bug.
 
 ## Exports
-`GROWTH`, `growthFor`, `renderGarden`, `gardenSummary`, `dividendPreview`,
-`claimDividends`, `msUntilClaim`
+`GROWTH`, `growthFor`, `renderGarden`, `gardenSummary`, `gardenWeight`,
+`repAllowance`
+
+`gardenWeight` is exported because the forum needs the same figure. It must
+not recompute it from `GROWTH` itself, or the two displays drift the first
+time a tier moves.
 
 ## Reads / writes
 Reads `DB.getReviews`, `getCompletedTopics`, `getStats`, and `ALL_TOPICS`.
-Writes only `wallet` and `lastDividendClaim`.
+**Writes nothing.** It stopped writing when the payout went.
 
 ## Emits
-`wallet:changed`
+Nothing. `wallet:changed` was emitted only for the dividend payout.
 
 ## Open
 The Garden was originally requested without a spec — this is one

@@ -452,7 +452,6 @@ const I18N = (() => {
                               ru: "Пока ничего не посажено — пройдите тему, и что-нибудь взойдёт" },
     "ui.sum.planted":      { en: "{n} of {of} planted", ru: "посажено: {n} из {of}" },
     "ui.sum.needWater":    { en: "{n} need watering",   ru: "требуют полива: {n}" },
-    "ui.sum.toClaim":      { en: "${n} to claim",      ru: "к получению: ${n}" },
     "ui.sum.rankToGo":     { en: "{cur} · {n} XP to {next}", ru: "{cur} · до «{next}» ещё {n} XP" },
     "ui.sum.rankTop":      { en: "{cur} · top of the ladder", ru: "{cur} · вершина лестницы" },
     "ui.sum.buyToUnlock":  { en: "Buy a course to unlock", ru: "Купите курс, чтобы открыть" },
@@ -506,7 +505,6 @@ const I18N = (() => {
     "garden.waterFirst":    { en: "Water the first",    ru: "Полить первое" },
     "garden.allHolding":    { en: "Every plant is holding. Come back when one comes due.",
                               ru: "Все растения держатся. Возвращайтесь, когда подойдёт срок." },
-    "garden.nothingPaying": { en: "Nothing paying yet", ru: "Пока ничего не приносит" },
     "garden.due":           { en: "Due for review",     ru: "Пора повторить" },
 
     // Shop / Custom (pass 2)
@@ -539,7 +537,41 @@ const I18N = (() => {
     "garden.fullyGrown":    { en: "· {n} fully grown", ru: "· {n} выросли полностью" },
     "garden.note":          { en: "Plants grow with the <strong>review interval</strong>, not with how many topics you've finished. Something you passed once is a sprout; something you've held on to for months is a tree. Skip reviews and a plant drops back.",
                               ru: "Растения растут не от числа пройденных тем, а от <strong>интервала повторения</strong>. То, что вы сдали один раз, — росток; то, что держите месяцами, — дерево. Пропустите повторения, и растение откатится назад." },
-    "garden.dailyHarvest":  { en: "Daily harvest",       ru: "Дневной сбор" },
+
+    // Garden — the explainer. Folded by default; see explainPanel().
+    "garden.ex.title":      { en: "What the Garden is worth", ru: "Что даёт Сад" },
+    "garden.ex.weight":     { en: "weight {n}",           ru: "вес {n}" },
+    "garden.ex.perDay":     { en: "{n}/day",              ru: "{n}/день" },
+    "garden.ex.lead":       { en: "The Garden is not only a picture of what you remember. It sets how much <strong>standing</strong> you may hand out each day, and its surplus is where customisation money comes from.",
+                              ru: "Сад — не только картинка того, что вы помните. Он задаёт, сколько <strong>признания</strong> вы можете раздать за день, и его излишек — источник денег на оформление." },
+
+    "garden.ex.h1":         { en: "Standing is something you give away", ru: "Признание — это то, что вы отдаёте" },
+    "garden.ex.give":       { en: "It is not a score you collect. It is the right to point at someone else's post and say <em>this was worth reading</em>. Your own standing is only ever what other people gave you — which is precisely what stops it being farmable alone.",
+                              ru: "Это не счёт, который вы копите. Это право указать на чужую запись и сказать: <em>вот это стоило прочесть</em>. Ваше собственное положение — всегда только то, что дали вам другие. Именно поэтому его нельзя нафармить в одиночку." },
+    "garden.ex.rule1":      { en: "One point per post, and never to your own.",
+                              ru: "Одно очко на запись, и никогда — на свою." },
+    "garden.ex.rule2":      { en: "At most ten to any one author per month, so a pair of friends cannot lift each other.",
+                              ru: "Не больше десяти одному автору за месяц — чтобы пара друзей не подняла друг друга." },
+    "garden.ex.rule3":      { en: "Unspent points do not pile up. The day resets; the allowance does not carry.",
+                              ru: "Непотраченные очки не копятся. День обнуляется, норма не переносится." },
+
+    "garden.ex.h2":         { en: "Where the daily allowance comes from", ru: "Откуда берётся дневная норма" },
+    "garden.ex.earn":       { en: "Every mastered plant carries a weight, and a plant you have held longer weighs more. Every <strong>{per}</strong> of weight is one point a day, up to <strong>{cap}</strong>. Coverage does not count — only what you have kept.",
+                              ru: "Каждое освоенное растение имеет вес, и то, что вы держите дольше, весит больше. Каждые <strong>{per}</strong> веса — это одно очко в день, максимум <strong>{cap}</strong>. Охват не считается: считается только то, что вы удержали." },
+    "garden.ex.youHave":    { en: "Your garden weighs <strong>{w}</strong>, which is <strong>{n}</strong> a day.",
+                              ru: "Ваш сад весит <strong>{w}</strong> — это <strong>{n}</strong> в день." },
+    "garden.ex.toNext":     { en: "Another {n} of weight adds one more.",
+                              ru: "Ещё {n} веса добавят одно." },
+    "garden.ex.youHaveNone":{ en: "Nothing is mastered yet, so there is no allowance to give. Finish a topic and hold it through a review.",
+                              ru: "Пока ничего не освоено, поэтому и раздавать нечего. Пройдите тему и удержите её через повторение." },
+
+    "garden.ex.h3":         { en: "Surplus becomes money for looks", ru: "Излишек превращается в деньги на внешний вид" },
+    "garden.ex.overflow":   { en: "A garden can easily weigh more than the <strong>{cap}</strong> a day cap can use. That surplus is not wasted: it exchanges into <strong>$</strong>, which buys themes and other cosmetics.",
+                              ru: "Сад легко может весить больше, чем нужно для потолка в <strong>{cap}</strong> в день. Излишек не пропадает: он меняется на <strong>$</strong>, а на них покупаются темы и прочее оформление." },
+    "garden.ex.oneWay":     { en: "The exchange runs one way only. <strong>$</strong> never turn back into Tokens and never leave the app, because Tokens cost real money — and studying must never become a way to earn it.",
+                              ru: "Обмен работает только в одну сторону. <strong>$</strong> никогда не превращаются обратно в Токены и не покидают приложение: Токены стоят настоящих денег, а учёба не должна становиться способом их заработать." },
+    "garden.ex.soon":       { en: "The forum and the exchange are still being built. The weights above are already live and already counting — nothing you grow now is lost.",
+                              ru: "Форум и обменник ещё строятся. Веса выше уже работают и уже считаются — ничто из выращенного сейчас не пропадёт." },
 
     // Custom
     "inv.preview":          { en: "Preview",             ru: "Предпросмотр" },
@@ -623,7 +655,6 @@ const I18N = (() => {
 
     // Garden
     "garden.nothingToWater":{ en: "Nothing needs watering", ru: "Поливать нечего" },
-    "garden.nothingToClaim":{ en: "Nothing to claim",    ru: "Забирать нечего" },
 
     // Lobby greeting
     "lobby.welcomeBack":    { en: "Welcome back, {name}.", ru: "С возвращением, {name}." },

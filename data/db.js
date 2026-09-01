@@ -120,7 +120,12 @@ const DB = (() => {
       warnings: [],           // [{ id, message, issuedAt, read }]
 
       // ---- v5: economy & life-sim ----
-      wallet: 0,             // $ earned from garden dividends and mini-games
+      wallet: 0,             // $ for cosmetics. Server-owned: pulled and
+                             // overwritten by sync, never earned locally.
+      // Dead since v6, when the Garden's dividend payout was removed.
+      // Kept because it maps to economy.last_dividend_claim, and the
+      // schema drift check pairs every column with a field. Dropping
+      // the field without dropping the column reports as drift.
       lastDividendClaim: null,
       inventory: [],         // purchased life-shop item ids
       storyProgress: {
@@ -1437,7 +1442,10 @@ const DB = (() => {
   // no timers, just arithmetic on read, which stays correct across a tab
   // that was shut for three days.
 
-  // ---- Garden dividends ----
+  // ---- Garden dividends (dead since v6) ----
+  // No caller left: the Garden stopped paying out. These stay only so
+  // the field they read keeps its pair with economy.last_dividend_claim.
+  // Delete them together with the column and the field, or not at all.
   function getLastDividendClaim() {
     const p = getActiveProfile();
     return p ? (p.lastDividendClaim || null) : null;

@@ -3,9 +3,10 @@
 // ------------------------------------------------
 // Plants = topics. Growth stage is driven by the SM-2 review
 // interval, so the Garden pictures RETENTION, not coverage.
-// v5 adds daily dividends: each plant pays into the wallet once
-// per 24h. Reads reviews from DB; writes only wallet + claim time.
-// Emits: wallet:changed
+// v6 removes the daily dividend payout and puts an explainer where it
+// stood. The Garden no longer pays anything directly: it sets the
+// daily REPUTATION allowance for the forum, and its surplus is what
+// exchanges into $ for cosmetics. Read-only — it writes nothing.
 // ================================================
 
 (() => {
@@ -13,13 +14,20 @@
   // Late-bound on purpose. A branch may be loaded before the branch
   // it calls into, so these resolve at call time, not at load time.
   const showScreen = Dojo.showScreen;
-  const Bus = Dojo.Bus;
+  // Bus is gone from this seam: the Garden emitted wallet:changed only
+  // for the dividend payout, and it no longer pays anything.
   const startNextDueReview = (...a) => Dojo.startNextDueReview(...a);
 
   // Which course plots are expanded. Kept across renders so watering a
   // plant doesn't fold the garden up under you.
   const openCourses = new Set();
   let seeded = false;
+
+  // The explainer folds shut by default and stays however the reader
+  // left it for the session. Folded by default because it is reference
+  // material: someone who already knows the rules should not have to
+  // scroll past them every visit to reach their plants.
+  let explainOpen = false;
 
   // ---- Garden ----
   // Growth stage is driven by the SPACED REVIEW interval, not by
@@ -30,15 +38,24 @@
   // Thresholds are review-interval days. Updated in v5 to land on
   // rounder, more reachable numbers — the old 45d/120d tail meant
   // almost nobody would ever see a Tree or a Blossom.
-  // `pays` is the daily dividend in $ (see claimDividends).
+  //
+  // `weight` is what the plant contributes to the daily reputation
+  // allowance. It MIRRORS the server's garden_weight() and is here only
+  // so the Garden can explain itself and show a live figure — the
+  // server decides, and it never trusts a number sent from here.
+  //
+  // Server tiers are interval-based: >=60 pays 3, >=21 pays 2, anything
+  // else mastered pays 1, and a topic not in completed_topics pays
+  // nothing. That lands on 1/1/2/2/3 across the five mastered stages,
+  // which is the split that was decided for the forum.
   const GROWTH = I18N.resolve([
-    { min: -1, icon: "\u{1F311}", name: { en: "Fallow", ru: "Пар" },   hint: { en: "Not started", ru: "Не начата" },                 pays: 0 },
-    { min: 0,  icon: "\u{1F330}", name: { en: "Seed", ru: "Семя" },     hint: { en: "Attempted, not yet mastered", ru: "Начата, не освоена" }, pays: 1 },
-    { min: 1,  icon: "\u{1F331}", name: { en: "Sprout", ru: "Росток" },   hint: { en: "Mastered, held up to 2 days", ru: "Освоена, держится до 2 дней" }, pays: 3 },
-    { min: 7,  icon: "\u{1F33F}", name: { en: "Seedling", ru: "Саженец" }, hint: { en: "Held a week", ru: "Держится неделю" },                 pays: 5 },
-    { min: 21, icon: "\u{1F33E}", name: { en: "Growing", ru: "Рост" },  hint: { en: "Held three weeks", ru: "Держится три недели" },            pays: 7 },
-    { min: 30, icon: "\u{1F333}", name: { en: "Tree", ru: "Дерево" },     hint: { en: "Held a month", ru: "Держится месяц" },                pays: 13 },
-    { min: 60, icon: "\u{1F338}", name: { en: "Blossom", ru: "Цветение" },  hint: { en: "Held two months", ru: "Держится два месяца" },             pays: 17 }
+    { min: -1, icon: "\u{1F311}", name: { en: "Fallow", ru: "Пар" },   hint: { en: "Not started", ru: "Не начата" },                 weight: 0 },
+    { min: 0,  icon: "\u{1F330}", name: { en: "Seed", ru: "Семя" },     hint: { en: "Attempted, not yet mastered", ru: "Начата, не освоена" }, weight: 0 },
+    { min: 1,  icon: "\u{1F331}", name: { en: "Sprout", ru: "Росток" },   hint: { en: "Mastered, held up to 2 days", ru: "Освоена, держится до 2 дней" }, weight: 1 },
+    { min: 7,  icon: "\u{1F33F}", name: { en: "Seedling", ru: "Саженец" }, hint: { en: "Held a week", ru: "Держится неделю" },                 weight: 1 },
+    { min: 21, icon: "\u{1F33E}", name: { en: "Growing", ru: "Рост" },  hint: { en: "Held three weeks", ru: "Держится три недели" },            weight: 2 },
+    { min: 30, icon: "\u{1F333}", name: { en: "Tree", ru: "Дерево" },     hint: { en: "Held a month", ru: "Держится месяц" },                weight: 2 },
+    { min: 60, icon: "\u{1F338}", name: { en: "Blossom", ru: "Цветение" },  hint: { en: "Held two months", ru: "Держится два месяца" },             weight: 3 }
   ]);
   function growthFor(topicId) {
     const completed = DB.getCompletedTopics();
@@ -56,51 +73,51 @@
   }
 
 
-  // ---- Dividends ----
-  // Every plant pays once per 24h. This is the main non-gambling
-  // income line, and it is deliberately tied to REVIEW INTERVAL:
-  // the way to earn more is to keep remembering things, not to grind.
-  const DIVIDEND_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+  // ---- What the Garden is worth ----
+  //
+  // This REPLACES the daily dividend panel that used to live here.
+  // Dividends were cut by decision, but the panel outlived the
+  // decision and kept paying — client-side, straight into the wallet,
+  // with no server RPC behind it and nothing able to confirm it. That
+  // was harmless only for as long as $ bought nothing. The moment
+  // themes move into the shop it would have been a money printer, and
+  // it flatly contradicts the rule that $ comes from reputation
+  // overflow. So it is gone rather than disabled: a panel that pays
+  // for a system nobody kept is worse than no panel.
+  //
+  // What stands in its place is an explanation, because the Garden now
+  // feeds something real — the daily reputation allowance.
+  //
+  // Everything below is ADVISORY. The server recomputes all of it in
+  // garden_weight() and rep_allowance() from its own copy of the
+  // progress, and takes nothing from the client. If the two ever
+  // disagree, the server is right and this display is the bug.
 
-  function dividendPreview() {
-    const rows = {};
+  const REP_DAILY_CAP = 5;   // mirrors least(5, ...) in rep_allowance()
+  const WEIGHT_PER_POINT = 5; // mirrors garden_weight() / 5
+
+  // Walks COMPLETED TOPICS, not ALL_TOPICS. That distinction is the
+  // whole correctness of this figure: ALL_TOPICS holds only the courses
+  // whose content is currently loaded, so a person with six mastered
+  // topics in a course they aren't studying right now read as weight 0
+  // while the server said 10. The server counts completed_topics and
+  // has no idea what the client happens to have loaded; counting
+  // anything else here guarantees the two disagree.
+  function gardenWeight() {
     let total = 0;
-    ALL_TOPICS.forEach(t => {
-      const g = growthFor(t.id);
-      if (!g.pays) return;
-      rows[g.name] = rows[g.name] || { icon: g.icon, name: g.name, pays: g.pays, count: 0 };
+    const rows = {};
+    DB.getCompletedTopics().forEach(id => {
+      const g = growthFor(id);
+      if (!g.weight) return;
+      rows[g.name] = rows[g.name] || { icon: g.icon, name: g.name, weight: g.weight, count: 0 };
       rows[g.name].count++;
-      total += g.pays;
+      total += g.weight;
     });
     return { rows: Object.values(rows), total };
   }
 
-  function msUntilClaim() {
-    const last = DB.getLastDividendClaim();
-    if (!last) return 0;
-    const elapsed = Date.now() - new Date(last).getTime();
-    return Math.max(0, DIVIDEND_COOLDOWN_MS - elapsed);
-  }
-
-  // Returns the amount actually paid. 0 means "nothing to pay" or
-  // "too soon" — the caller must not animate a payout that didn't land.
-  function claimDividends() {
-    if (msUntilClaim() > 0) return 0;
-    const { total } = dividendPreview();
-    if (total <= 0) return 0;
-    DB.addMoney(total);
-    DB.setLastDividendClaim(new Date().toISOString());
-    Bus.emit("wallet:changed", { delta: total, reason: "dividends" });
-    return total;
-  }
-
-  function fmtWait(ms) {
-    // Round to whole minutes FIRST, then split — otherwise a ceil on the
-    // remainder can produce "23h 60m".
-    const mins = Math.ceil(ms / 60000);
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    return h ? `${h}h ${m}m` : `${m}m`;
+  function repAllowance(weight) {
+    return Math.min(REP_DAILY_CAP, Math.floor(weight / WEIGHT_PER_POINT));
   }
 
   // What the lobby tile shows. The lobby must not compute this itself.
@@ -109,15 +126,16 @@
     if (!grown) return I18N.t("ui.sum.gardenEmpty");
 
     const due = DB.getDueTopicIds().length;
-    const wait = msUntilClaim();
     const bits = [I18N.t("ui.sum.planted", { n: grown, of: ALL_TOPICS.length })];
     // Watering comes first: it's the thing with a deadline.
     // The English plural is dropped rather than translated: Russian
     // needs three forms where English needs two, so both strings were
     // reworded to carry the count after a colon instead.
     if (due) bits.push(I18N.t("ui.sum.needWater", { n: due }));
-    if (wait === 0) bits.push(I18N.t("ui.sum.toClaim", { n: dividendPreview().total }));
-    else bits.push(`payout in ${fmtWait(wait)}`);
+    // The payout countdown used to sit here. It is not replaced by an
+    // allowance figure: the tile is a nudge to come back, and "you can
+    // give 3 points today" is not something you act on from the lobby.
+    // The Garden itself explains that; a tile repeating it is noise.
     return bits.join(" \u00b7 ");
   }
 
@@ -230,30 +248,7 @@
       body.appendChild(wrap);
     });
 
-    // Dividend panel
-    const wait = msUntilClaim();
-    const preview = dividendPreview();
-    const claim = document.createElement("div");
-    claim.className = "garden-dividends";
-    claim.innerHTML = `
-      <div class="gd-left">
-        <div class="gd-title">${I18N.t("garden.dailyHarvest")}</div>
-        <div class="gd-rows">${preview.rows.length
-          ? preview.rows.map(r => `<span class="gd-row">${r.icon} ${r.count} \u00d7 $${r.pays}</span>`).join("")
-          : `<span class="gd-row">${I18N.t("garden.nothingPaying")}</span>`}</div>
-      </div>
-      <button id="btn-claim-dividends" class="btn-primary" ${wait > 0 || !preview.total ? "disabled" : ""}>
-        ${preview.total
-          ? (wait > 0 ? `Next in ${fmtWait(wait)}` : `Claim $${preview.total}`)
-          : I18N.t("garden.nothingToClaim")}
-      </button>`;
-    body.appendChild(claim);
-    const claimBtn = claim.querySelector("#btn-claim-dividends");
-    if (claimBtn && !claimBtn.disabled) {
-      claimBtn.addEventListener("click", () => {
-        if (claimDividends() > 0) renderGarden();
-      });
-    }
+    body.appendChild(explainPanel());
 
     const legend = document.createElement("div");
     legend.className = "garden-legend";
@@ -262,6 +257,86 @@
     body.appendChild(legend);
 
     showScreen("garden");
+  }
+
+  // ---- The explainer ----
+  //
+  // Why this exists at all: the Garden is about to stop being only a
+  // picture. It sets how much reputation a person may hand out each
+  // day, and its overflow is where customisation money comes from.
+  // None of that is guessable from looking at plants, and a currency
+  // whose rules are not written down reads as arbitrary.
+  //
+  // It reuses the course-plot fold (.gc-head / .gc-inner) rather than
+  // inventing a second kind of collapsible. One fold behaviour on the
+  // screen, one caret, one animation.
+  function explainPanel() {
+    const { rows, total } = gardenWeight();
+    const allowance = repAllowance(total);
+    const toNext = total >= REP_DAILY_CAP * WEIGHT_PER_POINT
+      ? 0
+      : WEIGHT_PER_POINT - (total % WEIGHT_PER_POINT);
+
+    const wrap = document.createElement("div");
+    wrap.className = `garden-explain${explainOpen ? " open" : ""}`;
+
+    // The head carries the two live numbers, so it is worth reading
+    // even folded — the same reason course heads carry planted/due.
+    wrap.innerHTML = `
+      <button class="gc-head" aria-expanded="${explainOpen}">
+        <span class="gc-caret">▸</span>
+        <span class="gc-icon">⚖️</span>
+        <span class="gc-title">${I18N.t("garden.ex.title")}</span>
+        <span class="gc-stat">${I18N.t("garden.ex.weight", { n: total })}</span>
+        <span class="gc-duecount">${I18N.t("garden.ex.perDay", { n: allowance })}</span>
+      </button>`;
+
+    const inner = document.createElement("div");
+    inner.className = "gc-inner";
+    const box = document.createElement("div");
+    box.className = "gx-box";
+
+    if (explainOpen) {
+      box.innerHTML = `
+        <p class="gx-lead">${I18N.t("garden.ex.lead")}</p>
+
+        <h4 class="gx-h">${I18N.t("garden.ex.h1")}</h4>
+        <p>${I18N.t("garden.ex.give")}</p>
+        <ul class="gx-rules">
+          <li>${I18N.t("garden.ex.rule1")}</li>
+          <li>${I18N.t("garden.ex.rule2")}</li>
+          <li>${I18N.t("garden.ex.rule3")}</li>
+        </ul>
+
+        <h4 class="gx-h">${I18N.t("garden.ex.h2")}</h4>
+        <p>${I18N.t("garden.ex.earn", { per: WEIGHT_PER_POINT, cap: REP_DAILY_CAP })}</p>
+        <table class="gx-weights">
+          <tbody>${GROWTH.filter(g => g.weight).map(g => `
+            <tr><td class="gx-ic">${g.icon}</td>
+                <td class="gx-nm">${g.name}</td>
+                <td class="gx-hn">${g.hint}</td>
+                <td class="gx-wt">${g.weight}</td></tr>`).join("")}
+          </tbody>
+        </table>
+        <p class="gx-you">${rows.length
+          ? I18N.t("garden.ex.youHave", { w: total, n: allowance }) +
+            (toNext ? " " + I18N.t("garden.ex.toNext", { n: toNext }) : "")
+          : I18N.t("garden.ex.youHaveNone")}</p>
+
+        <h4 class="gx-h">${I18N.t("garden.ex.h3")}</h4>
+        <p>${I18N.t("garden.ex.overflow", { cap: REP_DAILY_CAP })}</p>
+        <p>${I18N.t("garden.ex.oneWay")}</p>
+
+        <p class="gx-soon">${I18N.t("garden.ex.soon")}</p>`;
+    }
+
+    inner.appendChild(box);
+    wrap.appendChild(inner);
+    wrap.querySelector(".gc-head").addEventListener("click", () => {
+      explainOpen = !explainOpen;
+      renderGarden();
+    });
+    return wrap;
   }
 
   // One unit's bed of plants. Returns the element; the caller decides
@@ -291,6 +366,9 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
+  // gardenWeight is exported because the forum will need the same
+  // figure to show an allowance; it must not recompute it from GROWTH
+  // itself, or the two displays drift the first time a tier moves.
   Object.assign(Dojo, { GROWTH, growthFor, renderGarden, gardenSummary,
-                        dividendPreview, claimDividends, msUntilClaim });
+                        gardenWeight, repAllowance });
 })();
