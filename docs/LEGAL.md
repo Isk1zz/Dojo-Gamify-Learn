@@ -5,31 +5,67 @@ compared to the alternative.*
 
 ---
 
-## 1. Privacy Policy — written, and it's the easy one
+## 1. Privacy Policy — REWRITTEN 2026-08-27, because the old one became false
 
-The factual position is unusually clean, and the policy in Settings now says
-exactly it:
+> **The warning below was written, and then came true.** The previous version
+> of this section said: *"Keep this true. The moment anything phones home — a
+> sync feature — this policy stops being accurate and needs rewriting first."*
+> Accounts and cloud sync shipped in Steps 3–6, and the policy in Settings went
+> on claiming "there is no account, no server" for the whole of that time. It
+> was false in the app, in two languages, until this rewrite. Kept visible
+> rather than quietly corrected: a doc that predicted its own failure mode and
+> was ignored is worth more as a record than as a clean page.
 
-- Everything is in the browser's `localStorage`.
-- There is no account, no server, no analytics, no telemetry, no third party.
-- Nothing is transmitted anywhere, because there is nothing to transmit to.
-- Clearing site data, or Delete Profile, erases it. There is no copy elsewhere.
+**The factual position now.** There are two copies of a user's data:
 
-**Keep this true.** The moment anything phones home — a sync feature, an error
-reporter, a font from a CDN — this policy stops being accurate and needs
-rewriting first. That is a genuine constraint on future features, and it is
-worth the trade: "your data never leaves your machine" is a real selling point
-and almost nothing else in this category can say it.
+- **On the device.** Profile, progress, review schedule, statistics, settings —
+  in `localStorage`, which is what makes the app work offline.
+- **In the account.** Email, nickname, optional country, and the same study
+  data, held by **Supabase on servers in the EU (Ireland)**.
 
-## 2. Terms of Service — drafted, needs a lawyer before money changes hands
+**What is NOT collected, and it is still a short list:** no analytics, no
+telemetry, no advertising, no third-party tracking, no payment details (there
+is no payment processor yet). Study data is never sold or shared.
 
-The draft in Settings covers the ordinary ground: it's provided as-is, it's a
-study aid rather than accredited instruction, don't rely on it as your only
-source, and don't redistribute the content. Fine for a free public release.
+**Passwords.** Never stored by this app. `core/auth.js` passes the password
+straight to Supabase's `signUp`/`signInWithPassword` and keeps no copy —
+verified by audit 2026-08-27: the only `password` references in the whole
+codebase are that one local variable and those two calls. Supabase hashes it
+server-side; this app cannot read it back.
 
-**Before charging anyone**, it needs refunds, a governing-law clause, and
-whatever consumer law applies where the buyer is — which for a paid app is
-wherever the store sells it, not where you are.
+**GDPR positions, since EU servers and EU users both now apply:**
+- **Art. 15/20 (access + portability)** — satisfied by Export Data, which
+  predates accounts and writes a complete JSON copy the user controls.
+- **Art. 17 (erasure)** — satisfied by Delete Account (Settings → Delete
+  account), which calls `delete_account()` (`supabase/migrations/0005`).
+  That deletes the caller's `auth.users` row; profiles/progress/economy follow
+  by `ON DELETE CASCADE`. It is a real delete, not a soft-delete flag.
+- **Lawful basis** — contract performance for the account data (you cannot have
+  an account without an email), which is the cleanest basis available and is
+  why the field list was kept to the minimum in Step 0.
+
+**Still owed before a public launch:** a named data controller (a person or
+entity, with a contact address), a stated retention period for inactive
+accounts, and confirmation of whether Supabase's DPA needs signing for this
+usage tier.
+
+## 2. Terms of Service — expanded 2026-08-27, still needs a lawyer before money
+
+The draft in Settings covers the ordinary ground: provided as-is, a study aid
+rather than accredited instruction, don't rely on it as your only source, don't
+redistribute the content. Fine for a free public release.
+
+**Added with the account system**, both now in the app in both languages:
+- **Virtual currency has no cash value** (Flag 1's requirement, finally stated
+  to users rather than only in this repo). Tokens are a licence to open course
+  content, not money: not exchangeable for currency, not transferable between
+  people, not refundable once spent, and no in-app balance can be cashed out.
+- **Account responsibility** — the user keeps their own password.
+
+**Before charging anyone**, it still needs refunds, a governing-law clause, and
+whatever consumer law applies where the BUYER is. Note the old text here also
+described "the arcade", which was deleted in 2026-08-14 — a reminder that ToS
+text goes stale exactly as fast as the features it describes.
 
 ## 3. LICENSE — still undecided, and it's yours to decide
 

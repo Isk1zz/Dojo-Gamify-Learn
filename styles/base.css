@@ -1502,6 +1502,19 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 .charge-award .ca-mult { opacity: 0.6; font-size: 0.8rem; }
 .charge-award.full { color: var(--text-muted); }
 
+/* A destructive action should not look like every other button. Red
+   outline rather than a red fill: filled red reads as "primary action,
+   press me", which is the opposite of the intent. */
+.danger-btn {
+  border-color: rgba(220, 70, 70, 0.55);
+  color: #e06060;
+}
+.danger-btn:hover:not(:disabled) {
+  background: rgba(220, 70, 70, 0.12);
+  border-color: rgba(220, 70, 70, 0.8);
+}
+.danger-btn:disabled { opacity: 0.45; cursor: default; }
+
 /* ── Cloud-sync notice (core/sync.js) ── */
 /* Bottom-corner, non-blocking, no dismiss button: it disappears on its
    own the moment a sync succeeds. A modal here would interrupt someone

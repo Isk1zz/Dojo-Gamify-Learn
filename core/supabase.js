@@ -154,8 +154,18 @@
     // the economy table for why this is not an oversight.
   };
 
+  // GDPR Art. 17. Calls the RPC in 0005_delete_account.sql, which
+  // deletes the CALLER's auth.users row; the three data tables follow by
+  // ON DELETE CASCADE. Takes no argument on purpose — the server picks
+  // the target from auth.uid(), so this cannot be aimed at anyone else.
+  async function deleteAccount() {
+    const { error } = await getClient().rpc("delete_account");
+    if (error) throw error;
+  }
+
   Dojo.Cloud = {
     isConfigured,
+    deleteAccount,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),
     progress: table("progress"),

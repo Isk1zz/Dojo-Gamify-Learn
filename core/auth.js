@@ -265,6 +265,28 @@
     open();
   }
 
+  // Erase the account, then this device. ORDER MATTERS: the cloud call
+  // goes FIRST and its failure aborts the whole thing. Wiping local
+  // first would leave someone with no data and a live account they can
+  // no longer reach the delete button from — the exact opposite of what
+  // they asked for.
+  async function deleteAccount() {
+    await Dojo.Cloud.deleteAccount();     // throws -> nothing local is touched
+
+    // Only now is it safe to clear the device. The gate marker goes so
+    // the next launch asks who you are, and the local profile goes
+    // because leaving study data behind after "delete everything" would
+    // be its own broken promise.
+    try {
+      const p = DB.getActiveProfile();
+      if (p && DB.deleteProfile) DB.deleteProfile(p.id);
+    } catch (e) { console.info("[auth] local profile cleanup:", e.message); }
+    try {
+      localStorage.removeItem(GATE_KEY);
+      localStorage.removeItem("knell-pending-signup");
+    } catch (e) { /* ignore */ }
+  }
+
   // Current account email, for display. Null when offline or expired —
   // callers must treat that as "unknown", never as "signed out".
   async function currentEmail() {
@@ -292,5 +314,5 @@
   }
   bind();
 
-  Dojo.Auth = { requireAccount, hasAccount, open, close, signOut, currentEmail };
+  Dojo.Auth = { requireAccount, hasAccount, open, close, signOut, currentEmail, deleteAccount };
 })();

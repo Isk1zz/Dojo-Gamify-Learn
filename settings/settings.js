@@ -71,28 +71,19 @@
         <div class="stats-section-title">\u{1F4C4} ${I18N.t("set.legal")}</div>
         <details class="legal-block">
           <summary>${I18N.t("set.privacy")}</summary>
-          <p><strong>${I18N.t("set.staysLocal")}</strong></p>
-          <p>Your profile, progress, review schedule, statistics and settings are
-          stored in this browser's local storage. There is no account, no server,
-          no analytics and no third-party service of any kind \u2014 there is nowhere
-          for your data to be sent, because the app doesn't talk to anything.</p>
-          <p>Nobody but you can see it, including us. Export Data writes a file you
-          control; Import Data reads one. Deleting a profile, or clearing this
-          site's data in your browser, erases it permanently \u2014 there is no copy
-          anywhere else and no way to recover it.</p>
+          <p>${I18N.t("legal.privacyIntro")}</p>
+          <p>${I18N.t("legal.privacyLocal")}</p>
+          <p>${I18N.t("legal.privacyCloud")}</p>
+          <p>${I18N.t("legal.privacyNoTrack")}</p>
+          <p>${I18N.t("legal.privacyRights")}</p>
         </details>
         <details class="legal-block">
           <summary>${I18N.t("set.terms")}</summary>
           <p><em>${I18N.t("set.draftNote")}</em></p>
-          <p>Knell is provided as-is, with no warranty. It is a study aid, not
-          accredited instruction, and passing a mastery exam here is not a
-          qualification. Course material is written to be accurate and carries its
-          sources so you can check it, but mistakes are possible \u2014 don't rely on
-          it as your only source for anything that matters.</p>
-          <p>The course content is not yours to redistribute or resell. Your own
-          exported data is entirely yours.</p>
-          <p>The arcade uses in-app money only. It cannot be bought with real money
-          and cannot be cashed out.</p>
+          <p>${I18N.t("legal.termsAsIs")}</p>
+          <p>${I18N.t("legal.termsContent")}</p>
+          <p>${I18N.t("legal.termsCurrency")}</p>
+          <p>${I18N.t("legal.termsAccount")}</p>
         </details>
       </div>
       <div class="settings-section">
@@ -104,6 +95,13 @@
             \u{1F4E4} ${I18N.t("set.import")}
             <input type="file" id="btn-import-2" accept=".json" style="display:none;" />
           </label>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="stats-section-title">\u{1F5D1}\uFE0F ${I18N.t("del.title")}</div>
+        <p class="settings-hint">${I18N.t("del.note")}</p>
+        <div class="stats-actions">
+          <button id="btn-delete-account" class="btn-ghost danger-btn">${I18N.t("del.button")}</button>
         </div>
       </div>`;
 
@@ -140,6 +138,50 @@
     // Becoming admin in the first place is UNAFFECTED: that has always
     // been a secret PROFILE NAME (data/db.js's createProfile ->
     // applyAdminStart), never this box.
+
+    // Account deletion. Deliberately awkward: a confirm() would be one
+    // careless click away from erasing everything irreversibly, so this
+    // asks for a typed word AND offers an export first. Friction is the
+    // feature here.
+    const delBtn = document.getElementById("btn-delete-account");
+    if (delBtn) delBtn.addEventListener("click", () => {
+      const overlay = document.getElementById("delete-account-modal");
+      if (!overlay) return;
+      overlay.style.display = "flex";
+      const input = document.getElementById("del-confirm-input");
+      const go = document.getElementById("del-confirm-go");
+      const err = document.getElementById("del-error");
+      input.value = "";
+      go.disabled = true;
+      err.style.display = "none";
+
+      // The typed word is matched against the ENGLISH literal in both
+      // languages on purpose: "DELETE" is what the field label says
+      // verbatim, and translating the magic word would mean a Russian
+      // user typing what the screen shows and being told it is wrong.
+      input.oninput = () => { go.disabled = input.value.trim().toUpperCase() !== "DELETE"; };
+
+      document.getElementById("del-export-first").onclick = () => DB.exportData();
+      document.getElementById("del-cancel").onclick = () => { overlay.style.display = "none"; };
+
+      go.onclick = async () => {
+        go.disabled = true;
+        go.textContent = I18N.t("del.working");
+        try {
+          if (Dojo.Auth && Dojo.Cloud) await Dojo.Auth.deleteAccount();
+          overlay.style.display = "none";
+          // Full reload rather than a re-render: every branch is holding
+          // state for a profile that no longer exists, and enumerating
+          // them here would be a list that goes stale.
+          location.reload();
+        } catch (e) {
+          err.textContent = I18N.t("del.failed");
+          err.style.display = "block";
+          go.disabled = false;
+          go.textContent = I18N.t("del.button");
+        }
+      };
+    });
 
     const customBtn = document.getElementById("btn-settings-custom");
     if (customBtn) customBtn.addEventListener("click", () => Router.go("inventory"));

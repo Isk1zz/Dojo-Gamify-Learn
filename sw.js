@@ -169,7 +169,12 @@
 // Bumped for Step 6: core/sync.js is a NEW file, plus the sync.offline
 // i18n key and .sync-notice CSS it renders with. A stale index.html
 // means Dojo.Sync is absent and nothing ever reaches the cloud.
-const CACHE_VERSION = "knell-v34";
+// Bumped for Step 7: corrected privacy/ToS text (the old copy claimed
+// no account and no server, both false since Step 3), a new
+// #delete-account-modal in index.html, and the deleteAccount plumbing
+// in supabase.js/auth.js. A stale index.html gives a delete button with
+// no modal to open.
+const CACHE_VERSION = "knell-v35";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

@@ -271,6 +271,49 @@ const I18N = (() => {
     "auth.offlineNote":     { en: "Offline — your progress is saved on this device and will sync when you're back.",
                               ru: "Оффлайн — прогресс сохраняется на устройстве и синхронизируется позже." },
 
+    // ---- Legal (settings/settings.js) ----
+    // These are the app's actual privacy and terms text, in both
+    // languages. They were previously untranslated English inline in
+    // settings.js AND factually wrong — they described a local-only app
+    // with no account and no server, which stopped being true when
+    // accounts shipped. Legally meaningful text should not be the one
+    // place the app skips translation.
+    "legal.privacyIntro":   { en: "Knell stores two copies of your data: one in this browser, and one in your account.",
+                              ru: "Knell хранит две копии ваших данных: одну в этом браузере, другую в вашем аккаунте." },
+    "legal.privacyLocal":   { en: "<strong>On this device.</strong> Your profile, progress, review schedule, statistics and settings are kept in this browser's local storage. This is what makes the app work offline.",
+                              ru: "<strong>На этом устройстве.</strong> Профиль, прогресс, расписание повторений, статистика и настройки хранятся в локальном хранилище браузера. Именно поэтому приложение работает офлайн." },
+    "legal.privacyCloud":   { en: "<strong>In your account.</strong> To sign in and keep progress across devices, we store your email, your nickname, your country if you gave one, and the same study data listed above. It is held by Supabase on servers in the EU (Ireland). Your password is never stored by us — it is hashed by the authentication provider, and this app never sees it after you type it.",
+                              ru: "<strong>В вашем аккаунте.</strong> Чтобы вы могли входить и сохранять прогресс на разных устройствах, мы храним вашу почту, никнейм, страну (если вы её указали) и те же учебные данные, что перечислены выше. Всё это находится в Supabase на серверах в ЕС (Ирландия). Пароль мы не храним: его хеширует провайдер аутентификации, и приложение не видит его после ввода." },
+    "legal.privacyNoTrack": { en: "There is no analytics, no telemetry, no advertising and no third-party tracking of any kind. Your study data is never sold, shared, or used for anything except showing it back to you.",
+                              ru: "Нет аналитики, телеметрии, рекламы и никакого стороннего отслеживания. Учебные данные не продаются, не передаются и не используются ни для чего, кроме показа их вам." },
+    "legal.privacyRights":  { en: "<strong>Your rights.</strong> Export Data writes a file you control, at any time — that covers the right to a copy of your data. Delete Account erases your account and everything in it from the server permanently, and it cannot be undone.",
+                              ru: "<strong>Ваши права.</strong> «Экспорт данных» в любой момент создаёт файл, который принадлежит вам, — это право на копию ваших данных. «Удалить аккаунт» безвозвратно стирает аккаунт и всё его содержимое с сервера." },
+
+    "legal.termsAsIs":      { en: "Knell is provided as-is, with no warranty. It is a study aid, not accredited instruction, and passing a mastery exam here is not a qualification. Course material is written to be accurate and carries its sources so you can check it, but mistakes are possible — don't rely on it as your only source for anything that matters.",
+                              ru: "Knell предоставляется «как есть», без гарантий. Это учебный инструмент, а не аккредитованное обучение: сданный здесь экзамен не является квалификацией. Материалы пишутся с опорой на источники, которые указаны, чтобы их можно было проверить, но ошибки возможны — не полагайтесь на них как на единственный источник в важных вопросах." },
+    "legal.termsContent":   { en: "The course content is not yours to redistribute or resell. Your own exported data is entirely yours.",
+                              ru: "Содержимое курсов нельзя распространять или перепродавать. Ваши собственные экспортированные данные полностью ваши." },
+    "legal.termsCurrency":  { en: "<strong>Tokens have no cash value.</strong> They are a licence to open course content, not money. They cannot be exchanged for currency, transferred to another person, or refunded once spent, and no in-app balance of any kind can be cashed out.",
+                              ru: "<strong>Токены не имеют денежной ценности.</strong> Это право открыть материалы курса, а не деньги. Их нельзя обменять на валюту, передать другому человеку или вернуть после траты; никакой внутренний баланс нельзя вывести." },
+    "legal.termsAccount":   { en: "You are responsible for keeping your password to yourself. Tell us if you think someone else has it.",
+                              ru: "Вы отвечаете за сохранность своего пароля. Сообщите нам, если считаете, что он попал к кому-то ещё." },
+
+    // ---- Account deletion ----
+    "del.title":            { en: "Delete account",      ru: "Удалить аккаунт" },
+    "del.note":             { en: "Permanently erases your account and all its data from the server. This cannot be undone.",
+                              ru: "Безвозвратно удаляет аккаунт и все его данные с сервера. Отменить это нельзя." },
+    "del.button":           { en: "Delete my account",   ru: "Удалить мой аккаунт" },
+    "del.confirmTitle":     { en: "Delete your account?", ru: "Удалить аккаунт?" },
+    "del.confirmBody":      { en: "This erases your account, your progress, your review schedule and anything you've unlocked — from the server and from this device. It cannot be undone and there is no backup on our side.",
+                              ru: "Будут стёрты аккаунт, прогресс, расписание повторений и всё открытое — и с сервера, и с этого устройства. Отменить нельзя, резервной копии у нас нет." },
+    "del.exportFirst":      { en: "Export my data first",  ru: "Сначала экспортировать данные" },
+    "del.typeToConfirm":    { en: "Type DELETE to confirm", ru: "Введите DELETE для подтверждения" },
+    "del.cancel":           { en: "Cancel",              ru: "Отмена" },
+    "del.working":          { en: "Deleting…",           ru: "Удаляем…" },
+    "del.failed":           { en: "Could not delete the account. You may be offline — try again when you have a connection.",
+                              ru: "Не удалось удалить аккаунт. Возможно, вы офлайн — попробуйте при подключении." },
+    "del.done":             { en: "Your account has been deleted.", ru: "Аккаунт удалён." },
+
     // ---- Cloud sync (core/sync.js) ----
     "sync.offline":         { en: "Cloud sync failed — working locally. Your progress is safe on this device.",
                               ru: "Синхронизация не удалась — работаем локально. Прогресс сохранён на устройстве." },
