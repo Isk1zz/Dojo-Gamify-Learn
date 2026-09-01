@@ -1,0 +1,33 @@
+-- ================================================
+-- Knell — 0008: is_admin() must be callable by authenticated
+-- ------------------------------------------------
+-- 0007 revoked EXECUTE on public.is_admin() from authenticated, copying
+-- the lockdown 0006 applied to require_uid(). That was wrong here, and
+-- it broke every read on all four forum tables:
+--
+--   permission denied for function is_admin
+--
+-- ---- Why the two cases are opposite ----
+-- require_uid() is called from INSIDE SECURITY DEFINER functions, which
+-- execute as the function owner -- so revoking it from authenticated
+-- costs nothing, and removes it from the API surface.
+--
+-- is_admin() is called from an RLS POLICY, and a policy is evaluated in
+-- the CALLER's context. Revoking it from authenticated therefore
+-- revokes it from the only role that ever needs it, and the policy
+-- fails closed on every row -- taking reads down with it.
+--
+-- The rule worth remembering: a helper used by a policy must be
+-- executable by whoever the policy applies to. Locking it down locks
+-- down the table.
+--
+-- ---- Why granting it is still safe ----
+-- is_admin() takes no arguments and reads only the CALLER's own
+-- economy.is_admin via auth.uid(). It cannot be pointed at anyone else
+-- and discloses nothing the caller does not already own. anon stays
+-- revoked: an unauthenticated caller has no auth.uid() and no business
+-- asking.
+-- ================================================
+
+grant execute on function public.is_admin() to authenticated;
+revoke execute on function public.is_admin() from anon, public;
