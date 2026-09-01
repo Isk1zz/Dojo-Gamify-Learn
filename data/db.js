@@ -382,7 +382,20 @@ const DB = (() => {
   // way to reach it on the deployed site. A secret profile NAME ships
   // fine, the same way the code string did — nobody types it by
   // accident, and it needs no visible "Codes" UI at all.
-  const SECRET_ADMIN_NAME = "adminaccount";
+  // SECRET_ADMIN_NAME lived here: naming a profile "adminaccount"
+  // granted admin, maxed XP and a full wallet. Removed 2026-08-27.
+  //
+  // It was SECURITY AUDIT finding #2 (2026-08-13) -- "hardcoded in
+  // tracked, deployed data/db.js, so it is publicly readable by anyone
+  // who views source". The audit's own conclusion was that it "grants
+  // nothing devtools didn't already", which was true while every
+  // balance lived in localStorage. Steps 5-7 changed that: economy is
+  // server-owned now, so a client-side admin flag grants something
+  // real, and both public strings had to go.
+  //
+  // applyAdminStart below STAYS -- it is still a useful dev shortcut,
+  // just no longer reachable by typing a magic name. Call it from the
+  // console if you need it locally.
 
   // 10,000 — the Nobel Laureate ceiling in shop/ranks.js. Kept as its
   // own constant rather than importing RANKS here (db.js stays boring,
@@ -420,7 +433,6 @@ const DB = (() => {
     db.profiles[id] = defaultProfile(name);
     db.activeProfileId = id;
     save(db);
-    if ((name || "").trim().toLowerCase() === SECRET_ADMIN_NAME) applyAdminStart(id);
     return id;
   }
 

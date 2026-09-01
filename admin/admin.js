@@ -37,68 +37,56 @@
     }
   }
 
-  // Trimmed from the ported version, which also accepted the bare words
-  // "admin" and "dojodev" — those are guessable enough that they were
-  // actively worse than no gate (inviting the first thing anyone would
-  // type). Kept "adminaccount"/"admin613" only because they're already
-  // public: "adminaccount" is data/db.js's own SECRET_ADMIN_NAME cheat
-  // (ships client-side by the same accepted trade documented there),
-  // and "admin613" is already sitting in this repo's git history from
-  // an old settings/codes.js commit. Same underlying limit either way —
-  // this is a client-only app, so nothing server-side is actually being
-  // protected; devtools + localStorage bypasses this regardless of the
-  // key. This is a speed bump against casual poking, not real auth.
-  const MASTER_ADMIN_KEYS = ["adminaccount", "admin613"];
+   // ---- Who counts as an admin ----------------------------------------
+  // A typed master key used to grant admin here. It was removed
+  // 2026-08-27 after being demonstrated exploitable: the keys were the
+  // literal strings "adminaccount" and "admin613", sitting in this
+  // file, which ships to every browser. A freshly created non-admin
+  // profile typed one in and came out with all seven cheat tools.
+  //
+  // "admin613" was doubly burned -- it is also in this repo's git
+  // history from an old settings/codes.js commit.
+  //
+  // The old comment defended this as "a speed bump, not real auth,
+  // since nothing server-side is being protected anyway." That was
+  // true when written and is not any more: economy is server-owned,
+  // course purchases go through buy_course, and admin is now a
+  // SERVER flag (economy.is_admin) with no client write policy. There
+  // is something real to protect, so the speed bump had to go.
+  //
+  // Admin is granted by direct SQL against economy.is_admin. There is
+  // deliberately no in-app way to grant it -- any such path would be
+  // a client asserting its own privilege, which is the whole bug.
 
-  function renderAdminAuthChallenge(container, p) {
+  // Cached per session: renderAdmin is synchronous, and the answer
+  // cannot change without a round trip anyway.
+  let serverAdmin = null;   // null = not asked yet, true/false = answer
+
+  async function checkServerAdmin() {
+    if (!Dojo.Cloud || !Dojo.Cloud.isConfigured()) return false;
+    try {
+      const econ = await Dojo.Cloud.economy.pull();
+      return !!(econ && econ.is_admin);
+    } catch (e) {
+      // Offline, or no session. Fail CLOSED -- an operator tool is not
+      // worth a fallback that guesses, and admin has no offline use.
+      return false;
+    }
+  }
+
+  function renderAdminDenied(container, p, reason) {
     container.innerHTML = `
       <div class="admin-wrapper" style="max-width:500px; padding-top:3.5rem;">
-        <div class="admin-card" style="text-align:center; padding:2.25rem 1.75rem; box-shadow:0 10px 40px rgba(0,0,0,0.5); border:1px solid rgba(245,158,11,0.35);">
-          <div style="font-size:3rem; margin-bottom:0.75rem;">🔒</div>
-          <h2 style="font-size:1.4rem; font-weight:800; color:var(--yellow); margin-bottom:0.5rem;">Admin Access Restricted</h2>
-          <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.5; margin-bottom:1.5rem;">
-            Account <strong>"${escapeHtml((p && p.name) || 'Current User')}"</strong> is not authorized as an administrator.
-            <br>Enter the Master Authorization Key to verify administrative identity.
+        <div class="admin-card" style="text-align:center; padding:2.25rem 1.75rem;">
+          <div style="font-size:3rem; margin-bottom:0.75rem;">\u{1F512}</div>
+          <h2 style="font-size:1.4rem; font-weight:800; color:var(--yellow); margin-bottom:0.5rem;">Admin access restricted</h2>
+          <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.6; margin-bottom:1.5rem;">
+            ${escapeHtml(reason)}
           </p>
-
-          <div id="auth-error-msg" style="display:none; color:var(--red); font-size:0.82rem; margin-bottom:0.75rem; font-weight:600;"></div>
-
-          <div style="display:flex; flex-direction:column; gap:0.75rem;">
-            <input id="admin-passcode-input" type="password" class="modal-input" placeholder="Enter master admin key..." autocomplete="off" spellcheck="false" style="text-align:center; font-family:var(--mono); font-size:0.95rem;" />
-            <button id="btn-auth-unlock" class="btn-primary" style="justify-content:center;">🔓 Authenticate &amp; Unlock Admin</button>
-            <button id="btn-auth-back" class="btn-ghost" style="justify-content:center;">← Return to Lobby</button>
-          </div>
+          <button id="btn-auth-back" class="btn-ghost" style="justify-content:center;">\u2190 Return to lobby</button>
         </div>
-      </div>
-    `;
-
-    const input = document.getElementById("admin-passcode-input");
-    const errMsg = document.getElementById("auth-error-msg");
-    const unlockBtn = document.getElementById("btn-auth-unlock");
+      </div>`;
     const backBtn = document.getElementById("btn-auth-back");
-
-    function tryUnlock() {
-      const val = (input.value || "").trim().toLowerCase();
-      if (MASTER_ADMIN_KEYS.includes(val)) {
-        if (p && p.id && DB.setAdminStatus) {
-          DB.setAdminStatus(p.id, true);
-        }
-        if (Logger && Logger.warn) {
-          Logger.warn("AdminAuth", `User "${p ? p.name : 'Unknown'}" elevated to Admin via master key verification.`, { uid: p ? p.id : null });
-        }
-        renderAdmin();
-      } else {
-        if (errMsg) {
-          errMsg.textContent = "Access Denied: Invalid master authorization key.";
-          errMsg.style.display = "block";
-        }
-        input.value = "";
-        input.focus();
-      }
-    }
-
-    if (unlockBtn) unlockBtn.addEventListener("click", tryUnlock);
-    if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
     if (backBtn) backBtn.addEventListener("click", () => Router.go("lobby"));
   }
 
@@ -107,10 +95,23 @@
     if (!container) return;
 
     const p = DB.getActiveProfile() || { name: "None", chargeEarned: 0, wallet: 0, tokens: 0, isAdmin: false };
-    
-    // Strict Admin Protection: Non-admins must authenticate via Master Passcode
-    if (!p || !p.isAdmin) {
-      renderAdminAuthChallenge(container, p);
+
+    // The SERVER decides. p.isAdmin (localStorage) is not consulted --
+    // it is editable in devtools, which is exactly how the old gate was
+    // bypassed. It stays in the profile shape because migrations never
+    // drop a field, but it is no longer authoritative for anything.
+    if (serverAdmin === null) {
+      renderAdminDenied(container, p, "Checking authorisation\u2026");
+      checkServerAdmin().then(ok => {
+        serverAdmin = ok;
+        renderAdmin();
+      });
+      return;
+    }
+    if (!serverAdmin) {
+      renderAdminDenied(container, p,
+        "This account is not an administrator. Admin is granted server-side only \u2014 " +
+        "there is no code or passphrase that grants it from inside the app.");
       return;
     }
 

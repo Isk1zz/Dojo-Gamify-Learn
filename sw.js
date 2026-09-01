@@ -174,7 +174,11 @@
 // #delete-account-modal in index.html, and the deleteAccount plumbing
 // in supabase.js/auth.js. A stale index.html gives a delete button with
 // no modal to open.
-const CACHE_VERSION = "knell-v35";
+// Bumped for the admin-gate fix: admin/admin.js lost MASTER_ADMIN_KEYS
+// and its passcode challenge, data/db.js lost SECRET_ADMIN_NAME. A
+// stale admin.js is the version that still accepts a typed public
+// string, which is the whole hole being closed.
+const CACHE_VERSION = "knell-v36";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
