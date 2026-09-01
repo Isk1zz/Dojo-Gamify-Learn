@@ -1195,6 +1195,55 @@ Shop/Inventory/economy rework, in one run:
   bypassing course ownership, Sources-box crowding the phase button —
   all found and fixed (Batches 32/33/37).
 
+## PENETRATION TEST (2026-08-27) — the backend, attacked live
+
+Full adversarial pass against the real Supabase project, signed in as a
+normal non-admin user, hitting the REST/RPC API directly (not through
+the app's wrappers — an attacker skips those). **No exploitable
+vulnerability found.** This is the counterpart to the 2013-era finding
+#1 below ("the whole paywall is client-side only and bypassable") — that
+was true of the localStorage app and is now false of the backend.
+
+**Everything that was attacked and held:**
+- **Economy writes** — direct PATCH (tokens/is_admin/wallet/charge),
+  INSERT, UPSERT (merge-duplicates), DELETE of the row. All refused:
+  PATCH/DELETE change 0 rows, INSERT/UPSERT 403 RLS violation. Balance
+  untouched.
+- **award_xp** — int-max capped to 200; overflow, float and 0 rejected
+  with real errors; string coerced safely.
+- **buy_course** — SQL injection in `course_id`, null, array and number
+  types all parameterised to "no such course"; no injection.
+- **Cross-user (horizontal) access** — reading every economy/profile/
+  progress row returns ONLY the caller's own; writing to a fabricated
+  victim uid changes 0 rows. RLS scopes every read and write.
+- **The `courses` price table** — readable (the buy modal needs it),
+  but PATCH to make a course free changes 0 rows and INSERT is 403;
+  price stayed 700.
+- **delete_account** — takes no argument, so it cannot be aimed at a
+  victim (`delete_account(user_id)` is "function not found").
+- **auth.users** — not reachable through PostgREST at all.
+- **Concurrency** — 10 simultaneous buy_course calls on a 100-token
+  balance for a 100-token course: exactly ONE succeeded, nine
+  "already_owned", ended at 0 tokens, owned once. No double-spend; the
+  single-statement check-and-debit held under a real race.
+- **Anon (no token)** — economy read empty, buy_course 401.
+- **JWT forgery** — alg:none, tampered payload with kept signature,
+  role→service_role escalation, empty signature: every one 401. The
+  publishable key used as a bearer token is treated as anon and sees
+  nothing. Signatures are validated; the signing secret is not in the
+  client, so a forgery cannot be produced.
+
+**One informational finding, fixed (0006_lock_require_uid.sql):**
+`require_uid()` was callable directly by authenticated users despite
+0003 intending it internal. It returns only the caller's own
+`auth.uid()`, so it disclosed nothing and could not be aimed at anyone
+— hygiene, not a breach. Revoked from `authenticated`; the SECURITY
+DEFINER functions that call it are unaffected (they run as the owner).
+
+**Note on scope:** this tested the DATA plane (RLS, RPCs, JWT). The auth
+plane's own rate-limits and email-enumeration behaviour (queued item 2)
+were not part of this pass and are still owed before launch.
+
 ## SECURITY AUDIT (2026-08-13) — findings, verified not guessed
 
 **Clean / verified good:**
