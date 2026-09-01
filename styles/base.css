@@ -2222,17 +2222,41 @@ html[data-theme="phosphor"] .landing-title {
      up, and a thinner stroke stops eating them. Letter-spacing widens
      because an outlined glyph reads visually heavier than a filled one
      and the default tracking is set for filled. */
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  -webkit-text-stroke: 1px var(--accent);
-  text-shadow: 0 0 16px rgba(0, 255, 65, 0.4);
+  /* SOLID, not outlined -- and this is the more authentic choice, not
+     a retreat from one.
+
+     Two rounds of -webkit-text-stroke failed on the same letters: it is
+     drawn CENTRED on the glyph edge, so half travels inward, and where
+     strokes converge -- the K arm junction, the e aperture -- they blob
+     shut. Thinning it further only made the whole wordmark spindly. The
+     outline was fighting the typeface rather than the size.
+
+     A phosphor CRT renders solid glowing glyphs anyway; the outlined
+     treatment in the reference is a LOGO, not terminal text. So this is
+     what the genre actually looks like, and it has no counters to close.
+
+     Layered shadows do the bloom: a tight core for the lit filament and
+     two wider passes for the halo, which is how phosphor smears on glass
+     rather than a single flat blur. */
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  -webkit-text-fill-color: var(--accent);
+  -webkit-text-stroke: 0;
+  text-shadow:
+    0 0 4px rgba(0, 255, 65, 0.9),
+    0 0 14px rgba(0, 255, 65, 0.55),
+    0 0 34px rgba(0, 255, 65, 0.3);
 }
+/* The wordmark wraps its text in .accent, which normally carries a
+   clipped gradient. Override it to the flat accent so the span does not
+   punch a transparent hole through the glow above. */
 html[data-theme="phosphor"] .lobby-brand .accent,
 html[data-theme="phosphor"] .landing-title .accent {
-  color: transparent;
   background: none;
   -webkit-background-clip: initial;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent);
+  -webkit-text-fill-color: var(--accent);
 }
 
 /* A terminal's caret. Small, and only on the lobby greeting so it reads
