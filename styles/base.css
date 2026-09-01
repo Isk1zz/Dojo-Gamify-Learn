@@ -1302,9 +1302,16 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 .fx-arrow.hit  { animation: fx-arrow-fly 0.34s cubic-bezier(0.2, 0.7, 0.4, 1) forwards; }
 .fx-arrow.miss { animation: fx-arrow-past 0.85s linear forwards; }
 
+/* The flying arrow VANISHES at impact rather than parking in mid-air.
+   It used to hold its final frame for the rest of its lifetime, so a
+   hit left an arrow frozen in the sky -- reported live. On a hit the
+   arrow is handed off to .fx-arrow-stuck riding the bird, so this one
+   has done its job the moment it arrives and should get out of the way.
+   The fade is short and late (90-100%) so the travel still reads. */
 @keyframes fx-arrow-fly {
-  from { transform: rotate(var(--rot)) translate(0, 0); opacity: 1; }
-  to   { transform: rotate(var(--rot)) translate(0, calc(-1 * var(--travel, 0px))); opacity: 1; }
+  0%   { transform: rotate(var(--rot)) translate(0, 0); opacity: 1; }
+  90%  { transform: rotate(var(--rot)) translate(0, calc(-0.97 * var(--travel, 0px))); opacity: 1; }
+  100% { transform: rotate(var(--rot)) translate(0, calc(-1 * var(--travel, 0px))); opacity: 0; }
 }
 /* Travel is expressed along the arrow's OWN axis, so one keyframe works
    for every angle: after rotating, "forward" is always -Y. */
@@ -1957,8 +1964,10 @@ html[data-bg-scene="village"] .scene-village { display: block; }
      and starts it reading as lit. currentColor would be wrong — the
      stroke is a gradient, so the glow is keyed to the theme accent
      instead and the two colours sit deliberately apart. */
-  filter: drop-shadow(0 0 3px var(--accent-glow-strong))
-          drop-shadow(0 0 10px var(--accent-glow));
+  /* Glow colour is set inline by core/lobby.js from the equipped flag,
+     so it matches the stroke instead of the theme accent -- a halo in a
+     different colour from the line it surrounds is what made the first
+     version look smeared rather than lit. */
   animation: pent-breathe 6s ease-in-out infinite;
 }
 /* Slow, shallow, and never fully dim: a figure that pulses hard reads as

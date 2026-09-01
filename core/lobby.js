@@ -464,23 +464,35 @@
       // to the one TWO steps away, which closes as a single unbroken
       // path 0-2-4-1-3-0. That single-stroke property is what makes a
       // pentagram read as one figure rather than five separate chords.
-      const PR = orbitR * 0.82;   // inside the tiles, so it never collides
+      // 0.60, not 0.82. The first attempt reached far enough that its
+      // points landed UNDER the ring tiles and the apex disappeared
+      // behind the top one — the figure read as decapitated. Pulled in
+      // until it clears the tiles' inner edge with room to spare, so it
+      // is unmistakably a figure the ring CONTAINS rather than something
+      // tangled in it.
+      const PR = orbitR * 0.60;
+
+      // Fixed upright, not counter-rotating with the ring. Rotating it
+      // was the other half of the mess: 5 points against 6 tiles drift
+      // in and out of alignment forever, so it looked accidental at
+      // every angle. A pentagram is a seal — it should sit still while
+      // the ring turns around it.
       const pt = i => {
-        const a = (-90 + rot * 0.6 + i * 72) * Math.PI / 180;
+        const a = (-90 + i * 72) * Math.PI / 180;
         return [cx + PR * Math.cos(a), cy + PR * Math.sin(a)];
       };
 
-      // Same flag palette the other two modes use, so switching flags in
-      // Custom restyles all three rather than only some.
+      // ONE colour, not a gradient. The vertical flag gradient split the
+      // figure into a blue top half and a yellow bottom half, which
+      // destroyed the only thing a pentagram has going for it: that it
+      // is a SINGLE unbroken line. Two colours made it read as two
+      // shapes overlapping. It still takes its colour from the equipped
+      // flag, so Custom still restyles it — just the first stop rather
+      // than the whole ramp.
       const mode = (DB.getSpokeFlags && DB.getSpokeFlags()) || "combined";
       const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.combined;
-      const y0 = (cy - PR).toFixed(1), y1g = (cy + PR).toFixed(1);
       const flag = HEX_FLAGS[pair[0]] || HEX_FLAGS.ukraine;
-      const defs =
-        `<defs><linearGradient id="pentGrad" gradientUnits="userSpaceOnUse" ` +
-        `x1="0" y1="${y0}" x2="0" y2="${y1g}">` +
-        flag.stops.map(([off, col]) => `<stop offset="${off}%" stop-color="${col}"/>`).join("") +
-        `</linearGradient></defs>`;
+      const col = (flag.stops && flag.stops[0] && flag.stops[0][1]) || "#4da3ff";
 
       const edges = [0, 1, 2, 3, 4].map(k => {
         const [ax, ay] = pt((k * 2) % 5);
@@ -493,14 +505,13 @@
       // another's colour where they cross, and a pentagram crosses
       // itself five times.
       //
-      // Inline style rather than a stroke="" attribute, also as there:
-      // a presentation attribute loses to the generic
-      // the generic star-lines rule, which would repaint the whole
-      // figure in the theme accent.
-      links = defs +
+      // Inline style rather than a stroke="" attribute, also as there: a
+      // presentation attribute loses to the generic star-lines rule,
+      // which would repaint the whole figure in the theme accent.
+      links =
         edges.map(e => line(e.ax, e.ay, e.bx, e.by, "pent-back")).join("") +
         edges.map(e => line(e.ax, e.ay, e.bx, e.by, "pent-edge",
-          `style="stroke:url(#pentGrad)"`)).join("");
+          `style="stroke:${col};filter:drop-shadow(0 0 4px ${col}) drop-shadow(0 0 12px ${col})"`)).join("");
 
     } else if (wantHexagram && n === 6) {
       // Two flags, one per triangle. Painted with userSpaceOnUse

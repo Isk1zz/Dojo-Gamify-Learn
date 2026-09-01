@@ -201,7 +201,7 @@
 // Bumped for the pentagram star-links mode: core/lobby.js draws it,
 // base.css styles it, and Custom lists it alongside Spokes and Star of
 // David.
-const CACHE_VERSION = "knell-v43";
+const CACHE_VERSION = "knell-v44";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

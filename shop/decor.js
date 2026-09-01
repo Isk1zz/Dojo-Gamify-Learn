@@ -350,7 +350,10 @@
          <path class="ar-head"  d="M4 0 L 7.2 8 L 0.8 8 Z" />
          <path class="ar-fletch" d="M4 30 L 7.5 38 L 4 36 L 0.5 38 Z" />
        </svg>`;
-    return spawn(a, kind === "miss" ? 1400 : 700);
+    // A hit is removed as soon as its flight ends (the .fx-arrow-stuck
+    // copy on the bird takes over); a miss lives long enough to clear
+    // the screen.
+    return spawn(a, kind === "miss" ? 900 : 360);
   }
 
   function pokeEagle(el) {
