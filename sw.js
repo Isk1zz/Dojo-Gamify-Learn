@@ -188,7 +188,11 @@
 // Bumped: the landing page still promised "no account needed", which
 // has been false since the sign-in gate shipped -- the first thing a
 // new visitor read, and the third stale local-only claim found.
-const CACHE_VERSION = "knell-v39";
+// Bumped: the server economy is now mirrored into the local profile on
+// sign-in and every sync -- without it the HUD showed 0 tokens while the
+// account held 5000. Also disables the demo token-pack stub, which
+// credited local tokens the server-side paywall correctly ignores.
+const CACHE_VERSION = "knell-v40";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

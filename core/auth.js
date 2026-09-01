@@ -240,6 +240,16 @@
       }
 
       ensureLocalProfile(name);
+
+      // Bring the server economy down BEFORE anything renders, so the
+      // HUD never opens on a stale or zeroed balance. Without this the
+      // app showed 0 tokens on an account holding 5000 -- purchases were
+      // correct against the server, the display was fiction.
+      if (Dojo.Sync && Dojo.Sync.pullEconomy) {
+        try { await Dojo.Sync.pullEconomy(); }
+        catch (e) { console.info("[auth] economy mirror skipped:", e.message); }
+      }
+
       close();
       if (Dojo.updateProfileBadge) Dojo.updateProfileBadge();
       if (Dojo.showLobby) Dojo.showLobby();

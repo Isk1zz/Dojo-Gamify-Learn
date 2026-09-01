@@ -180,12 +180,20 @@
   // call goes, not a working purchase. Swap this one function's body
   // for a real Payment Link redirect once there's an account to wire it
   // to; nothing else in the Token economy needs to change.
+  // DISABLED 2026-08-27. This credited tokens locally via DB.addTokens,
+  // which was an honest placeholder while the economy lived in
+  // localStorage. It is no longer honest: tokens are server-owned,
+  // buy_course checks the SERVER balance, and a local credit buys
+  // exactly nothing. The stub would hand someone a visible balance that
+  // then fails at the till -- worse than an obvious "not built yet",
+  // because it looks like the purchase worked and the course is broken.
+  //
+  // Tokens can only enter an account through a server-side grant, and
+  // there is deliberately no RPC for that until a payment webhook can
+  // verify a receipt (see 0003's closing comment on grant_tokens).
   function buyPack(packId) {
-    const pack = TOKEN_PACKS.find(p => p.id === packId);
-    if (!pack) return false;
-    DB.addTokens(pack.tokens);
-    Dojo.Bus.emit("tokens:changed", { delta: pack.tokens, reason: "pack-demo" });
-    return true;
+    console.info("[shop] Token purchase unavailable: no payment provider is wired yet.");
+    return false;
   }
 
   // Token Shop sells Tokens, full stop — it used to also list every

@@ -188,6 +188,43 @@
     };
   }
 
+  // ---- Economy: pull ONLY, and overwrite ------------------------------
+  // The opposite direction from everything else here. progress is MERGED
+  // because both sides can legitimately advance it; economy is
+  // OVERWRITTEN from the server because only the server can legitimately
+  // change it at all (no client write policy; mutations only via RPC).
+  // Merging would be pretending the local number has standing.
+  //
+  // Closes a real gap found 2026-08-27: the server held 5000 tokens and
+  // the app displayed 0, because nothing ever brought the economy row
+  // down. Purchases checked the server and behaved correctly the whole
+  // time -- it was the DISPLAY that was fiction, which is arguably worse
+  // than a wrong balance, because it looks like the money vanished.
+  async function pullEconomy() {
+    const econ = await Dojo.Cloud.economy.pull();
+    if (!econ) return null;
+
+    const raw = localStorage.getItem("unit6-dojo-db");
+    if (!raw) return null;
+    const db = JSON.parse(raw);
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return null;
+
+    p.tokens       = econ.tokens ?? 0;
+    p.wallet       = econ.wallet ?? 0;
+    p.charge       = econ.charge ?? 0;
+    p.chargeEarned = econ.charge_earned ?? 0;
+    p.chargeSpent  = econ.charge_spent ?? 0;
+    p.inventory    = econ.inventory || [];
+    p.ownedThemes  = econ.owned_themes || [];
+    p.patronTier   = econ.patron_tier ?? 0;
+    // isAdmin is deliberately NOT mirrored. admin/admin.js asks the
+    // server every time; copying it into localStorage would recreate the
+    // forgeable flag the 2026-08-27 admin fix removed.
+    localStorage.setItem("unit6-dojo-db", JSON.stringify(db));
+    return econ;
+  }
+
   // ---- The sync itself -------------------------------------------------
   // pull -> merge -> push -> write merged back locally. Both sides end
   // up holding the same union.
@@ -208,6 +245,16 @@
 
       await Dojo.Cloud.progress.push(toRow(merged));
       applyLocally(merged);
+
+      // Economy comes DOWN on every sync. Best-effort on purpose: a
+      // progress sync that succeeded must not be reported as failed
+      // because the economy read did not.
+      try {
+        await pullEconomy();
+        if (Dojo.renderVitals) Dojo.renderVitals();
+      } catch (e) {
+        console.info("[sync] economy pull skipped:", e.message);
+      }
 
       lastError = null;
       showNotice(false);
@@ -262,7 +309,7 @@
   });
 
   Dojo.Sync = {
-    syncNow, schedule, mergeProgress,
+    syncNow, schedule, mergeProgress, pullEconomy,
     lastError: () => lastError,
     // Exposed for tests and for anything that needs to reason about a
     // merge without performing one.
