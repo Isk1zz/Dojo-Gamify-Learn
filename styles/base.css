@@ -1275,6 +1275,104 @@ html[data-bg-scene="village"] .scene-village { display: block; }
    overriding this rule's shorthand — that bird started its bolt 9s in
    and vanished instead of flying. Nothing here may depend on the
    decoration's own classes. */
+/* ---- The arrow ----
+   Loosed from below the viewport toward the bird. Rotated once, up
+   front, along its own trajectory (--rot, computed in JS from the real
+   angle) so it never reads as travelling sideways — an arrow that does
+   not point where it is going is the thing that breaks the illusion.
+   The travel itself is a plain translate on top of that rotation, which
+   is why the rotation lives in the same transform rather than on a
+   parent. */
+.fx-arrow {
+  position: absolute;
+  width: 9px; margin-left: -4.5px;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+.fx-arrow svg { width: 100%; display: block; overflow: visible; }
+.fx-arrow .ar-shaft  { stroke: #8a6a43; stroke-width: 1.4; fill: none; }
+.fx-arrow .ar-head   { fill: #cfd4da; }
+.fx-arrow .ar-fletch { fill: #b4483c; }
+
+/* A hit STOPS at the bird. A miss carries on past it and off-screen —
+   that continuation is the whole tell that separates "missed" from
+   "disappeared", so the two get different curves as well as different
+   distances: the hit decelerates into the impact, the miss does not
+   slow down at all. */
+.fx-arrow.hit  { animation: fx-arrow-fly 0.34s cubic-bezier(0.2, 0.7, 0.4, 1) forwards; }
+.fx-arrow.miss { animation: fx-arrow-past 0.85s linear forwards; }
+
+@keyframes fx-arrow-fly {
+  from { transform: rotate(var(--rot)) translate(0, 0); opacity: 1; }
+  to   { transform: rotate(var(--rot)) translate(0, calc(-1 * var(--travel, 0px))); opacity: 1; }
+}
+/* Travel is expressed along the arrow's OWN axis, so one keyframe works
+   for every angle: after rotating, "forward" is always -Y. */
+.fx-arrow { --travel: 0px; }
+@keyframes fx-arrow-past {
+  0%   { transform: rotate(var(--rot)) translateY(0); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: rotate(var(--rot)) translateY(-140vh); opacity: 0; }
+}
+
+/* ---- Struck, but still flying ----
+   The arrow rides inside the ghost, so it inherits the flight transform
+   instead of being animated separately and drifting out of register.
+   Angled across the body rather than aligned to it: an arrow parallel to
+   the bird reads as decoration, one crossing it reads as embedded. */
+.fx-arrow-stuck {
+  position: absolute;
+  left: 46%; top: 8%;
+  width: 8px;
+  transform: rotate(28deg);
+  pointer-events: none;
+}
+.fx-arrow-stuck svg { width: 100%; display: block; overflow: visible; }
+.fx-arrow-stuck .ar-shaft  { stroke: #8a6a43; stroke-width: 1.4; fill: none; }
+.fx-arrow-stuck .ar-head   { fill: #cfd4da; opacity: 0; }  /* buried in the bird */
+.fx-arrow-stuck .ar-fletch { fill: #b4483c; }
+
+/* A wounded bird still gets away, but not cleanly — same escape as the
+   startled one plus a lurch, so the difference is legible at a glance
+   without needing to spot the arrow. */
+.fx-eagle-rush.hit { animation: fx-eagle-rush 1.8s cubic-bezier(0.3, 0, 0.8, 1) forwards, fx-eagle-lurch 0.42s ease-in-out 3; }
+@keyframes fx-eagle-lurch {
+  0%, 100% { rotate: 0deg; }
+  35%      { rotate: -13deg; }
+  70%      { rotate: 9deg; }
+}
+
+/* ---- Downed ----
+   Falls with a tumble, and the tumble ACCELERATES — a constant spin
+   reads as a prop being thrown rather than something losing its flight.
+   Drifts sideways a little on the way down instead of dropping straight,
+   which is the difference between a body and a lift. */
+.fx-eagle-fall {
+  position: absolute;
+  color: var(--text-dim);
+  animation: fx-eagle-fall 2.2s cubic-bezier(0.45, 0.05, 0.9, 1) forwards;
+  pointer-events: none;
+  z-index: 1;
+}
+.fx-eagle-fall .wing, .fx-eagle-fall .eagle-body { fill: currentColor; }
+@keyframes fx-eagle-fall {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  18%  { transform: translate(calc(var(--rush) * 0.06), -14px) rotate(-22deg); opacity: 1; }
+  100% { transform: translate(calc(var(--rush) * 0.22), 96vh) rotate(430deg); opacity: 0.35; }
+}
+
+/* Ambient decoration is already suppressed under reduced-motion; the
+   shot is user-initiated, so it stays — but the tumble and the lurch are
+   the parts that could actually bother someone, so those flatten. */
+@media (prefers-reduced-motion: reduce) {
+  .fx-eagle-fall { animation-duration: 0.9s; }
+  .fx-eagle-rush.hit { animation: fx-eagle-rush 1.8s ease-out forwards; }
+  @keyframes fx-eagle-fall {
+    0%   { transform: translate(0, 0); opacity: 1; }
+    100% { transform: translate(0, 96vh); opacity: 0; }
+  }
+}
+
 .fx-eagle-rush {
   position: absolute; color: #6b5540; opacity: 0.9;
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45));

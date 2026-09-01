@@ -276,12 +276,100 @@
     spawn(f, 3400);
   }
 
+  // An arrow, loosed from below. Most of the time it misses.
+  //
+  // ---- Why 75% miss ----
+  // The old interaction always did the same thing: feather, bolt, done.
+  // Predictable is the enemy of a poke-toy — once you have seen it, the
+  // second click is worth nothing. A mostly-miss roll means the hit is
+  // an event, and the kill is rarer still. The bird also has to survive
+  // most encounters or the sky empties out and the decoration stops
+  // decorating.
+  //
+  //   miss    75%  arrow sails past, bird bolts, usually unscathed
+  //   stuck   17%  glancing hit; it flies on with the arrow in it
+  //   downed   8%  struck properly; it tumbles out of the sky
+  // Named apart from the clouds' OUTCOMES/rollOutcome, which sit in this
+  // same IIFE scope and roll weather.
+  const SHOT_OUTCOMES = [
+    { kind: "miss",   weight: 75 },
+    { kind: "stuck",  weight: 17 },
+    { kind: "downed", weight: 8 }
+  ];
+  function rollShot() {
+    let r = Math.random() * SHOT_OUTCOMES.reduce((n, o) => n + o.weight, 0);
+    for (const o of SHOT_OUTCOMES) { if ((r -= o.weight) < 0) return o.kind; }
+    return "miss";
+  }
+
+  // ---- Feathers, rethought ----
+  // They used to drop on every single click, which made them meaningless
+  // — a feather stopped reading as "something happened to the bird" and
+  // became just part of the click. Now the count tracks what actually
+  // occurred, so seeing feathers TELLS you the outcome before the bird
+  // finishes reacting:
+  //   miss   -> usually nothing; a quarter of the time one shaken loose
+  //             by the near miss and the panic
+  //   stuck  -> one or two, from the impact
+  //   downed -> three, and the bird follows them down
+  function feathersFor(kind) {
+    if (kind === "downed") return 3;
+    if (kind === "stuck")  return 1 + (Math.random() < 0.5 ? 1 : 0);
+    return Math.random() < 0.25 ? 1 : 0;
+  }
+
+  // The arrow itself. Flies up from the lower edge toward the bird,
+  // rotated along its own trajectory so it never looks like it is
+  // travelling sideways.
+  function arrowTo(rect, kind) {
+    const tx = rect.left + rect.width * 0.5;
+    const ty = rect.top + rect.height * 0.5;
+    // Loosed from below, from the same side of the screen the bird is on
+    // — a shot crossing the whole width reads as a stray, not an aim.
+    const sx = tx + (Math.random() * 120 - 60);
+    const sy = window.innerHeight + 40;
+    const angle = Math.atan2(ty - sy, tx - sx) * 180 / Math.PI + 90;
+
+    const a = document.createElement("div");
+    a.className = "fx-arrow";
+    a.style.left = `${sx}px`;
+    a.style.top = `${sy}px`;
+    // Distance along the flight path. The keyframe translates on -Y
+    // AFTER rotating by --rot, so "forward" is always the arrow's own
+    // nose and one keyframe serves every angle — which is why this is
+    // the hypotenuse and not the x/y components.
+    const dist = Math.hypot(tx - sx, ty - sy);
+    a.style.setProperty("--travel", `${dist}px`);
+    a.style.setProperty("--rot", `${angle}deg`);
+    // A miss keeps going past the bird instead of stopping in mid-air,
+    // which is the tell that separates "missed" from "vanished".
+    a.classList.add(kind === "miss" ? "miss" : "hit");
+    a.innerHTML =
+      `<svg viewBox="0 0 8 40">
+         <path class="ar-shaft" d="M4 6 L 4 34" />
+         <path class="ar-head"  d="M4 0 L 7.2 8 L 0.8 8 Z" />
+         <path class="ar-fletch" d="M4 30 L 7.5 38 L 4 36 L 0.5 38 Z" />
+       </svg>`;
+    return spawn(a, kind === "miss" ? 1400 : 700);
+  }
+
   function pokeEagle(el) {
     if (el.dataset.busy) return;
     el.dataset.busy = "1";
     const rect = el.getBoundingClientRect();
-    featherFrom(rect);
+    const kind = rollShot();
+
+    arrowTo(rect, kind);
     if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click();
+
+    // Feathers wait for the arrow to actually arrive — bursting them at
+    // click time gave away the outcome before the shot landed.
+    const nFeathers = feathersFor(kind);
+    setTimeout(() => {
+      for (let i = 0; i < nFeathers; i++) {
+        setTimeout(() => featherFrom(rect), i * 140);
+      }
+    }, 320);
 
     // A clone does the bolting. Re-timing the real element's animation
     // mid-flight would fight the keyframes that own its transform.
@@ -294,20 +382,50 @@
     // exactly as reported, since eagle-1 has no such override.
     // `.fx-eagle-rush` carries its own complete styling instead.
     const ghost = el.cloneNode(true);
-    ghost.setAttribute("class", "fx-eagle-rush");
     ghost.style.cssText =
       `left:${rect.left}px; top:${rect.top}px; width:${rect.width}px; height:${rect.height}px;`;
     // Bolt away from the nearer edge, so it always exits the short way.
     const leftward = rect.left < window.innerWidth / 2;
     ghost.style.setProperty("--rush", leftward ? "-52vw" : "52vw");
     ghost.style.setProperty("--bank", leftward ? "10deg" : "-10deg");
-    spawn(ghost, 1500);
+
+    // One class, complete styling, per outcome — see the note above about
+    // specificity: keeping the original .decor-usa_eagles classes let the
+    // per-bird animation longhands beat these shorthands.
+    let ghostMs;
+    if (kind === "downed") {
+      ghost.setAttribute("class", "fx-eagle-fall");
+      ghostMs = 2200;
+    } else if (kind === "stuck") {
+      ghost.setAttribute("class", "fx-eagle-rush hit");
+      // The arrow rides along, planted in it. Appended to the ghost so it
+      // inherits every transform the flight applies, rather than being
+      // animated separately and drifting out of register.
+      const stuck = document.createElement("div");
+      stuck.className = "fx-arrow-stuck";
+      stuck.innerHTML =
+        `<svg viewBox="0 0 8 40">
+           <path class="ar-shaft" d="M4 6 L 4 34" />
+           <path class="ar-head"  d="M4 0 L 7.2 8 L 0.8 8 Z" />
+           <path class="ar-fletch" d="M4 30 L 7.5 38 L 4 36 L 0.5 38 Z" />
+         </svg>`;
+      ghost.appendChild(stuck);
+      ghostMs = 1800;
+    } else {
+      ghost.setAttribute("class", "fx-eagle-rush");
+      ghostMs = 1500;
+    }
+    spawn(ghost, ghostMs);
 
     // The real bird restarts from the BEGINNING of its path (off-screen)
     // rather than resuming wherever its loop had got to — resuming is
     // the other way a startled bird appeared to teleport, popping back
     // into view mid-screen a moment after it fled. The inline delay
     // overrides the negative stagger the CSS gives each bird.
+    // A bird that was shot down should not reappear a second later as if
+    // nothing happened. It stays out of the sky longer, then returns from
+    // the start of its path like the others — the decoration has to come
+    // back eventually, or repeated play empties the screen permanently.
     el.style.visibility = "hidden";
     setTimeout(() => {
       el.style.visibility = "";
@@ -316,7 +434,7 @@
       el.style.animation = "";
       el.style.animationDelay = "0s";
       delete el.dataset.busy;
-    }, 1600);
+    }, kind === "downed" ? 6000 : 1600);
   }
 
   // ---- Sun ----

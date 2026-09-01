@@ -195,7 +195,10 @@
 // Bumped for nickname login: sign-in accepts an email OR a nickname
 // (0007 adds the lookup RPC + a unique index), the field is relabelled
 // per mode, and sign-up rejects a taken nickname up front.
-const CACHE_VERSION = "knell-v41";
+// Bumped: poking a bird now looses an arrow at it -- 75% miss, 17%
+// stuck (flies on wounded), 8% downed (tumbles out of the sky), with
+// feather counts reworked to tell you which happened.
+const CACHE_VERSION = "knell-v42";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
