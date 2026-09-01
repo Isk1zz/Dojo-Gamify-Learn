@@ -1502,6 +1502,61 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 .charge-award .ca-mult { opacity: 0.6; font-size: 0.8rem; }
 .charge-award.full { color: var(--text-muted); }
 
+/* ── Auth gate (core/auth.js) ── */
+/* Left-aligned labels above inputs, unlike the rest of the app's
+   centred modals: this is a form, and a centred form is harder to scan
+   down. The card keeps the modal chrome so it still reads as the same
+   family. */
+.auth-card { max-width: 400px; text-align: left; }
+.auth-card .modal-icon,
+.auth-card .modal-title { text-align: center; }
+
+.auth-tabs {
+  display: flex; gap: 0.25rem; margin: 1.1rem 0 1.2rem;
+  padding: 0.25rem; border-radius: 10px; background: var(--bg-surface);
+}
+.auth-tab {
+  flex: 1; padding: 0.5rem 0.6rem; border: 0; border-radius: 8px;
+  background: transparent; color: var(--text-dim); cursor: pointer;
+  font-size: 0.86rem; font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.auth-tab:hover { color: var(--text); }
+.auth-tab.active { background: var(--bg-card); color: var(--text); }
+
+.auth-row { margin-bottom: 0.85rem; }
+.auth-label {
+  display: block; margin-bottom: 0.3rem;
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.01em;
+  color: var(--text-dim);
+}
+.auth-row .modal-input { width: 100%; margin: 0; }
+.auth-note { margin: 0.4rem 0 0; font-size: 0.74rem; line-height: 1.5; }
+
+/* Not a toast: an error here is about the field directly above it and
+   has to survive being read slowly, so it stays in the flow. */
+.auth-error {
+  margin: 0.2rem 0 0.9rem; padding: 0.6rem 0.75rem; border-radius: 8px;
+  background: rgba(220, 70, 70, 0.12);
+  border: 1px solid rgba(220, 70, 70, 0.35);
+  color: var(--text); font-size: 0.82rem; line-height: 1.5;
+}
+
+.auth-submit { width: 100%; justify-content: center; margin-top: 0.3rem; }
+.auth-submit:disabled { opacity: 0.6; cursor: default; }
+.auth-sent-title {
+  margin: 1rem 0 0.5rem; text-align: center;
+  font-size: 1.05rem; font-weight: 700;
+}
+
+/* The account line in the profile dropdown. */
+.pd-account {
+  padding: 0.15rem 0 0.55rem;
+  font-size: 0.75rem; color: var(--text-muted);
+  word-break: break-all;
+}
+.pd-account strong { display: block; color: var(--text-dim); font-weight: 600; }
+
 /* ── Lobby ── */
 #lobby { display: none; }
 #lobby.active { display: flex; align-items: center; justify-content: center; }

@@ -186,41 +186,43 @@
     nameInput.value = profile ? profile.name : "";
     renderAvatarGrid();
 
-    const profiles = DB.listProfiles();
-    const list = document.getElementById("pd-profiles-list");
-    list.innerHTML = "";
+    renderAccountLine();
+  }
 
-    if (profiles.length > 1) {
-      profiles.forEach(p => {
-        const item = document.createElement("div");
-        item.className = `pd-profile-item${p.id === profile?.id ? " active" : ""}`;
-        // textContent, NOT innerHTML — a profile name is the one string in
-        // this app that is fully user-authored, and it used to be
-        // interpolated into markup here. A name like
-        // `<img src=x onerror=...>` executed on every dropdown open, and
-        // rode along inside exported/imported profile files. Every other
-        // name rendered in the app (hud, lobby, badge) already used
-        // textContent; this was the one that didn't.
-        const nameEl = document.createElement("span");
-        nameEl.textContent = p.name;
-        const countEl = document.createElement("span");
-        countEl.className = "pd-topics-done";
-        countEl.textContent = `${p.topicsCompleted}/${ALL_TOPICS.length}`;
-        item.append(nameEl, countEl);
-        item.addEventListener("click", () => {
-          DB.setActiveProfile(p.id);
-          // Theme, wallet, garden and owned items are all per-profile.
-          // Announce the switch; each branch repaints itself. This file
-          // must not grow a list of every branch that needs waking up.
-          Bus.emit("profile:changed", { id: p.id });
-          Bus.emit("progress:changed", { reason: "profile-switch" });
-          renderDropdown();
-        });
-        list.appendChild(item);
-      });
-    } else {
-      list.innerHTML = '<div style="padding:0.3rem 0.5rem;font-size:0.78rem;color:var(--text-muted);">Only one profile</div>';
-    }
+  // The signed-in account, shown where the profile switcher used to be.
+  // Async because the email comes from the session; the label is painted
+  // immediately and filled in when that resolves, so a slow or offline
+  // lookup never leaves the dropdown looking broken.
+  //
+  // A null email means "cannot ask right now" (offline, or the refresh
+  // token lapsed) — NOT "signed out". Saying "signed out" there would be
+  // a lie that invites someone to re-authenticate they don't need, so it
+  // says so honestly instead.
+  function renderAccountLine() {
+    const box = document.getElementById("pd-account");
+    if (!box) return;
+    box.innerHTML = "";
+
+    const label = document.createElement("strong");
+    label.textContent = I18N.t("auth.signedInAs");
+    const who = document.createElement("span");
+    who.textContent = "…";
+    box.append(label, who);
+
+    const out = document.createElement("button");
+    out.className = "pd-action";
+    out.textContent = "🚪 " + I18N.t("auth.signOut");
+    out.addEventListener("click", () => {
+      if (Dojo.Auth) Dojo.Auth.signOut();
+      const dd = document.getElementById("profile-dropdown");
+      if (dd) dd.style.display = "none";
+    });
+    box.appendChild(out);
+
+    if (!Dojo.Auth) { who.textContent = "—"; return; }
+    Dojo.Auth.currentEmail().then(email => {
+      who.textContent = email || I18N.t("auth.offlineNote");
+    });
   }
 
   document.getElementById("pd-name-save").addEventListener("click", () => {
@@ -235,10 +237,11 @@
     if (e.key === "Enter") document.getElementById("pd-name-save").click();
   });
 
-  document.getElementById("pd-new-profile").addEventListener("click", () => {
-    closeDropdown();
-    showProfileModal();
-  });
+  // "+ New Profile" was removed with the switcher (Step 0b: one account,
+  // one profile). showProfileModal() itself STAYS -- core/auth.js has no
+  // use for it, but a build without auth.js falls back to the old
+  // name-prompt path through Dojo.checkProfile (see core/boot.js), and
+  // that still needs this modal to exist.
 
   document.getElementById("pd-stats").addEventListener("click", () => {
     closeDropdown();

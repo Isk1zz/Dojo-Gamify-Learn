@@ -159,7 +159,14 @@
 // index.html lost the settings/codes.js tag, i18n.js lost five keys and
 // db.js lost applyAdminCode. A stale index.html against a fresh
 // settings.js renders a code box whose handler no longer exists.
-const CACHE_VERSION = "knell-v31";
+// Bumped for the account gate: core/auth.js is a NEW file index.html
+// must load, plus new i18n keys, the #auth-modal markup and the profile
+// dropdown losing its switcher. A stale index.html against a fresh
+// profile.js is a dropdown wired to elements that no longer exist.
+// Bumped for Step 4: core/migrate-cloud.js is a NEW file index.html must
+// load, and auth.js calls it. A stale index.html means Dojo.CloudMigrate
+// is simply absent and the claim silently never runs.
+const CACHE_VERSION = "knell-v33";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

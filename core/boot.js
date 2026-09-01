@@ -42,7 +42,23 @@
     if (el) el.addEventListener("click", fn);
   };
 
-  on("btn-start", () => { Dojo.checkProfile(); Dojo.showLobby(); });
+  // Accounts are mandatory (BACKEND-ROADMAP.md Step 3): requireAccount()
+  // opens the sign-in gate and returns false when this device has never
+  // signed in, so the lobby is never painted behind it. It returns true
+  // offline for anyone who HAS signed in here before — the gate is a
+  // localStorage read, not a network call, so an installed PWA still
+  // opens on a plane. See core/auth.js.
+  //
+  // Dojo.checkProfile stays as the fallback for a build where auth.js
+  // is absent; deleting a branch file should degrade, not crash.
+  on("btn-start", () => {
+    if (Dojo.Auth) {
+      if (!Dojo.Auth.requireAccount()) return;
+    } else {
+      Dojo.checkProfile();
+    }
+    Dojo.showLobby();
+  });
 
   on("btn-lobby-courses",  () => Router.go("course-select"));
   on("btn-token-shop",     () => Router.go("store", { cat: "packs" }));
