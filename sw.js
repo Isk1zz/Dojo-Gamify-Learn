@@ -166,7 +166,10 @@
 // Bumped for Step 4: core/migrate-cloud.js is a NEW file index.html must
 // load, and auth.js calls it. A stale index.html means Dojo.CloudMigrate
 // is simply absent and the claim silently never runs.
-const CACHE_VERSION = "knell-v33";
+// Bumped for Step 6: core/sync.js is a NEW file, plus the sync.offline
+// i18n key and .sync-notice CSS it renders with. A stale index.html
+// means Dojo.Sync is absent and nothing ever reaches the cloud.
+const CACHE_VERSION = "knell-v34";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

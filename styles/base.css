@@ -1502,6 +1502,22 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 .charge-award .ca-mult { opacity: 0.6; font-size: 0.8rem; }
 .charge-award.full { color: var(--text-muted); }
 
+/* ── Cloud-sync notice (core/sync.js) ── */
+/* Bottom-corner, non-blocking, no dismiss button: it disappears on its
+   own the moment a sync succeeds. A modal here would interrupt someone
+   mid-exam over a network blip, which is the opposite of the point —
+   sync failing must never stop studying. */
+.sync-notice {
+  position: fixed; left: 1rem; bottom: 1rem; z-index: 60;
+  max-width: 280px; padding: 0.6rem 0.8rem; border-radius: 8px;
+  background: var(--bg-card); border: 1px solid var(--border-accent);
+  color: var(--text-dim); font-size: 0.76rem; line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+}
+@media (max-width: 620px) {
+  .sync-notice { left: 0.6rem; right: 0.6rem; max-width: none; bottom: 0.6rem; }
+}
+
 /* ── Auth gate (core/auth.js) ── */
 /* Left-aligned labels above inputs, unlike the rest of the app's
    centred modals: this is a form, and a centred form is harder to scan

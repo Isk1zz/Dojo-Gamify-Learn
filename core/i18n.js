@@ -271,6 +271,10 @@ const I18N = (() => {
     "auth.offlineNote":     { en: "Offline — your progress is saved on this device and will sync when you're back.",
                               ru: "Оффлайн — прогресс сохраняется на устройстве и синхронизируется позже." },
 
+    // ---- Cloud sync (core/sync.js) ----
+    "sync.offline":         { en: "Cloud sync failed — working locally. Your progress is safe on this device.",
+                              ru: "Синхронизация не удалась — работаем локально. Прогресс сохранён на устройстве." },
+
     "ui.warn.title":        { en: "Administrative Notice", ru: "Административное уведомление" },
     "ui.warn.desc":         { en: "You have received a warning from a moderator.",
                               ru: "Вы получили предупреждение от модератора." },
