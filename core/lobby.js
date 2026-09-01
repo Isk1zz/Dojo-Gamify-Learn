@@ -414,18 +414,54 @@
     // (which normally sits there) is itself reachable from the Library.
     // Resume only exists when there is a saved position, so on a fresh
     // profile the hub keeps Flashcards and nothing moves.
-    const pentagramRing = (DB.getStarLinks && DB.getStarLinks() === "pentagram");
+    // A figure with a fixed point count needs the ring to MATCH it, so
+    // each such topology declares the exact size it draws at and the
+    // ring is trimmed to fit. Anything not listed keeps the full ring.
+    //
+    //   pentagram — 5. Drops Custom (still reachable from Settings ->
+    //               Appearance, so it loses a shortcut, not a
+    //               destination) and moves Resume to the hub.
+    //   hexagram  — 6. Only needs Resume moved.
+    //
+    // Resume goes to the HUB rather than being dropped in both cases:
+    // "carry on where you were" is the most hub-shaped action there is,
+    // and Flashcards, which normally sits there, is reachable from the
+    // Library anyway. Resume only exists when there is a saved position,
+    // so on a fresh profile the hub keeps Flashcards and nothing moves.
+    //
+    // ---- Why hexagram is here at all now ----
+    // It used to require exactly six and quietly fall back to spokes at
+    // seven, which is what the ring becomes the moment Resume appears.
+    // So on any profile with a saved position, choosing Star of David
+    // silently drew spokes -- reported as "Star of David isn't
+    // displayed", and it was not: it was a fallback firing every time
+    // for most real users. Trimming makes the choice actually take.
+    const linkMode0 = (DB.getStarLinks && DB.getStarLinks()) || "spokes";
+    const RING_TRIM = {
+      pentagram: ["btn-lobby-stats", "btn-lobby-resume"],
+      hexagram:  ["btn-lobby-resume"]
+    };
+    const trim = RING_TRIM[linkMode0];
     const hubBtn = document.getElementById("btn-lobby-hub-flashcards");
     const resumeTile = document.getElementById("btn-lobby-resume");
     let ringOrder = STAR_ORDER;
 
-    if (pentagramRing) {
-      const customTile = document.getElementById("btn-lobby-stats");
-      if (customTile) customTile.style.display = "none";
-      ringOrder = STAR_ORDER.filter(id =>
-        id !== "btn-lobby-stats" && id !== "btn-lobby-resume");
+    if (trim) {
+      // Restore anything a DIFFERENT trim hid that this one does not —
+      // going pentagram (drops Custom) to hexagram (keeps it) skips the
+      // else branch entirely, so without this Custom would stay hidden.
+      if (!trim.includes("btn-lobby-stats")) {
+        const c = document.getElementById("btn-lobby-stats");
+        if (c && c.style.display === "none") c.style.display = "flex";
+      }
+      // Hide every trimmed tile EXCEPT Resume, which is relocated rather
+      // than removed and so is handled below.
+      trim.filter(id => id !== "btn-lobby-resume").forEach(id => {
+        const t = document.getElementById(id);
+        if (t) t.style.display = "none";
+      });
+      ringOrder = STAR_ORDER.filter(id => !trim.includes(id));
 
-      // Hand the hub to Resume when there is something to resume.
       const canResume = resumeTile && resumeTile.style.display !== "none";
       if (hubBtn) {
         hubBtn.dataset.pentHub = canResume ? "resume" : "";
@@ -434,7 +470,7 @@
       }
       if (resumeTile) resumeTile.style.display = "none";
     } else {
-      // Leaving pentagram mode: put back everything it hid.
+      // Leaving a trimmed topology: put back everything it hid.
       //
       // tile() does NOT restore these on its own while the lobby style
       // stays "star" — only a style CHANGE re-runs that path — so
