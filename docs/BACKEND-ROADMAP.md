@@ -359,6 +359,14 @@ profile with real study history migrates once, correctly, and a second
 sign-in from the same browser is a no-op rather than a second upload.
 
 ### Step 5 — Economy RPCs (the step that actually closes the paywall hole)
+
+> **⚠️ This table is dated 2026-08-13 and two rows of it are STALE.**
+> It was written before the Garden dividends and the `$` sink were
+> removed. Following it literally in 0003 would have rebuilt both
+> deleted systems in Postgres — caught on review, before the migration
+> ran. Struck rows below. **UPDATESTACK.md's later economy decisions
+> win over this table.**
+
 Everything before this is plumbing; this is the payoff. One
 `SECURITY DEFINER` Postgres function per mutation the client currently
 performs directly against `localStorage` in `data/db.js`/`garden/
@@ -368,8 +376,8 @@ server-side instead of trusting whatever the client sends:
 | RPC | Mirrors (client-side today) | Validates |
 |---|---|---|
 | `award_xp(amount)` | `addXp` | Per-call cap, so a forged huge value can't jump rank in one call |
-| `add_wallet` / `spend_wallet` | `addMoney`/`spendMoney` | Balance never goes negative; **no path exists that converts `$` into `tokens`, ever** — see Flag 1 |
-| `claim_dividend` | `claimDividends` | One claim per 24h server-side (`last_dividend_claim`), not client-timed |
+| ~~`add_wallet` / `spend_wallet`~~ | ~~`addMoney`/`spendMoney`~~ | **NOT BUILT — the system was deleted.** `$` lost every sink when cosmetics went free and the Exchange was removed. Writing this would rebuild a removed feature in Postgres. |
+| ~~`claim_dividend`~~ | ~~`claimDividends`~~ | **NOT BUILT — the system was deleted.** UPDATESTACK's 2026-08-16 decision: "Earning: Nothing. No Garden dividends, no accumulation." Reputation became a nightly-expiring allowance, so there is no balance to pay into. |
 | `spend_tokens` / `buy_course(course_id)` | `spendTokens`/`buyCourse` | Price looked up server-side, never trusted from the client; patron discount applied from `economy.patron_tier`, also server-side; balance checked atomically so two concurrent buys can't both succeed off one balance. **Needs a `courses` table that does not exist yet — see below.** |
 
 **The `buy_course` prerequisite (finding 4).** There is no server-side

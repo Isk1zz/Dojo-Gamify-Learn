@@ -366,6 +366,36 @@ discussion; **not built** — see "why not yet" at the end.
 - **Seasonal reset on received.** Makes standing recent rather than
   historical, so old accounts don't permanently outrank newer ones.
 
+### Allowance formula REOPENED 2026-08-27 — study-based, not rank-based
+
+The table above says `5 + floor(rank / 5)` per day. Superseded in
+conversation: the allowance should be **a daily amount derived from
+completed UNITS, counting the chunks within them, and capped.**
+Spendable on the Forum, same give-only rule as before.
+
+Not yet a spec — three things need settling before it can be built:
+- **The formula.** "Units, considering chunks within" needs actual
+  numbers. A unit is worth what, and does a part-finished unit pay
+  pro-rata by chunks or nothing at all?
+- **The cap.** The whole reason the rank version used `5 + floor(rank/5)`
+  was to keep the spread under 2x — a study-based figure scales with
+  how much someone has finished, which is exactly the 44x-spread problem
+  that killed Garden dividends. The cap is what prevents that, so it is
+  load-bearing, not a detail.
+- **Does it still not bank?** The decided model expires nightly. A
+  study-based allowance is compatible with that, but it should be
+  restated deliberately rather than assumed to carry over.
+
+**Caught a real mistake, worth recording:** Step 5's first draft of
+`0003_economy_rpcs.sql` included `claim_dividend` and `spend_wallet`,
+written straight from `docs/BACKEND-ROADMAP.md`'s Step 5 table. That
+table dates from 2026-08-13 and predates BOTH the dividend removal and
+the `$`-sink removal — so following it would have rebuilt two
+deliberately deleted systems in Postgres, where they would have been
+much harder to notice than in JS. Spotted on review before the
+migration was ever run. **The roadmap doc's Step 5 table is stale;
+UPDATESTACK's later decisions win.**
+
 ### Confirmed 2026-08-16: no accumulation, and what the profile records
 Points **cannot be accumulated to spend**. The daily allowance is
 transferred to blogs/posts on the Forum, or it is gone. This settles the
