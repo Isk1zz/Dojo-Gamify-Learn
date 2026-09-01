@@ -427,11 +427,21 @@
     });
     const confirmBtn = overlay.querySelector("#course-buy-confirm");
     if (confirmBtn) {
-      confirmBtn.addEventListener("click", () => {
-        if (Dojo.buyCourse && Dojo.buyCourse(course.id)) {
+      // buyCourse is async now — the purchase is a server call (see
+      // shop/tokens.js). Button is disabled while it is in flight so a
+      // double-tap cannot fire two purchases; the RPC is idempotent
+      // anyway ("already_owned", charged 0), but not relying on that.
+      confirmBtn.addEventListener("click", async () => {
+        if (!Dojo.buyCourse) return;
+        confirmBtn.disabled = true;
+        const ok = await Dojo.buyCourse(course.id);
+        confirmBtn.disabled = false;
+        if (ok) {
           overlay.style.display = "none";
           if (Dojo.renderVitals) Dojo.renderVitals();
           if (onUnlocked) onUnlocked(); else renderCourseSelect();
+        } else {
+          confirmBtn.textContent = I18N.t("shop.buyFailed");
         }
       });
     }

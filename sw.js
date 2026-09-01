@@ -178,7 +178,11 @@
 // and its passcode challenge, data/db.js lost SECRET_ADMIN_NAME. A
 // stale admin.js is the version that still accepts a typed public
 // string, which is the whole hole being closed.
-const CACHE_VERSION = "knell-v36";
+// Bumped for the run-through fixes: buyCourse now goes through the
+// buy_course RPC (it was still spending locally, so the server-side
+// paywall existed but was never called), and the sign-up nickname now
+// lands after the claim instead of being overwritten by it.
+const CACHE_VERSION = "knell-v37";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

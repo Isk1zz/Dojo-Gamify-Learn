@@ -189,21 +189,6 @@
       try { pending = JSON.parse(localStorage.getItem("knell-pending-signup") || "null"); }
       catch (e) { pending = null; }
 
-      // First sign-in after a sign-up: now there IS a session, so the
-      // profile row is finally writable. Best-effort — a failure here
-      // must not block someone from getting into the app they just
-      // proved they own.
-      if (pending) {
-        try {
-          const patch = { name: pending.nickname };
-          if (pending.country) patch.country = pending.country;
-          await Dojo.Cloud.profiles.push(patch);
-          localStorage.removeItem("knell-pending-signup");
-        } catch (e) {
-          console.info("[auth] could not write profile row yet:", e.message);
-        }
-      }
-
       // Name the local profile after the cloud one where possible, so
       // the same account looks the same on a second device.
       let name = (pending && pending.nickname) || "";
@@ -229,6 +214,28 @@
         const claim = await Dojo.CloudMigrate.claimIfNeeded();
         if (claim.status === "claimed") {
           console.info(`[auth] claimed ${claim.topics} completed topic(s) into this account.`);
+        }
+      }
+
+      // AFTER the claim, deliberately. The claim uploads the local
+      // profile including its name, so writing the sign-up nickname
+      // first meant the old local name silently won -- caught in the
+      // 2026-08-27 run-through, where an account created as "RunThru"
+      // came back named "PreGateUser".
+      //
+      // The nickname is the more recent and more explicit statement of
+      // what someone wants to be called, so it lands last. Best-effort:
+      // a failure here must not block entry to an app they just proved
+      // they own.
+      if (pending) {
+        try {
+          const patch = {};
+          if (pending.nickname) patch.name = pending.nickname;
+          if (pending.country) patch.country = pending.country;
+          if (Object.keys(patch).length) await Dojo.Cloud.profiles.push(patch);
+          localStorage.removeItem("knell-pending-signup");
+        } catch (e) {
+          console.info("[auth] could not write profile row yet:", e.message);
         }
       }
 

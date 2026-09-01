@@ -314,6 +314,9 @@ const I18N = (() => {
                               ru: "Не удалось удалить аккаунт. Возможно, вы офлайн — попробуйте при подключении." },
     "del.done":             { en: "Your account has been deleted.", ru: "Аккаунт удалён." },
 
+    "shop.buyFailed":       { en: "Purchase failed — check your connection",
+                              ru: "Покупка не прошла — проверьте соединение" },
+
     // ---- Cloud sync (core/sync.js) ----
     "sync.offline":         { en: "Cloud sync failed — working locally. Your progress is safe on this device.",
                               ru: "Синхронизация не удалась — работаем локально. Прогресс сохранён на устройстве." },

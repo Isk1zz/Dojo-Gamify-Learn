@@ -154,6 +154,24 @@
     // the economy table for why this is not an oversight.
   };
 
+  // Server-side purchase (0003/0004). Returns the RPC's own verdict:
+  // { status: "bought"|"already_owned", charged, tokens_left }. Throws
+  // on refusal, so "insufficient tokens" cannot be mistaken for success
+  // — a lesson from 0004, where a failed buy returned HTTP 200.
+  async function buyCourse(courseId) {
+    const { data, error } = await getClient().rpc("buy_course", { course_id: courseId });
+    if (error) throw error;
+    return data;
+  }
+
+  // Award XP through the capped server function rather than writing
+  // `charge` directly, which no client can do anyway.
+  async function awardXp(amount) {
+    const { data, error } = await getClient().rpc("award_xp", { amount });
+    if (error) throw error;
+    return data;
+  }
+
   // GDPR Art. 17. Calls the RPC in 0005_delete_account.sql, which
   // deletes the CALLER's auth.users row; the three data tables follow by
   // ON DELETE CASCADE. Takes no argument on purpose — the server picks
@@ -165,7 +183,7 @@
 
   Dojo.Cloud = {
     isConfigured,
-    deleteAccount,
+    deleteAccount, buyCourse, awardXp,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),
     progress: table("progress"),

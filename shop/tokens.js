@@ -120,13 +120,47 @@
     return DB.getInventory().includes(courseKey(courseId));
   }
 
-  function buyCourse(courseId) {
+  // ASYNC as of 2026-08-27, and the purchase happens on the SERVER.
+  //
+  // This used to be a local transaction: spendTokens + addInventory
+  // against localStorage, which anyone can edit — the paywall was a
+  // suggestion. buy_course() (supabase/migrations/0003, fixed in 0004)
+  // now looks the price up server-side, applies the patron discount
+  // from the server's own patron_tier, and checks the balance and
+  // debits it in one atomic statement.
+  //
+  // There is deliberately NO local fallback when offline. A fallback
+  // would mean "if the server is unreachable, grant it anyway", which
+  // is the exact hole this closes — and unlike studying, a purchase has
+  // no reason to work offline. Studying still works offline; buying
+  // waits for a connection.
+  //
+  // The local mirror (spendTokens/addInventory) is written only AFTER
+  // the server confirms, so the UI matches what the server actually
+  // did. On the next sync the server remains the authority.
+  async function buyCourse(courseId) {
     const c = COURSES.find(x => x.id === courseId);
     if (!c || !c.priceTokens || ownsCourse(courseId)) return false;
-    const price = coursePrice(c);
-    if (!DB.spendTokens(price)) return false;
-    DB.addInventory(courseKey(courseId));
-    Dojo.Bus.emit("tokens:changed", { delta: -price, reason: "course-buy" });
+
+    if (!Dojo.Cloud || !Dojo.Cloud.isConfigured()) return false;
+
+    let result;
+    try {
+      result = await Dojo.Cloud.buyCourse(courseId);
+    } catch (e) {
+      // "insufficient tokens", offline, no session — all end here, and
+      // all correctly leave the course locked.
+      console.info("[shop] purchase refused:", e.message);
+      return false;
+    }
+    if (!result || (result.status !== "bought" && result.status !== "already_owned")) return false;
+
+    // Mirror the server's outcome locally so the UI updates now.
+    const charged = result.charged || 0;
+    if (charged > 0) DB.spendTokens(charged);
+    if (!DB.getInventory().includes(courseKey(courseId))) DB.addInventory(courseKey(courseId));
+
+    Dojo.Bus.emit("tokens:changed", { delta: -charged, reason: "course-buy" });
     // Ownership changing is its own fact, not a side effect of the
     // wallet moving. boot.js listens for this to pull down a lazy
     // course's content the moment it is bought, rather than making the
