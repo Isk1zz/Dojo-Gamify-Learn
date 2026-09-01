@@ -97,13 +97,14 @@
           </label>
         </div>
       </div>
+      ${(Dojo.Auth && Dojo.Auth.hasAccount()) ? `
       <div class="settings-section">
         <div class="stats-section-title">\u{1F5D1}\uFE0F ${I18N.t("del.title")}</div>
         <p class="settings-hint">${I18N.t("del.note")}</p>
         <div class="stats-actions">
           <button id="btn-delete-account" class="btn-ghost danger-btn">${I18N.t("del.button")}</button>
         </div>
-      </div>`;
+      </div>` : ""}`;
 
 
     // I18N.set reloads the page — see core/i18n.js for why the language
@@ -165,6 +166,16 @@
       document.getElementById("del-cancel").onclick = () => { overlay.style.display = "none"; };
 
       go.onclick = async () => {
+        // Check for a session FIRST. Without this, "not signed in" fell
+        // through to the generic failure message and told people to
+        // check their connection -- reported live, and exactly the kind
+        // of misdirection that costs someone ten minutes.
+        const session = Dojo.Cloud ? await Dojo.Cloud.getSession().catch(() => null) : null;
+        if (!session) {
+          err.textContent = I18N.t("del.notSignedIn");
+          err.style.display = "block";
+          return;
+        }
         go.disabled = true;
         go.textContent = I18N.t("del.working");
         try {

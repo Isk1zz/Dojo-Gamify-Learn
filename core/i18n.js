@@ -224,8 +224,13 @@ const I18N = (() => {
     "ui.landing.feat2":     { en: "Spaced review that adapts to you", ru: "Повторение с интервалами, подстроенное под вас" },
     "ui.landing.feat3":     { en: "A garden that wilts when you stop", ru: "Сад, который вянет, когда вы бросаете" },
     "ui.landing.begin":     { en: "Begin Training",     ru: "Начать" },
-    "ui.landing.hint":      { en: "No account needed — progress saves automatically, on this device",
-                              ru: "Аккаунт не нужен — прогресс сохраняется сам, на этом устройстве" },
+    // Was "No account needed — progress saves automatically, on this
+    // device". That stopped being true when the sign-in gate shipped,
+    // and it was the first thing a new visitor read. Now says what is
+    // actually true: an account is required, and it buys you your
+    // progress on every device rather than just this one.
+    "ui.landing.hint":      { en: "Free account — your progress follows you to any device",
+                              ru: "Бесплатный аккаунт — прогресс с вами на любом устройстве" },
 
     "ui.profile.welcome":   { en: "Welcome to",         ru: "Добро пожаловать в" },
     "ui.profile.desc":      { en: "Enter your name to create a profile. Your progress and stats will be saved locally.",
@@ -312,6 +317,8 @@ const I18N = (() => {
     "del.working":          { en: "Deleting…",           ru: "Удаляем…" },
     "del.failed":           { en: "Could not delete the account. You may be offline — try again when you have a connection.",
                               ru: "Не удалось удалить аккаунт. Возможно, вы офлайн — попробуйте при подключении." },
+    "del.notSignedIn":      { en: "You're not signed in on this device, so there's no account here to delete.",
+                              ru: "На этом устройстве вы не вошли в аккаунт — удалять нечего." },
     "del.done":             { en: "Your account has been deleted.", ru: "Аккаунт удалён." },
 
     "shop.buyFailed":       { en: "Purchase failed — check your connection",

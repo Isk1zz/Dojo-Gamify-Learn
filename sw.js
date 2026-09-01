@@ -182,7 +182,13 @@
 // buy_course RPC (it was still spending locally, so the server-side
 // paywall existed but was never called), and the sign-up nickname now
 // lands after the claim instead of being overwritten by it.
-const CACHE_VERSION = "knell-v37";
+// Bumped: the delete-account modal blamed the network when the real
+// cause was "not signed in", and the section now hides entirely when
+// there is no account on the device.
+// Bumped: the landing page still promised "no account needed", which
+// has been false since the sign-in gate shipped -- the first thing a
+// new visitor read, and the third stale local-only claim found.
+const CACHE_VERSION = "knell-v39";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

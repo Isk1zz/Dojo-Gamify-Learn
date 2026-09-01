@@ -5,6 +5,52 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## 🚨 LAUNCH BLOCKERS — must be done before anyone real signs up
+
+Two switches are deliberately set to the wrong thing for production,
+because they are right for *now*. Both were conscious calls, and both
+will look like oversights to whoever reads the code later, so they are
+recorded here rather than in a comment nobody opens.
+
+### 1. Email confirmation is OFF (turned off 2026-08-27)
+
+**Turn it back on before public launch.** Supabase → Authentication →
+Sign In / Providers → User Signups → "Confirm email".
+
+Why it is off: there is no working email sender. Supabase's built-in one
+is shared, rate-limited to a few messages an hour, and frequently never
+arrives — so with confirmation ON, *nobody could sign up at all*, and
+the protection it nominally provides was protecting no one.
+
+The risk it normally guards is real and comes straight back the moment
+email works: a typo'd address means a confirmation, and eventually a
+password reset, landing in a stranger's inbox. That was the correct
+objection when this was first raised, and it still stands — it is simply
+not the binding constraint while emails do not send.
+
+**Blocked on:** a domain name, then an SMTP provider (Resend's free tier
+is 3,000/month and is the usual pick). Free senders will only deliver to
+the account owner's own address until a domain is verified, which is why
+a domain comes first.
+
+### 2. Accounts are created by hand-written SQL
+
+Fine while it is one person and a couple of testers; not a system. It
+also has a trap that already bit once — see below.
+
+**⚠️ Manual `auth.users` inserts must set the token columns to `''`,
+not leave them NULL.** GoTrue (Supabase's auth service) is Go, and scans
+`confirmation_token`, `recovery_token`, `email_change`,
+`email_change_token_new`, `email_change_token_current`, `phone_change`,
+`phone_change_token` and `reauthentication_token` into plain strings.
+NULL is unreadable to it, and the symptom is the deeply unhelpful
+**"Database error querying schema"** at sign-in — which looks like a
+schema or permissions fault and is neither. Supabase's own signup path
+sets these; a hand-written INSERT does not. Cost about ten minutes of
+confusion on 2026-08-27.
+
+---
+
 ## Queued 2026-08-27, session paused mid-Step-3 — six items
 
 Session was paused with the account gate half-verified (a stale-lobby
