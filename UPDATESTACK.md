@@ -5,6 +5,80 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## FORUM 2026-09-03 — step 7, the launch switches, and grouping
+
+Steps 0-6 of `docs/FORUM-PLAN.md` are closed. What is left, in the order
+it should be done.
+
+### FORUM — step 7, the legal half
+
+Half of step 7 is done: deletion anonymises rather than cascading
+(migration 0025), so threads survive and nobody else's standing drops
+when somebody leaves.
+
+What remains is text, not code, in `docs/LEGAL.md`:
+
+- **How reports are handled.** There is a queue, an admin decides, and
+  nothing hides automatically. That policy exists in the migrations and
+  in the plan; it has never been written where a user could read it.
+- **What is not allowed.** The app now stores user-written content, and
+  there is currently no statement of what may not be posted. A
+  moderation queue with no published rule is a queue that enforces
+  taste.
+- **What happens to posts when an account is deleted.** Now decided and
+  built; the policy needs saying out loud, because "your posts stay,
+  without your name" is the kind of thing people want to know BEFORE
+  they write.
+
+The privacy policy itself is already current — it gained a paragraph on
+2026-09-02 saying exactly what other people see.
+
+### FORUM — the two launch switches
+
+Both are in the LAUNCH BLOCKERS section further down and are repeated
+here because the Forum is what makes one of them urgent.
+
+**Email confirmation is OFF.** For the Forum specifically: every write
+limit is per account, and an account currently costs nothing. Three
+posts a day becomes three hundred for anyone willing to register a
+hundred times. The daily caps protect against carelessness, not intent,
+until signing up costs something.
+
+**Accounts were created by hand-written SQL.** Same section.
+
+Ordering: **confirmation lands before the Forum opens to the public**,
+not after.
+
+### FORUM — grouping and scope. NOT NOW, recorded so the shape is not painted over
+
+Asked for 2026-09-03. The feed is currently one flat list sorted by
+score then date. Three things were named:
+
+1. **Grouping by topic.** Posts belong to subjects; a flat feed mixes a
+   question about spaced repetition with one about Israeli traffic law.
+2. **Sorting by criteria** other than the default — newest, most
+   discussed, unanswered.
+3. **Course-scoped sub-forums**, closed to people not taking that
+   course.
+
+Why it is worth recording now rather than discovering later: **the posts
+table has no scope column at all.** Adding one after there are posts
+means deciding retroactively which board every existing post belonged
+to. Adding it while the table is nearly empty costs a migration and a
+default.
+
+So the cheap thing to do EARLY, even if the feature is late: give
+`posts` a nullable `scope` (null = global) and a nullable
+`course_id`. Nothing has to read them until the feature is built.
+
+The third item also raises a question the others do not: a course-scoped
+board restricted to enrolled learners needs the server to know who is
+enrolled, and enrolment currently lives in `economy.inventory` as
+purchased course ids. That is a read the RLS policy would have to make,
+and it is worth checking that it can before promising the feature.
+
+---
+
 ## BUG 2026-09-03 — the chosen nickname never reaches the server
 
 Reported as "I can sign in by email but not by nickname". The diagnosis
