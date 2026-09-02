@@ -459,8 +459,10 @@ const I18N = (() => {
                               ru: "повторено блоков: {n} — соберите колоду" },
     "ui.sum.flashIdle":    { en: "Pick any chunks, drill your weak spots",
                               ru: "Выберите блоки и прогоняйте слабые места" },
-    "ui.sum.forum":        { en: "{n} reputation · opens with accounts",
-                              ru: "репутация: {n} · откроется с аккаунтами" },
+    "ui.sum.forumIdle":    { en: "Reputation, and the rule it runs on",
+                            ru: "Признание и правило, по которому оно живёт" },
+    "ui.sum.forum":        { en: "{n} left to give today",
+                              ru: "осталось раздать сегодня: {n}" },
     // ---- Mock exam (library/exam-sim.js) ----
     // {n} / {min} / {pass} / {i} / {of} / {score} are filled by t(key, vars).
     "sim.entry":            { en: "Mock Exam",          ru: "Пробный экзамен" },
@@ -642,13 +644,31 @@ const I18N = (() => {
 
     // Forum
     "forum.repTitle":       { en: "Your reputation",     ru: "Ваша репутация" },
+
+    // Step 3: the three figures. All are queries against the rep_grants
+    // journal, so the season resets by itself — see forum/forum.js.
+    "forum.given":          { en: "Given",              ru: "Отдано" },
+    "forum.gotMonth":       { en: "Got this month",     ru: "Получено за месяц" },
+    "forum.gotTotal":       { en: "Got in total",       ru: "Получено всего" },
+    "forum.todayHave":      { en: "<strong>{left}</strong> of {of} left to give today",
+                              ru: "Осталось раздать сегодня: <strong>{left}</strong> из {of}" },
+    "forum.todayNone":      { en: "Nothing to give yet — the Garden sets the daily allowance, and yours is still 0",
+                              ru: "Пока раздавать нечего — дневную норму задаёт Сад, и у вас она пока 0" },
+    "forum.fromGarden":     { en: "Garden weight {w} · every 5 is one point a day, up to 5",
+                              ru: "Вес Сада {w} · каждые 5 дают одно очко в день, максимум 5" },
+    "forum.seasonNote":     { en: "The month resets on its own. Nothing expires except today's unspent allowance — what you were given is kept for good.",
+                              ru: "Месяц обнуляется сам. Ничего не сгорает, кроме сегодняшней нераспределённой нормы — то, что дали вам, остаётся навсегда." },
+    "forum.figuresOffline": { en: "These numbers live on the server, and it cannot be reached right now. Nothing is lost — sign in or reconnect and they will be here.",
+                              ru: "Эти числа живут на сервере, и до него сейчас не достучаться. Ничего не потеряно — войдите или дождитесь связи." },
+    "forum.figuresNoBackend": { en: "This build has no backend configured, so there is nothing to count.",
+                              ru: "В этой сборке сервер не настроен, поэтому считать нечего." },
     "forum.ruleTitle":      { en: "The one rule",        ru: "Единственное правило" },
-    "forum.emptyTitle":     { en: "Nobody's here yet — and that's not a bug",
-                              ru: "Здесь пока никого — и это не баг" },
-    "forum.empty1":         { en: "The Forum needs accounts to exist: posts, replies and reputation have to travel between people, and right now this app keeps everything on your own device with no server behind it. Two people running it share nothing.",
-                              ru: "Форуму нужны учётные записи: записи, ответы и репутация должны ходить между людьми, а сейчас приложение держит всё на вашем устройстве и сервера за ним нет. Двое запустивших его не разделяют ничего." },
-    "forum.empty2":         { en: "It opens when the backend lands. Until then this room is empty on purpose — seeding it with invented posts would look like a community and be a stage set.",
-                              ru: "Он откроется, когда появится бэкенд. До тех пор комната пуста намеренно: набить её выдуманными записями значило бы изобразить сообщество, а получить декорацию." },
+    "forum.emptyTitle":     { en: "No posts yet",
+                              ru: "Записей пока нет" },
+    "forum.empty1":         { en: "The parts that had to be built first are done: accounts, the reputation ledger, and the rules about who may give what to whom — all enforced on the server, where they cannot be edited from a browser.",
+                              ru: "То, что нужно было построить сначала, готово: аккаунты, журнал признания и правила о том, кто кому и сколько может дать — всё это держит сервер, где их нельзя переписать из браузера." },
+    "forum.empty2":         { en: "What is left is the reading and the writing. Until that lands the room stays empty on purpose — seeding it with invented posts would look like a community and be a stage set.",
+                              ru: "Осталось чтение и письмо. Пока их нет, комната пуста намеренно: набить её выдуманными записями значило бы изобразить сообщество, а получить декорацию." },
 
     // Stats
     "stats.badges":         { en: "Badges ({n}/{total})", ru: "Значки ({n}/{total})" },

@@ -1530,13 +1530,51 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   50%      { transform: scaleY(0.45); }
 }
 
-/* Forum (forum/forum.js) — the reputation figure is the one number on
-   the screen, so it gets the weight rather than being another line. */
-.forum-rep {
-  font-family: var(--mono); font-size: 2.6rem; font-weight: 800;
-  color: var(--yellow); line-height: 1; margin: 0.2rem 0 0.6rem;
+/* Forum (forum/forum.js)
+   .forum-rep is gone with the single stored balance it displayed. There
+   are four numbers now, and they are not equals: today's allowance is
+   the only one with a deadline, so it leads and the three totals sit
+   under it as a row. */
+.forum-today {
+  padding: 0.85rem 1rem; margin: 0.2rem 0 0.9rem;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--bg-card);
 }
+/* Lit only when there is actually something to spend — an unlit panel
+   saying "0 left" should not look like a call to action. */
+.forum-today.has { border-color: var(--border-accent); background: var(--accent-glow); }
+.ft-line { font-size: 1.05rem; line-height: 1.4; }
+.ft-line strong { font-family: var(--mono); font-size: 1.5rem; color: var(--yellow); }
+.ft-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+.forum-figures {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem;
+  margin-bottom: 0.7rem;
+}
+.fig {
+  padding: 0.7rem 0.5rem; text-align: center;
+  border-radius: var(--radius-xs); background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+/* Given sits in the same row as the two received figures, at the same
+   size, on purpose — a board that shows only what you received rewards
+   popularity alone. See forum.js. */
+.fig-label {
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-muted); margin-bottom: 0.3rem; line-height: 1.25;
+}
+.fs-num {
+  font-family: var(--mono); font-size: 1.6rem; font-weight: 700;
+  color: var(--text); line-height: 1; font-variant-numeric: tabular-nums;
+}
+
 .forum-empty { border: 1px dashed var(--border-accent); background: transparent; }
+
+@media (max-width: 26rem) {
+  .forum-figures { grid-template-columns: 1fr; }
+  .fig { display: flex; align-items: baseline; justify-content: space-between; text-align: left; }
+  .fig-label { margin-bottom: 0; }
+}
 
 /* Flying bolt */
 .bolt-layer { position: fixed; inset: 0; pointer-events: none; z-index: 70; }

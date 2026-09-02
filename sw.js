@@ -203,6 +203,10 @@
 // David.
 // Bumped for the first-run appearance picker: core/onboard.js is a NEW
 // file, with its bar markup in index.html and onb.* strings in i18n.
+// Bumped for forum step 3: forum/forum.js reads its figures from the
+// server instead of a local balance, i18n gains the forum.given/gotMonth
+// /gotTotal set, and base.css swaps .forum-rep for the four-number
+// layout. A stale pairing shows raw keys where the numbers should be.
 // Bumped for rank rewards: core/boot.js stops crediting Tokens locally
 // and claims them from the server, which verifies the rank against its
 // own charge_earned. A stale boot.js would keep minting Tokens that the
@@ -218,7 +222,7 @@
 // i18n drops four dead keys for the garden.ex.* set. A stale cache
 // here would keep serving a Claim button that no longer has any code
 // or any system behind it.
-const CACHE_VERSION = "knell-v59";
+const CACHE_VERSION = "knell-v60";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

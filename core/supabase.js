@@ -204,6 +204,24 @@
     return data;
   }
 
+  // Everything the Forum needs to draw a person's standing, in one call.
+  //
+  // Returns allowance, left_today, spent_today, given_total,
+  // received_month, received_total and garden_weight — all derived from
+  // the rep_grants journal rather than from stored counters, which is
+  // why the season resets on its own: "this month" is a WHERE clause,
+  // not an event somebody has to remember to fire.
+  //
+  // No argument on purpose. The server reads auth.uid(), so this cannot
+  // be aimed at anyone else. Reading a DIFFERENT person's figures needs
+  // its own RPC and its own decision about what a stranger may see —
+  // see FORUM-PLAN.md step 3.
+  async function repStatus() {
+    const { data, error } = await getClient().rpc("rep_status");
+    if (error) throw error;
+    return data;
+  }
+
   // GDPR Art. 17. Calls the RPC in 0005_delete_account.sql, which
   // deletes the CALLER's auth.users row; the three data tables follow by
   // ON DELETE CASCADE. Takes no argument on purpose — the server picks
@@ -215,7 +233,7 @@
 
   Dojo.Cloud = {
     isConfigured,
-    deleteAccount, buyCourse, claimEarning, emailForNickname, nicknameAvailable,
+    deleteAccount, buyCourse, claimEarning, repStatus, emailForNickname, nicknameAvailable,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),
     progress: table("progress"),
