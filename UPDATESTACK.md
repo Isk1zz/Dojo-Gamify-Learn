@@ -5,6 +5,57 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## OPEN 2026-09-02: earning is server-side, the client is not wired yet
+
+Server side is DONE and verified (0012, 0013, build-catalogue.js).
+award_xp is revoked, the catalogue holds 242 items, claim_earning is the
+only way to earn, and all four defences were proven against the live
+database.
+
+**The app does not call it yet.** XP, `$` and Tokens are still written
+locally and still evaporate on the next economy pull. Six places grant
+them today:
+
+| Where | What | File |
+|---|---|---|
+| Chunk finished | 15-21 XP | `library.js:1506` |
+| Topic exam | chunk sum x 0.7-1.5 | `library.js:1731` |
+| Unit finished | `$` / Tokens / XP | `library.js:117-123` |
+| Course finished | 10 Tokens | `library.js:135` |
+| Final quiz | 120 XP scaled + 200 one-time | `library.js:1809,1831` |
+| Review cards | 6 XP per genuinely-known | `library.js:2534,2596` |
+
+DECIDED: the app waits for the server's answer rather than showing a
+number and correcting it. Half a second of delay against a screen that
+is always true -- and the whole reason this work exists is that the
+screen was not. Offline, the claim QUEUES and goes out on reconnect, or
+studying without a network would earn nothing.
+
+Item ids are `chunk:<topicId>:<index>`, `topic:<topicId>`,
+`unit:<number>`, `course:<courseId>`.
+
+### Still open after the wiring
+
+- **Flag 5 — the server does not score exams.** The percentage comes
+  from the client, clamped to move the topic bonus only within
+  0.7x-1.5x. Closing it means moving the answer key off the client,
+  which changes how the app behaves with no network. Its own step.
+- **Answers ship in `library/content/*/data_*.js`.** Anyone reading
+  that file passes honestly as far as any server can tell. No ledger
+  closes this; it is the ceiling on what these defences can achieve.
+- **Repeatable work has no catalogue rows yet.** Reviews and final-quiz
+  attempts legitimately repeat, so they need date-stamped ids
+  (`review:<topicId>:<date>`) rather than pay-once. The generator does
+  not emit them.
+- **Rank rewards (795 Tokens across the ladder) are still client-side.**
+  `shop/ranks.js` credits them locally, so they evaporate like the rest.
+- **Unit reward tables are intro-cs only.** bike-a3 (unit 31) and
+  philosophy (unit 41) pay nothing at unit level. Faithful to today's
+  behaviour, but probably not intended forever.
+- **`library.js:117` unit reward can grant Tokens** (`UNIT_TOKEN_REWARD`
+  units 3 and 5). Tokens cost real money, so that path deserves a second
+  look independently of where it is written.
+
 ## DECIDED 2026-08-27: country restrictions apply at PAYMENT, not signup
 
 Asked for as "countries from registration should be according to payment
