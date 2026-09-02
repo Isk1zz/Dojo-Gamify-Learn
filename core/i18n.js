@@ -654,6 +654,23 @@ const I18N = (() => {
     // Step 4: the feed.
     "forum.feedTitle":      { en: "The feed",           ru: "Лента" },
 
+    // The bell (core/hud.js). Three things only: a reply, a point, or a
+    // moderator hiding your post. Who gave a point is never named — the
+    // privacy policy says so, and a notification that named them would
+    // make that false.
+    "bell.tip":             { en: "Replies, points and moderation",
+                              ru: "Ответы, признание и модерация" },
+    "bell.empty":           { en: "Nothing new. Anything that happens to your posts shows up here.",
+                              ru: "Ничего нового. Всё, что произойдёт с вашими записями, появится здесь." },
+    "bell.reply":           { en: "{who} replied to your post",
+                              ru: "{who} ответил(а) на вашу запись" },
+    "bell.point":           { en: "Your post was given a point — {n} in total",
+                              ru: "Вашей записи дали очко — всего {n}" },
+    "bell.hidden":          { en: "A moderator hid your post",
+                              ru: "Модератор скрыл вашу запись" },
+    "bell.andMore":         { en: "and {n} more",
+                              ru: "и ещё {n}" },
+
     // Step 5: writing.
     "forum.composeTitle":   { en: "Write something",    ru: "Написать" },
     "forum.composePlaceholder": { en: "Something worth someone else's time.",

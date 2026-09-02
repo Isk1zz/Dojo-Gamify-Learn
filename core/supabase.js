@@ -343,6 +343,34 @@
     return data.map(r => ({ ...r, person: by[r.author] || null }));
   }
 
+  // ---- The bell --------------------------------------------------------
+  // Three things: somebody replied to your post, somebody gave it a
+  // point, or a moderator hid it. There is no notifications table —
+  // all three already exist as rows, and the only stored state is one
+  // timestamp saying when this person last looked (0022).
+
+  async function notifications(limit = 20) {
+    const { data, error } = await getClient().rpc("notifications", { limit_n: limit });
+    if (error) throw error;
+    return data || [];
+  }
+
+  // Just the number, for the lobby badge — so painting the lobby does
+  // not pull text it will not show.
+  async function notificationCount() {
+    const { data, error } = await getClient().rpc("notification_count");
+    if (error) throw error;
+    return data || 0;
+  }
+
+  // Clears the bell. One mark for everything, not per item: a bell you
+  // clear in one press is a bell people actually clear.
+  async function markBellSeen() {
+    const { data, error } = await getClient().rpc("mark_bell_seen");
+    if (error) throw error;
+    return data;
+  }
+
   // GDPR Art. 17. Calls the RPC in 0005_delete_account.sql, which
   // deletes the CALLER's auth.users row; the three data tables follow by
   // ON DELETE CASCADE. Takes no argument on purpose — the server picks
@@ -357,6 +385,7 @@
     deleteAccount, buyCourse, claimEarning, repStatus,
     feed, myGrants, grantReputation,
     createPost, createReply, writeStatus, replies, markViewed,
+    notifications, notificationCount, markBellSeen,
     emailForNickname, nicknameAvailable,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),

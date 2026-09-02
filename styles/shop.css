@@ -138,6 +138,65 @@
 }
 .vital-daynight:hover { transform: rotate(-18deg) scale(1.1); border-color: var(--border-accent); }
 
+/* The bell — same pill as the day/night toggle, sitting beside it. It
+   is rendered only when there is an account to notify (core/hud.js): a
+   bell that can never ring is furniture. */
+.vital-bell {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; border-radius: 999px; cursor: pointer;
+  background: var(--bg-card); border: 1px solid var(--border);
+  font-size: 0.9rem; line-height: 1;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.vital-bell:hover { transform: scale(1.1); border-color: var(--border-accent); }
+.vital-bell:focus-visible { outline: 2px solid var(--accent-light); outline-offset: 2px; }
+/* Lit only when something is waiting. An always-accented bell teaches
+   people to stop looking at it. */
+.vital-bell.has { border-color: var(--border-accent); background: var(--accent-glow); }
+.vb-count {
+  position: absolute; top: -5px; right: -5px;
+  min-width: 15px; height: 15px; padding: 0 3px; box-sizing: border-box;
+  border-radius: 999px; background: var(--red, #ef4444); color: #fff;
+  font-family: var(--mono); font-size: 0.6rem; font-weight: 700;
+  line-height: 15px; text-align: center;
+}
+
+/* The panel. Fixed rather than absolute: the strip sits inside screens
+   that scroll, and a panel that scrolls away from its own bell is worse
+   than one that stays put. */
+.bell-panel {
+  position: fixed; z-index: 90;
+  width: min(22rem, calc(100vw - 1rem));
+  max-height: min(26rem, 70vh); overflow-y: auto;
+  background: var(--bg-card); border: 1px solid var(--border-accent);
+  border-radius: var(--radius); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+.bell-empty { padding: 1.1rem 1rem; font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+.bell-list { display: flex; flex-direction: column; }
+.bell-item {
+  display: grid; grid-template-columns: 1.4rem 1fr auto; gap: 0.5rem;
+  padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--border);
+}
+.bell-item:last-child { border-bottom: none; }
+.bi-icon { font-size: 0.95rem; line-height: 1.4; }
+.bi-head { font-size: 0.85rem; font-weight: 600; line-height: 1.35; }
+/* The learner's own post, quoted so they know WHICH one without opening
+   anything. Clipped to one line: it is a landmark, not the content. */
+.bi-quote {
+  font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.bi-detail {
+  font-size: 0.8rem; color: var(--text-dim); margin-top: 0.3rem;
+  line-height: 1.4; overflow-wrap: anywhere;
+}
+.bi-when { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
+.bell-more {
+  padding: 0.6rem 0.85rem; font-size: 0.78rem; color: var(--text-muted);
+  border-top: 1px solid var(--border); text-align: center;
+}
+
 /* The vitals strip sits under the charge bar, so screens start lower.
    Charge bar is now 2.3rem (was 2.1rem); shifted down by the same delta. */
 #app > .screen { padding-top: 4.5rem; }

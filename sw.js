@@ -203,6 +203,10 @@
 // David.
 // Bumped for the first-run appearance picker: core/onboard.js is a NEW
 // file, with its bar markup in index.html and onb.* strings in i18n.
+// Bumped for the notification bell: hud.js gains the bell and its panel,
+// supabase.js notifications/notificationCount/markBellSeen, i18n the
+// bell.* set, shop.css the .vital-bell and .bell-panel rules. A stale
+// pairing gives a bell with no strings behind it.
 // Bumped for view counts: forum.js gains an IntersectionObserver with a
 // 5s dwell threshold, supabase.js markViewed, plus the privacy policy
 // gaining legal.privacyForum. A stale i18n against a fresh settings.js
@@ -232,7 +236,7 @@
 // i18n drops four dead keys for the garden.ex.* set. A stale cache
 // here would keep serving a Claim button that no longer has any code
 // or any system behind it.
-const CACHE_VERSION = "knell-v63";
+const CACHE_VERSION = "knell-v64";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

@@ -147,15 +147,152 @@
     // data/db.js's getSky.
     const isDay = (DB.getSky ? DB.getSky() : "night") === "day";
     const dnTip = isDay ? "Switch to night" : "Switch to day";
+    // Bell between the currencies and the day/night toggle, not at the
+    // start of the strip: .vital-wallet owns margin-left:auto and pins
+    // the group to the right, so a bell placed first would sit alone at
+    // the far left, detached from everything it belongs with.
     strip.innerHTML = `<span id="vital-wallet-chip" class="vital-wallet" role="button" tabindex="0" title="${moneyTip}"><span class="vw-icon">👏</span>${DB.getReputation()}</span>`
       + `<span id="vital-tokens-chip" class="vital-tokens" role="button" tabindex="0" title="${tokenTip}"><span class="vw-icon">🪙</span>${DB.getTokens()}</span>`
+      + bellHtml()
       + `<button id="vital-daynight" class="vital-daynight" type="button" title="${dnTip}" aria-label="${dnTip}">${isDay ? "🌙" : "☀️"}</button>`;
 
     const dn = document.getElementById("vital-daynight");
     if (dn) dn.addEventListener("click", () => {
       if (Dojo.toggleSky) Dojo.toggleSky();
     });
+    wireBell();
   }
+
+  // ---- The bell --------------------------------------------------------
+  // Lives in the vitals strip rather than in the lobby's dial row: that
+  // row is justify-content:space-between and its own comment warns that
+  // a third item there moves the two controls already in it. The strip
+  // is the app's persistent status line and already the right shape.
+  //
+  // The count is cached and refreshed on demand, never on a timer. A
+  // bell that polls is a bell that costs a request a minute for news
+  // that arrives a few times a day.
+  let bellCount = 0;
+  let bellLoaded = false;
+
+  function bellHtml() {
+    // Nothing at all until there is an account to notify. A bell that
+    // can never ring is furniture.
+    if (!Dojo.Cloud || !Dojo.Cloud.isConfigured()) return "";
+    const tip = I18N.t("bell.tip");
+    const n = bellCount > 99 ? "99+" : String(bellCount);
+    return `<button id="vital-bell" class="vital-bell${bellCount ? " has" : ""}" type="button"
+              title="${tip}" aria-label="${tip}">🔔${
+              bellCount ? `<span class="vb-count">${n}</span>` : ""}</button>`;
+  }
+
+  function wireBell() {
+    const b = document.getElementById("vital-bell");
+    if (!b) return;
+    b.addEventListener("click", () => Dojo.openBell && Dojo.openBell());
+
+    // First paint after sign-in: fetch once, then repaint only if the
+    // number turned out to be non-zero. Repainting for a zero would
+    // rebuild the strip for no visible change.
+    if (bellLoaded) return;
+    bellLoaded = true;
+    refreshBell();
+  }
+
+  async function refreshBell() {
+    if (!Dojo.Cloud || !Dojo.Cloud.isConfigured()) return;
+    try {
+      const session = await Dojo.Cloud.getSession();
+      if (!session) return;
+      const n = await Dojo.Cloud.notificationCount();
+      if (n !== bellCount) { bellCount = n; renderVitals(); }
+    } catch (e) { /* offline: the bell simply does not update */ }
+  }
+
+  const esc = s => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  function bellAgo(iso) {
+    if (!iso) return "";
+    const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (m < 1) return I18N.t("forum.justNow");
+    if (m < 60) return I18N.t("forum.minsAgo", { n: m });
+    const h = Math.floor(m / 60);
+    if (h < 24) return I18N.t("forum.hoursAgo", { n: h });
+    return I18N.t("forum.daysAgo", { n: Math.floor(h / 24) });
+  }
+
+  // One notification. Text from other people is inserted as TEXT — a
+  // reply body reaches this panel straight from a stranger's keyboard.
+  function bellItem(n) {
+    const icon = n.kind === "reply" ? "💬" : n.kind === "point" ? "👏" : "🚫";
+    const head = n.kind === "reply"
+      ? I18N.t("bell.reply", { who: esc(n.who || I18N.t("forum.unknownAuthor")) })
+      : n.kind === "point"
+        ? I18N.t("bell.point", { n: n.score })
+        : I18N.t("bell.hidden");
+    return `
+      <div class="bell-item bell-${esc(n.kind)}">
+        <span class="bi-icon">${icon}</span>
+        <div class="bi-text">
+          <div class="bi-head">${head}</div>
+          <div class="bi-quote">${esc(n.excerpt || "")}</div>
+          ${n.detail ? `<div class="bi-detail">${esc(n.detail)}</div>` : ""}
+        </div>
+        <span class="bi-when">${bellAgo(n.at)}</span>
+      </div>`;
+  }
+
+  function closeBell() {
+    const p = document.getElementById("bell-panel");
+    if (p) p.remove();
+  }
+
+  async function openBell() {
+    if (document.getElementById("bell-panel")) { closeBell(); return; }
+    const anchor = document.getElementById("vital-bell");
+    if (!anchor) return;
+
+    const panel = document.createElement("div");
+    panel.id = "bell-panel";
+    panel.className = "bell-panel";
+    panel.innerHTML = `<div class="bell-empty">${I18N.t("forum.loading")}</div>`;
+    document.body.appendChild(panel);
+
+    const r = anchor.getBoundingClientRect();
+    panel.style.top = `${r.bottom + 8}px`;
+    panel.style.right = `${Math.max(8, window.innerWidth - r.right)}px`;
+
+    let list = [];
+    try { list = await Dojo.Cloud.notifications(20); }
+    catch (e) {
+      panel.innerHTML = `<div class="bell-empty">${I18N.t("forum.figuresOffline")}</div>`;
+      return;
+    }
+
+    panel.innerHTML = list.length
+      ? `<div class="bell-list">${list.map(bellItem).join("")}</div>`
+        + (bellCount > list.length
+            ? `<div class="bell-more">${I18N.t("bell.andMore", { n: bellCount - list.length })}</div>`
+            : "")
+      : `<div class="bell-empty">${I18N.t("bell.empty")}</div>`;
+
+    // Opening IS reading. Marking on open rather than behind a button
+    // means the bell clears itself the moment it has done its job.
+    try {
+      await Dojo.Cloud.markBellSeen();
+      bellCount = 0;
+      renderVitals();
+    } catch (e) { /* offline: it stays unread, which is correct */ }
+  }
+
+  // One listener, bound once. Any click outside closes it.
+  document.addEventListener("click", e => {
+    if (!document.getElementById("bell-panel")) return;
+    if (e.target.closest && (e.target.closest("#bell-panel") || e.target.closest("#vital-bell"))) return;
+    closeBell();
+  });
 
   // Tap the wallet, get a one-line reminder of what it's for. Same
   // popover element doubles for the Tokens chip — one at a time,
@@ -435,5 +572,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { renderCharge, awardCharge, showChargeGain, flyBolt, checkRankUp, renderStreak, celebrateStreak, celebrateReward, warnSaveFailed, moneyBurst, burstConfetti, renderVitals });
+  Object.assign(Dojo, { renderCharge, awardCharge, showChargeGain, flyBolt, openBell, refreshBell, checkRankUp, renderStreak, celebrateStreak, celebrateReward, warnSaveFailed, moneyBurst, burstConfetti, renderVitals });
 })();

@@ -100,7 +100,19 @@ const EXPECTED_EXTRA = new Set([
   "id", "user_id", "created_at", "updated_at", "country",
   // Step 4 claim marker: bookkeeping, not a profile field. See
   // 0002_migration_marker.sql.
-  "migrated_at"
+  "migrated_at",
+  // The bell's read mark (0022). Server-owned state that happens to
+  // live in a mirrored table: the client never reads or writes it — it
+  // asks the server for a count and presses a button to clear it — so
+  // there is deliberately no local field to pair with.
+  //
+  // The test for adding something here is narrow, and it is not "the
+  // checker complained": a column belongs on this list only when the
+  // CLIENT never touches it and the server is the only party that
+  // changes it. Anything the client reads must have a field, or the
+  // display and the database can disagree, which is the whole reason
+  // this check exists.
+  "bell_seen_at"
 ]);
 const profileSnake = new Set(profileKeys.map(camelToSnake));
 const orphanCols = [];
