@@ -261,24 +261,46 @@
     return posts.map(p => ({ ...p, person: by[p.author] || null }));
   }
 
-  // Which of these posts the caller has already given a point to.
-  // rep_grants is readable for your own rows only, which is exactly the
-  // question being asked.
-  async function myGrants(postIds) {
-    if (!postIds.length) return [];
+  // Every target this account has already given a point to — posts and
+  // replies both, since 0028. rep_grants is readable for your own rows
+  // only, which is exactly the question being asked.
+  //
+  // Not filtered by an id list any more. It used to take the ids on
+  // screen and ask about those, which meant a second call whenever a
+  // thread opened. One person's whole grant history is small — the cap
+  // is five a day — so fetching all of it once is cheaper than asking
+  // per view, and it means an expanded thread already knows.
+  async function myGrants() {
     const { data, error } = await getClient()
-      .from("rep_grants").select("post").in("post", postIds);
+      .from("rep_grants").select("post, reply");
     if (error) throw error;
-    return (data || []).map(r => r.post);
+    const ids = [];
+    (data || []).forEach(r => {
+      if (r.post) ids.push(r.post);
+      if (r.reply) ids.push(r.reply);
+    });
+    return ids;
   }
 
-  // Give one point. Every rule lives in the RPC (0010/0011): not your
-  // own post, once per post, ten per author per month, the daily
-  // allowance, and a transaction lock so two clicks cannot both land.
+  // Give one point, to a post OR a reply (0028). Every rule lives in
+  // the RPC: not your own, once per target, ten per author per month
+  // counting both kinds, the daily allowance, and a transaction lock so
+  // two clicks cannot both land.
+  //
+  // Replies were opened to praise because points only went to top-level
+  // posts and there were not enough of them: a five-person cohort
+  // issues 750 points a month and could place 200. Replies are capped
+  // at 30 a day against 3 posts, so this is where the writing is.
+  //
   // Refusals come back as data with a status, not as an exception.
-  async function grantReputation(postId) {
-    const { data, error } = await getClient()
-      .rpc("grant_reputation", { post_id: postId });
+  async function grantReputation(target) {
+    // Accepts a bare post id for the old call shape, or { post } /
+    // { reply }. The bare form is kept because a post grant is still
+    // the common case and reads better at the call site.
+    const arg = typeof target === "string"
+      ? { post_id: target, reply_id: null }
+      : { post_id: target.post || null, reply_id: target.reply || null };
+    const { data, error } = await getClient().rpc("grant_reputation", arg);
     if (error) throw error;
     return data;
   }
@@ -328,7 +350,7 @@
   async function replies(postId) {
     const { data, error } = await getClient()
       .from("replies")
-      .select("id, author, body, created_at")
+      .select("id, author, body, score, created_at")
       .eq("post", postId)
       .order("created_at", { ascending: true });
     if (error) throw error;

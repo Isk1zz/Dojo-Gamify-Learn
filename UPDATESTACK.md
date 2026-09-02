@@ -5,6 +5,43 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## СТИЛИСТИКА 2026-09-03 — themes in the shape of THE FINALS' loading screen
+
+Asked for 2026-09-03. THE FINALS shows the party on its loading screen as
+figures in flatly separated, saturated colours against a dark ground —
+each player a distinct hue, read at a glance, no gradients doing the
+work.
+
+What that would mean here, concretely, since "make it look like X" is
+not something a later reader can act on:
+
+- **Flat, high-chroma colour blocks** rather than the gradients and soft
+  glows the current themes lean on. The distinguishing move is that each
+  element owns one solid colour, and the separation between them is the
+  design.
+- **A dark, near-neutral ground** so the hues carry all the contrast.
+- **Colour as identity, not decoration** — in the game, a colour tells
+  you WHO. The equivalent here is the Forum: a person's avatar hue
+  staying the same everywhere they appear, so a thread reads as a set of
+  people rather than a set of paragraphs.
+
+That last point is the part worth having regardless of whether the
+theme is ever built, and it is cheap: profiles already carry an avatar,
+and public_profiles already publishes it.
+
+**Fits the queued theme economy.** Themes are becoming the sink for
+`$` (see the forum plan, 0.1c): one free at signup plus its daily
+pair, the rest bought, the most striking ones behind rank. A
+distinctive, expensive-looking theme is exactly what that shop needs to
+be worth spending in — so this is content for a system already
+designed, not a new system.
+
+**Check before building:** every theme has to work in light and dark,
+and `syncSkyToTheme` pairs each with a day/night counterpart. A
+committed dark theme needs its light partner decided, not discovered.
+
+---
+
 ## FORUM 2026-09-03 — step 7, the launch switches, and grouping
 
 Steps 0-6 of `docs/FORUM-PLAN.md` are closed. What is left, in the order

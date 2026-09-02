@@ -203,6 +203,9 @@
 // David.
 // Bumped for the first-run appearance picker: core/onboard.js is a NEW
 // file, with its bar markup in index.html and onb.* strings in i18n.
+// Bumped for praise on replies: rep_grants goes polymorphic, replies
+// gain a score column, forum.js renders a give-button per reply, and
+// supabase.js grantReputation takes a target rather than a post id.
 // Bumped for withering and holiday: garden.js gains effectiveInterval,
 // db.js the holiday state and the due-date shift, settings.js the
 // holiday section, sync.js pullHoliday, supabase.js three RPCs, i18n
@@ -241,7 +244,7 @@
 // i18n drops four dead keys for the garden.ex.* set. A stale cache
 // here would keep serving a Claim button that no longer has any code
 // or any system behind it.
-const CACHE_VERSION = "knell-v65";
+const CACHE_VERSION = "knell-v66";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

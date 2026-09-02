@@ -653,8 +653,14 @@ const I18N = (() => {
                               ru: "Короткие синтезированные звуки нажатий, ответов и наград — без аудиофайлов, генерируются на лету." },
     "set.legal":            { en: "Legal",               ru: "Правовое" },
     "set.yourData":         { en: "Your data",           ru: "Ваши данные" },
-    "set.dataNote":         { en: "Progress is stored in this browser only. Export before clearing browser data or switching machines.",
-                              ru: "Прогресс хранится только в этом браузере. Выгрузите его перед очисткой данных браузера или сменой устройства." },
+    // Corrected 2026-09-03. This said "stored in this browser only.
+    // Export before clearing browser data or switching machines" —
+    // written before accounts existed, and left standing for a session
+    // after progress started syncing. It advised the opposite of the
+    // truth about the one thing people most need to be right about:
+    // whether their work is safe.
+    "set.dataNote":         { en: "Your progress is kept in this browser AND in your account, and the two sync whenever you are online — so signing in on another device brings it with you. Export gives you a copy of your own, for keeping or for leaving.",
+                              ru: "Прогресс хранится и в этом браузере, и в вашем аккаунте, и они синхронизируются при подключении — поэтому вход с другого устройства приносит его с собой. «Экспорт» даёт вам собственную копию: чтобы хранить или чтобы уйти." },
     "set.export":           { en: "Export Data",         ru: "Выгрузить данные" },
     "set.import":           { en: "Import Data",         ru: "Загрузить данные" },
 

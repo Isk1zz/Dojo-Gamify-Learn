@@ -1655,6 +1655,14 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 }
 .reply .post-head { margin-bottom: 0.3rem; }
 .reply .post-body { font-size: 0.88rem; }
+.reply-foot {
+  display: flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem;
+}
+/* Lighter than a post foot: a reply is inside a thread that already has
+   a border, and a second heavy rule would box it twice. */
+.reply-foot .post-give { font-size: 0.72rem; padding: 0.22rem 0.6rem; }
+.reply-foot .post-score { font-size: 0.78rem; }
+.reply.own { opacity: 0.85; }
 .reply-box { display: flex; flex-direction: column; gap: 0.45rem; }
 .reply-box .btn-ghost { align-self: flex-start; font-size: 0.8rem; }
 

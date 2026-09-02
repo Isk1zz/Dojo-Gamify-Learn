@@ -158,7 +158,11 @@
   async function fetchFeed() {
     try {
       const list = await Dojo.Cloud.feed({ limit: 30 });
-      const mine = await Dojo.Cloud.myGrants(list.map(p => p.id));
+      // Every target this account has ever paid for, posts and replies
+      // both. Fetched whole rather than per view: the daily cap is five,
+      // so one person's history is small, and an expanded thread then
+      // already knows without a second call.
+      const mine = await Dojo.Cloud.myGrants();
       posts = list;
       granted = new Set(mine);
     } catch (e) {
@@ -250,7 +254,7 @@
                   ${off ? "disabled" : ""}
                   ${why ? `title="${esc(why)}"` : ""}>${label}</button>
         </div>
-        ${threadHtml(p.id)}
+        ${threadHtml(p.id, status)}
       </article>`;
   }
 
@@ -276,24 +280,53 @@
       </div>`;
   }
 
-  // One reply. No give-button: reputation is spent on posts, not on
-  // replies — one point per post is the cap, and splitting it across a
-  // thread would make a long argument worth more than a good one.
-  function replyHtml(r) {
+  // One reply, WITH a give-button since 0028.
+  //
+  // It had none, on the reasoning that splitting a point across a thread
+  // would make a long argument worth more than a good one. That reason
+  // was wrong about the mechanics: the cap is one point per TARGET, not
+  // per thread, and the monthly per-author cap counts both kinds
+  // together — so praising replies cannot hand anyone more than praising
+  // posts could.
+  //
+  // What it did cause was a currency with nowhere to go: a small cohort
+  // issues far more points than there are posts to place them on, and
+  // over 73% expired unspent. Replies are capped at 30 a day against 3
+  // posts, so this is where the writing is.
+  function replyHtml(r, status) {
     const who = r.person ? esc(r.person.name) : I18N.t("forum.unknownAuthor");
     const av  = r.person && r.person.avatar ? esc(r.person.avatar) : "\u{1F464}";
+    const mine = r.author === me;
+    const already = granted.has(r.id);
+    const noneLeft = !status || status.state !== "ok" || status.s.left_today <= 0;
+
+    let label, why = "", off = true;
+    if (mine)          { label = I18N.t("forum.yours"); }
+    else if (already)  { label = I18N.t("forum.gave"); }
+    else if (noneLeft) { label = I18N.t("forum.give"); why = I18N.t("forum.noAllowance"); }
+    else               { label = I18N.t("forum.give"); off = false; }
+
     return `
-      <div class="reply">
+      <div class="reply${mine ? " own" : ""}">
         <div class="post-head">
           <span class="post-av">${av}</span>
           <span class="post-who">${who}</span>
           <span class="post-when">${whenText(r.created_at)}</span>
         </div>
         <div class="post-body">${body(r.body)}</div>
+        <div class="reply-foot">
+          <span class="post-score" title="${esc(I18N.t("forum.scoreTip"))}">
+            \u{1F44F} <span class="ps-num">${r.score || 0}</span>
+          </span>
+          <button class="post-give${already ? " done" : ""}"
+                  data-post="${esc(r.id)}" data-kind="reply"
+                  ${off ? "disabled" : ""}
+                  ${why ? `title="${esc(why)}"` : ""}>${label}</button>
+        </div>
       </div>`;
   }
 
-  function threadHtml(postId) {
+  function threadHtml(postId, status) {
     if (openThread !== postId) return "";
     const list = threadCache[postId];
     if (!list) return `<div class="thread"><p class="settings-hint">${I18N.t("forum.loading")}</p></div>`;
@@ -302,7 +335,7 @@
     return `
       <div class="thread">
         ${list.length
-          ? list.map(replyHtml).join("")
+          ? list.map(r => replyHtml(r, status)).join("")
           : `<p class="settings-hint">${I18N.t("forum.noReplies")}</p>`}
         <div class="reply-box">
           <textarea class="compose-text reply-text" rows="2" maxlength="4000"
@@ -447,16 +480,29 @@
   // happen" bug gets written.
   async function give(btn) {
     const id = btn.getAttribute("data-post");
+    // Replies can be praised too since 0028 — most of the writing lives
+    // there (30 a day against 3 posts), and points had nowhere to go.
+    const kind = btn.getAttribute("data-kind") === "reply" ? "reply" : "post";
     btn.disabled = true;
     btn.textContent = I18N.t("forum.giving");
     try {
-      const r = await Dojo.Cloud.grantReputation(id);
+      const r = await Dojo.Cloud.grantReputation(
+        kind === "reply" ? { reply: id } : { post: id });
       if (r && r.status === "granted") {
         granted.add(id);
-        const p = posts.find(x => x.id === id);
         // The score the SERVER returned, not score + 1 — if the two
         // ever differ, the server is right.
-        if (p && r.score != null) p.score = r.score;
+        if (r.score != null) {
+          if (kind === "post") {
+            const p = posts.find(x => x.id === id);
+            if (p) p.score = r.score;
+          } else {
+            Object.values(threadCache).forEach(list => {
+              const rep = (list || []).find(x => x.id === id);
+              if (rep) rep.score = r.score;
+            });
+          }
+        }
       }
       // "already_granted" lands here too, and is the correct outcome of
       // a reload racing a click: mark it and move on.
