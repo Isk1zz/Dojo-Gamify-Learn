@@ -1616,6 +1616,44 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 }
 .post-give.done { opacity: 1; color: var(--text-dim); border-style: dashed; }
 
+.post-thread {
+  margin-left: auto; font-size: 0.78rem; padding: 0.3rem 0.6rem;
+}
+.post-thread + .post-give { margin-left: 0; }
+
+/* Writing. The box is plain on purpose — a forum that decorates the
+   compose field is telling you the writing matters less than the UI. */
+.compose-text {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  font: inherit; font-size: 0.92rem; line-height: 1.5;
+  padding: 0.7rem 0.8rem; border-radius: var(--radius-xs);
+  background: var(--bg-card); color: var(--text);
+  border: 1px solid var(--border);
+}
+.compose-text:focus { outline: none; border-color: var(--border-accent); }
+.compose-text:disabled { opacity: 0.55; cursor: not-allowed; }
+.compose-foot {
+  display: flex; align-items: center; gap: 0.75rem; margin-top: 0.55rem;
+}
+/* The remaining count sits BESIDE the button, not under the box, so it
+   is read before the click rather than after. */
+.compose-left { font-size: 0.78rem; color: var(--text-muted); }
+.compose-foot .btn-primary { margin-left: auto; font-size: 0.85rem; padding: 0.4rem 1rem; }
+.compose.spent .compose-left { color: var(--text-dim); }
+
+/* A thread is inset under its post, so it reads as belonging to it
+   rather than as more feed. */
+.thread {
+  margin-top: 0.8rem; padding-top: 0.7rem; padding-left: 0.9rem;
+  border-top: 1px solid var(--border);
+  border-left: 2px solid var(--border-accent);
+  display: flex; flex-direction: column; gap: 0.7rem;
+}
+.reply .post-head { margin-bottom: 0.3rem; }
+.reply .post-body { font-size: 0.88rem; }
+.reply-box { display: flex; flex-direction: column; gap: 0.45rem; }
+.reply-box .btn-ghost { align-self: flex-start; font-size: 0.8rem; }
+
 @media (max-width: 26rem) {
   .forum-figures { grid-template-columns: 1fr; }
   .fig { display: flex; align-items: baseline; justify-content: space-between; text-align: left; }

@@ -48,6 +48,10 @@
   let posts = null;      // last loaded page, or null before the first
   let granted = new Set(); // post ids this account has already paid for
   let me = null;         // own user id, so "your own post" can be shown
+  let writeLeft = null;  // { post_cap, posts_left, reply_cap, replies_left }
+  let openThread = null; // post id whose replies are expanded, or null
+  let threadCache = {};  // post id -> replies, so collapsing is free
+  let draft = "";        // survives a repaint mid-typing
 
   const esc = s => String(s == null ? "" : s)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -95,6 +99,11 @@
       console.info("[forum] feed unavailable:", e.message);
       posts = null;
     }
+    // How much writing is left today. Fetched with the feed rather than
+    // when the box opens, so the number is on screen BEFORE somebody
+    // types eight thousand characters and then learns they had none.
+    try { writeLeft = await Dojo.Cloud.writeStatus(); }
+    catch (e) { writeLeft = null; }
   }
 
   const num = n => `<span class="fs-num">${n == null ? "—" : n}</span>`;
@@ -165,12 +174,76 @@
           <span class="post-score" title="${esc(I18N.t("forum.scoreTip"))}">
             \u{1F44F} <span class="ps-num">${p.score}</span>
           </span>
+          <button class="post-thread btn-ghost" data-post="${esc(p.id)}">${
+            I18N.t(openThread === p.id ? "forum.hideThread" : "forum.showThread")}</button>
           <button class="post-give${already ? " done" : ""}"
                   data-post="${esc(p.id)}"
                   ${off ? "disabled" : ""}
                   ${why ? `title="${esc(why)}"` : ""}>${label}</button>
         </div>
+        ${threadHtml(p.id)}
       </article>`;
+  }
+
+  // The compose box. Says what is left before anyone starts typing.
+  function composeHtml(status) {
+    if (!status || status.state !== "ok") return "";
+    const left = writeLeft ? writeLeft.posts_left : null;
+    const cap  = writeLeft ? writeLeft.post_cap : null;
+    const out  = left === 0;
+
+    return `
+      <div class="compose${out ? " spent" : ""}">
+        <textarea id="compose-body" class="compose-text" rows="3"
+                  maxlength="8000"
+                  placeholder="${esc(I18N.t(out ? "forum.composeSpent" : "forum.composePlaceholder"))}"
+                  ${out ? "disabled" : ""}>${esc(draft)}</textarea>
+        <div class="compose-foot">
+          <span class="compose-left">${
+            left == null ? "" : I18N.t("forum.postsLeft", { n: left, of: cap })}</span>
+          <button id="compose-send" class="btn-primary" ${out ? "disabled" : ""}>
+            ${I18N.t("forum.publish")}</button>
+        </div>
+      </div>`;
+  }
+
+  // One reply. No give-button: reputation is spent on posts, not on
+  // replies — one point per post is the cap, and splitting it across a
+  // thread would make a long argument worth more than a good one.
+  function replyHtml(r) {
+    const who = r.person ? esc(r.person.name) : I18N.t("forum.unknownAuthor");
+    const av  = r.person && r.person.avatar ? esc(r.person.avatar) : "\u{1F464}";
+    return `
+      <div class="reply">
+        <div class="post-head">
+          <span class="post-av">${av}</span>
+          <span class="post-who">${who}</span>
+          <span class="post-when">${whenText(r.created_at)}</span>
+        </div>
+        <div class="post-body">${body(r.body)}</div>
+      </div>`;
+  }
+
+  function threadHtml(postId) {
+    if (openThread !== postId) return "";
+    const list = threadCache[postId];
+    if (!list) return `<div class="thread"><p class="settings-hint">${I18N.t("forum.loading")}</p></div>`;
+
+    const canReply = writeLeft ? writeLeft.replies_left > 0 : true;
+    return `
+      <div class="thread">
+        ${list.length
+          ? list.map(replyHtml).join("")
+          : `<p class="settings-hint">${I18N.t("forum.noReplies")}</p>`}
+        <div class="reply-box">
+          <textarea class="compose-text reply-text" rows="2" maxlength="4000"
+                    data-post="${esc(postId)}"
+                    placeholder="${esc(I18N.t(canReply ? "forum.replyPlaceholder" : "forum.replySpent"))}"
+                    ${canReply ? "" : "disabled"}></textarea>
+          <button class="reply-send btn-ghost" data-post="${esc(postId)}"
+                  ${canReply ? "" : "disabled"}>${I18N.t("forum.reply")}</button>
+        </div>
+      </div>`;
   }
 
   function feedHtml(status) {
@@ -208,6 +281,12 @@
         </p>
       </div>
 
+      ${r.state === "ok" ? `
+      <div class="settings-section">
+        <div class="stats-section-title">\u{270D}\u{FE0F} ${I18N.t("forum.composeTitle")}</div>
+        ${composeHtml(r)}
+      </div>` : ""}
+
       <div class="settings-section${empty ? " forum-empty" : ""}">
         <div class="stats-section-title">${empty ? "\u{1F6A7}" : "\u{1F4AC}"} ${
           I18N.t(empty ? "forum.emptyTitle" : "forum.feedTitle")}</div>
@@ -217,6 +296,73 @@
     root.querySelectorAll(".post-give:not([disabled])").forEach(btn => {
       btn.addEventListener("click", () => give(btn));
     });
+    root.querySelectorAll(".post-thread").forEach(btn => {
+      btn.addEventListener("click", () => toggleThread(btn.getAttribute("data-post")));
+    });
+    root.querySelectorAll(".reply-send:not([disabled])").forEach(btn => {
+      btn.addEventListener("click", () => sendReply(btn.getAttribute("data-post")));
+    });
+
+    // The draft survives repaints. Without this, the feed refreshing
+    // under someone mid-sentence would eat what they had written.
+    const box = root.querySelector("#compose-body");
+    if (box) {
+      box.addEventListener("input", () => { draft = box.value; });
+      const send = root.querySelector("#compose-send");
+      if (send) send.addEventListener("click", () => publish(box));
+    }
+  }
+
+  // ---- Writing --------------------------------------------------------
+
+  async function publish(box) {
+    const text = box.value.trim();
+    if (!text) return;
+    box.disabled = true;
+    try {
+      const r = await Dojo.Cloud.createPost(text);
+      if (r && r.status === "posted") {
+        draft = "";                       // only cleared on a real post
+      } else if (r && r.status === "daily_cap") {
+        // Not an error. The box will repaint disabled with the reason.
+        console.info("[forum] daily post cap reached");
+      }
+    } catch (e) {
+      console.info("[forum] post refused:", e.message);
+    }
+    cached = await fetchStatus();
+    await fetchFeed();
+    paint(cached);
+  }
+
+  async function toggleThread(postId) {
+    openThread = openThread === postId ? null : postId;
+    paint(cached);
+    if (openThread && !threadCache[openThread]) {
+      try { threadCache[postId] = await Dojo.Cloud.replies(postId); }
+      catch (e) { threadCache[postId] = []; }
+      paint(cached);
+    }
+  }
+
+  async function sendReply(postId) {
+    const root = document.getElementById("forum-body");
+    const box = root.querySelector(`.reply-text[data-post="${postId}"]`);
+    const text = box ? box.value.trim() : "";
+    if (!text) return;
+    if (box) box.disabled = true;
+    try {
+      await Dojo.Cloud.createReply(postId, text);
+    } catch (e) {
+      console.info("[forum] reply refused:", e.message);
+    }
+    // Drop the cached thread so the new reply is actually fetched rather
+    // than appended locally — the server is what decides it landed.
+    delete threadCache[postId];
+    try { threadCache[postId] = await Dojo.Cloud.replies(postId); }
+    catch (e) { threadCache[postId] = []; }
+    await fetchFeed();
+    paint(cached);
   }
 
   // Giving. The server decides; this only reports what it decided.

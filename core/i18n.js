@@ -651,6 +651,24 @@ const I18N = (() => {
 
     // Step 4: the feed.
     "forum.feedTitle":      { en: "The feed",           ru: "Лента" },
+
+    // Step 5: writing.
+    "forum.composeTitle":   { en: "Write something",    ru: "Написать" },
+    "forum.composePlaceholder": { en: "Something worth someone else's time.",
+                              ru: "Что-то, на что не жалко чужого времени." },
+    "forum.composeSpent":   { en: "You have used today's posts. The count refills tomorrow.",
+                              ru: "Записи на сегодня кончились. Счётчик обновится завтра." },
+    "forum.publish":        { en: "Publish",            ru: "Опубликовать" },
+    "forum.postsLeft":      { en: "{n} of {of} posts left today",
+                              ru: "осталось записей сегодня: {n} из {of}" },
+    "forum.showThread":     { en: "Replies",            ru: "Ответы" },
+    "forum.hideThread":     { en: "Hide replies",       ru: "Скрыть ответы" },
+    "forum.noReplies":      { en: "No replies yet.",    ru: "Ответов пока нет." },
+    "forum.reply":          { en: "Reply",              ru: "Ответить" },
+    "forum.replyPlaceholder": { en: "Add to the thread…", ru: "Добавить к обсуждению…" },
+    "forum.replySpent":     { en: "You have used today's replies.",
+                              ru: "Ответы на сегодня кончились." },
+    "forum.loading":        { en: "Loading…",           ru: "Загружаю…" },
     "forum.give":           { en: "Give a point",       ru: "Дать очко" },
     "forum.giving":         { en: "Giving…",            ru: "Отдаю…" },
     "forum.gave":           { en: "Given",              ru: "Отдано" },

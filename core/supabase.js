@@ -283,6 +283,55 @@
     return data;
   }
 
+  // ---- Forum writing --------------------------------------------------
+  // All three are RPCs, never inserts. The server sets author from
+  // auth.uid(), so nothing can be published under another name, and the
+  // daily caps live in the same function as the insert (0018).
+
+  // Returns { status: "posted", id, left_today } or
+  // { status: "daily_cap", cap, today }. A refused post is data, not an
+  // exception — running out of allowance is an ordinary afternoon.
+  async function createPost(text) {
+    const { data, error } = await getClient().rpc("create_post", { body: text });
+    if (error) throw error;
+    return data;
+  }
+
+  async function createReply(postId, text) {
+    const { data, error } = await getClient()
+      .rpc("create_reply", { post_id: postId, body: text });
+    if (error) throw error;
+    return data;
+  }
+
+  // What is left to write today. Read before the compose box opens, so
+  // it can say the number rather than letting somebody type at length
+  // and only then learn they had nothing left.
+  async function writeStatus() {
+    const { data, error } = await getClient().rpc("write_status");
+    if (error) throw error;
+    return data;
+  }
+
+  // A thread's replies, oldest first — a conversation reads forwards.
+  async function replies(postId) {
+    const { data, error } = await getClient()
+      .from("replies")
+      .select("id, author, body, created_at")
+      .eq("post", postId)
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    if (!data.length) return [];
+
+    const ids = [...new Set(data.map(r => r.author))];
+    const { data: people, error: pe } = await getClient()
+      .rpc("public_profiles", { ids });
+    if (pe) throw pe;
+    const by = {};
+    (people || []).forEach(p => { by[p.id] = p; });
+    return data.map(r => ({ ...r, person: by[r.author] || null }));
+  }
+
   // GDPR Art. 17. Calls the RPC in 0005_delete_account.sql, which
   // deletes the CALLER's auth.users row; the three data tables follow by
   // ON DELETE CASCADE. Takes no argument on purpose — the server picks
@@ -296,6 +345,7 @@
     isConfigured,
     deleteAccount, buyCourse, claimEarning, repStatus,
     feed, myGrants, grantReputation,
+    createPost, createReply, writeStatus, replies,
     emailForNickname, nicknameAvailable,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),
