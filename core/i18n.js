@@ -582,6 +582,20 @@ const I18N = (() => {
 
     // Settings
     "set.sound":            { en: "Sound effects",       ru: "Звуки" },
+
+    // Holiday (migrations 0026/0027). Every number here comes from the
+    // server; the section stays hidden until it answers.
+    "set.holidayTitle":     { en: "Holiday",            ru: "Отпуск" },
+    "set.holidayNote":      { en: "Away for a while? Nothing in the Garden withers while holiday is on, and your reviews wait for you rather than piling up. Your reputation allowance is zero while it lasts — that is what makes it safe to offer with no strings.",
+                              ru: "Уезжаете или заболели? Пока отпуск включён, в Саду ничего не вянет, а повторения ждут вас, а не копятся. Норма признания на это время — ноль: именно поэтому отпуск можно давать без оговорок." },
+    "set.holidayStart":     { en: "Start holiday",      ru: "Уйти в отпуск" },
+    "set.holidayEnd":       { en: "I'm back",           ru: "Я вернулся" },
+    "set.holidayAway":      { en: "<strong>You are away.</strong> The Garden is holding.",
+                              ru: "<strong>Вы в отпуске.</strong> Сад держится." },
+    "set.holidayLeft":      { en: "{n} of {of} holiday days left this year",
+                              ru: "осталось дней отпуска в этом году: {n} из {of}" },
+    "set.holidayNoBudget":  { en: "No holiday days left this year",
+                              ru: "Дни отпуска на этот год кончились" },
     "set.privacy":          { en: "Privacy Policy",      ru: "Политика конфиденциальности" },
     "set.draftNote":        { en: "Draft. Being reviewed before any paid release.",
                               ru: "Черновик. Будет проверен до любого платного выпуска." },

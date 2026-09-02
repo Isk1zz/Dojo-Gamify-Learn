@@ -59,6 +59,18 @@
           <span>${I18N.t("set.showHints")}</span>
         </label>
       </div>
+      <!-- Holiday. In Settings rather than the lobby on purpose: it is a
+           rare, deliberate act, and a switch that pauses the Garden
+           should not sit where somebody taps by accident. Painted empty
+           and filled in when the server answers — the budget is the
+           server's to report, and inventing a number here would be the
+           thing this project keeps correcting. -->
+      <div class="settings-section" id="holiday-section" style="display:none;">
+        <div class="stats-section-title">\u{1F334} ${I18N.t("set.holidayTitle")}</div>
+        <p class="settings-hint">${I18N.t("set.holidayNote")}</p>
+        <div id="holiday-body"></div>
+      </div>
+
       <div class="settings-section">
         <div class="stats-section-title">\u{1F50A} ${I18N.t("set.soundTitle")}</div>
         <p class="settings-hint">${I18N.t("set.soundNote")}</p>
@@ -115,6 +127,8 @@
     body.querySelectorAll(".lang-btn").forEach(btn => {
       btn.addEventListener("click", () => I18N.set(btn.dataset.lang));
     });
+
+    paintHoliday();
 
     const hintsToggle = document.getElementById("hints-toggle");
     if (hintsToggle) hintsToggle.addEventListener("change", () => {
@@ -216,5 +230,65 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
+  // ---- Holiday ---------------------------------------------------------
+  // Everything here comes from the server, which owns the flag and the
+  // budget (migrations 0026/0027). The section stays hidden until it
+  // answers: a switch drawn from a guess would be a switch that lies
+  // about how many days are left.
+  async function paintHoliday() {
+    const section = document.getElementById("holiday-section");
+    const body = document.getElementById("holiday-body");
+    if (!section || !body) return;
+    if (!Dojo.Cloud || !Dojo.Cloud.isConfigured()) return;
+
+    let h = null;
+    try {
+      const session = await Dojo.Cloud.getSession();
+      if (!session) return;               // signed out: nothing to pause
+      h = await Dojo.Cloud.holidayStatus();
+    } catch (e) { return; }               // offline: leave it hidden
+    if (!h) return;
+
+    section.style.display = "";
+    const left = h.remaining || 0;
+
+    body.innerHTML = h.away
+      ? `<div class="holiday-state away">
+           <div class="hs-line">${I18N.t("set.holidayAway")}</div>
+           <div class="hs-sub">${I18N.t("set.holidayLeft", { n: left, of: h.budget })}</div>
+         </div>
+         <button id="holiday-end" class="btn-primary">${I18N.t("set.holidayEnd")}</button>`
+      : `<div class="holiday-state">
+           <div class="hs-sub">${I18N.t("set.holidayLeft", { n: left, of: h.budget })}</div>
+         </div>
+         <button id="holiday-start" class="btn-ghost" ${left <= 0 ? "disabled" : ""}
+                 ${left <= 0 ? `title="${I18N.t("set.holidayNoBudget")}"` : ""}>
+           ${I18N.t("set.holidayStart")}</button>`;
+
+    const start = document.getElementById("holiday-start");
+    if (start) start.addEventListener("click", async () => {
+      start.disabled = true;
+      try {
+        const r = await Dojo.Cloud.startHoliday();
+        if (r && r.status === "away") DB.setHoliday(r.since);
+      } catch (e) { console.info("[holiday] start failed:", e.message); }
+      paintHoliday();
+    });
+
+    const end = document.getElementById("holiday-end");
+    if (end) end.addEventListener("click", async () => {
+      end.disabled = true;
+      try {
+        const r = await Dojo.Cloud.endHoliday();
+        // The SERVER decides how many days are forgiven; the client
+        // shifts its own due dates by exactly that number so the two
+        // never drift. Days taken past the budget are not in it.
+        if (r && r.status === "back") DB.endHoliday(r.days || 0);
+      } catch (e) { console.info("[holiday] end failed:", e.message); }
+      paintHoliday();
+      if (Dojo.renderGarden && document.querySelector("#garden.active")) Dojo.renderGarden();
+    });
+  }
+
   Object.assign(Dojo, { renderSettings });
 })();

@@ -66,10 +66,47 @@
       const attempted = stats && stats.topicStats[topicId] && stats.topicStats[topicId].attempts > 0;
       return attempted ? GROWTH[1] : GROWTH[0];
     }
-    const interval = (r && r.interval) || 1;
+    const interval = effectiveInterval(r);
     let stage = GROWTH[2];
     GROWTH.forEach(g => { if (g.min >= 1 && interval >= g.min) stage = g; });
     return stage;
+  }
+
+  // ---- Withering ------------------------------------------------------
+  // A plant drops back when its review is OVERDUE, not only when a review
+  // is failed. Until 2026-09-03 it did the latter only: `interval` is
+  // written in one place, DB.scheduleReview, which runs when somebody
+  // actually sits down. Staying away changed nothing, so an abandoned
+  // garden kept its trees forever — and the app's own text promised
+  // otherwise.
+  //
+  // One day off the interval per day overdue, after a week of grace,
+  // never below 1. Linear rather than a forgetting curve because it can
+  // be said in a sentence to the person it happens to; a rule nobody can
+  // anticipate while looking at their own garden reads as arbitrary.
+  //
+  // MUST match public.effective_interval in migration 0026 exactly. The
+  // server is the authority — it decides the reputation allowance — and
+  // this copy exists so the Garden draws correctly with no network.
+  // These two have disagreed before, and the failure was silent.
+  const GRACE_DAYS = 7;
+
+  function effectiveInterval(r) {
+    const interval = (r && r.interval) || 1;
+    if (!r || !r.due) return interval;   // never scheduled: nothing is overdue
+
+    const today = new Date().toISOString().slice(0, 10);
+    const overdue = Math.floor(
+      (new Date(today) - new Date(r.due)) / 86400000);
+    if (overdue <= 0) return interval;
+
+    // Days banked from finished holidays are forgiven on top of the
+    // grace week — time away is not forgetting. DB holds what the
+    // server returned from end_holiday.
+    const grace = GRACE_DAYS + (DB.getHolidayDays ? DB.getHolidayDays() : 0);
+    if (DB.isOnHoliday && DB.isOnHoliday()) return interval;
+
+    return Math.max(1, interval - Math.max(0, overdue - grace));
   }
 
 

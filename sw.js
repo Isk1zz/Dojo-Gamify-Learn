@@ -203,6 +203,11 @@
 // David.
 // Bumped for the first-run appearance picker: core/onboard.js is a NEW
 // file, with its bar markup in index.html and onb.* strings in i18n.
+// Bumped for withering and holiday: garden.js gains effectiveInterval,
+// db.js the holiday state and the due-date shift, settings.js the
+// holiday section, sync.js pullHoliday, supabase.js three RPCs, i18n
+// the set.holiday* set. A stale pairing shows a holiday switch that
+// cannot talk to the functions behind it.
 // Bumped for the notification bell: hud.js gains the bell and its panel,
 // supabase.js notifications/notificationCount/markBellSeen, i18n the
 // bell.* set, shop.css the .vital-bell and .bell-panel rules. A stale
@@ -236,7 +241,7 @@
 // i18n drops four dead keys for the garden.ex.* set. A stale cache
 // here would keep serving a Claim button that no longer has any code
 // or any system behind it.
-const CACHE_VERSION = "knell-v64";
+const CACHE_VERSION = "knell-v65";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

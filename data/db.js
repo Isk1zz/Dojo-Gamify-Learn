@@ -127,6 +127,12 @@ const DB = (() => {
       // schema drift check pairs every column with a field. Dropping
       // the field without dropping the column reports as drift.
       lastDividendClaim: null,
+      // Holiday (0026). Mirrors the server, which is the authority:
+      // while away nothing withers AND the reputation allowance is
+      // zero. holidayDays is time already forgiven, added to the
+      // seven-day grace on overdue reviews.
+      holidaySince: null,
+      holidayDays: 0,
       inventory: [],         // purchased life-shop item ids
       storyProgress: {
         unlockedNodes: ["act1_node1"],
@@ -299,6 +305,8 @@ const DB = (() => {
         // zero. Never drop a field in a migration.
         if (typeof p.wallet !== "number") p.wallet = 0;
         if (p.lastDividendClaim === undefined) p.lastDividendClaim = null;
+        if (p.holidaySince === undefined) p.holidaySince = null;
+        if (p.holidayDays === undefined) p.holidayDays = 0;
         if (!Array.isArray(p.inventory)) p.inventory = [];
         if (!p.storyProgress) p.storyProgress = { unlockedNodes: ["act1_node1"], completedNodes: [] };
         if (!p.storyProgress.attempts) p.storyProgress.attempts = {};
@@ -873,6 +881,62 @@ const DB = (() => {
   }
 
   // quality: 0-5. Derived from exam percentage.
+  // ---- Holiday ----
+  // Mirrors what the SERVER holds (migration 0026). Stored locally only
+  // so the Garden can draw correctly with no network; the server decides
+  // the reputation allowance and is the authority on both values.
+  //
+  // While away nothing withers, and the reputation allowance is zero.
+  // That pairing is the whole safeguard — there is no quota on holiday
+  // because leaving it on means giving up your voice on the Forum to
+  // protect a number.
+  function isOnHoliday() {
+    const p = getActiveProfile();
+    return !!(p && p.holidaySince);
+  }
+
+  function getHolidayDays() {
+    const p = getActiveProfile();
+    return (p && p.holidayDays) || 0;
+  }
+
+  function setHoliday(sinceIso) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return;
+    p.holidaySince = sinceIso || null;
+    save(db);
+  }
+
+  // Called on return with the day count the SERVER computed, so both
+  // sides forgive the same number and cannot drift.
+  //
+  // Shifts every scheduled review forward by that many days. Without
+  // this, a fortnight away returns as a wall of forty due topics, which
+  // is a documented reason people abandon spaced repetition outright —
+  // and the reviews were displaced by the absence, not earned by it.
+  function endHoliday(days) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return 0;
+    const n = Math.max(0, days | 0);
+
+    if (n > 0 && p.reviews) {
+      Object.keys(p.reviews).forEach(id => {
+        const r = p.reviews[id];
+        if (!r || !r.due) return;
+        const d = new Date(r.due);
+        d.setDate(d.getDate() + n);
+        r.due = d.toISOString().slice(0, 10);
+      });
+    }
+
+    p.holidaySince = null;
+    p.holidayDays = ((p.holidayDays || 0) + n);
+    save(db);
+    return n;
+  }
+
   function scheduleReview(topicId, quality) {
     const db = load();
     const p = db.profiles[db.activeProfileId];
@@ -1611,6 +1675,7 @@ const DB = (() => {
     getStats,
     scheduleReview,
     getReviews,
+    isOnHoliday, getHolidayDays, setHoliday, endHoliday,
     getDueTopicIds,
     daysUntilDue,
     getWeakSpots,

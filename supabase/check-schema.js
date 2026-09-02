@@ -65,17 +65,35 @@ for (const m of sql.matchAll(/create table public\.(\w+) \(([\s\S]*?)\n\);/g)) {
 
 // Columns added by a later migration, which arrive as ALTER TABLE
 // rather than inside the CREATE TABLE body above.
-for (const m of sql.matchAll(
-  /alter table public\.(\w+)\s+add column(?:\s+if not exists)?\s+([a-z_][a-z0-9_]*)/gi
-)) {
-  const [, table, col] = m;
+//
+// Two passes, because one ALTER may add SEVERAL columns:
+//
+//     alter table public.profiles
+//       add column if not exists holiday_since timestamptz,
+//       add column if not exists holiday_days int not null default 0;
+//
+// The first version of this matched `alter table ... add column NAME`
+// as one unit and therefore saw only the first of those. It reported
+// holiday_days as a missing column when the column existed — and would
+// equally have missed a genuine orphan, which is the failure that
+// matters: a check that silently sees less than it claims to.
+//
+// So: find the whole statement, then every `add column` inside it.
+for (const stmt of sql.matchAll(/alter table public\.(\w+)([\s\S]*?);/gi)) {
+  const [, table, body] = stmt;
   // Only the mirrored three. Without this an ALTER on a server-owned
   // table creates an entry here — which is exactly how 0015's
   // `alter table earnings add column period` came to be reported as
   // profile drift.
   if (!MIRRORED.includes(table)) continue;
-  if (!tables[table]) tables[table] = [];
-  if (!tables[table].includes(col)) tables[table].push(col);
+
+  for (const col of body.matchAll(
+    /add column(?:\s+if not exists)?\s+([a-z_][a-z0-9_]*)/gi
+  )) {
+    const name = col[1];
+    if (!tables[table]) tables[table] = [];
+    if (!tables[table].includes(name)) tables[table].push(name);
+  }
 }
 
 const allCols = new Set(Object.values(tables).flat());

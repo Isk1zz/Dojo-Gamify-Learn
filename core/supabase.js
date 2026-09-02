@@ -343,6 +343,37 @@
     return data.map(r => ({ ...r, person: by[r.author] || null }));
   }
 
+  // ---- Holiday ----------------------------------------------------------
+  // Written only by these two functions, never by a profile push. The
+  // flag decides whether the Garden withers, so a client that could set
+  // it would grant itself a permanent freeze (migration 0026).
+  //
+  // Holiday is not rationed. It sets the reputation allowance to zero
+  // while it is on, so leaving it running means giving up your voice on
+  // the Forum to protect a number — the arrangement costs exactly the
+  // thing somebody would be gaming it for.
+
+  async function startHoliday() {
+    const { data, error } = await getClient().rpc("start_holiday");
+    if (error) throw error;
+    return data;
+  }
+
+  // Returns { status, days }. The day count is the SERVER's, and the
+  // client shifts its local due dates by the same number — both sides
+  // forgive the same amount and cannot drift.
+  async function endHoliday() {
+    const { data, error } = await getClient().rpc("end_holiday");
+    if (error) throw error;
+    return data;
+  }
+
+  async function holidayStatus() {
+    const { data, error } = await getClient().rpc("holiday_status");
+    if (error) throw error;
+    return data;
+  }
+
   // ---- The bell --------------------------------------------------------
   // Three things: somebody replied to your post, somebody gave it a
   // point, or a moderator hid it. There is no notifications table —
@@ -386,6 +417,7 @@
     feed, myGrants, grantReputation,
     createPost, createReply, writeStatus, replies, markViewed,
     notifications, notificationCount, markBellSeen,
+    startHoliday, endHoliday, holidayStatus,
     emailForNickname, nicknameAvailable,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),

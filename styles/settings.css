@@ -122,3 +122,11 @@ body.hide-hints .settings-hint { display: none; }
   color: var(--accent);
   font-weight: 700;
 }
+
+/* Holiday (settings.js). Two states, one shape: a line about where
+   you are, the budget under it, and one button. */
+.holiday-state { margin-bottom: 0.7rem; }
+.holiday-state.away .hs-line { font-size: 0.95rem; margin-bottom: 0.25rem; }
+.hs-sub { font-size: 0.8rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+#holiday-body .btn-primary, #holiday-body .btn-ghost { font-size: 0.85rem; padding: 0.4rem 0.9rem; }
+#holiday-body .btn-ghost[disabled] { opacity: 0.5; cursor: default; }

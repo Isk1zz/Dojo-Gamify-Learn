@@ -252,6 +252,25 @@
   // ---- The sync itself -------------------------------------------------
   // pull -> merge -> push -> write merged back locally. Both sides end
   // up holding the same union.
+  // Mirrors the server's holiday state down, read-only. See the call
+  // site for why this is not part of the pushed profile map.
+  async function pullHoliday() {
+    if (!Dojo.Cloud || !Dojo.Cloud.holidayStatus) return null;
+    const h = await Dojo.Cloud.holidayStatus();
+    if (!h) return null;
+
+    const raw = localStorage.getItem("unit6-dojo-db");
+    if (!raw) return null;
+    const db = JSON.parse(raw);
+    const p = db.profiles[db.activeProfileId];
+    if (!p) return null;
+
+    p.holidaySince = h.away ? (h.since || new Date().toISOString()) : null;
+    p.holidayDays  = h.banked || 0;
+    localStorage.setItem("unit6-dojo-db", JSON.stringify(db));
+    return h;
+  }
+
   async function syncNow() {
     if (inFlight) return { status: "busy" };
     if (!Dojo.Cloud || !Dojo.Cloud.isConfigured()) return { status: "skipped" };
@@ -290,6 +309,16 @@
       } catch (e) {
         console.info("[sync] economy pull skipped:", e.message);
       }
+
+      // Holiday comes down the same way, and never goes up.
+      //
+      // It is NOT in PROFILE_MAP on purpose. That map is what the
+      // client PUSHES, and holiday_since decides whether the Garden
+      // withers — a client that could write it would grant itself a
+      // permanent freeze. It is written only by start_holiday and
+      // end_holiday (migration 0026), which the server owns.
+      try { await pullHoliday(); }
+      catch (e) { console.info("[sync] holiday pull skipped:", e.message); }
 
       lastError = null;
       showNotice(false);

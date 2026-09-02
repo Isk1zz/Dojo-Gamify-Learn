@@ -5,6 +5,49 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## BUG 2026-09-03 — the chosen nickname never reaches the server
+
+Reported as "I can sign in by email but not by nickname". The diagnosis
+is different from the report, and narrower.
+
+**Nickname lookup works.** `email_for_nickname('Student')` returns the
+account's email correctly.
+
+**The nickname was never saved.** `profiles.name` on the server is
+`Student` — the column default — and the local profile says the same.
+So signing in by nickname works only if you type "Student", which is
+nobody's chosen name.
+
+`core/auth.js` holds the nickname and country locally at signup and
+pushes them "until the first sync". For this account that push either
+never ran or ran before the name was set.
+
+### What to check when fixing
+
+1. Does signup actually push the chosen nickname to `profiles.name`, or
+   only store it locally? Trace `pending.nickname` in `core/auth.js`
+   through to a `profiles.push`.
+2. Is it pushed on FIRST sync only, and does that sync happen before the
+   nickname is in the local profile?
+3. Related and already fixed: `handle_new_user` used to insert
+   `profiles (id)` with no name at all, taking the default. Migration
+   0024 now prefers a nickname from the signup metadata, then the
+   email's local part. **If signup passed the nickname in
+   `raw_user_meta_data`, the trigger would set it correctly at
+   creation and this whole path would be unnecessary** — that is
+   probably the right fix rather than patching the push.
+4. Existing accounts need their name backfilled either way; the trigger
+   fix only helps new ones.
+
+### Not urgent, but do not ship without it
+
+Nicknames are the public identity on the Forum — they appear on every
+post. An account whose public name is "Student" because a sync did not
+fire is a worse first impression than not offering nickname login at
+all.
+
+---
+
 ## MAJOR 2026-09-02 — learning-engine overhaul. 3-5 sessions minimum
 
 Sized as a major update by the user's own estimate. **Starts after the
