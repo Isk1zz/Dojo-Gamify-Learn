@@ -5,6 +5,83 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## QUEUED 2026-09-02 — four asks, in the order they were given
+
+Recorded, NOT started. Forum step 3 is the one to resume on.
+
+### 1. Forum step 3 — three figures in the profile  [PRIORITY]
+
+Given (доотдано / получено за месяц / получено всего). The server side
+is already done: `rep_status` returns all three and was verified when
+step 2 closed. The work is client-side only.
+
+One decision still open, from before the pause. Own figures come from
+`rep_status` in a single call; SOMEONE ELSE'S do not — no RPC returns
+another person's counts, and there is nowhere to open a foreign profile
+from until the feed lands in step 4. Either build only your own now, or
+write the public-figures RPC at the same time so step 4 finds it ready.
+The recommendation was to do both: the RPC is small, and "what a
+stranger may see" is a privacy decision better made on its own than
+hurriedly in the middle of laying out a feed.
+
+### 2. Sun glow is one-sided; add weather and tints
+
+The click glow lights in one direction instead of evenly.
+`shop/decor.js` — `pokeSun()` builds an `.fx-heat` element positioned
+from the sun's bounding box; the asymmetry is in that element's CSS,
+not in the placement maths.
+
+Then the larger half of the ask: **weather conditions with colour
+tints**, inspiration taken from the GTA weather page —
+https://gta.fandom.com/ru/wiki/Погода
+
+Worth noting before starting: the sky is already its own scene with
+day/night driven by `DB.getSky()` and themes coupled through
+`syncSkyToTheme`. Weather is a third axis on top of those two, so the
+first question is how it composes with them — a tint that fights the
+active theme would undo the appearance work rather than add to it.
+
+### 3. Rank insignia is missing — and it is EVERY rank, not one
+
+Reported as "Стажёр без иконки". It is wider than that: in Russian the
+HUD chip renders an empty rounded rectangle for **every** rank.
+
+`shop/ranks.js`: `RANK_EMOJI` is keyed by the English abbreviations
+(INT, RA1, TCH...), but `RANKS` is passed through `I18N.resolve()`, so
+by the time `insigniaSvg()` reads `rank.abbr` it holds the RUSSIAN
+abbreviation ("СТЖ"). Every lookup misses and the `<text>` node is
+never emitted. Confirmed live: the HUD holds `<rect>` and nothing else.
+
+The fix is to key the emoji off something that does not get translated
+— `rank.n` is the obvious candidate. Do NOT fix it by adding Russian
+keys to the map: that leaves the same trap set for the next language.
+
+### 4. "Бесплатный аккаунт" — change the word
+
+`core/i18n.js` `ui.landing.hint`, and the fallback copy in
+`index.html:529`:
+
+> Бесплатный аккаунт — прогресс с вами на любом устройстве
+> Free account — your progress follows you to any device
+
+To be reworded because cross-device progress is to sit behind a support
+subscription, which makes "бесплатный" false about the very thing the
+sentence promises.
+
+Two things to settle when this is done, not now:
+
+- **The word is the smaller half.** If sync becomes paid, the sentence
+  needs to say what the free tier actually gets, or it repeats the
+  privacy-policy mistake — shipped text asserting something the product
+  does not do. Both locales, and `index.html`'s fallback copy, which
+  is a second copy of the same sentence.
+- **The gating does not exist yet.** Sync is free for everyone today,
+  and nothing in the code knows about a support tier
+  (`economy.patron_tier` exists but only multiplies XP). Rewording
+  ahead of the gate is fine; promising the gate is not.
+
+---
+
 ## OPEN 2026-09-02: earning is server-side, the client is not wired yet
 
 Server side is DONE and verified (0012, 0013, build-catalogue.js).
