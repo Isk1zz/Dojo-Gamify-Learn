@@ -5,6 +5,74 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## MAJOR 2026-09-02 — learning-engine overhaul. 3-5 sessions minimum
+
+Sized as a major update by the user's own estimate. **Starts after the
+forum.** Full research capture, assessment and ranking:
+`docs/research/LEARNING-ENGINE.md`.
+
+### Start here, before anything from the research
+
+**171 chunks. 33 have all five phases. 81% run three.**
+(`node library/content/count-phases.js`)
+
+`predict` is in 19% of chunks, `recall` in 57%. Both are optional in the
+schema, so a chunk without them silently runs the old three-phase flow —
+and the two it drops are pretesting and generation, the two techniques
+with the strongest evidence in the whole app.
+
+The engine has supported all five since the schema was frozen. The content
+never adopted them. **Turning on a technique already built beats adding one
+that is not**, so this outranks everything below it, and it is content work
+with no code.
+
+Decide explicitly: raise the coverage, or accept 19% on the record. Not
+by default.
+
+### The ordered list
+
+| | Change | Cost | Blocked on |
+|---|---|---|---|
+| 1 | Raise five-phase coverage from 19% | content, no code | nothing |
+| 2 | Weak-spot metric gains an overdue term | trivial | nothing |
+| 3 | Collect SER and speedrun-defect rate | low | nothing |
+| 4 | Confidence **before feedback**, hypercorrection flow, 24-48h re-test | medium | nothing |
+| 5 | Acquisition state — intraday ladder before the SRS takes over | medium | see below |
+| 6 | Backward fading in the `example` phase | medium | #1 |
+| 7 | Retention/mastery/interleaving telemetry | medium | #4 for one of them |
+| 8 | Per-item difficulty, adaptive selection | high | usage data |
+| 9 | FSRS migration | high | 50-1000 reviews per learner |
+| 10 | Prerequisite graph + fractional implicit repetition | very high | a graph that does not exist |
+
+**Items 7-10 are blocked on having users.** Four of the ten cannot be
+evaluated before launch, which is an argument for shipping and then reading
+the numbers rather than guessing at them now.
+
+### The one architectural question worth answering first
+
+Spaced-repetition algorithms are **review** schedulers: they assume the
+material is already encoded. Knell has the 80% mastery gate but no
+acquisition state before it — and the topic exam runs immediately after
+the chunks, at high retrieval strength with no elapsed time. That is
+exactly the fluency-illusion condition.
+
+**A topic can pass at 80% on short-term recall alone and enter the review
+queue on an interval it has not earned.** Whether that actually happens is
+measurable once there are reviews to measure. Answer it before building #5.
+
+### Two cautions carried forward
+
+**The report read our own documentation.** `LEARNING-DESIGN.html` is in its
+source list, so where it praises Knell it is quoting us. Not external
+validation. Do not cite it back at ourselves.
+
+**Do NOT move the 80% pass mark toward 85%.** Different quantities: the 85%
+figure is about practice-item difficulty during acquisition; 80% is a mastery
+threshold gating entry to the review schedule. The same report endorses an
+80-90% floor for the gate, in the same document.
+
+---
+
 ## ASKED 2026-09-02 — a document that tracks plan against reality
 
 > «Я бы хотел документ так же который держит все планы и задумки и
