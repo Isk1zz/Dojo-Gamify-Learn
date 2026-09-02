@@ -38,6 +38,19 @@ const sql = fs.readdirSync(dir)
   .map(f => fs.readFileSync(`${dir}/${f}`, "utf8"))
   .join("\n");
 
+// The three tables that MIRROR a local profile, and the only ones this
+// check is about. It asks one question: does every field in
+// defaultProfile() have a column to sync into, and vice versa.
+//
+// Named explicitly rather than "every table in the migrations", because
+// the database has tables that are not mirrors of anything local —
+// content_items and earnings (the earning ledger), posts, replies,
+// rep_grants and reports (the forum). Those are server-owned, the
+// client never holds a copy, and counting their columns here reported
+// drift that did not exist: `content_items.repeat_daily` has no
+// business being a field in defaultProfile().
+const MIRRORED = ["profiles", "progress", "economy"];
+
 const tables = {};
 for (const m of sql.matchAll(/create table public\.(\w+) \(([\s\S]*?)\n\);/g)) {
   const [, name, body] = m;
@@ -56,6 +69,11 @@ for (const m of sql.matchAll(
   /alter table public\.(\w+)\s+add column(?:\s+if not exists)?\s+([a-z_][a-z0-9_]*)/gi
 )) {
   const [, table, col] = m;
+  // Only the mirrored three. Without this an ALTER on a server-owned
+  // table creates an entry here — which is exactly how 0015's
+  // `alter table earnings add column period` came to be reported as
+  // profile drift.
+  if (!MIRRORED.includes(table)) continue;
   if (!tables[table]) tables[table] = [];
   if (!tables[table].includes(col)) tables[table].push(col);
 }
