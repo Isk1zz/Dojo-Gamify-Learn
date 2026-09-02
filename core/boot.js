@@ -146,12 +146,30 @@
   // Credited here, once, rather than re-derived from XP like theme/
   // bgStripe rewards are — see shop/ranks.js's comment on why Tokens
   // can't use that pattern.
+  // The SERVER pays these, and it verifies the rank itself.
+  //
+  // This was the last client-side grant in the app: DB.addTokens(bonus)
+  // wrote free Tokens straight into localStorage, where the next
+  // economy pull erased them. The same bug XP had, on the currency that
+  // costs real money.
+  //
+  // It is also the best-verified reward in the app, better than the
+  // course content ones. Those trust progress, because the client
+  // pushes completed_topics. A rank reward is checked against
+  // charge_earned — a number the server computed from payments it made
+  // itself, and which no client has been able to name since 0012. The
+  // rank number in this call is only an address; the entitlement behind
+  // it is re-derived server-side (`require_xp` in migration 0016).
+  //
+  // The event still drives it, so the moment is unchanged: the reward
+  // arrives when the boundary is crossed, not on a later sweep.
   Bus.on("rank:up", ({ to }) => {
-    const bonus = to && to.reward && to.reward.tokens;
-    if (bonus) {
-      DB.addTokens(bonus);
-      Bus.emit("tokens:changed", { delta: bonus, reason: "rank-up" });
-    }
+    if (!to || !to.reward || !to.reward.tokens || !Dojo.Earn) return;
+    Dojo.Earn.claim(`rank:${to.n}`).then(r => {
+      if (r && r.status === "paid" && r.tokens) {
+        Bus.emit("tokens:changed", { delta: r.tokens, reason: "rank-up" });
+      }
+    });
   });
 
   Bus.on("progress:changed", () => {

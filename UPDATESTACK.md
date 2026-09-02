@@ -5,6 +5,49 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## ASKED 2026-09-02 — a document that tracks plan against reality
+
+> «Я бы хотел документ так же который держит все планы и задумки и
+> сопоставляет действительные апдейты и не сбеги»
+
+A single page holding every plan and intention, set against what was
+actually shipped. Recorded here so it does not get lost.
+
+**What it is NOT: another file that says what the others say.** There
+are already five documents claiming to describe this project, and this
+session found four of them wrong:
+
+| Document | What it still claims | What is true |
+|---|---|---|
+| `PROJECT.md` §7 | Garden thresholds 6/16/45/120 | 1/7/21/30/60 |
+| `PROJECT.md` §5 | "the offline/no-build property" | offline study only on a device that has signed in; no fresh sign-in, no rewards, no forum |
+| `LIBRARY.md` | "no points, badges, streaks or leaderboards" | XP and streaks shipped |
+| `shop/ranks.js` | 795 free Tokens over seven ranks | 545 over five |
+
+Every one of those was a stale copy of a number or a claim that lived
+somewhere else too. So the document is only worth building if it
+**derives** what it can rather than restating it — the same discipline
+as `supabase/build-catalogue.js`, which reads its numbers out of
+`library.js` instead of holding a second copy, and `check-schema.js`,
+which fails the build when the two sides disagree.
+
+Shape to settle when it is built:
+
+- **Generated, not written**, wherever a fact already exists in code:
+  thresholds, rewards, currencies, migration list, catalogue counts.
+  A hand-typed number here becomes the fifth wrong document.
+- **Plan vs. shipped** as the organising axis — every intention with its
+  status, and for a reversal, the objection kept beside it. The pattern
+  is already in `PROJECT.md`'s reversal blockquotes and in
+  `docs/LEARNING-DESIGN.html`; this generalises it.
+- **Where does it supersede?** `UPDATESTACK.md` is "what is still
+  owed", `BACKLOG.md` is the historical record, `PLAN.md` and
+  `BACKEND-ROADMAP.md` are forward-looking. A fifth file that overlaps
+  all four makes the problem worse, not better. Decide what it replaces
+  before writing it.
+
+---
+
 ## QUEUED 2026-09-02 — four asks, in the order they were given
 
 Recorded, NOT started. Forum step 3 is the one to resume on.

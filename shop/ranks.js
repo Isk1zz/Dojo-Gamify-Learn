@@ -55,7 +55,12 @@
 // there is something worth giving.
 //
 // ---- Token rewards specifically (7 ranks: 6, 8, 11, 12, 15, 17, 18) ----
-// 100+50+150+75+200+100+120 = 795 free Tokens across the ladder.
+// 100+50+75+200+120 = 545 free Tokens across the ladder, over five
+// ranks. The figure said 795 across seven until 2026-09-02: two rewards
+// were removed from the array below and the sum was never corrected.
+// Paid by the SERVER now (migration 0016), which re-derives the
+// entitlement from charge_earned rather than trusting the rank in the
+// request. Change a number here and 0016 must change with it.
 // Originally sized to stay under the course price so ranking up alone
 // could never fully cover one — that constraint no longer holds now
 // that intro-cs dropped from 1000 to 250, and again to 100 (barrier-

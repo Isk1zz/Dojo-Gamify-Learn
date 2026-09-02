@@ -203,6 +203,10 @@
 // David.
 // Bumped for the first-run appearance picker: core/onboard.js is a NEW
 // file, with its bar markup in index.html and onb.* strings in i18n.
+// Bumped for rank rewards: core/boot.js stops crediting Tokens locally
+// and claims them from the server, which verifies the rank against its
+// own charge_earned. A stale boot.js would keep minting Tokens that the
+// next sync erases.
 // Bumped for earning moving to the server: core/earn.js is a NEW file
 // with a script tag in index.html, library.js stops granting anything
 // itself, hud.js splits awardCharge, db.js gains addXpRaw, and
@@ -214,7 +218,7 @@
 // i18n drops four dead keys for the garden.ex.* set. A stale cache
 // here would keep serving a Claim button that no longer has any code
 // or any system behind it.
-const CACHE_VERSION = "knell-v58";
+const CACHE_VERSION = "knell-v59";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
