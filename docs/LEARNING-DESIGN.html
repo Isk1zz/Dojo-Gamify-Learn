@@ -1,0 +1,419 @@
+<title>Как учит Knell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ground:      #FAFAF6;
+    --surface:     #FFFFFF;
+    --sunk:        #F1F2EC;
+    --ink:         #16201C;
+    --ink-soft:    #4C5A54;
+    --ink-faint:   #7C8880;
+    --rule:        #DDE0D8;
+    --accent:      #2C6A55;
+    --accent-soft: #E4EFE9;
+    --flag:        #8A6220;
+    --flag-soft:   #F6EEE0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0F1512;
+      --surface:     #161E1A;
+      --sunk:        #131A17;
+      --ink:         #E7EDE9;
+      --ink-soft:    #A7B4AD;
+      --ink-faint:   #74827B;
+      --rule:        #27332D;
+      --accent:      #6CBE9B;
+      --accent-soft: #17281F;
+      --flag:        #C9A25E;
+      --flag-soft:   #241D10;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:      #0F1512;
+    --surface:     #161E1A;
+    --sunk:        #131A17;
+    --ink:         #E7EDE9;
+    --ink-soft:    #A7B4AD;
+    --ink-faint:   #74827B;
+    --rule:        #27332D;
+    --accent:      #6CBE9B;
+    --accent-soft: #17281F;
+    --flag:        #C9A25E;
+    --flag-soft:   #241D10;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 46rem; margin: 0 auto; padding: 4rem 1.5rem 6rem; }
+
+  /* ---- Masthead ---- */
+  .mast { display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 2.5rem; border-bottom: 2px solid var(--ink); }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500;
+  }
+  h1 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: clamp(2.6rem, 7vw, 4rem); font-weight: 600;
+    line-height: 1.02; letter-spacing: -0.02em; margin: 0; text-wrap: balance;
+  }
+  .standfirst {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 1.3rem; line-height: 1.5; color: var(--ink-soft);
+    margin: 0; max-width: 34rem; text-wrap: pretty;
+  }
+
+  /* ---- Sections ---- */
+  section { padding-top: 3.5rem; }
+  h2 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 2rem; font-weight: 600; line-height: 1.15;
+    letter-spacing: -0.015em; margin: 0 0 0.4rem; text-wrap: balance;
+  }
+  .sec-note { font-size: 0.9rem; color: var(--ink-faint); margin: 0 0 1.75rem; }
+  h3 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 1.05rem; font-weight: 600; margin: 2rem 0 0.5rem;
+  }
+  p { margin: 0 0 1rem; max-width: 40rem; text-wrap: pretty; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  /* ---- The chunk flow: a real sequence, so it is numbered ---- */
+  .flow { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0 0.5rem; }
+  .step {
+    display: grid; grid-template-columns: 2.6rem 1fr; gap: 1rem;
+    padding: 1rem 0; border-top: 1px solid var(--rule);
+  }
+  .step:last-child { border-bottom: 1px solid var(--rule); }
+  .step-n {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.75rem;
+    color: var(--accent); padding-top: 0.28rem; font-variant-numeric: tabular-nums;
+  }
+  .step-name { font-weight: 600; }
+  .step-name .opt {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.65rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-faint); margin-left: 0.5rem; font-weight: 400;
+  }
+  .step p { margin: 0.2rem 0 0; font-size: 0.94rem; color: var(--ink-soft); }
+
+  /* ---- Technique entries: what / where / evidence ---- */
+  .tech { border-top: 1px solid var(--rule); padding: 1.5rem 0; }
+  .tech:last-of-type { border-bottom: 1px solid var(--rule); }
+  .tech h3 { margin: 0 0 0.4rem; font-size: 1.1rem; }
+  .tech p { font-size: 0.95rem; margin-bottom: 0.75rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; align-items: baseline; }
+  .where, .why {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.74rem;
+    line-height: 1.5; color: var(--ink-faint);
+  }
+  .where::before { content: "код "; color: var(--accent); }
+  .why::before { content: "почему "; color: var(--accent); }
+
+  /* ---- Reversals: PROJECT.md records these as preserved objections ---- */
+  .reversal {
+    background: var(--flag-soft); border-left: 3px solid var(--flag);
+    padding: 1.1rem 1.25rem; margin: 1.25rem 0; border-radius: 0 3px 3px 0;
+  }
+  .reversal .tag {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--flag); font-weight: 500; display: block; margin-bottom: 0.4rem;
+  }
+  .reversal p { font-size: 0.92rem; margin: 0 0 0.6rem; color: var(--ink-soft); }
+  .reversal p:last-child { margin-bottom: 0; }
+
+  /* ---- Data table ---- */
+  .tw { overflow-x: auto; margin: 1.25rem 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.55rem 0.9rem 0.55rem 0; border-bottom: 1px solid var(--rule); }
+  th {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.68rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);
+    font-weight: 500; border-bottom-color: var(--ink);
+  }
+  td.num { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .stage { white-space: nowrap; }
+
+  /* ---- Inline code ---- */
+  code {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.85em;
+    background: var(--sunk); padding: 0.1em 0.35em; border-radius: 3px;
+  }
+
+  /* ---- Callout for the load-bearing claim ---- */
+  .thesis {
+    background: var(--accent-soft); padding: 1.5rem 1.5rem;
+    border-radius: 4px; margin: 2rem 0;
+  }
+  .thesis p { font-family: Newsreader, Georgia, serif; font-size: 1.2rem; line-height: 1.45; margin: 0; color: var(--ink); }
+
+  ul { margin: 0 0 1rem; padding-left: 1.15rem; max-width: 40rem; }
+  li { margin-bottom: 0.45rem; }
+  li::marker { color: var(--accent); }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--rule);
+    font-size: 0.82rem; color: var(--ink-faint);
+  }
+  footer p { max-width: none; }
+
+  @media (max-width: 34rem) {
+    .wrap { padding: 2.5rem 1.15rem 4rem; }
+    .step { grid-template-columns: 1.8rem 1fr; gap: 0.6rem; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <span class="eyebrow">Knell &middot; учебная конструкция</span>
+    <h1>Как учит Knell</h1>
+    <p class="standfirst">Принцип работы и все техники обучения, которые в нём стоят — вместе с доказательствами, на которых они держатся, и решениями, отменёнными вопреки этим доказательствам.</p>
+  </header>
+
+  <section>
+    <h2>Принцип</h2>
+    <p class="sec-note">Одно утверждение, из которого следует всё остальное</p>
+
+    <div class="thesis">
+      <p>Знание — это не то, что вы прошли, а то, что вы удержали. Приложение измеряет второе и отказывается измерять первое.</p>
+    </div>
+
+    <p>Отсюда растёт вся конструкция. Прогресс считается не по числу открытых тем, а по <strong>интервалу повторения</strong> — сколько времени тема держится в голове, прежде чем её нужно освежить. Сад рисует именно это: растение растёт от интервала, а не от галочек, и <strong>откатывается назад</strong>, когда повторение пропущено. Пройти курс и забыть его — это в Knell видно как пустая грядка.</p>
+
+    <p>Второе следствие: приложение почти ничего не даёт читать дважды. Перечитывание — одна из самых слабых техник в исследованиях, и там, где обычный курс предложил бы «повторить материал», Knell предлагает <strong>ответить на вопрос</strong>.</p>
+  </section>
+
+  <section>
+    <h2>Устройство</h2>
+    <p class="sec-note">Как нарезан материал</p>
+
+    <p>Курс делится на юниты, юнит на темы, тема на главы. Глава — минимальная единица работы: примерно 200 слов объяснения, аналогия, разобранный пример и вопрос. Каждая тема заканчивается экзаменом из пяти вопросов, порог — <strong>80%</strong>.</p>
+
+    <p>Порог не декоративный: сдача экзамена — единственное, что запускает планировщик повторений. До неё тема считается начатой, но не освоенной, и в Саду это <em>семя</em>, а не росток.</p>
+  </section>
+
+  <section>
+    <h2>Пять фаз главы</h2>
+    <p class="sec-note">Здесь порядок несёт смысл, поэтому фазы пронумерованы</p>
+
+    <div class="flow">
+      <div class="step">
+        <span class="step-n">01</span>
+        <div>
+          <div class="step-name">Предсказание <span class="opt">необязательна</span></div>
+          <p>Вопрос <em>до</em> объяснения. Никогда не оценивается и не идёт в статистику — ценность в попытке, а не в ответе.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">02</span>
+        <div>
+          <div class="step-name">Объяснение</div>
+          <p>Материал блоками с подзаголовками, не сплошной стеной. Плюс два источника на главу.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">03</span>
+        <div>
+          <div class="step-name">Пример</div>
+          <p>Разбор по шагам — три-четыре на главу.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">04</span>
+        <div>
+          <div class="step-name">Применение</div>
+          <p>Вопрос с вариантами. Варианты перемешиваются при входе в фазу и заново при переспросе.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">05</span>
+        <div>
+          <div class="step-name">Воспроизведение <span class="opt">необязательна</span></div>
+          <p>Свободный ответ без вариантов, с самопроверкой. Единственное место, где нужно <em>породить</em> ответ, а не узнать его среди четырёх.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Техники</h2>
+    <p class="sec-note">Что стоит в приложении, где это живёт и почему оно там</p>
+
+    <div class="tech">
+      <h3>Проверка вместо перечитывания</h3>
+      <p>Материал почти нигде не предлагается прочесть заново. Ошибочный ответ в главе ставит эту главу в очередь на <strong>переспрос перед экзаменом — сразу к вопросу</strong>, без повторного чтения текста.</p>
+      <div class="meta">
+        <span class="where">library.js — missedChunks, startMissedRetry</span>
+        <span class="why">Dunlosky et al. (2013): practice testing — высшая оценка полезности; перечитывание — одна из низших</span>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>Распределённое повторение (SM-2)</h3>
+      <p>Сданный экзамен планирует тему вперёд: 1 день, затем 6, дальше <code>интервал × лёгкость</code>. Провал сбрасывает на 1 день и снижает лёгкость. Нижний порог лёгкости — 1.3, чтобы тема не проваливалась в «ад лёгкости», из которого не выбраться.</p>
+      <p>Взят SM-2, а не более современный FSRS, намеренно: FSRS требует сотен повторений, прежде чем его модель настроится, и на малых объёмах работает <em>хуже</em>.</p>
+      <div class="meta">
+        <span class="where">db.js — scheduleReview, getDueTopicIds</span>
+        <span class="why">Woźniak (1987); distributed practice — вторая из двух техник высшей полезности у Dunlosky</span>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>Эффект предтестирования</h3>
+      <p>Фаза предсказания задаёт вопрос до того, как что-либо объяснено. Неверная догадка всё равно улучшает последующее запоминание — поэтому ответ не оценивается и не может навредить.</p>
+      <div class="meta">
+        <span class="where">library.js — phasesFor, chunk.predict</span>
+        <span class="why">pretesting effect: попытка вспомнить до обучения улучшает удержание независимо от правильности</span>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>Эффект порождения</h3>
+      <p>Фаза воспроизведения — свободный текст без вариантов. Породить ответ прочнее, чем узнать его; выбор из четырёх вариантов этого проверить не может в принципе. Оценивает себя сам учащийся: офлайн проверить текст нечем, а неверная самооценка здесь ничего не стоит.</p>
+      <div class="meta">
+        <span class="where">library.js — chunk.recall</span>
+        <span class="why">generation effect</span>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>Перемешивание вопросов и вариантов</h3>
+      <p>Экзаменационные вопросы и их варианты перемешиваются при <strong>каждой</strong> попытке. Без этого проваленный экзамен пересдавался по памяти о позициях, а не по знанию.</p>
+      <p>Отдельная находка: в исходном контенте правильный ответ был сильно смещён. В третьем модуле «B» была верна в десяти вопросах из одиннадцати, в четвёртом — в шестнадцати из восемнадцати. Юниты 6–7 проходились нажатием «B» без чтения. Перемешивание чинит все модули разом; переразметка 57 ключей вручную починила бы только те, которые кто-то вспомнил проверить.</p>
+      <div class="meta">
+        <span class="where">library.js — shuffleQuestion, openQuiz</span>
+        <span class="why">позиционная память вместо знания</span>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>Карточки вместо повторного прохождения</h3>
+      <p>Повторение темы не проигрывает её заново. Оно запускает <strong>колоду карточек</strong>, собранную из уже существующих вопросов глав: «знал / не знал». Карточка, отвеченная быстрее 2.5 секунд, не засчитывается — это защита от простукивания колоды насквозь.</p>
+      <div class="meta">
+        <span class="where">library.js — startFlashcardReview, MIN_CARD_MS</span>
+        <span class="why">повторение — это извлечение из памяти, а не повторное чтение</span>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>Сборные колоды и фильтр по уверенности</h3>
+      <p>Можно собрать колоду из глав разных тем и юнитов — и отфильтровать её по четырём уровням: <em>сложно</em>, <em>учу</em>, <em>есть идея</em>, <em>знаю</em>. Уровень выставляет сам учащийся во время повторения.</p>
+      <p>Смешение материала из разных тем — это перемежающаяся практика, которая обыгрывает блочную. Фильтр по уверенности даёт то же, что и слабые места, но по субъективной оценке, а не по баллам.</p>
+      <div class="meta">
+        <span class="where">library.js — openDeckBuilder, CONFIDENCE, recordChunkConfidence</span>
+        <span class="why">interleaving; метапознание</span>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>Слабые места</h3>
+      <p>Отвечает на единственный вопрос, который есть у учащегося: <em>что учить сейчас</em>. Считается композитно — последний балл минус 10 за каждый провал повторения. Сортировка по одним провалам поставила бы тему со 100% выше темы с 40%, а это не то, что значит «слабое место».</p>
+      <div class="meta">
+        <span class="where">db.js — getWeakSpots</span>
+        <span class="why">данные уже собирались, но не показывались</span>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>Пробный экзамен</h3>
+      <p>Не ещё один экзамен по теме, а репетиция настоящего: весь билет целиком, под часы, на условиях реального теста. Форма берётся из манифеста курса — сколько вопросов, сколько минут, какой проходной балл — а не из константы в коде. Для A3 это опубликованные министерством 40 вопросов; курс без такого блока просто не получает кнопку.</p>
+      <div class="meta">
+        <span class="where">exam-sim.js</span>
+        <span class="why">условия экзамена — часть навыка сдачи экзамена</span>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>Сад как картина удержания</h3>
+      <p>Стадия растения задаётся интервалом повторения, а не числом пройденного. Пропустили повторение — растение откатилось.</p>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Стадия</th><th>Интервал</th><th>Вес</th></tr></thead>
+          <tbody>
+            <tr><td class="stage">🌑 Пар</td><td>не начата</td><td class="num">—</td></tr>
+            <tr><td class="stage">🌰 Семя</td><td>начата, не освоена</td><td class="num">—</td></tr>
+            <tr><td class="stage">🌱 Росток</td><td class="num">до 2 дней</td><td class="num">1</td></tr>
+            <tr><td class="stage">🌿 Саженец</td><td class="num">от 7 дней</td><td class="num">1</td></tr>
+            <tr><td class="stage">🌾 Рост</td><td class="num">от 21 дня</td><td class="num">2</td></tr>
+            <tr><td class="stage">🌳 Дерево</td><td class="num">от 30 дней</td><td class="num">2</td></tr>
+            <tr><td class="stage">🌸 Цветение</td><td class="num">от 60 дней</td><td class="num">3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Вес — это то, что Сад отдаёт форуму: каждые 5 веса дают одно очко признания в день, максимум 5. Право хвалить чужие записи зарабатывается тем, что вы <em>помните</em>, а не тем, сколько открыли.</p>
+      <div class="meta">
+        <span class="where">garden.js — GROWTH, gardenWeight · SQL garden_weight()</span>
+        <span class="why">удержание, а не охват</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Чего в Knell намеренно нет</h2>
+    <p class="sec-note">И почему отсутствие — это тоже решение</p>
+
+    <ul>
+      <li><strong>Таблиц лидеров.</strong> Метаанализы дают малые и неустойчивые эффекты; Hanus &amp; Fox (2015) обнаружили, что значки и таблицы лидеров мотивацию <em>снижают</em>. Исследователи называют такую версию геймификации «гоночными полосами на велосипеде».</li>
+      <li><strong>Функций на ИИ.</strong> Они сломали бы главное свойство: приложение работает офлайн и без сборки.</li>
+      <li><strong>Покупки прогресса.</strong> Ни одна покупка не даёт подсказок, пересдач или преимущества на экзамене. Это черта, на которой стоит вся конструкция.</li>
+    </ul>
+
+    <p>Последнее — не просто принцип, а <strong>граница, проведённая через деньги</strong>. Токены покупаются за настоящие деньги и открывают курсы. Признание и <code>$</code> зарабатываются учёбой и покупают только внешний вид. Обмен идёт исключительно в одну сторону: излишек признания меняется на <code>$</code>, и никогда обратно в Токены. Иначе учёба стала бы способом зарабатывать деньги, а это меняет предмет.</p>
+  </section>
+
+  <section>
+    <h2>Отменённые решения</h2>
+    <p class="sec-note">Записаны с сохранённым возражением — чтобы не потерялись молча</p>
+
+    <p>Три решения были приняты по доказательствам и потом отменены по прямой просьбе. Возражения остались в <code>PROJECT.md</code> дословно: это не «мы передумали», а «мы знали цену и заплатили её сознательно».</p>
+
+    <div class="reversal">
+      <span class="tag">Отменено · жёсткие блокировки</span>
+      <p>Изначально ни одна тема не была заперта: порядок был <em>рекомендацией</em>, а не воротами. Жёсткая последовательность навязывает блочную практику, которую перемежающаяся обыгрывает, и отнимает автономию — ту самую мотивационную потребность, которая на деле предсказывает вовлечённость.</p>
+      <p>Сейчас недостигнутые темы, юниты и главы заперты. Возражение стоит в силе. Исключения оставлены: <strong>повторение по сроку и возврат на сохранённую позицию не блокируются</strong> — это продолжение уже сделанного, а не прыжок вперёд.</p>
+    </div>
+
+    <div class="reversal">
+      <span class="tag">Отменено · серии дней</span>
+      <p>Серия наказывает за выходной — ровно за то, ради чего существует распределённое повторение. Добавлена с двумя «заморозками» в неделю; это стандартное смягчение, а не опровержение возражения.</p>
+      <p>Что считается «днём», тоже сдвинули: сначала серию продлевала любая пройденная глава, и одна долгая сессия засчитывалась за несколько дней. Теперь день требует <strong>реально освоенной темы</strong> — экзамен от 80%.</p>
+    </div>
+
+    <div class="reversal">
+      <span class="tag">Отменено · значки</span>
+      <p>Та же находка Hanus &amp; Fox, что и с сериями. Добавлены по просьбе вместе с экраном профиля.</p>
+      <p>Записанное условие: если они появятся, то за настоящие достижения — освоенные темы, удержанные серии, чисто сданные экзамены — а не за то, что человек открыл приложение.</p>
+    </div>
+
+    <p>Полоска заряда сюда не относится. Это <strong>визуализация прогресса с потолком, а не система очков</strong>, и её стоит такой и оставить.</p>
+  </section>
+
+  <section>
+    <h2>Два расхождения в документации</h2>
+    <p class="sec-note">Найдено при сборке этой страницы</p>
+
+    <p><code>PROJECT.md</code> §7 всё ещё описывает пороги Сада как 6 / 16 / 45 / 120 дней. Это редакция v4. Действующие — 1 / 7 / 21 / 30 / 60, и таблица выше построена по коду, а не по документу. Старые пороги давали такой длинный хвост, что Дерева не увидел бы почти никто.</p>
+
+    <p><code>LIBRARY.md</code> в разделе учебных решений всё ещё утверждает: «никаких очков, значков, серий и таблиц лидеров». Очки и серии в приложении есть с тех пор. <code>PROJECT.md</code> отмены зафиксировал честно, <code>LIBRARY.md</code> — нет.</p>
+  </section>
+
+  <footer>
+    <p>Собрано из кода, а не из документации: <code>library/library.js</code>, <code>data/db.js</code>, <code>garden/garden.js</code>, <code>library/exam-sim.js</code>, <code>supabase/migrations/</code>. Где документ и код расходились, взят код — и расхождение записано выше.</p>
+  </footer>
+
+</div>
