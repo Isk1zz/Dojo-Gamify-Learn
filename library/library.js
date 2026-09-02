@@ -23,10 +23,42 @@
   const coursePrice = c => (Dojo.coursePrice ? Dojo.coursePrice(c) : (c && c.priceTokens) || 0);
   const pickQuote = (...a) => Dojo.pickQuote(...a);
   const quoteHtml = (...a) => Dojo.quoteHtml(...a);
-  const awardCharge = (...a) => Dojo.awardCharge(...a);
+  // awardCharge is deliberately NOT bound here any more. Nothing in this
+  // file may grant XP: every reward goes through claimWork, and the
+  // server decides the amount. Binding it would be an open door back to
+  // the old behaviour.
+  const showChargeGain = (...a) => Dojo.showChargeGain(...a);
   const renderCharge = (...a) => Dojo.renderCharge(...a);
   const showLobby = (...a) => Dojo.showLobby(...a);
   const updateProfileBadge = (...a) => Dojo.updateProfileBadge(...a);
+
+  // ---- Claiming payment for finished work ----
+  // Every reward in this file goes through here. The client says WHAT
+  // finished; core/earn.js asks the server, and the server decides the
+  // amount, whether it was already paid, whether it came too fast, and
+  // whether the day's ceiling is reached (migration 0012).
+  //
+  // Deliberately fire-and-forget: the screen must not sit waiting on a
+  // network round trip before it can move on. The bolt animates when
+  // the answer arrives, showing the number the SERVER paid — which is
+  // the whole point, since the old code animated a number it had made
+  // up and then lost on the next sync.
+  //
+  // A refusal shows nothing rather than an error. "Already paid" is
+  // what a reload looks like, and "too fast" on a first read is not
+  // worth a scolding popup — the work stays claimable and pays on the
+  // way back.
+  function claimWork(itemId, originEl, scorePct) {
+    if (!Dojo.Earn) return;
+    const before = DB.getXp();
+    Dojo.Earn.claim(itemId, scorePct).then(r => {
+      if (r && r.status === "paid" && r.xp > 0) showChargeGain(r.xp, originEl, before);
+      else renderCharge();
+    });
+  }
+
+  const claimChunk = (topicId, i, originEl) =>
+    claimWork(Dojo.Earn.id.chunk(topicId, i), originEl);
 
   // Totals other branches ask for instead of walking ALL_TOPICS
   // themselves. Keeps content knowledge inside this branch.
@@ -77,6 +109,10 @@
   // Separate from FINAL_QUIZ_XP_BASE below, which scales with score and
   // pays out on every attempt — this is a flat, ONE-TIME bonus for the
   // first genuine pass, on top of that. 200, not 100 — scaled up 2x.
+  // Paid by the SERVER now. Kept here because
+  // supabase/build-catalogue.js reads this line to fill the catalogue —
+  // one number, one place, taken by both sides. Deleting it does not
+  // silently break anything: the generator stops with a clear error.
   const FINAL_QUIZ_COMPLETION_XP = 200;
 
   const unitRewardKey = id => `unit_reward_${id}`;
@@ -109,20 +145,26 @@
     const unitTopics = UNIT_TOPICS[unit.id];
     if (!unitTopics.every(t => completedTopics.has(t.id))) return;
 
+    // The unit and course rewards below no longer credit anything
+    // themselves. They ask the server, which holds the same numbers in
+    // its catalogue (generated from UNIT_MONEY_REWARD and friends by
+    // supabase/build-catalogue.js, so the two cannot drift) and pays
+    // once per item, forever.
+    //
+    // The inventory key stays. It is what the ROADMAP reads to draw a
+    // reward as claimed, and it is also mirrored to the server on the
+    // economy row — but it is no longer what stops a second payout.
+    // The ledger does that, and it cannot be edited from a console.
     if (!unitRewardClaimed(unit.id)) {
       const reward = unitReward(unit.id);
-      if (reward) {
+      if (reward && Dojo.Earn) {
         DB.addInventory(unitRewardKey(unit.id));
-        if (reward.type === "money") {
-          DB.addMoney(reward.amount);
-          Bus.emit("wallet:changed", { delta: reward.amount, reason: "unit-reward" });
-        } else if (reward.type === "tokens") {
-          DB.addTokens(reward.amount);
-          Bus.emit("tokens:changed", { delta: reward.amount, reason: "unit-reward" });
-        } else {
-          awardCharge(reward.amount, null);
-        }
-        if (Dojo.celebrateReward) Dojo.celebrateReward(unit.title, reward);
+        const before = DB.getXp();
+        Dojo.Earn.claim(Dojo.Earn.id.unit(unit.id)).then(r => {
+          if (!r || r.status !== "paid") { renderCharge(); return; }
+          if (r.xp > 0) showChargeGain(r.xp, null, before);
+          if (Dojo.celebrateReward) Dojo.celebrateReward(unit.title, reward);
+        });
       }
     }
 
@@ -130,11 +172,18 @@
     if (course && !courseRewardClaimed(course.id)) {
       const courseUnits = course.units.map(id => UNITS.find(u2 => u2.id === id)).filter(Boolean);
       const courseDone = courseUnits.every(u2 => UNIT_TOPICS[u2.id].every(t => completedTopics.has(t.id)));
-      if (courseDone) {
+      if (courseDone && Dojo.Earn) {
         DB.addInventory(courseRewardKey(course.id));
-        DB.addTokens(COURSE_TOKEN_REWARD);
-        Bus.emit("tokens:changed", { delta: COURSE_TOKEN_REWARD, reason: "course-reward" });
-        if (Dojo.celebrateReward) Dojo.celebrateReward(`${course.title} complete`, { type: "tokens", amount: COURSE_TOKEN_REWARD });
+        Dojo.Earn.claim(Dojo.Earn.id.course(course.id)).then(r => {
+          if (!r || r.status !== "paid") return;
+          // The celebration names the server's figure, not the constant.
+          // If the two ever differ the catalogue is stale, and a banner
+          // announcing Tokens that did not arrive is exactly the kind of
+          // fiction this work exists to remove.
+          if (Dojo.celebrateReward) {
+            Dojo.celebrateReward(`${course.title} complete`, { type: "tokens", amount: r.tokens });
+          }
+        });
       }
     }
   }
@@ -1043,7 +1092,9 @@
   function startTopic(flatIdx, forceChunk) {
     state.missedChunks = [];
     state.inRetry = false;
-    state.topicCharge = 0;
+    // state.topicCharge is gone: it accumulated the chunk XP so the
+    // topic bonus could be a multiple of it. The server holds that
+    // figure in its catalogue now and applies the multiplier itself.
     // Resets on every fresh walk through a topic, including a redo
     // after exhausting the one exam retry — see showExamResults.
     state.examAttempts = 0;
@@ -1501,10 +1552,16 @@
     // moved, which read as stingy for content that's genuinely most of
     // an afternoon's work). Retries don't pay again — otherwise
     // deliberately failing would be the fastest way to farm it.
+    //
+    // The SERVER decides the amount now, and rolls the 15-21 itself.
+    // The client no longer says how much it earned, only what it
+    // finished — see core/earn.js and migration 0012. The old
+    // `awardCharge(15 + random(7))` wrote a number of its own choosing
+    // into localStorage, where it was both forgeable and doomed: the
+    // next economy pull overwrote it with the server's figure, so an
+    // honest learner lost every chunk they had earned.
     if (!state.inRetry) {
-      const gain = 15 + Math.floor(Math.random() * 7);
-      state.topicCharge = (state.topicCharge || 0) + gain;
-      awardCharge(gain, originEl);
+      claimChunk(topic.id, state.currentChunk, originEl);
     }
 
     if (state.inRetry) {
@@ -1727,21 +1784,29 @@
     // Topic bonus: what the chunks earned, multiplied by how the exam
     // went. 0% -> x0.7, 100% -> x1.5. Rewards finishing well without
     // making a bad run worthless.
+    //
+    // The base is no longer state.topicCharge. The server holds the
+    // topic's unscaled worth in its catalogue and applies the
+    // multiplier itself, CLAMPING the percentage to 0..100 first \u2014 the
+    // client still scores the exam, so the score is bounded rather than
+    // believed. See migration 0013.
+    //
+    // The multiplier is still shown, because "x1.42 for 89%" is the
+    // part that makes the number make sense. It is recomputed here for
+    // display only; the server's `mult` in the reply is the one that
+    // was actually applied, and the two agree by construction.
     const mult = 0.7 + (pct / 100) * 0.8;
-    const bonus = Math.round((state.topicCharge || 0) * mult);
     const bonusEl = document.getElementById("result-charge");
-    if (bonusEl) {
-      if (bonus > 0) {
-        const scoreCard = document.getElementById("result-score");
-        const granted = awardCharge(bonus, scoreCard);
-        // XP is uncapped, so a grant always lands; the fallback branch
-        // that used to say "charge full" can't happen any more.
-        bonusEl.innerHTML = `<span class="charge-award">\u26A1 +${granted} XP <span class="ca-mult">(&times;${mult.toFixed(2)} for ${pct}%)</span></span>`;
-      } else {
-        bonusEl.innerHTML = "";
-      }
+    if (bonusEl) bonusEl.innerHTML = "";
+    if (Dojo.Earn) {
+      const before = DB.getXp();
+      const scoreCard = document.getElementById("result-score");
+      Dojo.Earn.claim(Dojo.Earn.id.topic(topic.id), pct).then(r => {
+        if (!bonusEl || !r || r.status !== "paid" || !r.xp) { renderCharge(); return; }
+        showChargeGain(r.xp, scoreCard, before);
+        bonusEl.innerHTML = `<span class="charge-award">\u26A1 +${r.xp} XP <span class="ca-mult">(&times;${(r.mult || mult).toFixed(2)} for ${pct}%)</span></span>`;
+      });
     }
-    state.topicCharge = 0;
 
     // Topic finished — there's no half-done chunk to come back to.
     if (passed) DB.clearPosition();
@@ -1766,7 +1831,21 @@
   // taken cold, any time), so the reward has to stand on its own. Sized
   // roughly like a strong topic exam finish, not a whole course's worth.
   // 120, not 40 — scaled up 3x alongside chunk XP, see that comment.
+  //
+  // Kept here although the SERVER now pays it, because
+  // supabase/build-catalogue.js reads this line to fill the catalogue.
+  // That is the point: one number, in one place, that the app and the
+  // server both take from. Chunk XP went the other way — it moved into
+  // the generator once nothing in the client needed it — and the
+  // generator stopped with a clear error when it vanished from here.
   const FINAL_QUIZ_XP_BASE = 120;
+
+  // The catalogue ids for the Final Quiz. There is exactly ONE final
+  // quiz in the app: FINAL_QUIZ_QUESTIONS is a single global defined in
+  // intro-cs/final_quiz.js, not a per-course thing, so these are fixed
+  // rather than built from whichever course is open.
+  const FINAL_QUIZ_ITEM = "final:intro-cs";
+  const FINAL_QUIZ_FIRST_ITEM = "final-first:intro-cs";
 
   function showFinalQuizResults() {
     state.lastReviewMode = "final-quiz";
@@ -1806,32 +1885,49 @@
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
 
     const mult = 0.7 + (pct / 100) * 0.8;
-    const bonus = Math.round(FINAL_QUIZ_XP_BASE * mult);
     const bonusEl = document.getElementById("result-charge");
     if (bonusEl) {
-      let html = "";
-      if (xpEligible && !tooFast) {
-        const granted = awardCharge(bonus, scoreEl);
-        html = `<span class="charge-award">⚡ +${granted} XP <span class="ca-mult">(&times;${mult.toFixed(2)} for ${pct}%)</span></span>`;
-      } else {
+      // The daily cap now lives on the SERVER: `final:` is a repeat_daily
+      // item, so it pays once per day whatever the client believes.
+      // DB.recordFinalQuizResult's xpEligible stays as the local read of
+      // the same rule — it decides what the screen SAYS, while the
+      // ledger decides what is actually paid. Keeping the local check
+      // means the honest "cap used up" message still appears instantly
+      // instead of after a round trip.
+      //
+      // tooFast likewise stays client-side. It measures how long this
+      // attempt took, which the server cannot see — its own pace check
+      // measures the gap since the last payment, a different and coarser
+      // thing. Two guards on two different signals, neither redundant.
+      if (!xpEligible || tooFast) {
         // Withheld, not hidden — explain why rather than silently
         // giving 0, same "no hard locks, but be honest about limits"
         // shape as everywhere else in this app.
-        html = `<span class="charge-award full">${tooFast
+        bonusEl.innerHTML = `<span class="charge-award full">${tooFast
           ? "No XP this time — that finished too fast for a genuine read."
           : "No XP this time — today's Final Quiz XP cap is used up."}</span>`;
+      } else if (Dojo.Earn) {
+        bonusEl.innerHTML = "";
+        const before = DB.getXp();
+        Dojo.Earn.claim(FINAL_QUIZ_ITEM, pct).then(r => {
+          if (!r || r.status !== "paid" || !r.xp) { renderCharge(); return; }
+          showChargeGain(r.xp, scoreEl, before);
+          bonusEl.innerHTML = `<span class="charge-award">⚡ +${r.xp} XP <span class="ca-mult">(&times;${(r.mult || mult).toFixed(2)} for ${pct}%)</span></span>`;
+        });
+
+        // One-time completion bonus, on top of the scaled per-attempt
+        // one above — separate because this fires once ever, the first
+        // time the Final Quiz is actually passed. The server enforces
+        // the "once" (it is not a repeat_daily item); isFirstPass is the
+        // local read that decides whether to ask at all.
+        if (isFirstPass) {
+          Dojo.Earn.claim(FINAL_QUIZ_FIRST_ITEM).then(r => {
+            if (!r || r.status !== "paid" || !r.xp) return;
+            showChargeGain(r.xp, scoreEl, DB.getXp() - r.xp);
+            bonusEl.innerHTML += `<br><span class="charge-award">\u{1F393} +${r.xp} XP <span class="ca-mult">first Final Quiz pass</span></span>`;
+          });
+        }
       }
-      // One-time completion bonus, on top of the scaled per-attempt one
-      // above — separate from it because this one only ever fires once,
-      // the first time the Final Quiz is actually passed. Not gated by
-      // the daily cap (it can only ever fire once, ever), but still
-      // gated by tooFast — a guessed-through "pass" shouldn't be able
-      // to claim it either.
-      if (isFirstPass && !tooFast) {
-        const completionGranted = awardCharge(FINAL_QUIZ_COMPLETION_XP, scoreEl);
-        html += `<br><span class="charge-award">\u{1F393} +${completionGranted} XP <span class="ca-mult">first Final Quiz pass</span></span>`;
-      }
-      bonusEl.innerHTML = html;
     }
 
     // No per-topic wisdom quote — a cumulative quiz doesn't belong to
@@ -2470,6 +2566,11 @@
   // traced to this. Scaling per card instead means reviewing MORE
   // pays MORE, same as original learning already works. 6, not 2 —
   // scaled up 3x alongside chunk XP, staying proportionally under it.
+  // Still the per-card figure the catalogue is built from — a topic
+  // review is worth this much times its chunk count, paid flat, once a
+  // day. Nothing multiplies it on this side any more: the card count
+  // came from here, and that was the number a console would inflate.
+  // Read by supabase/build-catalogue.js.
   const REVIEW_XP_PER_CARD = 6;
 
   // Shared by both finish functions — writes every chunk's LAST rating
@@ -2527,19 +2628,27 @@
     scoreEl.textContent = `${pct}%`;
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
 
-    // Per genuinely-known card (see genuineKnown above) — a review
-    // isn't new learning, and per-card stays well under a chunk's own
-    // 5-7 XP, so it must not be a faster source of XP than actually
-    // studying the topic was.
-    const bonus = genuineKnown * REVIEW_XP_PER_CARD;
+    // A review pays a flat amount per topic per DAY now, rather than
+    // per genuinely-known card.
+    //
+    // The old sum was `genuineKnown * REVIEW_XP_PER_CARD`, and
+    // genuineKnown is counted on this side of the wire — it is exactly
+    // the kind of number a console inflates. A flat per-topic amount
+    // says the same thing (you sat with this and it stuck) and asks the
+    // client for nothing. It is still sized near one chunk, because a
+    // review must not out-earn studying the topic in the first place.
+    //
+    // genuineKnown still gates WHETHER to claim: rushing every card to
+    // "Knew it" should not pay, and the server cannot see card timings.
     const bonusEl = document.getElementById("result-charge");
-    if (bonusEl) {
-      if (bonus > 0) {
-        const granted = awardCharge(bonus, scoreEl);
-        bonusEl.innerHTML = `<span class="charge-award">⭐ +${granted} XP</span>`;
-      } else {
-        bonusEl.innerHTML = "";
-      }
+    if (bonusEl) bonusEl.innerHTML = "";
+    if (genuineKnown > 0 && Dojo.Earn) {
+      const before = DB.getXp();
+      Dojo.Earn.claim(`review:${topic.id}`).then(r => {
+        if (!r || r.status !== "paid" || !r.xp) { renderCharge(); return; }
+        showChargeGain(r.xp, scoreEl, before);
+        if (bonusEl) bonusEl.innerHTML = `<span class="charge-award">⭐ +${r.xp} XP</span>`;
+      });
     }
     // Same reward as a fresh topic pass — a review is still "you sat
     // with this topic and it stuck," and skipping the quote here was
@@ -2588,20 +2697,30 @@
     scoreEl.textContent = `${pct}%`;
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
 
-    // Per genuinely-known card, not a flat session cap — a 50-card
-    // deck spanning every unit used to pay the exact same 5 XP as a
-    // 4-card single-topic review, making review strictly worse value
-    // the more of it you did. Now scales with actual volume reviewed,
-    // same as original learning already does per chunk.
-    const bonus = genuineKnown * REVIEW_XP_PER_CARD;
+    // A custom deck spans many topics, so it claims one review per
+    // DISTINCT topic in it rather than one payment for the session.
+    //
+    // That keeps the property the per-card sum was there to protect: a
+    // 50-card deck across every unit must not pay the same as a 4-card
+    // single-topic review, or review gets worse value the more of it you
+    // do. It scales with topics touched instead of cards answered —
+    // which is the honest unit anyway, since the card count is a number
+    // this side of the wire chooses and the topic list is not.
+    //
+    // Each of those topics is repeat_daily, so a topic already reviewed
+    // today comes back "already_paid" and simply adds nothing. Building
+    // the same deck twice in an afternoon earns once.
     const bonusEl = document.getElementById("result-charge");
-    if (bonusEl) {
-      if (bonus > 0) {
-        const granted = awardCharge(bonus, scoreEl);
-        bonusEl.innerHTML = `<span class="charge-award">⭐ +${granted} XP</span>`;
-      } else {
-        bonusEl.innerHTML = "";
-      }
+    if (bonusEl) bonusEl.innerHTML = "";
+    if (genuineKnown > 0 && Dojo.Earn) {
+      const topicIds = [...new Set(deck.filter(isChunkCard).map(c => c.topicId))];
+      const before = DB.getXp();
+      Promise.all(topicIds.map(id => Dojo.Earn.claim(`review:${id}`))).then(rs => {
+        const gained = rs.reduce((a, r) => a + ((r && r.status === "paid" && r.xp) || 0), 0);
+        if (!gained) { renderCharge(); return; }
+        showChargeGain(gained, scoreEl, before);
+        if (bonusEl) bonusEl.innerHTML = `<span class="charge-award">⭐ +${gained} XP</span>`;
+      });
     }
     // Deck cards only carry topicId/chunkIdx (see buildCustomDeck), not
     // the chunk object itself, so the tag pool is looked back up

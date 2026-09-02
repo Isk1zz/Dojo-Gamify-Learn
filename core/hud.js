@@ -373,14 +373,33 @@
   function awardCharge(amount, originEl) {
     const before = DB.getXp();
     const gained = DB.addXp(amount);
-    if (gained > 0) {
-      flyBolt(originEl, gained);
+    showChargeGain(gained, originEl, before);
+    return gained;
+  }
+
+  // The animation half of awardCharge, for XP that has ALREADY been
+  // granted — by core/earn.js, writing down what the server paid.
+  //
+  // Split out because the two halves now belong to different owners.
+  // Deciding the amount is the server's job (migration 0012); showing
+  // it is this file's. Calling awardCharge for a server payment would
+  // grant it a second time, and running it through DB.addXp would apply
+  // the patron multiplier again on top of the one the server already
+  // applied.
+  //
+  // `before` is optional: pass the XP total from before the grant when
+  // the caller has it, so the rank check compares the right two
+  // numbers. Without it, a rank-up that happened on this grant would be
+  // missed, since DB.getXp() already includes it.
+  function showChargeGain(amount, originEl, before) {
+    if (amount > 0) {
+      flyBolt(originEl, amount);
       revealBar(3200);
       if (Dojo.sfx) Dojo.sfx.reward();
     }
-    checkRankUp(before, DB.getXp());
+    checkRankUp(before != null ? before : DB.getXp() - amount, DB.getXp());
     renderCharge();
-    return gained;
+    return amount;
   }
 
   function flyBolt(originEl, amount) {
@@ -416,5 +435,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { renderCharge, awardCharge, flyBolt, checkRankUp, renderStreak, celebrateStreak, celebrateReward, warnSaveFailed, moneyBurst, burstConfetti, renderVitals });
+  Object.assign(Dojo, { renderCharge, awardCharge, showChargeGain, flyBolt, checkRankUp, renderStreak, celebrateStreak, celebrateReward, warnSaveFailed, moneyBurst, burstConfetti, renderVitals });
 })();

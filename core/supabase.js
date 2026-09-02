@@ -178,10 +178,28 @@
     return data;
   }
 
-  // Award XP through the capped server function rather than writing
-  // `charge` directly, which no client can do anyway.
-  async function awardXp(amount) {
-    const { data, error } = await getClient().rpc("award_xp", { amount });
+  // Claim payment for one piece of finished work.
+  //
+  // This REPLACES awardXp, which sent an amount and had it believed.
+  // Four console calls put 800 XP on an account that had studied
+  // nothing, and the Career ladder hands out 795 Tokens on the way up,
+  // so the hole ended at paid content rather than at a vanity number.
+  // award_xp is revoked server-side as of 0012; the wrapper is gone
+  // rather than left broken.
+  //
+  // The client no longer says HOW MUCH. It says WHICH PIECE OF WORK,
+  // and the server decides what that is worth, whether it was already
+  // paid, whether it came too fast, and whether the day's ceiling is
+  // reached. `scorePct` is only ever a multiplier between 0.7x and 1.5x
+  // on a figure the server computed, clamped there — it is passed for
+  // the topic bonus and left out everywhere else.
+  //
+  // Never throws on a refusal. "already paid", "too fast" and "no such
+  // item" are ordinary answers, not failures, and a caller should not
+  // have to tell them apart from a dropped connection.
+  async function claimEarning(itemId, scorePct) {
+    const { data, error } = await getClient()
+      .rpc("claim_earning", { item_id: itemId, score_pct: scorePct ?? null });
     if (error) throw error;
     return data;
   }
@@ -197,7 +215,7 @@
 
   Dojo.Cloud = {
     isConfigured,
-    deleteAccount, buyCourse, awardXp, emailForNickname, nicknameAvailable,
+    deleteAccount, buyCourse, claimEarning, emailForNickname, nicknameAvailable,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),
     progress: table("progress"),

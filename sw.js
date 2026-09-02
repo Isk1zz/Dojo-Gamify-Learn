@@ -203,13 +203,18 @@
 // David.
 // Bumped for the first-run appearance picker: core/onboard.js is a NEW
 // file, with its bar markup in index.html and onb.* strings in i18n.
+// Bumped for earning moving to the server: core/earn.js is a NEW file
+// with a script tag in index.html, library.js stops granting anything
+// itself, hud.js splits awardCharge, db.js gains addXpRaw, and
+// supabase.js swaps awardXp for claimEarning. A stale cache here would
+// keep minting XP locally that the next sync silently erases.
 // Bumped for the Garden explainer replacing the dividend payout:
 // garden/garden.js loses claimDividends and gains explainPanel,
 // styles/garden.css swaps .garden-dividends for .garden-explain, and
 // i18n drops four dead keys for the garden.ex.* set. A stale cache
 // here would keep serving a Claim button that no longer has any code
 // or any system behind it.
-const CACHE_VERSION = "knell-v57";
+const CACHE_VERSION = "knell-v58";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

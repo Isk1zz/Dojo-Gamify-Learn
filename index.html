@@ -928,6 +928,11 @@
   <script src="core/migrate-cloud.js"></script>
   <script src="core/auth.js"></script>
   <script src="core/sync.js"></script>
+  <!-- The one road from "work finished" to "the server paid for it".
+       After sync.js because it listens for the sync's own events to
+       know the network is back, and before library.js, which is the
+       biggest caller. -->
+  <script src="core/earn.js"></script>
   <script src="core/onboard.js"></script>
   <script src="library/library.js"></script>
   <script src="library/stats.js"></script>

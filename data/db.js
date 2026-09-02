@@ -1002,6 +1002,26 @@ const DB = (() => {
   // needs to know this exists.
   const PATRON_XP_MULT = { 0: 1, 1: 1.5, 2: 1.75, 3: 2 };
 
+  // Writes exactly what it is given, with no multiplier of any kind.
+  //
+  // For core/earn.js only. The server has already rolled the jitter and
+  // applied both the exam and the patron multipliers (see migration
+  // 0014), so its answer is the final number. Running it through addXp
+  // would apply the patron bonus a second time — the honest-looking bug
+  // where a tier-3 patron quietly earns four times scale.
+  //
+  // Nothing else should call this. Everything that is not a server
+  // answer belongs in addXp.
+  function addXpRaw(amount) {
+    const db = load();
+    const p = db.profiles[db.activeProfileId];
+    if (!p || amount <= 0) return 0;
+    p.charge = (p.charge || 0) + amount;
+    p.chargeEarned = (p.chargeEarned || 0) + amount;
+    save(db);
+    return amount;
+  }
+
   function addXp(amount) {
     const db = load();
     const p = db.profiles[db.activeProfileId];
@@ -1597,7 +1617,7 @@ const DB = (() => {
     getSeenQuotes,
     pushSeenQuote,
     getXp,
-    addXp,
+    addXp, addXpRaw,
     setXp,
     getChargeTotals,
     getOwnedThemes,

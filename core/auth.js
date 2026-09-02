@@ -277,6 +277,15 @@
         catch (e) { console.info("[auth] economy mirror skipped:", e.message); }
       }
 
+      // Work finished while signed out sits in a queue (core/earn.js).
+      // Signing in is the first moment it can be paid, and it must not
+      // wait for the next study session: someone who studied on a plane
+      // and then signed in should see it land now, not tomorrow.
+      //
+      // Deliberately NOT awaited. A slow drain must not hold the lobby
+      // shut -- each claim applies its own result as it arrives.
+      if (Dojo.Earn) Dojo.Earn.drain();
+
       close();
       if (Dojo.updateProfileBadge) Dojo.updateProfileBadge();
       if (Dojo.showLobby) Dojo.showLobby();
