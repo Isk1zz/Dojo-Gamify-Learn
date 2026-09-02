@@ -1595,7 +1595,11 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   display: flex; align-items: center; gap: 0.75rem;
   margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px solid var(--border);
 }
-.post-score { font-size: 0.85rem; color: var(--text-dim); }
+.post-score, .post-views { font-size: 0.85rem; color: var(--text-dim); }
+/* Views sit beside the score but read quieter: one is what people
+   chose to give, the other is only that they showed up. */
+.post-views { opacity: 0.75; }
+.pv-num { font-family: var(--mono); color: var(--text-dim); }
 .ps-num { font-family: var(--mono); font-weight: 700; color: var(--text); }
 
 .post-give {

@@ -49,9 +49,23 @@ Stylesheet: `styles/settings.css`.
 `progress:changed` (after an admin unlock)
 
 ## Legal
-The Privacy Policy is written and true: everything is in localStorage, no
-account, no server, no analytics, nothing transmitted. **Keep it true** — the
-first feature that phones home invalidates it and needs it rewritten first.
+**Corrected 2026-09-02.** This section used to say the Privacy Policy was
+"written and true: everything is in localStorage, no account, no server, no
+analytics, nothing transmitted", followed by "**Keep it true** — the first
+feature that phones home invalidates it and needs it rewritten first."
+
+That instruction was right, and it was not followed. Accounts shipped, the
+policy kept claiming there were none, and it took three separate catches to
+get the shipped text corrected.
+
+What is true now: accounts are mandatory; email, nickname and optionally
+country are stored on a Supabase project; progress, appearance and the economy
+sync to it; Forum posts and replies are readable by other signed-in people.
+Still no analytics and no third-party tracking.
+
+The rule stands, restated so it cannot be read as satisfied: **the policy
+describes what the code does, and any change to what leaves the browser
+rewrites the policy first.**
 
 The ToS is a draft; it needs a lawyer before money changes hands.
 

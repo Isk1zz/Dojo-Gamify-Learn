@@ -220,7 +220,19 @@ actually predicts engagement.
 - **No points, badges, or leaderboards.** Meta-analyses find small and unstable
   motivational effects; Hanus & Fox (2015) found badges and leaderboards *reduced*
   motivation. Researchers call the shallow version "racing stripes on a bicycle."
-- **No AI features** — they'd break the offline/no-build property.
+- **No AI features** — they'd break the no-build property, and what is
+  left of working without a network.
+
+  > **"Offline" needs qualifying, corrected 2026-09-02.** This line used
+  > to say "the offline/no-build property" flatly, and that stopped being
+  > true when accounts became mandatory. What actually works with no
+  > network: studying, but only on a device that has signed in at least
+  > once — the gate is a localStorage read, not a request. What does not:
+  > signing in on a fresh device, earning anything (claims queue and pay
+  > on reconnect, see `core/earn.js`), and the Forum entirely.
+  >
+  > Caught by a reader, not by this file. The full table is in
+  > `docs/LEARNING-DESIGN.html`.
 
 > **Badges were on this list too, and no longer are.** Added back by explicit
 > request (2026-08-12), alongside a real user profile screen showing stats and
@@ -272,15 +284,24 @@ Keep it that way.
 
 Growth stage is driven by the **review interval**, not by how many topics are finished:
 
-| Stage | Trigger |
-|---|---|
-| 🌑 Fallow | Never attempted |
-| 🌰 Seed | Attempted, not mastered |
-| 🌱 Sprout | Just mastered (interval 1d) |
-| 🌿 Seedling | Interval ≥ 6d |
-| 🌾 Growing | Interval ≥ 16d |
-| 🌳 Tree | Interval ≥ 45d |
-| 🌸 Blossom | Interval ≥ 120d |
+| Stage | Trigger | Weight |
+|---|---|---|
+| 🌑 Fallow | Never attempted | — |
+| 🌰 Seed | Attempted, not mastered | — |
+| 🌱 Sprout | Mastered, held up to 2d | 1 |
+| 🌿 Seedling | Interval ≥ 7d | 1 |
+| 🌾 Growing | Interval ≥ 21d | 2 |
+| 🌳 Tree | Interval ≥ 30d | 2 |
+| 🌸 Blossom | Interval ≥ 60d | 3 |
+
+**Corrected 2026-09-02.** This table read 6/16/45/120 for four months
+after the code moved to 7/21/30/60 — the v4 thresholds, whose long tail
+meant almost nobody would ever see a Tree. Anyone reading this file to
+understand the Garden was reading the wrong app.
+
+`weight` is what the Garden now feeds the Forum: every 5 of it is one
+reputation point a day, capped at 5. It MIRRORS the server's
+`garden_weight()`, which is the authority — see `garden/GARDEN.md`.
 
 Lapsing a review drops the plant back. This makes the garden a picture of **retention**
 rather than coverage — which is the app's whole argument.

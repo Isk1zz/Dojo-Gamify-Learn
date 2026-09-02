@@ -53,6 +53,72 @@
   let threadCache = {};  // post id -> replies, so collapsing is free
   let draft = "";        // survives a repaint mid-typing
 
+  // ---- Counting a view only when the post was actually read ----------
+  //
+  // A post counts when it has been ON SCREEN continuously for this long.
+  // Scrolling past takes a fraction of a second, so the threshold clears
+  // it by an order of magnitude — which is the only job it has.
+  //
+  // 5 and not 10: a short post is honestly read in four seconds, and a
+  // ten-second floor would begin discarding real reads rather than
+  // scrolls.
+  const VIEW_DWELL_MS = 5000;
+
+  let viewObserver = null;
+  const dwellTimers = new Map();  // post id -> timeout while it is visible
+  const reported = new Set();     // told the server this session; it also
+                                  // enforces once-ever, this just saves calls
+
+  function stopWatching() {
+    if (viewObserver) { viewObserver.disconnect(); viewObserver = null; }
+    dwellTimers.forEach(t => clearTimeout(t));
+    dwellTimers.clear();
+  }
+
+  function watchViews(root) {
+    stopWatching();
+    if (!("IntersectionObserver" in window)) return;
+
+    viewObserver = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        const id = en.target.getAttribute("data-id");
+        if (!id) return;
+
+        if (!en.isIntersecting) {
+          // Left the screen before the threshold: the timer is dropped,
+          // not paused. Half-reading it twice is not reading it.
+          clearTimeout(dwellTimers.get(id));
+          dwellTimers.delete(id);
+          return;
+        }
+        if (reported.has(id) || dwellTimers.has(id)) return;
+
+        dwellTimers.set(id, setTimeout(async () => {
+          dwellTimers.delete(id);
+          reported.add(id);
+          try {
+            const r = await Dojo.Cloud.markViewed(id);
+            // Only a fresh count changes the number on screen. Every
+            // other answer — own post, already viewed, hidden — means
+            // the figure is already right.
+            if (r && r.status === "counted") {
+              const p = posts && posts.find(x => x.id === id);
+              if (p) p.views = r.views;
+              const el = root.querySelector(`.post[data-id="${id}"] .pv-num`);
+              if (el) el.textContent = r.views;
+            }
+          } catch (e) { /* offline: the view is simply not counted */ }
+        }, VIEW_DWELL_MS));
+      });
+    }, {
+      // Half the card has to be showing. A sliver at the edge of the
+      // viewport during a scroll is not somebody reading.
+      threshold: 0.5
+    });
+
+    root.querySelectorAll(".post[data-id]").forEach(el => viewObserver.observe(el));
+  }
+
   const esc = s => String(s == null ? "" : s)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
@@ -163,7 +229,7 @@
     const av  = p.person && p.person.avatar ? esc(p.person.avatar) : "\u{1F464}";
 
     return `
-      <article class="post${mine ? " own" : ""}">
+      <article class="post${mine ? " own" : ""}" data-id="${esc(p.id)}">
         <div class="post-head">
           <span class="post-av">${av}</span>
           <span class="post-who">${who}</span>
@@ -173,6 +239,9 @@
         <div class="post-foot">
           <span class="post-score" title="${esc(I18N.t("forum.scoreTip"))}">
             \u{1F44F} <span class="ps-num">${p.score}</span>
+          </span>
+          <span class="post-views" title="${esc(I18N.t("forum.viewsTip"))}">
+            \u{1F441}\u{FE0F} <span class="pv-num">${p.views || 0}</span>
           </span>
           <button class="post-thread btn-ghost" data-post="${esc(p.id)}">${
             I18N.t(openThread === p.id ? "forum.hideThread" : "forum.showThread")}</button>
@@ -311,6 +380,10 @@
       const send = root.querySelector("#compose-send");
       if (send) send.addEventListener("click", () => publish(box));
     }
+
+    // Re-attached on every repaint, because the observer holds element
+    // references and paint() replaces them all.
+    watchViews(root);
   }
 
   // ---- Writing --------------------------------------------------------

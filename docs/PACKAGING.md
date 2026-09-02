@@ -6,10 +6,19 @@ How to get Knell onto a machine. In the order worth doing it.
 
 ## The constraint everything else follows from
 
-There is **no build step, no dependency and no server**. `index.html` opens by
-double-click and the app runs. Every option below preserves that — nothing here
-is required for the app to work, and if you delete `sw.js`,
-`manifest.webmanifest` and `icons/`, you are back exactly where you started.
+There is **no build step**. `index.html` opens by double-click and the app
+runs. Every option below preserves that — nothing here is required for the app
+to work, and if you delete `sw.js`, `manifest.webmanifest` and `icons/`, you
+are back exactly where you started.
+
+> **Corrected 2026-09-02: "no dependency and no server" is no longer true.**
+> The line said all three for months after Supabase landed. supabase-js is a
+> real dependency (loaded from a CDN, still no npm) and there is a real
+> server holding accounts, progress, the economy and the Forum.
+>
+> The no-build property is the one that survived, and it is the one worth
+> defending. Double-clicking `index.html` still works; what a signed-out
+> device gets is the study flow on locally stored progress.
 
 Don't trade that away for packaging. It's the reason the app will still run in
 five years.
@@ -108,8 +117,20 @@ build, not after.
 Also unresolved and needed before any public release:
 - **A LICENSE file.** The repo has none. See PROJECT.md §10.
 - **Terms of Service and Privacy Policy.** Both are placeholders in Settings.
-  The privacy one is easy and true: everything is in localStorage, there is no
-  account, no server, no analytics, nothing leaves the browser. Say exactly that.
+
+  > **This bullet used to be dangerous, corrected 2026-09-02.** It read: "The
+  > privacy one is easy and true: everything is in localStorage, there is no
+  > account, no server, no analytics, nothing leaves the browser. Say exactly
+  > that." Following that instruction today produces a false privacy policy,
+  > and it very nearly did — the shipped policy claimed exactly this after
+  > accounts landed, and had to be corrected twice.
+  >
+  > What is true now: accounts are mandatory, email and a nickname are stored
+  > on a Supabase project, progress and the economy sync to it, and Forum posts
+  > are readable by other signed-in people. There is still no analytics and no
+  > third-party tracking. **Write what the code does, then check it against the
+  > code** — a privacy policy is the one document where being out of date is
+  > not a documentation problem.
 
 ---
 

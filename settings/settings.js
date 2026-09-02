@@ -74,6 +74,7 @@
           <p>${I18N.t("legal.privacyIntro")}</p>
           <p>${I18N.t("legal.privacyLocal")}</p>
           <p>${I18N.t("legal.privacyCloud")}</p>
+          <p>${I18N.t("legal.privacyForum")}</p>
           <p>${I18N.t("legal.privacyNoTrack")}</p>
           <p>${I18N.t("legal.privacyRights")}</p>
         </details>

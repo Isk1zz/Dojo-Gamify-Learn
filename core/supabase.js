@@ -238,7 +238,7 @@
   async function feed({ limit = 30, before = null } = {}) {
     let q = getClient()
       .from("posts")
-      .select("id, author, body, score, created_at")
+      .select("id, author, body, score, views, created_at")
       .order("score", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(limit);
@@ -313,6 +313,17 @@
     return data;
   }
 
+  // Records that a post was actually read. The client decides WHEN by
+  // timing how long it was on screen; the server enforces once per
+  // person per post (0019), which is what makes trusting that timing
+  // safe — the most a lie wins is one view the reader would have
+  // produced anyway.
+  async function markViewed(postId) {
+    const { data, error } = await getClient().rpc("mark_viewed", { post_id: postId });
+    if (error) throw error;
+    return data;
+  }
+
   // A thread's replies, oldest first — a conversation reads forwards.
   async function replies(postId) {
     const { data, error } = await getClient()
@@ -345,7 +356,7 @@
     isConfigured,
     deleteAccount, buyCourse, claimEarning, repStatus,
     feed, myGrants, grantReputation,
-    createPost, createReply, writeStatus, replies,
+    createPost, createReply, writeStatus, replies, markViewed,
     emailForNickname, nicknameAvailable,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),

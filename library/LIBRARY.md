@@ -244,7 +244,16 @@ Full reasoning in PROJECT.md §5. Short version:
 - Wrong chunk answers re-ask that chunk before the exam, straight to the
   question — no re-reading.
 - No hard locks. Order is a recommendation badge, not a gate.
-- No points, badges, streaks or leaderboards.
+- **No leaderboards.** Points and streaks are a different story: both
+  were on this list and both shipped anyway, by explicit request.
+  `PROJECT.md` §5 records each reversal with the objection intact; this
+  file simply kept asserting the old rule, for months, next to a HUD that
+  has been showing XP the whole time. Corrected 2026-09-02.
+
+  Badges are promised and not built. When they are, the condition
+  written down at the time still stands: real accomplishments — topics
+  mastered, streaks held, exams passed clean — never a trophy for opening
+  the app.
 - **Nothing in the Shop or Arcade may buy progress, hints, retries or exam
   advantage.** That is the line the whole design rests on.
 

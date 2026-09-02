@@ -203,6 +203,10 @@
 // David.
 // Bumped for the first-run appearance picker: core/onboard.js is a NEW
 // file, with its bar markup in index.html and onb.* strings in i18n.
+// Bumped for view counts: forum.js gains an IntersectionObserver with a
+// 5s dwell threshold, supabase.js markViewed, plus the privacy policy
+// gaining legal.privacyForum. A stale i18n against a fresh settings.js
+// would print a raw key inside the policy.
 // Bumped for forum step 5: writing. forum.js gains the compose box and
 // threads, supabase.js createPost/createReply/writeStatus/replies, i18n
 // the forum.compose* set, base.css the .compose and .thread rules.
@@ -228,7 +232,7 @@
 // i18n drops four dead keys for the garden.ex.* set. A stale cache
 // here would keep serving a Claim button that no longer has any code
 // or any system behind it.
-const CACHE_VERSION = "knell-v62";
+const CACHE_VERSION = "knell-v63";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
