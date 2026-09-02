@@ -1570,6 +1570,52 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 
 .forum-empty { border: 1px dashed var(--border-accent); background: transparent; }
 
+/* The feed. A post is a card, and its two ends carry the two things
+   that matter: who wrote it, and what it is worth. */
+.post-list { display: flex; flex-direction: column; gap: 0.7rem; }
+.post {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-card); padding: 0.85rem 1rem;
+}
+/* Your own post reads differently on purpose: it is the one you cannot
+   act on, and it should look like a statement rather than an offer. */
+.post.own { border-style: dashed; background: transparent; }
+
+.post-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.post-av { font-size: 1.05rem; }
+.post-who { font-weight: 600; font-size: 0.9rem; }
+.post-when { margin-left: auto; font-size: 0.72rem; color: var(--text-muted); }
+
+.post-body {
+  font-size: 0.92rem; line-height: 1.55; color: var(--text);
+  white-space: normal; overflow-wrap: anywhere;
+}
+
+.post-foot {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px solid var(--border);
+}
+.post-score { font-size: 0.85rem; color: var(--text-dim); }
+.ps-num { font-family: var(--mono); font-weight: 700; color: var(--text); }
+
+.post-give {
+  margin-left: auto; font: inherit; font-size: 0.8rem; font-weight: 600;
+  padding: 0.35rem 0.8rem; border-radius: var(--radius-xs); cursor: pointer;
+  background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--border-accent);
+  transition: background 0.15s ease;
+}
+.post-give:hover:not([disabled]) { background: var(--border-accent); }
+.post-give:focus-visible { outline: 2px solid var(--accent-light); outline-offset: 2px; }
+/* Disabled means one of: your own post, already given, or nothing left
+   today. Each carries its own label or title, so the state is never
+   just "greyed out for reasons". */
+.post-give[disabled] {
+  cursor: default; opacity: 0.5;
+  background: transparent; color: var(--text-muted); border-color: var(--border);
+}
+.post-give.done { opacity: 1; color: var(--text-dim); border-style: dashed; }
+
 @media (max-width: 26rem) {
   .forum-figures { grid-template-columns: 1fr; }
   .fig { display: flex; align-items: baseline; justify-content: space-between; text-align: left; }

@@ -648,6 +648,24 @@ const I18N = (() => {
     // Step 3: the three figures. All are queries against the rep_grants
     // journal, so the season resets by itself — see forum/forum.js.
     "forum.given":          { en: "Given",              ru: "Отдано" },
+
+    // Step 4: the feed.
+    "forum.feedTitle":      { en: "The feed",           ru: "Лента" },
+    "forum.give":           { en: "Give a point",       ru: "Дать очко" },
+    "forum.giving":         { en: "Giving…",            ru: "Отдаю…" },
+    "forum.gave":           { en: "Given",              ru: "Отдано" },
+    "forum.yours":          { en: "Your post",          ru: "Ваша запись" },
+    "forum.noAllowance":    { en: "Nothing left to give today — it refills tomorrow",
+                              ru: "На сегодня раздавать нечего — обновится завтра" },
+    "forum.scoreTip":       { en: "Points this post has been given",
+                              ru: "Сколько очков дали этой записи" },
+    "forum.unknownAuthor":  { en: "Someone",            ru: "Кто-то" },
+    "forum.feedUnavailable":{ en: "The feed could not be loaded.",
+                              ru: "Ленту не удалось загрузить." },
+    "forum.justNow":        { en: "just now",           ru: "только что" },
+    "forum.minsAgo":        { en: "{n} min ago",        ru: "{n} мин назад" },
+    "forum.hoursAgo":       { en: "{n} h ago",          ru: "{n} ч назад" },
+    "forum.daysAgo":        { en: "{n} d ago",          ru: "{n} дн назад" },
     "forum.gotMonth":       { en: "Got this month",     ru: "Получено за месяц" },
     "forum.gotTotal":       { en: "Got in total",       ru: "Получено всего" },
     "forum.todayHave":      { en: "<strong>{left}</strong> of {of} left to give today",

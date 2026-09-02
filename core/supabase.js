@@ -222,6 +222,67 @@
     return data;
   }
 
+  // ---- Forum reading ------------------------------------------------
+
+  // One page of the feed, with author names already attached.
+  //
+  // Two calls, not a join: posts and profiles cannot be joined through
+  // PostgREST here, because profiles is readable only for your own row
+  // (0001's "read own" policy, deliberately kept). Author identity comes
+  // from public_profiles (0017), which publishes name, avatar and pinned
+  // badges and nothing else — country in particular stays private.
+  //
+  // Sorted by score then date, per FORUM-PLAN.md step 4. Hidden posts
+  // are excluded by the read policy in 0008, not by this query — a
+  // client-side filter would be a suggestion.
+  async function feed({ limit = 30, before = null } = {}) {
+    let q = getClient()
+      .from("posts")
+      .select("id, author, body, score, created_at")
+      .order("score", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (before) q = q.lt("created_at", before);
+
+    const { data: posts, error } = await q;
+    if (error) throw error;
+    if (!posts.length) return [];
+
+    const ids = [...new Set(posts.map(p => p.author))];
+    const { data: people, error: pe } = await getClient()
+      .rpc("public_profiles", { ids });
+    if (pe) throw pe;
+
+    const by = {};
+    (people || []).forEach(p => { by[p.id] = p; });
+    // An author with no profile row still gets a post rendered. Losing
+    // the whole feed because one row is missing would be the wrong
+    // trade — the post is the content, the name is the decoration.
+    return posts.map(p => ({ ...p, person: by[p.author] || null }));
+  }
+
+  // Which of these posts the caller has already given a point to.
+  // rep_grants is readable for your own rows only, which is exactly the
+  // question being asked.
+  async function myGrants(postIds) {
+    if (!postIds.length) return [];
+    const { data, error } = await getClient()
+      .from("rep_grants").select("post").in("post", postIds);
+    if (error) throw error;
+    return (data || []).map(r => r.post);
+  }
+
+  // Give one point. Every rule lives in the RPC (0010/0011): not your
+  // own post, once per post, ten per author per month, the daily
+  // allowance, and a transaction lock so two clicks cannot both land.
+  // Refusals come back as data with a status, not as an exception.
+  async function grantReputation(postId) {
+    const { data, error } = await getClient()
+      .rpc("grant_reputation", { post_id: postId });
+    if (error) throw error;
+    return data;
+  }
+
   // GDPR Art. 17. Calls the RPC in 0005_delete_account.sql, which
   // deletes the CALLER's auth.users row; the three data tables follow by
   // ON DELETE CASCADE. Takes no argument on purpose — the server picks
@@ -233,7 +294,9 @@
 
   Dojo.Cloud = {
     isConfigured,
-    deleteAccount, buyCourse, claimEarning, repStatus, emailForNickname, nicknameAvailable,
+    deleteAccount, buyCourse, claimEarning, repStatus,
+    feed, myGrants, grantReputation,
+    emailForNickname, nicknameAvailable,
     signUp, signIn, signOut, getSession, onAuthStateChange,
     profiles: table("profiles"),
     progress: table("progress"),

@@ -203,6 +203,9 @@
 // David.
 // Bumped for the first-run appearance picker: core/onboard.js is a NEW
 // file, with its bar markup in index.html and onb.* strings in i18n.
+// Bumped for forum step 4: the feed. forum/forum.js renders posts and
+// the give-button, supabase.js gains feed/myGrants/grantReputation,
+// i18n gains the forum.feed* set, base.css the .post rules.
 // Bumped for forum step 3: forum/forum.js reads its figures from the
 // server instead of a local balance, i18n gains the forum.given/gotMonth
 // /gotTotal set, and base.css swaps .forum-rep for the four-number
@@ -222,7 +225,7 @@
 // i18n drops four dead keys for the garden.ex.* set. A stale cache
 // here would keep serving a Claim button that no longer has any code
 // or any system behind it.
-const CACHE_VERSION = "knell-v60";
+const CACHE_VERSION = "knell-v61";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
