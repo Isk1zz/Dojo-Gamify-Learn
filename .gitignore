@@ -4,3 +4,6 @@ Thumbs.db
 *.swp
 .vscode/
 .idea/
+
+# Local-only notes that must never reach the public repo
+*.local.md

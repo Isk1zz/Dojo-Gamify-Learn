@@ -958,7 +958,27 @@ const DB = (() => {
     }
 
     // Ease adjustment, floored at 1.3 to avoid SM-2's "ease hell".
-    r.ease = Math.max(1.3, r.ease + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
+    //
+    // The middle constant is 0.15, not textbook SM-2's 0.08. At 0.08 the
+    // whole expression evaluates to exactly ZERO at quality 4 — our pass
+    // mark — so somebody who scrapes through every single review keeps a
+    // flat 2.5 ease and gets an interval ladder of 1, 6, 15, 38, 95, 238
+    // days: the same aggressive spacing as somebody who answers
+    // perfectly. Barely remembering was treated as evidence of durable
+    // memory, and the eventual lapse was guaranteed.
+    //
+    // 0.15 makes quality 4 cost -0.07, so the ladder becomes
+    // 1, 6, 14, 32, 71, 153 — a struggling learner is simply reminded
+    // sooner. Quality 5 is untouched, and untouchable: (5 - quality) is
+    // zero there, so the changed term is multiplied away and a perfect
+    // learner keeps 1, 6, 16, 45, 131, 393 exactly as before.
+    //
+    // Order matters and is deliberate: the interval above was computed
+    // with the PREVIOUS ease, and only now does the ease move. Report 3
+    // proposed this fix with a formula that gives +0.03 rather than the
+    // -0.07 its own table used, and with intervals that do not reproduce
+    // under this ordering — so the constant here was derived, not copied.
+    r.ease = Math.max(1.3, r.ease + (0.1 - (5 - quality) * (0.15 + (5 - quality) * 0.02)));
     r.due = addDays(r.interval);
     p.reviews[topicId] = r;
     save(db);

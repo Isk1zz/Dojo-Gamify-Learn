@@ -244,7 +244,13 @@
 // i18n drops four dead keys for the garden.ex.* set. A stale cache
 // here would keep serving a Claim button that no longer has any code
 // or any system behind it.
-const CACHE_VERSION = "knell-v66";
+// Bumped for the SM-2 ease constant in data/db.js: quality 4 used to
+// cost nothing, so a learner who scraped through every review kept a
+// flat 2.5 ease and the same interval ladder as a perfect one. A stale
+// cache here would keep scheduling reviews off the old curve — silently,
+// since the numbers look plausible either way, which is the worst kind
+// of stale file to serve.
+const CACHE_VERSION = "knell-v67";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

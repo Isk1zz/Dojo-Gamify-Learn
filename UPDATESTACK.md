@@ -159,71 +159,375 @@ all.
 
 ---
 
-## MAJOR 2026-09-02 — learning-engine overhaul. 3-5 sessions minimum
+## MAJOR 2026-09-03 — learning-engine overhaul. TEN ITEMS, one at a time
 
-Sized as a major update by the user's own estimate. **Starts after the
-forum.** Full research capture, assessment and ranking:
-`docs/research/LEARNING-ENGINE.md`.
+Report 3 (`docs/research/_texts/report3-engine.txt`, brief in
+`docs/research/ENGINE-BRIEF-2.md`) answered all eight questions and
+produced a concrete change list. This is that list, as a queue.
 
-### Start here, before anything from the research
+**Worked one item at a time by request.** The user does not follow long
+text and asked to be given one decision per message, and to be told when
+the queue empties so the next stretch can be planned. So: nothing here
+gets built until its row says DECIDED, and when every row is gone this
+section goes with it.
 
-**171 chunks. 33 have all five phases. 81% run three.**
-(`node library/content/count-phases.js`)
+### The queue
 
-`predict` is in 19% of chunks, `recall` in 57%. Both are optional in the
-schema, so a chunk without them silently runs the old three-phase flow —
-and the two it drops are pretesting and generation, the two techniques
-with the strongest evidence in the whole app.
-
-The engine has supported all five since the schema was frozen. The content
-never adopted them. **Turning on a technique already built beats adding one
-that is not**, so this outranks everything below it, and it is content work
-with no code.
-
-Decide explicitly: raise the coverage, or accept 19% on the record. Not
-by default.
-
-### The ordered list
-
-| | Change | Cost | Blocked on |
+| # | Change | Cost | Status |
 |---|---|---|---|
-| 1 | Raise five-phase coverage from 19% | content, no code | nothing |
-| 2 | Weak-spot metric gains an overdue term | trivial | nothing |
-| 3 | Collect SER and speedrun-defect rate | low | nothing |
-| 4 | Confidence **before feedback**, hypercorrection flow, 24-48h re-test | medium | nothing |
-| 5 | Acquisition state — intraday ladder before the SRS takes over | medium | see below |
-| 6 | Backward fading in the `example` phase | medium | #1 |
-| 7 | Retention/mastery/interleaving telemetry | medium | #4 for one of them |
-| 8 | Per-item difficulty, adaptive selection | high | usage data |
-| 9 | FSRS migration | high | 50-1000 reviews per learner |
-| 10 | Prerequisite graph + fractional implicit repetition | very high | a graph that does not exist |
+| 1 | Exam 5 -> 10 items (7 recognition + 3 multi-step) | large, content | **DECIDED** |
+| 2 | Exam items must be isomorphic variants, never reused chunk quizzes | large, content | **DECIDED** |
+| 3 | Next-day verification gate; exam pass becomes provisional | medium, code | **DECIDED** |
+| 4 | Decouple gate score from SM-2 quality (entry always I=1, EF=2.5) | small, code | **DECIDED** |
+| 5 | Ease formula must penalise q=4 (their formula is broken, see below) | small, code | **DECIDED** |
+| 6 | Flashcards: typed recall + idea-unit checklist instead of self-rating | medium | **DECIDED** |
+| 7 | `predict` and `recall` on all 171 chunks; update CONTENT-MODEL | large, content | **DECIDED — declined** |
+| 8 | Withering -> visual dormancy; intervals stop decaying in storage | medium, code | **DECIDED — middle** |
+| 9 | Reputation allowance off garden weight, onto review volume | medium, **conflicts with shipped forum economy** | **DECIDED** |
+| 10 | Q-matrix so exam-derived cards feed chunk weakness | medium | **DECIDED** |
 
-**Items 7-10 are blocked on having users.** Four of the ten cannot be
-evaluated before launch, which is an argument for shipping and then reading
-the numbers rather than guessing at them now.
+### Item 1, decided 2026-09-03: ten items, cut-score stays 8/10
 
-### The one architectural question worth answering first
+Chosen over a 9/10 cut with the numbers for both on the table. Across the
+two attempts Knell allows, against a non-master at true proficiency 0.70
+and a real master at 0.90:
 
-Spaced-repetition algorithms are **review** schedulers: they assume the
-material is already encoded. Knell has the 80% mastery gate but no
-acquisition state before it — and the topic exam runs immediately after
-the chunks, at high retrieval strength with no elapsed time. That is
-exactly the fluency-illusion condition.
+| Gate | non-master passes | master passes |
+|---|---|---|
+| 5 items, 4/5 (the built machine) | 77.7% | 99.3% |
+| 5 items, 5/5 | 30.8% | 83.2% |
+| **10 items, 8/10 — chosen** | 61.9% | 99.5% |
+| 10 items, 9/10 | 27.6% | 93.0% |
 
-**A topic can pass at 80% on short-term recall alone and enter the review
-queue on an interval it has not earned.** Whether that actually happens is
-measurable once there are reviews to measure. Answer it before building #5.
+Worth writing down because report 3 did not check it: **the cut-score is
+a bigger lever than the item count.** Ten items at 80% only moves the
+false pass from 77.7% to 61.9%; the 9/10 cut roughly halves it again, at
+the same authoring cost.
+
+The 8/10 cut buys back the other error direction — 9/10 turns away 7% of
+learners who genuinely know the material and makes them redo a whole
+topic. That is the trade that was taken, deliberately, not by default.
+
+### Item 2, decided 2026-09-03: the five new items are written from scratch
+
+Not isomorphic rewrites of the chunk quizzes, and certainly not reuse.
+Five wholly new questions per topic, 290 in total.
+
+The more expensive of the two honest options, chosen over rewriting the
+chunk quizzes into variants. The reason to respect it: an isomorphic
+variant is only as good as the discipline of whoever writes it, and a
+lazy one — same question, names swapped — measures the same episodic
+recency the ban exists to prevent. Writing fresh removes the failure mode
+instead of policing it.
+
+Verbatim reuse was the owner's original idea and is now explicitly out.
+Report 3's reasoning: minutes after a chunk quiz the learner retrieves
+the episode ("that was the long option about sharing"), not the concept,
+and the distractors are dead because their explanation has been shown.
+
+### CONSTRAINT added 2026-09-03: five more languages are planned
+
+> «я планирую добавить 5 языков на локализацию, учти при пересортировке
+> курсов»
+
+Two languages today (`LANGS = ["en", "ru"]` in `core/i18n.js`). Five more
+makes seven, and **every content decision above multiplies by seven.**
+
+Measured state of the content, not assumed:
+
+| Course | language bags | bare English | state |
+|---|---|---|---|
+| intro-cs | 0 | 5115 | **English only** |
+| bike-a3 | 937 | 65 | mostly bilingual |
+| philosophy | 403 | 26 | mostly bilingual |
+| biology, chemistry, physics, science-literacy | — | — | `course.js` only, no modules |
+
+~107,000 words of content in total.
+
+So there are two separate jobs hiding behind "add five languages":
+
+1. **intro-cs is not localised at all** — it carries no bags, only bare
+   strings. It is not five languages behind, it is six.
+2. Items 1 and 2 committed to 290 new exam questions written from
+   scratch. At five strings each (stem plus four options) that is 1,450
+   strings, and at seven languages **10,150**.
+
+Nothing about items 1 and 2 is wrong under this. What changed is their
+size, by a factor of seven, and that has to be faced before the writing
+starts rather than after.
+
+**Decided 2026-09-03: author in English first, translate as its own
+job.** Not seven languages from the start, and not a reduced question
+count for the existing courses. So the 290 questions are written once, in
+English, and the whole content base — the 5115 untouched intro-cs strings
+included — goes through localisation as a separate pass afterwards.
+
+Worth writing down for whoever runs that pass: an exam question is the
+worst kind of string to translate carelessly. A distractor only works if
+it stays a *plausible* wrong answer in the target language, and a
+translator who does not know the material will flatten one into an
+obvious throwaway, quietly turning a 4-option item into a 3-option one.
+CONTENT-MODEL already forbids joke options for this reason; the rule has
+to survive translation.
+
+### Item 3, decided 2026-09-03: the gate becomes two-stage, verified in a 1-2 day window
+
+Passing the topic exam no longer masters the topic. It marks it
+**provisional**: no plant, no schedule entry, no payment for mastery.
+Formal entry needs 3-4 objective items answered in a later session.
+
+**The window is the user's own contribution and is kept.** The report
+specified a threshold (">= 18-24 hours"); the user asked for a window
+instead, and a window is the better mechanism: a threshold punishes
+someone who returns slightly late by leaving the check shut, while a
+window survives an ordinary human schedule. Length settled at **1-2
+days** after the user first proposed three and heard the objection
+below.
+
+**Why not the three days originally proposed.** The app's own ladder
+says a freshly-learned topic is ready for one day, and only earns six
+after the one-day review is passed. A three-day check placed *before*
+repetition 1 asks more of the learner than repetition 1 does — the gate
+becomes stricter than the schedule it guards, and honest learners who
+did study fail it and are sent to reread a whole topic. Two ways to make
+three days fair were offered (soft failure; pass jumps the ladder to
+~15 days) and both were declined in favour of the shorter window.
+
+**Defaults recorded, say so if either is wrong:**
+
+- **Fail** revokes the provisional status and the topic must be walked
+  again — report 3's own specification.
+- **Not returning inside the window** is an open hole, not covered by
+  the report. Recorded default: the topic stays provisional and the check
+  simply waits. It is the least punishing reading, and expiring
+  someone's unverified work for being away is the sort of thing that
+  drove item 8's whole argument.
+
+### Items 4 and 5, decided 2026-09-03: the exam stops setting the pace, and q=4 stops being free
+
+**Item 4.** One exam percentage was doing two incompatible jobs: the
+pass/fail decision, and the SM-2 quality that sets how fast intervals
+grow (`quality = round(pct / 20)`). One question's difference put two
+learners 36 days apart by the fifth review — 95 days against 131 — off a
+five-item test where a single lucky guess is the whole gap. Everyone who
+clears the verification gate now enters at the same baseline, `I=1,
+EF=2.5`, and the pace is earned on real reviews afterwards.
+
+**Item 5.** Derived rather than copied, because report 3's replacement
+formula does not do what its own table says. SM-2's shape is kept:
+
+    dEF = a - (5-q) * (b + (5-q) * c)      a = 0.10, b = 0.15, c = 0.02
+
+giving `q5 +0.10, q4 -0.07, q3 -0.28, q2 -0.53, q1 -0.82, q0 -1.15`,
+floored at 1.3 as now. Only `b` moves, from 0.08 to 0.15.
+
+The property that makes this safe, and the reason to keep the SM-2 shape
+rather than invent one: **at q=5 the term `(5-q)` is zero, so a learner
+who answers everything correctly is not touched at all.** Their ladder is
+1, 6, 16, 45, 131, 393 days under the current curve and under every
+candidate curve. Only the learner who scrapes through moves — their sixth
+review comes at 153 days instead of 238.
+
+Verified against Knell's actual `scheduleReview`, which computes the
+interval with the *previous* ease and updates it afterwards. Report 3's
+table cannot be reproduced under that order, which is how the error was
+found.
+
+### Item 6, decided 2026-09-03: type the answer first, then tick idea units
+
+Four-button post-reveal self-rating goes. The learner types a recall
+attempt before anything is shown, then confirms which key points their
+answer actually contained, and the system computes the quality from the
+count.
+
+**The mechanism is already half-built, which was not known when the
+option was priced as the expensive one.** `recall.points` in the chunk
+schema is exactly an idea-unit list, and it is already authored:
+
+    chunks with a recall phase : 97 of 171
+    points per chunk           : avg 4.02, none empty
+    distribution               : 93 chunks have 4, three have 5, one has 3
+
+They are already language bags too, so they survive the localisation
+pass with everything else. The 74 chunks with no recall are covered by
+item 7, which puts the phase on all 171.
+
+**Two things this does not solve, recorded rather than glossed:**
+
+1. **Rawson and Dunlosky's finding was on two or three idea units. Ours
+   average four.** More boxes is more friction on every single review,
+   and the effect size was not measured at four. Cap the checklist at the
+   first three, or show all four — undecided, and cheap to change later.
+2. **Exam-derived cards have no idea units at all**, and after item 1
+   they are 10 of every deck rather than 3 from chunks. A multiple-choice
+   stem has no natural free-recall form — "is an electric bicycle a
+   vehicle in law? yes / no" cannot be answered in one's own words.
+
+   **Settled 2026-09-03: those cards show their options and the machine
+   marks them.** So a deck is deliberately mixed — 3 typed-recall cards
+   with checkboxes, 10 objective ones — and no card anywhere is graded by
+   the person who profits from the grade. That was the whole point of
+   item 6, and a self-rated remainder would have left the hole open in
+   the larger half of the deck.
+
+### Item 7, decided 2026-09-03: the current placement rule stays, its gaps get filled
+
+Report 3's recommendation — `predict` and `recall` on all 171 chunks —
+was **declined** in favour of completing the existing rule: a guess on
+the first chunk of every topic, a recall on the last. Roughly 51 blocks
+to write instead of 212.
+
+So a topic gives two retrieval events rather than six. The report's
+reasoning for six is on the record above and did not change the decision;
+the cost did.
+
+**The 65 "misplaced" recalls stay where they are.** Under this decision
+they violate the letter of the specification, and deleting authored,
+already-bilingual content to make a document true would be the wrong way
+round. **CONTENT-MODEL should be amended to match reality**: `recall` is
+*required* on a topic's last chunk and *allowed* on any chunk. That
+removes the discrepancy without removing the work, and it stops the next
+person recounting this and reporting it as a defect — which is exactly
+what happened to the old 19% figure.
+
+Carried forward, not solved: the single end-of-topic recall asks the
+learner to retrieve three chunks at once, which is where the report says
+they break. If recall failure rates turn out high once there are users,
+this is the first place to look.
+
+### Item 8, decided 2026-09-03: withering stays, but one good review undoes it
+
+Neither report 3's dormancy nor the built machine. Decay continues to
+bite — interval and plant both — and **a single successful review
+restores what the neglect took**, instead of making the learner re-climb
+the stages.
+
+That targets the specific thing Duolingo's cracked skills did wrong.
+The report's own account of the failure was not that decay existed, but
+that repair became the whole session: "dedicated learners spending their
+entire daily study time repairing early introductory lessons rather than
+engaging with new curricular units", and returners meeting "extensive
+walls of fractured icons". Decay that one review clears cannot produce
+either.
+
+**The reading being implemented — say so if it is the wrong one.** The
+decayed interval is *restored*, not merely re-grown: prove on the day you
+return that you still hold the topic, and the 60-day interval comes back
+rather than resuming from the 45 that neglect left. Decay becomes a
+warning that retention is *presumed* lost, and the review is what settles
+the presumption either way. A failed review leaves the decay standing and
+takes the normal lapse on top.
+
+**Why not the other reading.** The alternative was to restore the plant's
+appearance while leaving the number low — but the plant's stage is the
+interval (`growthFor` reads `effectiveInterval`), and the reputation
+weight is that same tier. Splitting them would mean either paying weight
+3 for a topic sitting at a 15-day interval, which hands out allowance for
+decayed knowledge, or showing a Blossom that pays like a Seedling, which
+makes the garden lie about itself. Restoring the interval keeps picture,
+weight and truth as one number.
+
+`GRACE_DAYS = 7` and the 60-day holiday budget are untouched by this.
+
+### Item 9, decided 2026-09-03: the allowance comes off the garden and onto review work
+
+Report 3 followed, against the recommendation recorded here. Two
+arguments were put and did not carry, and they are kept because they are
+the things to check first if this goes wrong:
+
+1. Report 3's reason for the change was that a garden-funded allowance
+   gives a cash motive to over-rate oneself on flashcards. **Item 6
+   removed self-rating entirely** — three cards checked against written
+   idea units, ten marked by the machine. The report was written without
+   knowing that would be chosen, so its stated reason no longer applies.
+2. Paying for what was done today is paying for attendance. That is the
+   shape of a streak, and streaks were removed from this app deliberately.
+
+**A structural problem that has to be solved while building it, not a
+preference.** Due reviews are scheduled by the algorithm; a learner
+cannot choose to have more of them. Counting raw reviews completed today
+would mean a well-spaced garden — the actual goal — produces almost
+nothing to review and therefore almost no allowance, so success would
+quietly reduce income, and the only way to earn would be to hold topics
+at short intervals.
+
+So the number to count is **completion against what was actually due**,
+not raw volume: clear the day's due reviews and receive the full
+allowance, clear half and receive half. A day with nothing due pays the
+full allowance for a day with no work in it — which is correct, because
+the schedule is what decided there was nothing to do.
+
+Touches `garden_weight()` and `rep_allowance()` in the database, both
+shipped and verified. Neither is deleted until the replacement is tested;
+the forum's caps (1 per target, 10 per author per month, 5 a day, never
+to yourself) are unaffected.
+
+### Item 10, decided 2026-09-03: exam questions declare which chunks they test
+
+Each exam question carries the chunks it draws on, and a failed card
+spreads its weakness across them. A question resting on one chunk sends
+all of it there; one that joins two sends half to each.
+
+Without this, after item 1 raises the exam to ten questions, **10 of the
+~13 cards in a review deck teach the app nothing about where the learner
+is weak.** Only the three chunk cards do, because only they know which
+chunk they belong to.
+
+The multi-chunk case was kept rather than simplified to one-chunk-one-
+question, because the questions that synthesise two chunks are the ones
+worth asking, and forcing a single tag would either mislabel them or
+discourage writing them.
+
+**This has to be done while the 290 questions are written.** Retrofitting
+means reading all 290 again and deciding for each what it tests — the
+same work, done twice, by someone who no longer remembers writing it.
+
+### The correction that came out of writing the brief
+
+The old version of this section led with **"171 chunks, 33 have all five
+phases, 81% run three"** and called it the top item. That number measured
+against a target CONTENT-MODEL forbids: `predict` is specified for a
+topic's first chunk and `recall` for its last, so with 2.95 chunks per
+topic almost no chunk *can* carry both.
+
+Recounted the way the spec actually defines it:
+
+    predict on the first chunk : 33/58 topics (57%)
+    recall  on the last chunk  : 32/58 topics (55%)
+    recall  on a non-last chunk: 65 chunks
+
+Report 3 then said the spec is the thing that is wrong — pretesting is
+target-specific, and interim recall releases proactive interference — and
+that both phases belong on every chunk. That is item 7.
+
+### Report 3's own errors, found by checking rather than trusting
+
+Its headline arithmetic is exact. Two other things are not:
+
+- **The replacement ease formula does not do what it claims.**
+  `0.15 - (5-q)(0.10 + (5-q)*0.02)` gives **+0.03** at q=4, not the
+  -0.07 its own table uses. And that table's intervals (12/27/60 days)
+  do not reproduce under Knell's actual formula either — a -0.07 step
+  gives 14/32/71. Direction right, numbers wrong. Item 5 has to derive
+  its own.
+- **The n=15 and n=20 rows are wrong.** Checked: 29.69%/50.56% and
+  23.75%/41.86%, against their 27.84%/47.93% and 20.24%/36.38%. The
+  n=5 and n=10 rows — the two it argues from — are correct to the
+  second decimal.
+- **Two exam attempts are treated as independent.** In Knell the retry
+  serves the same five questions reshuffled, after their explanations
+  have been shown. So the 77.7% false-pass figure is a floor.
 
 ### Two cautions carried forward
 
-**The report read our own documentation.** `LEARNING-DESIGN.html` is in its
+**Report 1 read our own documentation.** `LEARNING-DESIGN.html` is in its
 source list, so where it praises Knell it is quoting us. Not external
 validation. Do not cite it back at ourselves.
 
 **Do NOT move the 80% pass mark toward 85%.** Different quantities: the 85%
 figure is about practice-item difficulty during acquisition; 80% is a mastery
-threshold gating entry to the review schedule. The same report endorses an
-80-90% floor for the gate, in the same document.
+threshold gating entry to the review schedule. Report 3 keeps the 80% cut
+and changes the item count underneath it instead.
 
 ---
 

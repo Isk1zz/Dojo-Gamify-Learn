@@ -1,0 +1,799 @@
+Empirical Audit and Psychometric
+Architecture of Knell’s Learning Engine
+Immediate Mastery Gating Versus Delayed Testing
+Retrieval Strength Versus Storage Strength and the Fluency Illusion
+The fundamental architectural vulnerability in the existing mastery gate is the temporal proximity
+of the five-item summative examination to the initial instructional sequence. According to the
+New Theory of Disuse formulated by Bjork and Bjork, human memory traces must be modeled
+across two functionally independent dimensions: retrieval strength, which indexes the
+immediate cognitive accessibility of a representation in the presence of proximal cues, and
+storage strength, which measures how deeply entrenched, interconnected, and permanent that
+representation is within long-term semantic networks. When an assessment is administered
+immediately after an examinee navigates explanatory text, inspects worked examples, and
+resolves formative quiz prompts within the same unbroken session, retrieval strength operates
+at its absolute biological peak.
+This operational state induces the fluency illusion, often identified in metacognitive literature as
+the mismeasure of memory. Subjective ease of processing and high cue-availability create an
+internal feeling of competence that correlates poorly with durable retention. When examined
+immediately post-study, human learners demonstrate elevated retrieval accuracy even for
+superficially processed material, because the representations remain active in working memory
+or transient recency buffers. Consequently, passing an immediate five-item test at an eighty
+percent threshold provides robust evidence of momentary accessibility, but zero psychometric
+assurance that the underlying knowledge has achieved structural consolidation in long-term
+storage. Across extensive empirical evaluations of the testing effect, the relationship between
+immediate performance and long-term retention routinely reverses over time: instructional
+configurations that maximize acquisition performance often produce rapid forgetting, whereas
+conditions that introduce retrieval difficulty depress immediate scores while dramatically
+accelerating long-term durability.
+Premature Entry Failure Modes in Spaced Repetition Schedules
+The engine gates progression by requiring an eighty percent score on an immediate
+examination, immediately qualifying the topic for entry into textbook SuperMemo-2 (SM-2)
+scheduling. The mathematical formulation of SM-2 was developed under the explicit assumption
+that an item entering its initial repetition cycle possesses authentic, baseline memory durability.
+Under the current system, an unencoded topic that clears the immediate gate through transient
+retrieval strength enters the scheduling queue at an initial interval of one day, advancing to six
+days upon a single subsequent successful rating.
+Because storage strength was never established during the initial learning event, the probability
+of recall across a twenty-four-hour boundary drops steeply below the typical nominal retention
+target of eighty-five to ninety percent. When the learner encounters the topic’s flashcards on the
+subsequent day, they face an acute retrieval lapse or succumb to hindsight bias during
+
+self-assessment. If the learner rates the topic favorably on Day 1 based on lingering familiarity,
+the subsequent leap to a six-day interval triggers catastrophic forgetting. The item predictably
+lapses, resetting repetition counters to zero and collapsing the schedule back to an interval of
+one day. By using immediate performance to justify spaced Repetition 1 entry, the engine
+systematically admits unstable traces into a schedule calibrated for stable memories, inducing
+unnecessary remediation cycles, user frustration, and algorithmic inefficiency.
+Comparative Evaluation of Remediation Architectures
+Resolving this gating failure requires balancing psychometric validity against user experience
+friction. Multi-stage intraday acquisition ladders—such as the one-minute, ten-minute, and
+one-day intervals common in desktop flashcard applications—are structurally incompatible with
+mobile educational software designed around a once-daily asynchronous usage pattern.
+Forcing micro-intervals requires either continuous client sessions or intrusive mobile
+notifications, both of which degrade engagement and drive learner attrition. Conversely,
+maintaining an immediate examination while artificially compressing the initial spaced interval to
+twelve hours fails to solve the measurement problem: it still records an unvalidated cognitive
+event as an authenticated mastery transition in persistent database storage.
+The most effective, empirically grounded intervention is the twenty-four-hour provisional
+verification gate. Under this framework, clearing an immediate end-of-topic examination does
+not grant full mastery or spaced repetition status; instead, it marks the topic as provisional,
+permitting curriculum navigation while withholding formal entry into the review queue and the
+visual progression mechanics. Formal entry requires passing a brief, objective verification check
+upon the learner's next daily session, enforcing an inter-session delay of at least eighteen to
+twenty-four hours.
+Acquisition Session (Day 0):
+Instructional Chunks Completed ---> Immediate 5-Item Exam (>=80%) ---> Status: Provisional
+Mastery
+ │
+ Mandatory Inter-Session Consolidation Delay (>=18-24 Hours)
+ │
+Subsequent Session (Day +1): ▼
+Session Entry Dashboard <---------- Objective Verification Gate <------------┘
+ │
+
+┌─────────────────────────────┴─────────────────────────────
+┐
+ ▼ ▼
+ Pass Gate (>=75%) Fail Gate (<75%)
+ Topic Formally Mastered Provisional Status Revoked
+ SRS Activated: Interval = 1 Day Remediation Chunk Scheduled
+ Garden Sprout Stage Unlocked Retest Locked Until Restudy
+
+This delayed verification check capitalizes on the delayed judgment-of-learning phenomenon
+first documented by Nelson and Dunlosky: delayed testing compels retrieval from secondary
+memory after working memory traces have decayed, providing an accurate, unconfounded
+reflection of long-term storage strength. Because learners naturally access the application on a
+daily cadence, the verification check integrates seamlessly into the start of the next study
+
+session, imposing zero interface friction while fully eliminating premature schedule entry.
+Architectural Target Memory Operational UX Psychometric Implementation
+Approach Construct Friction Validity Complexity
+Current Machine Transient retrieval Zero friction; Extremely low; None (baseline
+(Immediate 5-item strength (working immediate session contaminated by built machine).
+gate) memory recency). feedback. the fluency illusion.
+Intraday Short-term working Severe friction; Moderate; verifies High; requires
+Acquisition memory to requires multi-hour short-delay complex local
+Ladder (1m, 10m, intermediate trace client sessions or accessibility but notification
+1d) consolidation. aggressive push misses sleep queuing and state
+alerts. consolidation. tracking.
+Compressed Decay attenuation Low friction; Poor; permits Minimal; adjust
+Initial Interval (I_1 under standard handled entirely by false-positive database interval
+= 0.5\text{ days}) scheduling. backend mastery into the variable.
+timestamp math. primary database.
+Delayed Consolidated Very low; naturally High; filters out Low; adds a
+Verification Gate long-term storage aligned with transient fluency provisional state
+(\ge 24\text{-hour strength. once-daily user via secondary flag in the topic
+delay}) session cadence. memory retrieval. progress schema.
+Self-Reported Recall Grading and Metacognitive
+Calibration
+Metacognitive Monitoring Breakdown in Self-Assessed Flashcards
+The reliance on a four-level self-reported confidence scale (Difficult, Still learning, Has an idea,
+Known) with the model answer displayed on-screen introduces massive measurement error into
+the review scheduler. Cognitive and educational psychology literature demonstrates that
+untrained learners are fundamentally uncalibrated when evaluating their own knowledge
+structures. When an answer is revealed prior to or simultaneously with self-assessment,
+learners fall victim to hindsight bias—the persistent cognitive conviction that an answer was
+known all along—and creeping determinism.
+The presence of the model answer provides perceptual and semantic scaffolding. Learners
+process the displayed text with high fluency, mistake that ease of comprehension for antecedent
+retrieval, and rate the card as known. In landmark investigations by Dunlosky and Rawson,
+students self-scoring their recall of complex definitions exhibited profound overconfidence,
+driven almost entirely by commission errors—instances where the generated answer was
+factually incorrect or conceptually irrelevant. When inspectable model answers were present,
+students awarded full or partial credit to completely erroneous definitions between thirty and fifty
+percent of the time.
+Similarly, Grimaldi and Karpicke investigated learner self-scoring against automated algorithmic
+grading (QuickScore) during retrieval practice. While automated text processing accurately
+detected conceptual inaccuracies, students demonstrated a persistent, systematic bias to grant
+themselves credit for objectively incorrect responses. In Knell’s engine, where five of the eight
+cards in a deck originate from multiple-choice exam questions presented without answer
+options, this failure mode is magnified: recognition-level knowledge cannot be reliably
+self-graded under open reveal without semantic contamination.
+
+Flashcard Front Displayed ---> User Generates Partial or Flawed Recall
+ │
+ Answer Reveal Button Pressed
+ │
+ Model Text Displayed On-Screen
+ │
+
+┌────────────────────────────────┴──────────────────────────
+──────┐
+ ▼ ▼
+Metacognitive Path: Hindsight Bias Algorithmic Path: Self-Scoring
+Perceptual fluency misattributed to prior memory User selects "Known" or "Has an
+idea"
+Belief: "I understood the core concept anyway" Engine maps response to Quality >=
+4
+Critical conceptual errors masked by visual cues Interval compounded; trace decays
+silently
+
+Anki’s Four-Button Model: Ecological Tolerance Versus Psychometric
+Rigor
+The four-button self-report interface popularized by Anki is widely deployed, but its viability in
+practice stems from community-enforced behavioral workarounds rather than intrinsic
+psychometric soundess. Naturalistic cohorts of medical students and competitive test-takers
+succeed with Anki because they adopt strict informal heuristics. These power users deliberately
+enforce the minimum information principle—restricting cards to atomic, single-fact cloze
+deletions where the answer is binary and unambiguous—and apply ruthless grading discipline,
+marking any hesitation or partial recall as an immediate failure (Again).
+When an identical self-report mechanism is applied to complex, narrative, or multi-point
+conceptual content without specialized user training, the system breaks down. Ordinary learners
+do not apply severe self-punishment heuristics; instead, they interpret the interface leniently.
+Crucially, Anki contains no native economy, visual progression trees, or social status tokens. In
+an environment where ratings control social reputation and cosmetics, Anki's behavioral
+compromise collapses entirely.
+Verification Interventions for Self-Scored Decks
+To secure scheduling integrity without introducing excessive authoring overhead, potential
+verification mechanisms must be evaluated across cognitive efficacy, interface friction, and
+implementation cost.
+Requiring learners to commit to a subjective confidence rating before revealing the answer
+provides minimal protection: while it reduces hindsight bias slightly, post-reveal evaluation
+remains distorted by lenient self-grading. Forcing typed overt retrieval prior to reveal eliminates
+the illusion of having retrieved content when nothing was generated. However, comparing typed
+text to a model answer still forces the learner into a subjective comparison role unless natural
+language scoring is integrated.
+
+The most effective, operationally sound solution is the integration of idea-unit checklists.
+Rawson and Dunlosky demonstrated that when complex model answers are decomposed into
+two or three constituent idea units, and learners must check binary boxes indicating the explicit
+presence of each sub-component in their retrieval attempt, overconfidence on commission
+errors declines by more than sixty percent. Quality is then computed deterministically by the
+system based on verified idea-unit counts rather than a holistic self-rating. For flashcards
+derived from chunk quizzes, the engine can transition entirely to objective micro-testing, such as
+short-answer matching or two-distractor multiple choice, completely bypassing self-evaluation.
+Verification Cognitive and Interface Friction Engineering Structural
+Mechanism Metacognitive per Review Overhead Feasibility
+Impact
+Pre-Reveal Modest; slightly Low; requires one Minimal; front-end Insufficient to
+Confidence dampens additional click state toggle before protect schedule
+Rating immediate prior to revealing reveal container is integrity against
+hindsight bias but the card text. unhidden. gamified
+leaves post-reveal incentives.
+evaluation
+vulnerable to
+leniency.
+Typed Overt Strong; prevents Moderate; adds Low; standard text Highly viable
+Entry Before phantom retrieval five to fifteen area input paired intermediate filter;
+Reveal by forcing physical seconds per card with a text eliminates
+motor generation, depending on comparison view. zero-effort clicking.
+eliminating typing length.
+unearned claims of
+recall.
+Idea-Unit Very high; forces Low to moderate; Moderate; requires Primary
+Checklists analytical requires checking appending an recommendation;
+decomposition of two or three array of idea-unit balances
+the response discrete binary strings to card psychometric
+against objective confirmation records. validity with
+conceptual criteria, boxes. authoring
+slashing bias. feasibility.
+Objective Absolute; Very low; faster to Low; utilizes Optimal
+Micro-Testing eliminates resolve than existing long-term
+subjective learner self-scoring multiple-choice architecture;
+input entirely; complex free text. quiz question guarantees zero
+scores are assets directly. metric corruption.
+calculated
+automatically by
+the server.
+Psychometric Architecture of Mastery Assessment
+Test Length Versus Classification Consistency: The Subkoviak
+Formulation
+
+The proposal to expand the summative topic examination from five to ten questions directly
+addresses an acute psychometric reliability issue. In criterion-referenced mastery measurement,
+reliability is not appropriately evaluated via classical internal consistency coefficients like
+Cronbach’s alpha, which depend on broad inter-individual variance. Instead, criterion-referenced
+reliability is measured through classification consistency (P_0), defined as the probability that an
+examinee would be classified into the same mastery status across independent administrations
+of the same test or parallel test forms.
+Using Michael J. Subkoviak’s single-administration classification consistency estimator for
+mastery tests, the coefficient of agreement P_0 represents the average probability of consistent
+classification across a population of N examinees. For a test of length n with a raw cut-score c,
+the consistency probability for an individual examinee possessing true latent proficiency p_i is
+formulated as:
+P_{c(i)} = \left[ \sum_{x=c}^{n} \binom{n}{x} p_i^x (1 - p_i)^{n-x} \right]^2 + \left[ \sum_{x=0}^{c-1}
+\binom{n}{x} p_i^x (1 - p_i)^{n-x} \right]^2 P_0 = \frac{1}{N} \sum_{i=1}^{N} P_{c(i)}
+Under the built machine's current configuration, n = 5 items with an eighty percent cutoff (c = 4
+correct responses). For an examinee whose true latent proficiency is p = 0.70—a marginal
+non-master who falls below the eighty percent standard and should be routed to
+remediation—the cumulative binomial probability of scoring four or more correct answers on a
+single test administration is:
+P(X \ge 4) = 5(0.70)^4(0.30)^1 + (0.70)^5 = 5(0.2401)(0.30) + 0.16807 = 0.36015 + 0.16807 =
+0.52822
+This non-master has a 52.8% probability of passing the gate on a single test administration.
+Because Knell’s engine provides an immediate retry on failure, the cumulative probability of this
+non-master falsely clearing the mastery gate across two successive attempts is:
+P(\text{False Pass in 2 Attempts}) = 1 - (1 - 0.52822)^2 = 1 - (0.47178)^2 = 1 - 0.22258 \approx
+0.77742 \quad (\mathbf{77.7\%})
+A five-question mastery gate is psychometrically indefensible: more than three out of four
+sub-threshold learners will clear an eighty percent threshold purely through binomial variance
+and test retries.
+Expanding the assessment to n = 10 items with an eighty percent threshold (c = 8 correct
+responses) substantially improves decision accuracy. For the identical marginal candidate (p =
+0.70), the single-attempt pass probability drops to:
+P(X \ge 8) = \sum_{x=8}^{10} \binom{10}{x} (0.70)^x (0.30)^{10-x} = 45(0.70)^8(0.30)^2 +
+10(0.70)^9(0.30)^1 + (0.70)^{10} \approx 0.38278
+The two-attempt false pass rate decreases from 77.7% down to 61.9%, while Subkoviak’s
+population agreement coefficient P_0 rises from an unacceptably noisy range of 0.68–0.72 up to
+0.82–0.85. Psychometric literature indicates that lengthening mastery tests beyond ten to twelve
+items yields diminishing returns, as measurement error curves flatten while cognitive fatigue and
+assessment abandonment escalate. Doubling the assessment from five to ten items represents
+an optimal balance between psychometric reliability and user experience.
+Test Length (n) Cut-Score (c) Pass Two-Attempt Subkoviak Decision
+Probability (p = False Pass Agreement Quality
+0.70) Rate (P_0)
+n = 5 items 4 of 5 (80%) 52.82% 77.74% 0.68 – 0.72 Unreliable;
+dominated by
+binomial noise.
+n = 10 items 8 of 10 (80%) 38.28% 61.91% 0.82 – 0.85 Highly
+
+Test Length (n) Cut-Score (c) Pass Two-Attempt Subkoviak Decision
+Probability (p = False Pass Agreement Quality
+0.70) Rate (P_0)
+defensible;
+optimal
+psychometric
+efficiency.
+n = 12 of 15 (80%) 27.84% 47.93% 0.88 – 0.91 Strong;
+15[span_144]( diminishing
+start_span)[sp returns relative
+an_144](end_s to duration.
+pan)[span_152
+](start_span)[s
+pan_152](end_
+span) items
+n = 16 of 20 (80%) 20.24% 36.38% 0.92 – 0.94 Excessive;
+20[span_146]( triggers survey
+start_span)[sp fatigue and
+an_146](end_s drop-off.
+pan)[span_154
+](start_span)[s
+pan_154](end_
+span) items
+Question Format Diversity: Recognition Versus Constructed
+Response
+The proposal to incorporate diverse question formats—specifically moving beyond uniform
+four-option multiple-choice questions to include constructed-response prompts and multi-step
+problem solving—is supported by cognitive science. Standard multiple-choice items evaluate
+recognition memory, allowing examinees to employ superficial heuristics: eliminating
+transparently improbable distractors, capitalizing on lexical cues, or confirming familiar
+fragments of phrasing. Recognition-based tasks bypass the reconstructive cognitive processes
+that define genuine competence.
+Constructed-response formats, cued recall, and multi-step procedural tasks demand generative
+retrieval. To resolve a multi-step task, an examinee must access underlying schemas, sequence
+sub-goals, and apply structural rules without perceptual support. In comparative assessments
+by Smith and Karpicke, practicing retrieval through short-answer and constructed formats
+produced substantially greater delayed retention and broader inferential transfer than practice
+restricted to multiple-choice recognition. Adding multi-step problem-solving items transforms the
+exam from a test of superficial recognition into an authentic evaluation of procedural fluency.
+The Psychometric Hazard of Within-Session Item Reuse
+The app owner's suggestion to construct the ten-item exam by reusing questions directly from
+the within-chunk quizzes minutes earlier in the session introduces a critical psychometric
+confound. Reusing identical items violates the core construct validity of a summative mastery
+gate.
+
+When a learner encounters an identical multiple-choice question minutes after answering it in a
+chunk quiz, they do not engage in the targeted retrieval of abstract conceptual principles.
+Instead, they retrieve the episodic memory of having recently engaged with that specific
+question and its correct option letter. Furthermore, having seen the feedback and explanation on
+the previous quiz trial, the distractors lose their diagnostic power. The item measures
+working-memory recency priming rather than consolidated knowledge. Moreover, because
+within-session repetition occurs without a meaningful temporal spacing interval, the second
+presentation represents massed exposure, yielding negligible gains in storage strength.
+To maintain valid assessment standards, exam items must consist exclusively of isomorphic
+variants. An isomorphic item preserves the identical underlying mathematical structure,
+conceptual relationship, or logical schema while systematically altering surface features,
+phrasing, context, or variable values. Isomorphic testing neutralizes episodic pattern recognition
+and requires the learner to actively decontextualize the principle, providing a reliable measure of
+true conceptual transfer.
+Behavioral Economics, Gamified Schedules, and
+Decay Dynamics
+Goodhart’s Law and Metric Corruption Under Self-Administered
+Inputs
+The integration of the review schedule into a visual asset (the Garden progression system) and
+a transferable economic resource (daily reputation allowances) triggers metric corruption as
+formalized by Goodhart's Law. When an evaluative measure is transformed into an incentive
+target, it systematically degrades as an accurate instrument of measurement.
+Knell's engine attempts to establish a behavioural firewall by mandating that reputation points
+can only be bestowed on other users' forum posts and never kept. This restriction fails to
+insulate the underlying spaced repetition scheduler from corruption. The cognitive and social
+feedback loops remain directly coupled:
+Learner Reviews Due Deck ---> Self-Reports "Known" (Subjective Rating)
+ │
+ Review Interval Compounded
+ │
+ Topic Advances to Blossom (Weight = 3)
+ │
+ ┌───────────────────────┴───────────────────────┐
+ ▼ ▼
+ Daily Reputation Allowance Aesthetic Garden Completion
+ (Bestowed to Peers for Social Capital) (Loss Aversion Avoided; Trees Lush)
+ │ │
+ └───────────────────────┬───────────────────────┘
+ ▼
+ Cosmetic Currency Earned from Community Returns
+ │
+ Systemic Outcome: Goodhart's Law
+ Metacognitive calibration collapses to protect social standing and garden assets
+
+Reputation points function as social currency, conferring forum status and peer reciprocity,
+which converts into cosmetic currency within the client application. Furthermore, the physical
+appearance of the garden represents personal achievement.
+Because the learner serves as the sole sensor determining card performance while standing to
+benefit socially and aesthetically from maintaining long review intervals, self-scoring calibration
+collapses. When encountering an ambiguous or partially recalled item, the learner experiences
+a direct conflict of interest. Acknowledging retrieval failure resets the interval, shrinks the plant,
+and reduces the daily reputation allowance. Consequently, marginal recall events are routinely
+categorized as known, driving interval explosion and masking catastrophic forgetting.
+Decay-on-Neglect, Loss Aversion, and the Abstinence Violation Effect
+The engine's withering mechanic penalizes overdue topics by reducing the scheduling interval
+by one day for every day overdue past a seven-day grace period, causing visual plant assets to
+shrink. While intended to mirror the biological reality of memory decay, this mechanism is
+behaviorally counterproductive. It triggers the Abstinence Violation Effect—colloquially known as
+the "what-the-hell effect" in addiction and behavioral adherence research.
+In behavioural economics, loss aversion indicates that individuals experience the psychological
+pain of losing an earned asset roughly twice as intensely as the pleasure of acquiring an
+equivalent gain. When a learner who has dedicated months of sustained effort to cultivate
+Blossom trees encounters an unavoidable disruption—such as illness, professional travel, or
+academic overload—exceeding the seven-day grace window, they return to find their progress
+visually defaced. Under the Abstinence Violation Effect, a perceived break in an idealized
+standard transforms a minor lapse into a perceived total failure. Confronting a damaged garden
+generates negative affective valence, shame, and conditioned avoidance. Rather than
+undertaking the demoralizing effort to repair shrunken assets, users abandon the platform
+entirely. The engine removed streaks to prevent abandonment driven by broken daily tallies, but
+inadvertently reproduced the identical failure mode in botanical form.
+Industry Precedent: The Removal of Duolingo’s "Cracked Skills"
+Knell’s withering mechanic directly mirrors Duolingo’s legacy Cracked Skills mechanic. Between
+2019 and 2022, Duolingo operated a system where gold-mastered skills displayed visual cracks
+when their underlying spaced repetition intervals expired, demanding remediation before
+learners could progress comfortably.
+The behavioral consequences across Duolingo’s massive user base were overwhelmingly
+negative:
+● Completionist paralysis emerged as a primary behavioral distortion, with dedicated
+learners spending their entire daily study time repairing early introductory lessons rather
+than engaging with new curricular units.
+● Users returning after brief hiatuses faced extensive walls of fractured icons, transforming
+re-entry into a punitive remediation chore that accelerated permanent churn.
+● In response to widespread user friction and engagement decay, Duolingo completely
+retired cracked skills in November 2022. They redesigned their architecture into a linear
+path where spaced repetition is handled programmatically through background
+interleaving, preserving historic visual mastery intact and eliminating visible decay.
+
+Transitioning from Destructive Withering to Visual Dormancy
+The engine must decouple cognitive review urgency from visual destruction. Overdue topics
+should never wither, shrink, or lose developmental tiers; a Blossom must remain a Blossom
+indefinitely. When an item becomes overdue, the visual asset should transition into a state of
+seasonal dormancy, such as frost covering the foliage or flowers closing, signaling that the plant
+requires water without destroying its earned status.
+Mathematically, intervals must not decay in persistent storage simply because of chronological
+neglect. Forgetting during disuse does not follow a linear subtraction of elapsed days; an item
+with a sixty-day interval that is unreviewed for fifteen days does not possess an active durability
+of forty-five days. Instead, the overdue card remains at its current state in the review queue.
+When the learner eventually completes the review, the subsequent interval is computed
+dynamically based on their empirical performance on that trial. Finally, daily reputation
+allowances must be completely decoupled from static garden weights and calculated exclusively
+from active review volume and verification accuracy completed during the current session,
+removing any economic incentive to manipulate flashcard ratings.
+Micro-Instructional Phasing and Cognitive Boundaries
+Pretesting Effects Across Sequential Chunk Boundaries
+The authoring discrepancy documented in Knell's engine—where predict was restricted to the
+initial chunk of a topic while authors spontaneously integrated recall across ninety-seven of one
+hundred seventy-one chunks—stems from a misunderstanding of the cognitive boundaries
+governing pretesting. The brief questions whether the pretesting effect requires an unstudied
+topic state, or whether it functions effectively when positioned at the beginning of every chunk
+within an ongoing topic.
+Cognitive psychology establishes that the pretesting effect—learning facilitated through
+unsuccessful, errorful generation prior to study—does not depend on macroscopic topical
+novelty or general epistemic curiosity. In empirical studies comparing item-level and set-level
+pretesting methodologies, Hollins et al. demonstrated that guessing an answer to an unfamiliar
+prompt before instruction enhances memory exclusively for the specific target information
+queried; it confers zero incidental memory boost to adjacent facts within the same explanatory
+passage. The underlying cognitive mechanism operates via target-specific semantic activation
+and prediction error generation.
+When an examinee generates an incorrect guess, the subsequent exposure to instructional text
+serves as corrective feedback. The neurocognitive mismatch between the predicted answer and
+the correct solution triggers error-driven encoding, substantially potentiating long-term retention.
+Because this mechanism is mediated by item-specific prediction errors rather than broad
+situational novelty, the pretesting effect functions with equal potency at the head of every
+individual chunk. Requiring a prediction at the opening of Chunk 2 or Chunk 3 primes the
+cognitive system for the distinct relational concepts introduced in that sub-unit, completely
+independent of whether the learner spent the preceding ten minutes working through Chunk 1.
+Interim Testing and the Forward Testing Effect
+
+Restricting free recall to the closing chunk of a topic directly violates findings on proactive
+interference and the forward testing effect. Szpunar, McDermott, and Roediger established that
+interpolating retrieval practice between sequential learning segments produces profound
+cognitive benefits for ongoing encoding.
+When learners study sequential text blocks without intermediate retrieval, memory traces from
+earlier segments accumulate, generating severe proactive interference that impairs the
+encoding and retention of subsequent material. Requiring an active retrieval prompt at the end
+of each instructional chunk establishes an explicit event boundary, resetting working memory
+resources and shielding subsequent chunks from proactive interference. Furthermore, interim
+retrieval enhances sustained attention, reduces mind-wandering, and increases the cognitive
+depth with which learners process subsequent instructional text.
+The content authors who placed recall prompts across sixty-five non-terminal chunks were
+acting in alignment with optimal cognitive architecture. Forcing free recall exclusively at the topic
+boundary overburdens the final prompt, requiring the examinee to retrieve multiple disparate
+concepts simultaneously and increasing retrieval failure. The instructional specification must be
+updated to mandate both predict and recall across all one hundred seventy-one chunks,
+creating a unified, five-phase pedagogical cycle throughout the platform.
+Instructional Phase Current Operational Empirical Cognitive Corrected Architectural
+Specification Role Placement
+predict First chunk of topic only Generates Mandatory on every
+(present in 57% of target-specific chunk ; primes distinct
+topics). prediction error; sub-topic schemas.
+activates local semantic
+networks for upcoming
+text.
+explain Every chunk (~200 Delivers primary Preserved across every
+words, analogy, 2 conceptual explanation; chunk without
+citations). acts as corrective modification.
+feedback to predict.
+example Every chunk (worked Grounding abstract Preserved across every
+example, 3–4 concepts in concrete chunk without
+contrasting steps). procedural modification.
+demonstrations.
+quiz Every chunk (one Verifies immediate Preserved across every
+4-option question with procedural chunk; items converted
+explanation). comprehension and to isomorphic variants.
+schema formation.
+recall Last chunk of topic Induces generative Mandatory on every
+intended; authored on retrieval; releases chunk ; establishes
+97 of 171 chunks. proactive interference; cognitive event
+potentiates subsequent boundaries.
+learning.
+Scheduler Dynamics, Dual-Purpose Scoring, and
+Diagnostic Attribution
+
+The Psychometric Hazard of Dual-Purpose Scoring
+In Knell's engine, a single exam score performs two incompatible measurement roles: it
+establishes a categorical mastery gate (Score \ge 80\%) and calculates the initial continuous
+scheduling quality (\text{Quality} = \text{round}(Score / 20)). This dual assignment represents an
+architectural anti-pattern. An immediate post-study score reflects transient retrieval fluency
+under maximal cueing, not the rate of underlying memory decay.
+In practice, an examinee who achieves eighty percent (four out of five items) enters the SM-2
+algorithm with a quality score of 4, while an examinee who scores one hundred percent (five out
+of five items) enters with a quality score of 5. Under textbook SM-2 ease dynamics:
+\Delta EF = 0.1 - (5 - q) \cdot [0.08 + (5 - q) \cdot 0.02]
+For q = 5, \Delta EF = +0.10, raising the ease factor from 2.50 to 2.60. For q = 4, \Delta EF =
+0.00, leaving the ease factor unchanged at 2.50.
+By the fifth repetition, these two learners will be assigned review intervals that diverge by
+several weeks. Because a five-item test carries a standard error of measurement of
+approximately 0.63 items, the distinction between four and five correct answers is largely
+psychometric noise. Gating mastery and initializing interval dynamics from the same immediate
+score magnifies measurement error and distorts scheduling intervals. The mastery gate must be
+completely decoupled from scheduling parameters: the gate serves as a binary operational
+threshold, while all items entering the review queue initialize with a neutral baseline interval (I_1
+= 1\text{ day}, EF = 2.50).
+The SM-2 Flat-Ease Anomaly at Quality 4
+The engine's brief noted that at the pass mark (q = 4), the SM-2 ease adjustment formula
+evaluates to zero, leaving the ease factor unchanged at 2.50. The team assumed this was
+benign. It is not benign; in applied psychometrics, it represents interval explosion under
+marginal performance.
+In SM-2, intervals compound across repetitions:
+● Repetition 1: I([span_138](start_span)[span_138](end_span)1) = 1\text{ day}
+● Repetition 2: I(2) = 6\text{ days}
+● Repetition 3: I(3) = \text{round}(6 \times 2.50) = 15\text{ days}
+● Repetition 4: I(4) = \text{round}(15 \times 2.50) = 38\text{ days}
+● Repetition 5: I(5) = \text{round}(38 \times 2.50) = 95\text{ days}
+If an examinee consistently scrapes through reviews at a quality score of 4, they are signaling
+significant retrieval effort, hesitation, and near-failure. In modern Bayesian cognitive
+architectures—such as the Free Spaced Repetition Scheduler (FSRS) or the ACT-R declarative
+memory module—marginal retrieval success indicates low trace stability, requiring shorter
+subsequent intervals to prevent memory failure.
+Because SM-2 freezes the ease factor at 2.50 when q = 4, the engine treats marginal
+performance as evidence of standard memory durability, aggressively multiplying intervals by
+250% on every review. A learner who barely succeeds is propelled from a fifteen-day interval
+directly to thirty-eight and ninety-five days, ensuring an eventual catastrophic lapse. The ease
+adjustment function must be modified to penalize marginal ratings, reserving positive ease
+increases strictly for rapid, flawless recall (q = 5).
+
+Review Repetition Consecutive Built Machine Corrected Interval Empirical Risk
+Ratings (q = 4) SM-2 Interval (EF (\Delta EF = -0.07) Status
+= 2.50)
+Repetition 1 q = 4 I_1 = 1\text{ day} I_1 = 1\text{ day} Unstable baseline
+(EF = 2.50) (EF = 2.43) consolidation.
+Repetition 2 q = 4 I_2 = 6\text{ days} I_2 = 5\text{ days} Noticeable
+(EF = 2.50) (EF = 2.36) retrieval hesitation.
+Repetition 3 q = 4 I_3 = 15\text{ I_3 = 12\text{ High risk of
+days} (EF = 2.50) days} (EF = 2.29) memory lapse.
+Repetition 4 q = 4 I_4 = 38\text{ I_4 = 27\text{ Severe
+days} (EF = 2.50) days} (EF = 2.22) over-spacing in
+current machine.
+Repetition 5 q = 4 I_5 = 95\text{ I_5 = 60\text{ Catastrophic
+days} (EF = 2.50) days} (EF = 2.15) failure avoided
+under corrected
+ease.
+Diagnostic Credit Attribution via Q-Matrix Decomposition
+In the current machine, flashcards derived from exam questions deliberately write back to
+nothing: because exam items are not linked to specific chunks, grading them produces zero
+diagnostic updates to sub-topic weakness records. Consequently, five out of eight cards in every
+review deck produce no granular diagnostic signal.
+This design discards valuable assessment data. In Cognitive Diagnostic Assessment (CDA),
+psychometricians resolve attribution across multi-attribute items using a incidence matrix known
+as a Q-matrix. The Q-matrix is an incident boolean mapping of dimensions J \times K, where J
+denotes the number of assessment items and K denotes the latent attribute chunks:
+Q = \begin{bmatrix} q_{jk} \end{bmatrix}, \quad q_{jk} \in \{0, 1\}
+Because Knell’s curricular topology averages exactly 2.95 chunks per topic and five exam
+questions per topic, authors can easily define a simple incidence mapping for each topic during
+content creation:
+Assessment Item Chunk 1 Chunk 2 Chunk 3 Conceptual
+Classification
+Item 1 (Exam 1 0 0 Atomic Chunk 1
+Card 1) Diagnostic.
+Item 2 (Exam 0 1 0 Atomic Chunk 2
+Card 2) Diagnostic.
+Item 3 (Exam 0 0 1 Atomic Chunk 3
+Card 3) Diagnostic.
+Item 4 (Exam 1 1 0 Integrative (Chunk
+Card 4) 1 & Chunk 2
+Synthesis).
+Item 5 (Exam 0 1 1 Integrative (Chunk
+Card 5) 2 & Chunk 3
+Synthesis).
+When an examinee fails an exam-derived flashcard during a review, the penalty is
+back-propagated to the topic’s latent chunk weakness vector \mathbf{W} = [w_1, w_2, \dots,
+w_K] using normalized fractional weighting:
+
+w_k \leftarrow w_k + \left( \frac{q_{jk}}{\sum_{m=1}^{K} q_{jm}} \right) \cdot \lambda
+where \lambda represents an empirical weakness increment (e.g., \lambda = 0.25).
+Under this model, failing an integrative flashcard that links Chunk 2 and Chunk 3 distributes an
+equal 0.125 weakness increment to both chunks. If a subsequent review reveals a failure on an
+atomic Chunk 2 card, that chunk crosses a diagnostic alert threshold, automatically scheduling
+targeted remedial reviews without requiring manual diagnostic re-authoring.
+Technical Synthesis and Parameter Specifications
+The findings across the six evaluated questions require specific parameter and architectural
+adjustments to Knell’s learning engine. These changes resolve the fluency illusion at the
+mastery gate, protect the scheduler from self-scoring bias, eliminate gamification-induced
+attrition, optimize curricular chunk phasing, and re-establish diagnostic measurement integrity.
+Curricular Architecture:
+[Chunk Pipeline: Predict -> Explain -> Example -> Quiz -> Recall] (Standardized on 100% of
+Chunks)
+ │
+ ▼
+Mastery Gate Architecture:
+[Immediate Summative Exam: 10 Isomorphic Items (7 Recognition, 3 Multi-Step)] (Cut-Score:
+8/10)
+ │
+ ┌─────────────────┴─────────────────┐
+ ▼ ▼
+ Pass Immediate Fail Immediate
+ Status: Provisional Mastery Retest (Max 1 Retry)
+ │ │
+ Mandatory Consolidation Delay (>=18h) Topic Restudy Enforced
+ │
+ ▼
+ [Next-Day Verification Gate]
+ (3-4 Objective Micro-Items)
+ │
+ ┌───────────┴───────────┐
+ ▼ ▼
+ Verification Pass Verification Fail
+ Formally Mastered: Provisional Revoked
+ SRS Entry (I=1, EF=2.5) Remediation Flagged
+
+Comprehensive Engine Specification Matrix
+The adjustments to the built machine are outlined in the table below, directly linking existing
+code implementations to their corrected specifications and underlying mathematical rationales:
+Engine Component Built Machine Setting Corrected Engine Mathematical and
+(§1) Specification Psychometric Rationale
+Mastery Gate Timing Immediate post-chunk Two-Tier Verification Neutralizes the fluency
+
+Engine Component Built Machine Setting Corrected Engine Mathematical and
+(§1) Specification Psychometric Rationale
+exam; 80% pass score Gate: Immediate exam illusion; ensures
+immediately commits grants provisional scheduling occurs only
+topic to SRS queue. status; a 24-hour after overnight trace
+delayed check (n=3 consolidation.
+items) grants formal
+SRS entry.
+Exam Question Count n = 5 items per topic Expand to n = 10 items Increases Subkoviak
+across all 58 topics. (7 single-concept items, classification
+3 multi-step/procedural consistency P_0 from
+items). \sim 0.70 to \ge 0.83;
+reduces marginal false
+passes from 77.7% to
+61.9%.
+Exam Item Source Exam questions reused Isomorphic variants Eliminates episodic
+directly from only; completely ban recency priming;
+within-session chunk identical within-session ensures distractors
+quizzes. item reuse. maintain psychometric
+functionality.
+Instructional Chunk predict on Chunk 1 only Mandate predict and Pretesting is
+Phasing (57% coverage); recall recall on 100% of target-specific and
+intended on final chunk chunks across all 171 functions across
+(present on 97/171 content chunks. sub-units; interim recall
+chunks). releases proactive
+interference.
+Flashcard Four-button post-reveal Typed overt entry Eliminates phantom
+Self-Grading subjective confidence followed by a 2-point retrieval; reduces
+rating (Difficult to Idea-Unit Checklist . commission-error
+Known). overconfidence and
+hindsight bias by
+>60\%.
+SM-2 Ease Dynamics \Delta EF = 0.1 - Update formula to Eliminates interval
+(5-q)(0.08 + (5-q)0.02). \Delta EF = 0.15 - explosion under
+Flat 2.50 ease at q = 4. (5-q)(0.10 + (5-q)0.02). marginal performance;
+Evaluates to \Delta EF compresses ease when
+= -0.07 at q = 4 ; floor at learners struggle.
+1.3.
+Initial Interval Single exam score Decouple: Verification Prevents test
+Coupling initializes quality and pass sets standardized measurement noise
+interval: q = baseline (I_1 = 1\text{ from distorting
+\text{round}(\% / 20). day}, EF = 2.50). long-term spaced
+scheduling trajectories.
+Progression Decay Interval decreases by 1 Visual Dormancy: Eliminates the
+Dynamics day per day overdue Plants freeze/frost; Abstinence Violation
+after 7 days grace; database intervals are Effect, preventing user
+plants shrink. preserved without churn and
+
+Engine Component Built Machine Setting Corrected Engine Mathematical and
+(§1) Specification Psychometric Rationale
+decay. Duolingo-style
+backlash.
+Diagnostic Signal Exam-derived Q-Matrix Attribution: Recovers diagnostic
+Routing flashcards write to Failed exam cards signals across 62.5% of
+nothing; 5 of 8 review back-propagate deck reviews for
+cards generate zero fractional weakness to automated remediation
+diagnostic data. constituent chunks. routing.
+These adjustments address the core failure modes of Knell's learning engine. By replacing
+immediate gating with a delayed verification check, substituting subjective self-report with
+structured idea-unit verification, expanding test length with isomorphic items, eliminating visual
+decay in favor of dormancy, and correcting the SM-2 ease formula, the engine establishes an
+empirically validated architecture that safeguards long-term retention and sustains learner
+engagement.
+Works cited
+1. Robert Bjork: A Teacher's Guide to Desirable Difficulties,
+https://www.structural-learning.com/post/robert-bjork-teachers-guide-desirable 2. Storage
+Strength and Retrieval Strength: Why Forgetting,
+https://www.structural-learning.com/post/storage-strength-retrieval-strength 3. Desirable
+Difficulties: Why Making Learning Harder Helps You,
+https://www.mindomax.com/desirable-difficulties 4. GUEST POST: Retrieval Strength Vs.
+Storage Strength, https://www.learningscientists.org/blog/2016/5/10-1 5. Desirable Difficulties:
+Why Hard Learning Sticks - Glasp, https://glasp.co/articles/desirable-difficulties 6. When
+retrieval fluency is misleading as a metamnemonic index,
+https://gwern.net/doc/psychology/cognitive-bias/illusion-of-depth/1998-benjamin.pdf 7.
+Monitoring and regulation of learning in medical education - PMC,
+https://pmc.ncbi.nlm.nih.gov/articles/PMC5434949/ 8. Desirable Difficulties: Why Making
+Learning Harder Makes It Stick, https://www.growthengineering.co.uk/desirable-difficulties/ 9.
+Retrieval Practice for Vocabulary and Grammar - LinGoat,
+https://lingoat.app/en/blog/retrieval-practice-language-learning/ 10. Desirable Difficulties: The
+Science of Learning That Sticks,
+https://yukaichou.com/gamification-analysis/desirable-difficulties-bjork-learning-vs-performance/
+11. (PDF) Effects of self-scoring their math problem solutions on primary,
+https://www.researchgate.net/publication/355380572_Effects_of_self-scoring_their_math_proble
+m_solutions_on_primary_school_students'_monitoring_and_regulation 12. The Forward Effect
+of Delayed Judgments of Learning Is Influenced, https://www.mdpi.com/2079-3200/11/6/101 13.
+Improving college students' evaluation of text learning using idea,
+https://www.researchgate.net/publication/45604645_Improving_college_students'_evaluation_of
+_text_learning_using_idea-unit_standards 14. overconfidence, learning strategy, and person,
+https://d-nb.info/1102593338/34 15. Overcon fi dence produces underachievement : Inaccurate
+self,
+https://www.semanticscholar.org/paper/Overcon-fi-dence-produces-underachievement-%3A-self
+-%E2%80%99-Dunlosky-Rawson/b0bb624eb91d713137f7a8a2a93952cf72750f29 16. (PDF)
+Improving students' self-evaluation of learning for key,
+
+https://www.researchgate.net/publication/233657835_Improving_students'_self-evaluation_of_le
+arning_for_key_concepts_in_textbook_materials 17. Journal of Educational Psychology -
+Cognition and Learning Lab,
+https://learninglab.psych.purdue.edu/downloads/2014/2014_Grimaldi_Karpicke_JEDP.pdf 18.
+Guided Retrieval Practice of Educational Materials Using Automated,
+https://www.researchgate.net/publication/263916845_Guided_Retrieval_Practice_of_Education
+al_Materials_Using_Automated_Scoring 19. An Assessment of Anki Flashcards Use in
+Comparison to Alternative, https://pmc.ncbi.nlm.nih.gov/articles/PMC12961065/ 20. Anki for
+Poker: Do Flashcards Actually Work for Ranges?,
+https://forge.poker/en/blog/anki-flashcards-poker-ranges 21. Anki Flashcard 13 Best Practices:
+How to Create Good Cards,
+https://medschoolinsiders.com/medical-student/anki-flashcard-best-practices-how-to-create-goo
+d-cards/ 22. Does Flashcard Length Matter? We Tested It On 18,000 Reviews,
+https://studycardsai.com/blog/does-flashcard-question-length-matter 23. Does Covert
+Prequestioning Enhance Learning? Implications for the,
+https://doi.org/10.1002/acp.70165?urlappend=%3Futm_source%3Dresearchgate.net%26utm_m
+edium%3Darticle 24. Overt vs Covert Retrieval Practice - DistillED,
+https://newsletter.jamieleeclark.com/p/overt-vs-covert-retrieval 25.
+Retrieval-Monitoring-Feedback (RMF) Technique for Producing,
+https://www.researchgate.net/publication/278709241_Retrieval-Monitoring-Feedback_RMF_Tec
+hnique_for_Producing_Efficient_and_Durable_Student_Learning 26. Developing the
+Retrieval-Monitoring-Feedback (RMF) Method for,
+https://ies.ed.gov/use-work/awards/developing-retrieval-monitoring-feedback-rmf-method-improv
+ing-durability-and-efficiency-student 27. Setting Mastery Test Cut-Scares-an Evaluative Model
+Approach, https://journals.flvc.org/fjer/article/download/133772/137725 28. Agreement
+Coefficients as Indices of Dependability for Domain,
+https://conservancy.umn.edu/server/api/core/bitstreams/1bceaffe-8203-4e11-8b65-01ff7293627
+6/content 29. Effects of Item Difficulty Heterogeneity on the Estimation of ... - ACT,
+https://www.act.org/content/dam/act/unsecured/documents/ACT_RR87-11.pdf 30. A Practical
+Comparison of Decision Consistency Estimates - ERIC,
+https://files.eric.ed.gov/fulltext/EJ1443424.pdf 31. Subscore Reliability and Classification
+Consistency: A Comparison,
+https://scholarworks.umass.edu/bitstreams/e0f202fb-2ab6-4448-b2a2-9f6003c6641c/download
+32. Retrieval as a characteristic of effective study strategies | Request PDF,
+https://www.researchgate.net/publication/322240654_Investigating_the_testing_effect_Retrieval
+_as_a_characteristic_of_effective_study_strategies 33. Gamifying Online Tests to Promote
+Retrieval-Based Learning,
+https://www.researchgate.net/publication/332767889_Gamifying_Online_Tests_to_Promote_Ret
+rieval-Based_Learning 34. A Latent Trait Look at Pretest-Posttest Validation of Criterion,
+https://ris.utwente.nl/ws/files/266065924/Linden1981latent.pdf 35. Why streaks backfire and
+what works | Ep 423 - Professor Game, https://www.professorgame.com/podcast/423/ 36. The
+Science of Discipline — Why Most Habit Trackers Fail - Valkara, https://valkara.app/science 37.
+Abstinence Violation Effect: Validation of an Attributional Construct,
+https://www.researchgate.net/publication/19589592_Abstinence_Violation_Effect_Validation_of_
+an_Attributional_Construct_With_Smoking_Cessation 38. 8 Changes Duolingo Made for Easier
+Language Learning in 2022,
+https://www.cnet.com/tech/services-and-software/8-changes-duolingo-made-for-easier-languag
+e-learning-in-2022/ 39. Duolingo New Learning Path Update - HONEST Review - duoplanet,
+
+https://duoplanet.com/duolingo-new-learning-path-review/ 40. How to practice specific skills? -
+Duolingo Forum - Duome.eu, https://forum.duome.eu/viewtopic.php?t=29574 41. After 1250
+days, 1 home screen redesign and 0 added tips -- I'm,
+https://www.reddit.com/r/duolingo/comments/vx3s1l/after_1250_days_1_home_screen_redesig
+n_and_0/ 42. Thoughts On The New Design : r/duolingo - Reddit,
+https://www.reddit.com/r/duolingo/comments/wx9ldb/thoughts_on_the_new_design/ 43.
+Introducing the new Duolingo learning path,
+https://blog.duolingo.com/new-duolingo-home-screen-design/ 44. (PDF) Pre-testing effects are
+target-specific and are not driven by a,
+https://www.researchgate.net/publication/366086182_Pre-testing_effects_are_target-specific_an
+d_are_not_driven_by_a_generalised_state_of_curiosity 45. Pre-testing effects are
+target-specific and are not driven by a,
+https://www.tandfonline.com/doi/full/10.1080/09658211.2022.2153141 46. The Benefit of
+Generating Errors During Learning - Ovid,
+https://www.ovid.com/journals/jepge/pdf/10.1037/a0033194~the-benefit-of-generating-errors-dur
+ing-learning 47. Enhancing Learning With Subsecond Retrieval Attempts ... - ProQuest,
+https://search.proquest.com/openview/8933fd74f28c847f9788fd37971a7244/1?pq-origsite=gsch
+olar&cbl=18750&diss=y 48. The Pretesting Effect: Exploring the Impact of Feedback and Final,
+https://pmc.ncbi.nlm.nih.gov/articles/PMC12292081/ 49. When and Why a Failed Test
+Potentiates the Effectiveness of,
+https://www.researchgate.net/publication/224955845_When_and_Why_a_Failed_Test_Potentiat
+es_the_Effectiveness_of_Subsequent_Study 50. The Effects of Interpolated Lectures,
+Self-Testing, and Notetaking on,
+https://ttu-ir.tdl.org/server/api/core/bitstreams/84672d74-8d43-4c3c-b947-db0ba047143a/conten
+t 51. retrieval effects on new learning - Iowa State University,
+https://dr.lib.iastate.edu/bitstreams/ec28788f-ddbe-40db-9901-013ce76104dc/download 52.
+Students Can (Mostly) Recognize Effective Learning, So Why Do,
+https://pmc.ncbi.nlm.nih.gov/articles/PMC9781761/ 53. Forward testing effect - Wikipedia,
+https://en.wikipedia.org/wiki/Forward_testing_effect 54. (PDF) The Forward Testing Effect is
+Reliable and Independent of,
+https://www.researchgate.net/publication/335480082_The_forward_testing_effect_is_reliable_a
+nd_independent_of_learners'_working_memory_capacity 55. Estimating Classification
+Consistency and Accuracy for Cognitive,
+https://www.researchgate.net/publication/261973348_Estimating_Classification_Consistency_a
+nd_Accuracy_for_Cognitive_Diagnostic_Assessment 
