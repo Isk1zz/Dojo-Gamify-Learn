@@ -117,6 +117,7 @@
   function open() {
     const m = $("auth-modal");
     if (!m) return;
+    if (Dojo.OPEN_ACCESS) { openLocked(m); return; }
     m.style.display = "flex";
     $("auth-form").style.display = "";
     $("auth-sent").style.display = "none";
@@ -127,6 +128,51 @@
   function close() {
     const m = $("auth-modal");
     if (m) m.style.display = "none";
+  }
+
+  // ---- Sign-in switched off (Dojo.OPEN_ACCESS, see core/core.js) ----
+  // The modal still opens when something asks for it, so pressing a
+  // sign-in control gets an answer instead of nothing. But the whole
+  // form is greyed and inert, and a red lock says plainly that sign-in
+  // is off — an empty-looking form that silently fails would read as a
+  // bug, which is exactly what the dead server looked like before this.
+  function openLocked(m) {
+    const card = m.querySelector(".auth-card");
+    if (card) card.classList.add("auth-locked");
+    m.querySelectorAll("#auth-form input, #auth-form button, .auth-tabs button")
+      .forEach(el => { el.disabled = true; el.tabIndex = -1; });
+
+    let notice = $("auth-off-notice");
+    if (!notice && card) {
+      notice = document.createElement("div");
+      notice.id = "auth-off-notice";
+      notice.className = "auth-off-notice";
+      notice.setAttribute("role", "status");
+      const lock = document.createElement("div");
+      lock.className = "auth-off-lock";
+      lock.textContent = "\u{1F512}";
+      const title = document.createElement("div");
+      title.className = "auth-off-title";
+      title.textContent = I18N.t("auth.offTitle");
+      const body = document.createElement("p");
+      body.className = "auth-off-body";
+      body.textContent = I18N.t("auth.offBody");
+      const ok = document.createElement("button");
+      ok.className = "btn-primary auth-off-ok";
+      ok.textContent = I18N.t("auth.offOk");
+      ok.addEventListener("click", close);
+      notice.append(lock, title, body, ok);
+      // Above the tabs, so it is the first thing read.
+      const tabs = card.querySelector(".auth-tabs");
+      card.insertBefore(notice, tabs || card.firstChild);
+    }
+
+    // Clicking the dim backdrop closes it too; the form beneath is dead.
+    if (!m.dataset.offWired) {
+      m.dataset.offWired = "1";
+      m.addEventListener("click", e => { if (e.target === m) close(); });
+    }
+    m.style.display = "flex";
   }
 
   // ---- The local profile behind the account --------------------------
@@ -300,6 +346,8 @@
   // Called instead of core/profile.js's checkProfile() from the landing
   // page's Start button. Returns true when the app may proceed.
   function requireAccount() {
+    // Sign-in is off: everyone is let straight in on one local profile.
+    if (Dojo.OPEN_ACCESS) { ensureLocalProfile(); return true; }
     if (!hasAccount()) { open(); return false; }
     // Signed in on this device before: let them in regardless of whether
     // a session can be refreshed right now. Sync is what waits for the
@@ -309,6 +357,10 @@
   }
 
   async function signOut() {
+    // Nothing to sign out of. Show the locked notice rather than clearing
+    // the gate marker — which, once sign-in comes back, would leave a
+    // returning person facing a login screen they had not asked for.
+    if (Dojo.OPEN_ACCESS) { open(); return; }
     try { await Dojo.Cloud.signOut(); }
     catch (e) { console.info("[auth] sign-out call failed (likely offline):", e.message); }
     // The gate marker is cleared deliberately: signing out should mean

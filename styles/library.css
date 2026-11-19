@@ -749,6 +749,23 @@
 }
 #course-buy-modal .course-about { text-align: left; }
 
+/* ---- Course scene (scenes/scene.js, renderCourseScene) ----
+   Above everything else on the course screen, and on the same z-layer
+   as the cards (position + z-index 1): the app's drifting clouds sit at
+   z-index -1 and must pass BEHIND the diorama, not through it. */
+.course-scene {
+  position: relative;
+  z-index: 1;
+  max-width: 940px;
+  margin: -0.4rem auto 0.4rem;
+}
+.course-scene-hint {
+  margin: -0.2rem 0 1.1rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
 .course-about {
   margin: 0 0 1.25rem;
   background: var(--bg-card);

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Knell — course scene prototype</title>
+<!--
+  A harness for scenes/scene.js, NOT part of the app: index.html does not
+  load it and sw.js does not precache it. ?lang=ru shows the Russian
+  labels, ?id= picks a recipe.
+-->
+<style>
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: radial-gradient(1200px 700px at 50% 20%, #121829 0%, #0a0d16 55%, #05070c 100%);
+    color: #e8e6df;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header { max-width: 1100px; margin: 0 auto; padding: 22px 24px 0; }
+  .eyebrow { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #8b90a0; }
+  h1 { margin: 6px 0 0; font-size: 22px; font-weight: 700; }
+  .stage { max-width: 1100px; margin: 0 auto; padding: 4px 12px 28px; }
+  .hint { margin: 8px 0 0; font-size: 13px; color: #9aa0b0; }
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 20px);
+    padding: 12px 18px; border-radius: 12px;
+    background: rgba(20, 22, 32, .94); border: 1px solid rgba(242, 193, 78, .55);
+    color: #f3efe2; font-size: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+    opacity: 0; transition: opacity .25s ease, transform .25s ease; pointer-events: none;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .toast b { color: #f2c14e; }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Knell · scene prototype</div>
+  <h1 id="title"></h1>
+  <p class="hint" id="hint"></p>
+</header>
+<div class="stage" id="stage"></div>
+<div class="toast" id="toast"></div>
+<script>
+  // Cache-busting on purpose: the app's service worker serves this origin
+  // stale-while-revalidate, so a plain reload would show the PREVIOUS
+  // version of a file that is being iterated on.
+  const v = Date.now();
+  const load = src => new Promise((ok, no) => {
+    const s = document.createElement("script");
+    s.src = src + "?v=" + v;
+    s.onload = ok;
+    s.onerror = no;
+    document.head.appendChild(s);
+  });
+  const q = new URLSearchParams(location.search);
+  const lang = q.get("lang") || "en";
+  const id = q.get("id") || "bike-a3";
+  const T = lang === "ru"
+    ? { hint: "Нажми на номер главы — человечек добежит туда и откроет её.", open: "Открывается глава" }
+    : { hint: "Click a chapter's number: the runner goes there and opens it.", open: "Opening chapter" };
+  document.getElementById("hint").textContent = T.hint;
+
+  // Stands in for the app: there, arriving would open the topic.
+  let toastTimer = 0;
+  function onChapter(c) {
+    const t = document.getElementById("toast");
+    t.innerHTML = "";
+    const b = document.createElement("b");
+    b.textContent = c.n + " · " + c.label;
+    t.append(T.open + " ", b);
+    t.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("on"), 2200);
+  }
+
+  load("scene.js").then(() => load(id + ".js")).then(() => {
+    window.__scene = Dojo.Scenes.render(document.getElementById("stage"), id, { lang, onChapter });
+    document.getElementById("title").textContent = id;
+  });
+</script>
+</body>
+</html>

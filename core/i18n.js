@@ -220,10 +220,15 @@ const I18N = (() => {
     // English and are the next pass.
     "ui.landing.sub":       { en: "A study system that keeps what you learn from fading — chunk by chunk, day by day.",
                               ru: "Система занятий, которая не даёт выученному выветриться — по кусочку, изо дня в день." },
-    "ui.landing.feat1":     { en: "Any course, one chunk at a time", ru: "Любой курс, по одному блоку за раз" },
-    "ui.landing.feat2":     { en: "Spaced review that adapts to you", ru: "Повторение с интервалами, подстроенное под вас" },
-    "ui.landing.feat3":     { en: "A garden that wilts when you stop", ru: "Сад, который вянет, когда вы бросаете" },
+    // ui.landing.feat1-3 are defined ONCE, further down. They used to be
+    // here as well, and in an object literal the later key wins, so these
+    // copies were dead text that looked editable.
     "ui.landing.begin":     { en: "Begin Training",     ru: "Начать" },
+    // Shown instead of ui.landing.hint while sign-in is switched off
+    // (Dojo.OPEN_ACCESS, core/core.js) — see boot.js. The account line
+    // below promises sync to any device, which is false in that mode.
+    "ui.landing.demo":      { en: "Demo · no account · everything unlocked · progress stays in this browser",
+                              ru: "Демо · без аккаунта · открыто всё · прогресс хранится в этом браузере" },
     // Was "No account needed — progress saves automatically, on this
     // device". That stopped being true when the sign-in gate shipped,
     // and it was the first thing a new visitor read. Now says what is
@@ -278,6 +283,18 @@ const I18N = (() => {
                               ru: "Слишком много попыток. Подождите минуту." },
     "auth.signedInAs":      { en: "Signed in as",        ru: "Вы вошли как" },
     "auth.signOut":         { en: "Sign out",            ru: "Выйти" },
+    // Course scene — library/library.js renderCourseScene, scenes/scene.js.
+    "scene.hint":           { en: "Pick a chapter: your runner goes there and opens it.",
+                              ru: "Выберите главу — человечек добежит туда и откроет её." },
+    "scene.landingCaption": { en: "This is a course. Tap a chapter.",
+                              ru: "Это курс. Нажмите на главу." },
+    // Sign-in switched off — Dojo.OPEN_ACCESS in core/core.js.
+    "auth.offTitle":        { en: "Sign-in is switched off",  ru: "Вход отключён" },
+    "auth.offBody":         { en: "Accounts are turned off for now. Everyone uses one open profile with everything unlocked, and your progress is saved on this device.",
+                              ru: "Аккаунты сейчас выключены. Все пользуются одним открытым профилем, где открыто всё, а прогресс сохраняется на этом устройстве." },
+    "auth.offOk":           { en: "Got it",                   ru: "Понятно" },
+    "auth.offButton":       { en: "Sign in — switched off",   ru: "Вход — отключён" },
+    "auth.openAccount":     { en: "Open access · everything unlocked", ru: "Открытый доступ · всё открыто" },
     "auth.offlineNote":     { en: "Offline — your progress is saved on this device and will sync when you're back.",
                               ru: "Оффлайн — прогресс сохраняется на устройстве и синхронизируется позже." },
 
@@ -763,14 +780,19 @@ const I18N = (() => {
     "ui.screen.mastery":    { en: "Mastery Exam",        ru: "Экзамен на освоение" },
     "ui.screen.review":     { en: "Review",              ru: "Повторение" },
 
-    // Landing features: the markup already pointed at these keys, and the
-    // keys were simply never written, so all three fell back to English.
-    "ui.landing.feat1":     { en: "Any course, one chunk at a time",
-                              ru: "Любой курс, по одному куску за раз" },
-    "ui.landing.feat2":     { en: "Spaced review that adapts to you",
-                              ru: "Интервальное повторение, подстроенное под вас" },
-    "ui.landing.feat3":     { en: "A garden that wilts when you stop",
-                              ru: "Сад, который вянет, когда вы бросаете" },
+    // Landing features. Each one is a claim a visitor can check inside
+    // the app, so each is worded to be exactly true:
+    //   feat1 — every one of the 171 chunks has explain, example and quiz.
+    //           NOT "guess first": predict is on 57% of topics, not all.
+    //   feat2 — SM-2 spacing. "Just before you forget" overclaims; a
+    //           schedule built on the forgetting curve is what it is.
+    //   feat3 — a plant's stage IS its review interval (garden/garden.js).
+    "ui.landing.feat1":     { en: "Every lesson: read it, see it worked, prove it",
+                              ru: "Каждый урок: прочитать, увидеть на примере, доказать" },
+    "ui.landing.feat2":     { en: "Reviews timed to the forgetting curve",
+                              ru: "Повторения по кривой забывания" },
+    "ui.landing.feat3":     { en: "A garden that grows from what you remember",
+                              ru: "Сад, который растёт из того, что вы помните" },
 
     // The name a brand-new profile gets before anyone types one. This is
     // SAVED data, not chrome: an existing profile keeps whatever it was

@@ -503,12 +503,73 @@
     }
   }
 
+  // ---- Course scene (scenes/scene.js) ----
+  // A course with a recipe in scenes/ opens on its scene: a diorama where
+  // each topic stands where it happens, and the learner's figure runs to
+  // the one picked before it opens. A course without a recipe keeps this
+  // screen exactly as it was. The scene is an addition: the unit map, the
+  // list and every entry below it are all still there.
+  let courseScene = null;
+
+  function renderCourseScene(course, unitsToShow, body, completedTopics) {
+    // Torn down first: innerHTML = "" removes the old scene's picture but
+    // not its listeners or its animation loop.
+    if (courseScene) { courseScene.destroy(); courseScene = null; }
+    if (!course || !Dojo.Scenes || !Dojo.Scenes.has(course.id)) return;
+
+    // A pin names a topic by id; find the unit that holds it.
+    const locate = topicId => {
+      for (const u of unitsToShow) {
+        const topics = UNIT_TOPICS[u.id] || [];
+        const idx = topics.findIndex(t => t.id === topicId);
+        if (idx >= 0) return { unit: u, topics, idx };
+      }
+      return null;
+    };
+    // The roadmap's own lock rule, so the scene can never open a topic
+    // the map would refuse.
+    const stateOf = pin => {
+      const at = locate(pin.topic);
+      if (!at) return "locked";
+      if (completedTopics.has(pin.topic)) return "done";
+      const prereqDone = at.idx === 0 || completedTopics.has(at.topics[at.idx - 1].id);
+      return prereqDone || Dojo.OPEN_ACCESS ? "open" : "locked";
+    };
+
+    const wrap = document.createElement("div");
+    wrap.className = "course-scene";
+    body.appendChild(wrap);
+    courseScene = Dojo.Scenes.render(wrap, course.id, {
+      lang: I18N.lang(),
+      pinState: stateOf,
+      onChapter: ({ topic }) => {
+        const at = locate(topic);
+        if (!at) return;
+        // A beat after arriving, so the hop reads before the screen
+        // changes; and only if the learner is still on this screen.
+        setTimeout(() => {
+          const screen = document.getElementById("unit-select");
+          if (!screen || !screen.classList.contains("active")) return;
+          state.currentUnit = at.unit.id;
+          state.currentTopics = at.topics;
+          startTopic(at.idx);
+        }, 420);
+      }
+    });
+    const hint = document.createElement("p");
+    hint.className = "course-scene-hint";
+    hint.textContent = I18N.t("scene.hint");
+    wrap.appendChild(hint);
+  }
+
   function renderUnitSelect() {
     const body = document.getElementById("unit-select-body");
     body.innerHTML = "";
     const completedTopics = DB.getCompletedTopics();
     const course = COURSES.find(c => c.id === state.currentCourse);
     const unitsToShow = course ? UNITS.filter(u => course.units.includes(u.id)) : UNITS;
+
+    renderCourseScene(course, unitsToShow, body, completedTopics);
 
     // "What is this course and who is it for" — the course manifest's
     // `about` field, if it has one. Sits above the unit list because
@@ -905,7 +966,11 @@
         const isAvailable = true;
         const prereqDone = flatIdx === 0 || completedTopics.has(state.currentTopics[flatIdx - 1].id);
         const isRecommended = prereqDone && !isCompleted;
-        const isAhead = !prereqDone && !isCompleted;
+        // With sign-in switched off everything is open (Dojo.OPEN_ACCESS,
+        // core/core.js): the order survives as "recommended next", the
+        // lock does not. Folding the switch into prereqDone instead would
+        // have marked EVERY topic as recommended next.
+        const isAhead = !prereqDone && !isCompleted && !Dojo.OPEN_ACCESS;
         const isCurrent = isRecommended;
         const dueIn = isCompleted ? DB.daysUntilDue(topic.id) : null;
 
@@ -1019,7 +1084,9 @@
       const isDue = dueIds.includes(topic.id);
       const prereqDone = i === 0 || completedTopics.has(topics[i - 1].id);
       const isCurrent = prereqDone && !isCompleted;
-      const isAhead = !prereqDone && !isCompleted;
+      // Open access lifts the lock and keeps the order — same reasoning
+      // as the list view above.
+      const isAhead = !prereqDone && !isCompleted && !Dojo.OPEN_ACCESS;
       // Locked, not just "further down the list" — see PROJECT.md §5's
       // "No hard locks" section for the reversal note and why this
       // exists now. The reason is still shown on hover; it's just a
@@ -1054,7 +1121,7 @@
       for (let c = 0; c < n; c++) {
         const angle = (-90 + c * (360 / n)) * Math.PI / 180;
         const dx = 44 * Math.cos(angle), dy = 44 * Math.sin(angle);
-        const chunkLocked = isAhead || c > maxReached;
+        const chunkLocked = isAhead || (!Dojo.OPEN_ACCESS && c > maxReached);
         const dot = document.createElement("button");
         dot.className = `roadmap-chunk-dot${done.has(c) ? " done" : ""}${chunkLocked ? " locked" : ""}`;
         dot.style.transform = `translate(-50%, -50%) translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;

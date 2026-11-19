@@ -209,6 +209,28 @@
     who.textContent = "…";
     box.append(label, who);
 
+    // Sign-in switched off (core/core.js, Dojo.OPEN_ACCESS). The button
+    // stays where Sign out was, so the control a person reaches for is
+    // still there — greyed, with a red lock, and pressing it says why
+    // rather than doing nothing.
+    if (Dojo.OPEN_ACCESS) {
+      who.textContent = I18N.t("auth.openAccount");
+      const off = document.createElement("button");
+      off.className = "pd-action pd-action-locked";
+      off.setAttribute("aria-label", I18N.t("auth.offTitle"));
+      const lock = document.createElement("span");
+      lock.className = "pd-lock";
+      lock.textContent = "\u{1F512}";
+      off.append(lock, document.createTextNode(" " + I18N.t("auth.offButton")));
+      off.addEventListener("click", () => {
+        const dd = document.getElementById("profile-dropdown");
+        if (dd) dd.style.display = "none";
+        if (Dojo.Auth) Dojo.Auth.open();
+      });
+      box.appendChild(off);
+      return;
+    }
+
     const out = document.createElement("button");
     out.className = "pd-action";
     out.textContent = "🚪 " + I18N.t("auth.signOut");

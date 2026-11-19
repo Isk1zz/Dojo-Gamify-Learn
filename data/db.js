@@ -450,6 +450,7 @@ const DB = (() => {
   }
 
   function getUnitsUnlocked() {
+    if (window.Dojo && Dojo.OPEN_ACCESS) return true;   // see core/core.js
     const p = getActiveProfile();
     return !!(p && p.unitsUnlocked);
   }

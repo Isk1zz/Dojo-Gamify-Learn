@@ -110,7 +110,7 @@
           </label>
         </div>
       </div>
-      ${(Dojo.Auth && Dojo.Auth.hasAccount()) ? `
+      ${(!Dojo.OPEN_ACCESS && Dojo.Auth && Dojo.Auth.hasAccount()) ? `
       <div class="settings-section">
         <div class="stats-section-title">\u{1F5D1}\uFE0F ${I18N.t("del.title")}</div>
         <p class="settings-hint">${I18N.t("del.note")}</p>

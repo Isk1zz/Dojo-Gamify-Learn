@@ -16,6 +16,30 @@
 
 window.Dojo = window.Dojo || {};
 
+// ---- Open access: sign-in switched off ----
+// DECIDED 2026-11-19. The Supabase project stopped resolving (DNS
+// ERR_NAME_NOT_RESOLVED — paused or deleted after two months idle), and
+// with accounts mandatory that meant NOBODY could get past the gate. So
+// sign-in is off and every visitor gets one local profile with
+// everything unlocked: all themes, all background stripes, all units,
+// all courses.
+//
+// This is ONE switch on purpose. Every gate reads it at call time —
+// requireAccount, the sign-in modal, the profile dropdown, Settings'
+// delete-account block, themeUnlocked, bgStripeUnlocked,
+// getUnitsUnlocked, ownsCourse, the topic-order lock in library.js (map,
+// list and chunk dots) and the start screen's line under the button — so
+// setting it back to false restores the whole account system exactly as
+// it was. Nothing was deleted.
+//
+// What does NOT work while it is on, because it lives on the server:
+// sync, the Forum, reputation, and server-paid XP (core/earn.js queues
+// claims and they wait). Study and progress are local and unaffected.
+//
+// Defined here, in the first kernel file, because theme.js and db.js
+// load before auth.js and can be asked about unlocks during boot.
+Dojo.OPEN_ACCESS = true;
+
 // ---- Shared runtime state ----
   // ---- State ----
   const state = {

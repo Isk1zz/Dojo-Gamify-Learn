@@ -516,17 +516,24 @@
              hold "Unnamed App" apart is gone with the space it guarded. -->
         <h1 class="landing-title"><span class="accent">Knell</span></h1>
         <p class="landing-sub" data-i18n="ui.landing.sub">A study system that keeps what you learn from fading — chunk by chunk, day by day.</p>
+        <!-- The button sits ABOVE the scene so it is on the first screen
+             without scrolling; the scene is the "look inside", not a
+             gate in front of the way in. -->
+        <button id="btn-start" class="btn-primary" data-i18n="ui.landing.begin">Begin Training</button>
+        <p class="landing-hint" id="landing-hint" data-i18n="ui.landing.hint">Free account — your progress follows you to any device</p>
+        <!-- A real course scene, drawn by scenes/scene.js from boot.js.
+             Playable here: tap a chapter and the runner goes to it. Left
+             empty, and the orb above shown instead, if no scene loads. -->
+        <div class="landing-scene" id="landing-scene" aria-hidden="false"></div>
         <div class="landing-features">
-          <div class="feat"><span class="feat-icon">📖</span><span data-i18n="ui.landing.feat1">Any course, one chunk at a time</span></div>
-          <div class="feat"><span class="feat-icon">🔥</span><span data-i18n="ui.landing.feat2">Spaced review that adapts to you</span></div>
+          <div class="feat"><span class="feat-icon">📖</span><span data-i18n="ui.landing.feat1">Every lesson: read it, see it worked, prove it</span></div>
+          <div class="feat"><span class="feat-icon">🔁</span><span data-i18n="ui.landing.feat2">Reviews timed to the forgetting curve</span></div>
           <!-- Was "Earn your way into the Arcades" — the Arcade branch
                was deleted and the landing page went on advertising it.
                Replaced with the Garden, which is both real and the one
                mechanic nothing else here has. -->
-          <div class="feat"><span class="feat-icon">🌱</span><span data-i18n="ui.landing.feat3">A garden that wilts when you stop</span></div>
+          <div class="feat"><span class="feat-icon">🌱</span><span data-i18n="ui.landing.feat3">A garden that grows from what you remember</span></div>
         </div>
-        <button id="btn-start" class="btn-primary" data-i18n="ui.landing.begin">Begin Training</button>
-        <p class="landing-hint" data-i18n="ui.landing.hint">Free account — your progress follows you to any device</p>
       </div>
     </section>
 
@@ -934,6 +941,11 @@
        biggest caller. -->
   <script src="core/earn.js"></script>
   <script src="core/onboard.js"></script>
+  <!-- Course scenes: one engine, one recipe file per course that has a
+       scene. Before library.js, which looks them up when a course opens;
+       a course with no recipe here simply has no scene. -->
+  <script src="scenes/scene.js"></script>
+  <script src="scenes/bike-a3.js"></script>
   <script src="library/library.js"></script>
   <script src="library/stats.js"></script>
   <script src="library/exam-sim.js"></script>

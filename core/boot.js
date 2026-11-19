@@ -207,6 +207,33 @@
   // actually comes back, and profile:changed doesn't fire for it.
   if (Dojo.checkWarnings) Dojo.checkWarnings();
 
+  // ---- Landing: a real course, playable before you begin ----
+  // The start screen shows the e-bike course's scene, and it works: a
+  // visitor can send the runner around before deciding to start. Here it
+  // only plays (no onChapter), so arriving opens nothing. Off screen its
+  // own IntersectionObserver stops it, so it costs nothing behind the app.
+  const sceneHost = document.getElementById("landing-scene");
+  if (sceneHost && Dojo.Scenes && Dojo.Scenes.has("bike-a3")) {
+    Dojo.Scenes.render(sceneHost, "bike-a3", { lang: I18N.lang() });
+    const cap = document.createElement("p");
+    cap.className = "landing-scene-caption";
+    cap.textContent = I18N.t("scene.landingCaption");
+    sceneHost.appendChild(cap);
+    const content = sceneHost.closest(".landing-content");
+    if (content) content.classList.add("has-scene");
+  }
+
+  // While sign-in is switched off, the line under the button says so.
+  // The account line it replaces promises progress on any device, which
+  // in this mode is false, and it is the first sentence a visitor reads.
+  if (Dojo.OPEN_ACCESS) {
+    const hint = document.getElementById("landing-hint");
+    if (hint) {
+      hint.removeAttribute("data-i18n");
+      hint.textContent = I18N.t("ui.landing.demo");
+    }
+  }
+
   // ---- 5. Owned lazy content ----
   // A lazy course (intro-cs) ships its manifest only; its modules are
   // injected when the course is opened. That is fine for a course nobody

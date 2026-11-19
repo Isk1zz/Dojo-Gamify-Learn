@@ -504,6 +504,24 @@ body {
   color: var(--text-muted);
 }
 
+/* The playable course scene on the start screen (core/boot.js). It
+   replaces the floating orb as the picture: two things competing for
+   "the image on this page" read as neither. */
+.landing-scene {
+  position: relative;
+  z-index: 1;
+  width: min(580px, 94vw);
+  margin: 0.6rem auto 0;
+}
+.landing-scene:empty { display: none; }
+.landing-scene-caption {
+  margin: -0.6rem 0 1.1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.landing-content.has-scene .logo-glow { display: none; }
+.landing-content.has-scene .landing-sub { margin-bottom: 1.4rem; }
+
 /* ============================================
    Shared layout utilities
    Used by settings, garden, shop and games.
@@ -1808,6 +1826,59 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   background: rgba(220, 70, 70, 0.12);
   border: 1px solid rgba(220, 70, 70, 0.35);
   color: var(--text); font-size: 0.82rem; line-height: 1.5;
+}
+
+/* ---- Sign-in switched off (Dojo.OPEN_ACCESS, core/core.js) ----
+   The form stays visible but dead: greyed out and unclickable, so it
+   reads as deliberately switched off rather than broken. The lock is
+   red because it is the one thing on the card that is meant to be
+   read. */
+.auth-locked .auth-tabs,
+.auth-locked #auth-form {
+  filter: grayscale(1);
+  opacity: 0.35;
+  pointer-events: none;
+  user-select: none;
+}
+.auth-off-notice {
+  text-align: center;
+  margin: 0.2rem 0 1rem;
+  padding: 0.9rem 0.9rem 1rem;
+  border-radius: 10px;
+  background: rgba(220, 70, 70, 0.10);
+  border: 1px solid rgba(220, 70, 70, 0.45);
+}
+.auth-off-lock {
+  font-size: 2rem;
+  line-height: 1;
+  /* The emoji has its own colour; this tints it toward red and gives it
+     a red glow so it reads as "locked" on every platform's emoji set. */
+  filter: hue-rotate(-40deg) saturate(2.2) drop-shadow(0 0 6px rgba(230, 60, 60, 0.75));
+  margin-bottom: 0.4rem;
+}
+.auth-off-title {
+  font-weight: 700;
+  color: #ef5a5a;
+  margin-bottom: 0.35rem;
+}
+.auth-off-body {
+  margin: 0 0 0.8rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-dim, var(--text));
+}
+.auth-off-ok { width: 100%; justify-content: center; }
+
+/* The same switch, in the profile dropdown where Sign out used to be.
+   Grey by COLOUR, not by a grayscale filter: a filter on the button
+   would also drain the red out of the lock inside it. */
+.pd-action-locked {
+  color: #8a8f9c;
+  opacity: 0.8;
+}
+.pd-action-locked:hover { opacity: 1; color: #a3a8b4; }
+.pd-lock {
+  filter: hue-rotate(-40deg) saturate(2.2) drop-shadow(0 0 4px rgba(230, 60, 60, 0.7));
 }
 
 .auth-submit { width: 100%; justify-content: center; margin-top: 0.3rem; }

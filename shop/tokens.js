@@ -116,6 +116,7 @@
   function ownsCourse(courseId) {
     const c = COURSES.find(x => x.id === courseId);
     if (!c) return false;
+    if (Dojo.OPEN_ACCESS) return true;   // every course open, see core/core.js
     if (!c.priceTokens) return true; // free course — always "owned"
     return DB.getInventory().includes(courseKey(courseId));
   }

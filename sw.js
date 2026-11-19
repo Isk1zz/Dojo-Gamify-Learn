@@ -250,7 +250,22 @@
 // cache here would keep scheduling reviews off the old curve — silently,
 // since the numbers look plausible either way, which is the worst kind
 // of stale file to serve.
-const CACHE_VERSION = "knell-v67";
+// Bumped for sign-in being switched off (Dojo.OPEN_ACCESS in
+// core/core.js): core.js, auth.js, profile.js, theme.js, db.js,
+// tokens.js, settings.js, i18n.js and base.css all change. A stale
+// cache here is the worst case for this change in particular — it would
+// keep serving the mandatory login gate against a server that no longer
+// resolves, which locks everybody out of the app entirely.
+// Bumped for course scenes: scenes/scene.js and scenes/bike-a3.js are
+// new, index.html loads them, library.js draws one on the course screen
+// and stops locking topic order under open access, and i18n.js and
+// library.css gain the scene's strings and layout. The start screen is
+// rebuilt around the same scene (index.html, boot.js, base.css), with a
+// demo line replacing the account promise under open access. A stale index.html
+// here would load a library.js that looks for Dojo.Scenes and never
+// finds it — harmless, the course would just open without its scene,
+// which is exactly why it would go unnoticed.
+const CACHE_VERSION = "knell-v69";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

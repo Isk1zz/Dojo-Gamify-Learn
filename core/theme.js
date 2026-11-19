@@ -32,6 +32,7 @@
   // must not silently apply — an imported profile can't wear a reward
   // it never earned — so it falls back to Indigo.
   function themeUnlocked(id) {
+    if (Dojo.OPEN_ACCESS) return true;   // everything open, see core/core.js
     if (!isPremium(id)) return true;
     if (DB.ownsTheme(id)) return true;
     return Dojo.Ranks ? Dojo.Ranks.unlockedThemes(DB.getXp()).has(id) : false;
@@ -46,7 +47,7 @@
   // BG_STRIPES) — same "must have reached the rank" gate, same fallback
   // shape, just its own CSS var so it can be layered over any theme.
   function bgStripeUnlocked(id) {
-    if (id === "none") return true;
+    if (id === "none" || Dojo.OPEN_ACCESS) return true;
     return Dojo.Ranks ? Dojo.Ranks.unlockedBgStripes(DB.getXp()).has(id) : false;
   }
 
