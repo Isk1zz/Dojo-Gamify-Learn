@@ -179,7 +179,7 @@ section goes with it.
 | 2 | Exam items must be isomorphic variants, never reused chunk quizzes | large, content | **DECIDED** |
 | 3 | Next-day verification gate; exam pass becomes provisional | medium, code | **DECIDED** |
 | 4 | Decouple gate score from SM-2 quality (entry always I=1, EF=2.5) | small, code | **DECIDED** |
-| 5 | Ease formula must penalise q=4 (their formula is broken, see below) | small, code | **DECIDED** |
+| 5 | Ease formula must penalise q=4 (their formula is broken, see below) | small, code | **BUILT** — `data/db.js`, commit fcd81ae, 2026-10-13 |
 | 6 | Flashcards: typed recall + idea-unit checklist instead of self-rating | medium | **DECIDED** |
 | 7 | `predict` and `recall` on all 171 chunks; update CONTENT-MODEL | large, content | **DECIDED — declined** |
 | 8 | Withering -> visual dormancy; intervals stop decaying in storage | medium, code | **DECIDED — middle** |
@@ -307,11 +307,19 @@ three days fair were offered (soft failure; pass jumps the ladder to
 
 **Item 4.** One exam percentage was doing two incompatible jobs: the
 pass/fail decision, and the SM-2 quality that sets how fast intervals
-grow (`quality = round(pct / 20)`). One question's difference put two
-learners 36 days apart by the fifth review — 95 days against 131 — off a
-five-item test where a single lucky guess is the whole gap. Everyone who
+grow (`quality = round(pct / 20)`). Off a five-item test, one question is
+the difference between quality 4 and 5, and with every later review
+identical that one question moves the fifth review by **11–14 days** under
+textbook SM-2 and by **17–25 days** under the item-5 constant. Everyone who
 clears the verification gate now enters at the same baseline, `I=1,
 EF=2.5`, and the pace is earned on real reviews afterwards.
+
+**Corrected 2026-11-19.** This paragraph first said "36 days apart by the
+fifth review — 95 against 131". Those two ladders belong to learners who
+differ on EVERY review, not on the exam alone, so they overstated what the
+exam does by more than double. The decision was taken on the wrong number;
+the right one still supports it, and item 5 made it stronger — a harsher
+penalty at q=4 widens the gap a single exam question opens.
 
 **Item 5.** Derived rather than copied, because report 3's replacement
 formula does not do what its own table says. SM-2's shape is kept:

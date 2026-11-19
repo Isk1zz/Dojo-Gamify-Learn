@@ -1,87 +1,122 @@
 # Knell
 
-A study app that fights forgetting.
+**A study app that keeps what you learn from fading.**
 
-Content arrives in small chunks — each teaches one idea, shows a worked
-example, asks a question. Passing a topic's mastery exam does not mark it
-finished; it schedules it for spaced review. The Garden is that schedule made
-visible: topics you are losing are plants that need watering.
+Lessons come in small chunks. Passing a topic does not finish it; it
+schedules it for spaced review. A garden shows what you still remember.
+And a course can be a place: in the e-bike course you pick a chapter and a
+small figure runs there through a junction at night, crossing only at the
+zebras.
 
-No build step, no dependencies. Runs entirely on `localStorage` today —
-that's the current implementation, not the destination: the plan is an
-online database (Supabase) that holds progress across devices and
-actually enforces the rules (course ownership, the economy), not just a
-client-side flag anyone can edit in devtools. See `docs/BACKEND-ROADMAP.md`.
+**▶ Live demo: <https://isk1zz.github.io/Dojo-Gamify-Learn/>** — no account,
+everything unlocked, progress stays in your browser.
 
-## The end goal
+<p align="center">
+  <img src="docs/screenshots/start.jpg" width="32%" alt="Start screen with a playable course scene">
+  <img src="docs/screenshots/course-scene.jpg" width="32%" alt="A course drawn as an isometric junction, chapters as pins">
+  <img src="docs/screenshots/lesson.jpg" width="32%" alt="A lesson opening with a guess before reading">
+</p>
 
-Three loops, only two of which exist today:
+---
 
-| Loop | What it does | Status |
-|---|---|---|
-| **Learn** | Chunks → topic exam → spaced review | Built |
-| **Retain** | Garden shows decay; watering is reviewing | Built |
-| **Contribute** | Post what you know; reputation is what others gave you | **Blocked — needs accounts** |
+## What is in it
 
-The third is the point the first two build toward. Studying alone is where
-this starts, not where it is meant to end: the Garden pays **reputation**, and
-reputation can only ever be spent on *other people's* posts — never your own.
-See `forum/FORUM.md`.
+- **Chunked lessons.** Every chunk explains one idea, shows a worked
+  example, then asks a question. Two thirds of them (114 of 171) carry about
+  200 words and two cited sources; the oldest 57 are still short and
+  unsourced, waiting for a rewrite. Most topics open with a guess before you
+  read and close with recall in your own words.
+- **A mastery gate.** Each topic ends in an exam; 80% enters it into spaced
+  review.
+- **Spaced review** on SM-2, with one constant changed on evidence (below).
+- **The Garden.** Each mastered topic is a plant whose growth stage *is* its
+  review interval. A hundred topics passed once is a field of sprouts.
+- **Course scenes.** A course drawn as an isometric diorama where every
+  chapter stands where it happens.
+- **English and Russian** throughout the interface.
 
-That third loop needs a backend — but it's not the only reason for one.
-Everything is `localStorage` today: progress doesn't follow you across
-devices, and course ownership is a flag the client trusts, which means
-it's a flag anyone can edit. The Supabase port at the top of
-`UPDATESTACK.md` fixes both, with the Forum as one thing it unlocks
-rather than the reason it exists.
+Three courses have lessons: *Intro to Computer Science* (48 topics),
+*A3 Theory — Electric Bicycle* (7 topics, built on the Israeli Ministry of
+Transport's published question bank) and *Philosophy: Cicero* (3 topics).
 
-## Running
+## Engineering
+
+- **No framework, no build step, no npm dependencies.** About 17,000 lines
+  of plain JavaScript, 12,600 of course content and 5,200 of CSS. The only
+  third-party code is `supabase-js`, the backend's client; the fonts come
+  from Google Fonts.
+- **Branches you can delete.** A small kernel (events, router, state) and
+  feature folders that talk only through it, designed so that removing a
+  folder and its `<script>` tags takes the feature out and leaves the rest
+  running. See `docs/ARCHITECTURE.md`.
+- **A backend that does not believe the client.** 28 migrations, 12 tables,
+  37 functions on Postgres (Supabase). Money, XP, reputation and the Forum
+  have no client write policy at all: every write goes through a
+  `SECURITY DEFINER` function that takes the actor from `auth.uid()`. Found
+  and fixed on the way: a time-of-check race in reputation grants (8 of 8
+  concurrent grants succeeded; with a lock, the allowed 2), a `UNIQUE`
+  constraint Postgres was not enforcing because NULLs count as distinct, and
+  a reward endpoint that paid 800 XP in four calls. What the server still
+  takes on trust is a learner's own progress row, which they sync and the
+  Garden is computed from; that is written down in the migrations as a known
+  weakness, and the reputation it can buy is capped at five points a day.
+- **A measured fix to spaced repetition.** Textbook SM-2 changes ease by
+  exactly zero at the pass mark, so someone who barely passes every review got
+  the same intervals as someone perfect: sixth review at 238 days. One
+  constant later, 153, while a perfect learner stays at 393. Checked by
+  driving the real function, not by algebra.
+- **A scene engine in SVG.** Isometric projection, three parallax depth
+  layers, a cut-away cross-section computed from the surface, depth-sorted
+  sprites, and Dijkstra pathfinding for the runner over a sidewalk-and-zebra
+  graph. One engine plus a data recipe per course. Keyboard-operable, honours
+  reduced motion, and stops animating off screen.
+- **Research that was checked, not trusted.** Three commissioned research
+  reports. The first quoted the project's own documentation back as
+  findings, so the next two were briefed to look for what is wrong rather
+  than to agree. The third one's headline arithmetic reproduced exactly; its
+  proposed formula did not do what its own table claimed, and two of its rows
+  were wrong. Every decision taken from it is recorded with the case against
+  it.
+
+## The demo, honestly
+
+The live demo runs with sign-in switched off. The backend — accounts, sync
+across devices, the Forum, reputation, server-paid rewards — is built and was
+verified against a live database, but that database is no longer reachable.
+One switch, `Dojo.OPEN_ACCESS` in `core/core.js`, turns the account system off
+without deleting anything.
+
+**[docs/SHOWCASE.md](docs/SHOWCASE.md)** lists what is in, what is switched
+off, what is decided but not built, and what was dropped — where each lives,
+how it works and why.
+
+## Run it
+
+It has to be served over http, because a service worker will not register
+from a file:
 
 ```bash
 git clone https://github.com/Isk1zz/Dojo-Gamify-Learn.git
+cd Dojo-Gamify-Learn
+npx http-server . -p 8199 -c-1
 ```
 
-Then open `index.html`. That is the whole setup.
+Then open <http://localhost:8199>. The course-scene prototype on its own is
+at `/scenes/prototype.html`.
 
-Installing it as an app (and getting the offline cache) needs it served over
-http rather than opened from disk:
-
-```bash
-python3 -m http.server 8000
-```
-
-See `docs/PACKAGING.md`.
-
-## Currencies
-
-Three, deliberately separate, and none of them convert into another:
-
-| | Earned by | Spent on |
-|---|---|---|
-| ⚡ **XP** | Studying | Nothing — it only buys rank |
-| 🪙 **Tokens** | Rank-ups, or bought | Courses |
-| 👏 **Reputation** | The Garden | Other people's posts, never your own |
-
-Cosmetics are **free**. Themes, layouts, palettes, decorations and scenery are
-all unlocked from the start — the Shop sells courses and nothing else.
-
-## Where to start
+## Where to start reading
 
 | If you want to… | Read |
 |---|---|
+| see what is real and what is not | `docs/SHOWCASE.md` |
 | understand how the pieces fit | `docs/ARCHITECTURE.md` |
-| know why it's built this way | `PROJECT.md` |
+| know why it is built this way | `PROJECT.md` |
 | work on one feature | that folder's `.md` |
-| know what's in flight right now | `UPDATESTACK.md` |
+| know what is queued | `UPDATESTACK.md` |
 | see what changed | `docs/CHANGELOG.md` |
-| ship it somewhere | `docs/PACKAGING.md` |
-| deal with licensing | `docs/LEGAL.md` |
+| read the research | `docs/research/` |
 
-Each folder is a self-contained branch. To work on one you need
-`docs/ARCHITECTURE.md` plus that folder — not the whole project. Deleting a
-branch's folder and its `<script>` tags removes the feature cleanly; that
-property is load-bearing and worth preserving.
+## Status and licence
 
-## Status
-
-Pre-release and single-player. The name is a placeholder.
+A portfolio snapshot, built from August to November 2026. All rights
+reserved: the source is public to read, not licensed for reuse. See `LICENSE`.
