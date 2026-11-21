@@ -8,8 +8,11 @@ And a course can be a place: in the e-bike course you pick a chapter and a
 small figure runs there through a junction at night, crossing only at the
 zebras.
 
-**▶ Live demo: <https://isk1zz.github.io/Dojo-Gamify-Learn/>** — no account,
-everything unlocked, progress stays in your browser.
+**▶ Live demo: <https://isk1zz.github.io/knell_demo/>** — no account, a
+prepared sample profile, progress stays in your browser.
+
+I designed Knell and directed every decision in it. The code was written with
+AI assistance (Claude).
 
 <p align="center">
   <img src="docs/screenshots/start.jpg" width="32%" alt="Start screen with a playable course scene">
@@ -80,11 +83,17 @@ Transport's published question bank) and *Philosophy: Cicero* (3 topics).
 
 ## The demo, honestly
 
-The live demo runs with sign-in switched off. The backend — accounts, sync
+The demo is a separate copy of this app, made by `tools/make-demo.js`. It
+changes four things: it switches `Dojo.DEMO` on (`core/demo.js`), blanks the
+Supabase address and key, drops the Supabase client script and renames the
+cache. With the demo switch on, sign-in is off, a sample profile is loaded,
+storage is kept apart from the real app's, and a banner says progress stays in
+the browser. The Forum stays closed there, because it needs the server.
+
+This repository is the real app, with sign-in on. Its backend — accounts, sync
 across devices, the Forum, reputation, server-paid rewards — is built and was
-verified against a live database, but that database is no longer reachable.
-One switch, `Dojo.OPEN_ACCESS` in `core/core.js`, turns the account system off
-without deleting anything.
+verified against a live database, but that database is not reachable at the
+moment, so the site published from here stops at sign-in. Use the demo link.
 
 **[docs/SHOWCASE.md](docs/SHOWCASE.md)** lists what is in, what is switched
 off, what is decided but not built, and what was dropped — where each lives,

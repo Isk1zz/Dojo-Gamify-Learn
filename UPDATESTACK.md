@@ -5,6 +5,52 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## IN PROGRESS 2026-11-19 — cut dead code; scenes for the other courses
+
+Paused by a usage limit mid-task. Nothing has been deleted yet.
+
+**Verified dead** — no caller in any tracked file, no `DB[...]` or
+`Dojo[...]` string access anywhere. Two of them (`setXp`, `unlockAllTopics`)
+were called by the cheat-code system, but that system is gone: no
+`settings/codes.js`, no `codes.example.js`, no script tag, no `DOJO_CODES`
+in settings.js. `CHEATCODES.md`, outside the repo, still describes it.
+
+- `data/db.js`: `getChargeTotals`, `getLastDividendClaim`,
+  `setLastDividendClaim`, `grantTheme`, `setXp`, `unlockAllTopics` (and
+  their entries in the returned API; `data/DATA.md` mentions the last one)
+- `library/library.js`: `libraryTotals` (+ its line in LIBRARY.md)
+- `library/stats.js`: `earnedBadges`
+- `shop/decor.js`: the `pokeCloud: poke` export alias only; `poke` is live
+- `core/hud.js`: `toggleWalletPopover`
+
+**Not dead, leave alone:** about 20 `Dojo.*` exports are called only inside
+their own file. The function is live; only the export is spare, and the
+export seam is deliberate (docs/ARCHITECTURE.md). `$` in auth.js was a
+false positive of the search.
+
+**Files:** `library/content/count-phases.js` measures against a target the
+content model forbids (the wrong 19%) — cut it and fix the reference in
+docs/research/LEARNING-ENGINE.md. Keep `scenes/prototype.html`: it is the
+harness for building the next recipes. `docs/LEARNING-DESIGN.html` not
+reviewed yet.
+
+**Not yet audited:** unused i18n keys, unused CSS selectors.
+
+**After cutting:** node --check every touched file, check-content and
+check-schema, load the app and walk lobby, library, a course, a lesson.
+
+**Then, scenes for every course** (asked: "you didn't create scenes for
+other than ebike"). Philosophy: a Roman forum, three topic pins. Intro CS:
+48 topics will not fit on one scene, so its pins are its 8 UNITS and a pin
+opens that unit's topic map — the engine needs a pin that targets a unit,
+not only a topic. The four empty courses have no lessons; decide whether
+they get a scene before any content.
+
+**Also uncommitted:** the lobby clickability hint (CACHE_VERSION v70),
+built and verified, not pushed.
+
+---
+
 ## СТИЛИСТИКА 2026-09-03 — themes in the shape of THE FINALS' loading screen
 
 Asked for 2026-09-03. THE FINALS shows the party on its loading screen as
@@ -450,6 +496,13 @@ the things to check first if this goes wrong:
    knowing that would be chosen, so its stated reason no longer applies.
 2. Paying for what was done today is paying for attendance. That is the
    shape of a streak, and streaks were removed from this app deliberately.
+
+   **Corrected 2026-11-21: the second half of argument 2 was false.**
+   Streaks are in the app — a day counts when a topic is passed, two
+   freezes a week, a chip in the top bar (core/hud.js renderStreak). They
+   were dropped in an early design and brought back (data/DATA.md). The
+   decision was taken with this wrong premise in front of it; the "shape
+   of attendance" half of the argument still stands on its own.
 
 **A structural problem that has to be solved while building it, not a
 preference.** Due reviews are scheduled by the algorithm; a learner

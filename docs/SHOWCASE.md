@@ -53,11 +53,16 @@ could get in at all**. A portfolio demo has to open for anyone, first time.
 
 ### How it is off
 
-One switch: `Dojo.OPEN_ACCESS = true` in `core/core.js`. Every gate reads it
+One switch: `Dojo.OPEN_ACCESS` in `core/core.js`. Every gate reads it
 at the moment it is asked: sign-in, the profile menu, unlocks for themes,
 units, courses and topic order. Pressing *Sign in* shows a grey form under
 a red lock that says sign-in is switched off. **Nothing was deleted.**
-Setting the switch to `false` restores the account system as it was.
+
+**Changed 2026-11-21.** This said the switch was simply set to `true`, and for
+two days it was, in the real app as well. Now it follows `Dojo.DEMO`
+(`core/demo.js`): off in this repository, where sign-in is back on, and on only
+in the separate demo copy that `tools/make-demo.js` produces. That copy also
+holds no Supabase address or key.
 
 ### Engineering worth looking at in the dormant half
 
@@ -136,7 +141,7 @@ Each decision, with the case made against it where there was one, is in
 | Forum legal text | Not written | Needed before a public forum, not before a demo |
 | A nickname bug | Known: the chosen nickname does not reach the server profile | Moot while accounts are off; the diagnosis is in `UPDATESTACK.md` |
 | A theme styled after THE FINALS | Written up, not built | Cosmetic; recorded so it is not lost |
-| Streaks | **Removed on purpose** | Visible streak loss drives people away. Section 3, item 8 exists so the Garden does not rebuild the streak in the shape of a plant |
+| Streaks | **In the app**: a day counts when a topic is completed, with two freezes a week to bridge missed days. *Corrected 2026-11-21: this row said streaks had been removed on purpose. They were in an early design, then brought back (see `data/DATA.md`); the streak chip is in the top bar.* | Recorded because the claim was wrong, not because anything changed |
 | The Arcade | **Removed on purpose** | Replaced by the Forum, where reputation earned by remembering is given to other people |
 
 ---
@@ -148,6 +153,10 @@ Each decision, with the case made against it where there was one, is in
 **One line:** Lessons in small chunks, spaced review that schedules itself,
 and courses drawn as places you walk through. Vanilla JavaScript, no build
 step; a Postgres backend where no client can write directly.
+
+**Link to put there:** <https://isk1zz.github.io/knell_demo/> — the demo,
+which opens with no account. Not this repository's own site, which stops at
+sign-in.
 
 **What to look at first:** the start screen. Tap a chapter and the runner
 crosses at the zebras.
