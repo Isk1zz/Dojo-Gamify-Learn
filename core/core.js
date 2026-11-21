@@ -38,7 +38,12 @@ window.Dojo = window.Dojo || {};
 //
 // Defined here, in the first kernel file, because theme.js and db.js
 // load before auth.js and can be asked about unlocks during boot.
-Dojo.OPEN_ACCESS = true;
+//
+// CHANGED 2026-11-21: on only in the demo build. It was simply `true`
+// from 11-19, which put the REAL app into demo mode as well. Sign-in is
+// back on in the real app; the demo is a separate copy with
+// Dojo.DEMO = true (core/demo.js, tools/make-demo.js).
+Dojo.OPEN_ACCESS = !!Dojo.DEMO;
 
 // ---- Shared runtime state ----
   // ---- State ----

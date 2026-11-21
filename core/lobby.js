@@ -735,6 +735,25 @@
   });
 
   // ---- seam: what this branch offers to everyone else ----
+  // ---- A miss shows what can be clicked ----
+  // shop/decor.js announces a tap that hit nothing at all. In the lobby
+  // that is someone looking for the way in — it was watched happening,
+  // thirty taps on empty sky and clouds — so every real control lights
+  // up for a moment and the miss itself becomes the hint. Throttled to
+  // one glow at a time, and off when Settings turns hints off, like
+  // every other hint in the app.
+  let revealTimer = 0;
+  Dojo.Bus.on("click:dead", () => {
+    const lobby = document.getElementById("lobby");
+    if (!lobby || !lobby.classList.contains("active") || revealTimer) return;
+    if (document.body.classList.contains("hide-hints")) return;
+    lobby.classList.add("lobby-reveal");
+    revealTimer = setTimeout(() => {
+      lobby.classList.remove("lobby-reveal");
+      revealTimer = 0;
+    }, 1300);
+  });
+
   // HEX_FLAGS is exported so settings/settings.js can paint its swatches
   // from the same table the ring uses — one definition of each flag.
   Object.assign(Dojo, { showLobby, HEX_FLAGS, HEX_FLAG_MODES, HEX_FLAG_LABELS });

@@ -64,7 +64,9 @@
   on("btn-token-shop",     () => Router.go("store", { cat: "packs" }));
   on("btn-lobby-garden",   () => Router.go("garden"));
   on("btn-lobby-shop",     () => Router.go("shop"));
-  on("btn-lobby-games",    () => Router.go("forum"));
+  // The demo has no server for the Forum to run on, so its tile says so
+  // instead of opening an empty screen (core/demo.js owns the note).
+  on("btn-lobby-games",    () => (Dojo.DEMO && Dojo.demoForumNote) ? Dojo.demoForumNote() : Router.go("forum"));
   on("btn-lobby-settings", () => Router.go("settings"));
   // Statistics merged into Career; this tile is Inventory now (its id
   // is unchanged on purpose — see index.html).
@@ -191,6 +193,9 @@
   }
 
   // ---- 4. Start ----
+  // Demo build only: a sample profile on a visit that has none yet, so
+  // every screen has something to show (core/demo.js).
+  if (Dojo.DEMO && Dojo.seedDemo) Dojo.seedDemo();
   DB.init();
   Dojo.applyTheme(DB.getTheme());
   if (Dojo.applyBgStripe) Dojo.applyBgStripe(DB.getBgStripe());

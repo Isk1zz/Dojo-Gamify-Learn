@@ -283,6 +283,12 @@ const I18N = (() => {
                               ru: "Слишком много попыток. Подождите минуту." },
     "auth.signedInAs":      { en: "Signed in as",        ru: "Вы вошли как" },
     "auth.signOut":         { en: "Sign out",            ru: "Выйти" },
+    // Lobby clickability hint — index.html #lobby-hint, core/lobby.js.
+    // True as written: the circles are the navigation, and the moon or
+    // sun, clouds and birds react to a tap (shop/decor.js). "Some of it"
+    // because the stars do not.
+    "lobby.hint":           { en: "Circles take you somewhere. Poke the sky: some of it answers.",
+                              ru: "Круги — это переходы. Потыкайте в небо — кое-что ответит." },
     // Course scene — library/library.js renderCourseScene, scenes/scene.js.
     "scene.hint":           { en: "Pick a chapter: your runner goes there and opens it.",
                               ru: "Выберите главу — человечек добежит туда и откроет её." },

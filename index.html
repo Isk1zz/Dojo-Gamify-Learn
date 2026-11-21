@@ -573,6 +573,12 @@
         </div>
         <div class="lobby-brand"><span class="accent">Knell</span></div>
         <p class="lobby-welcome" id="lobby-welcome">Welcome back.</p>
+        <!-- What can be clicked here is not obvious: the circles are the
+             way on, and the sky answers taps (decor.js), but nothing
+             said so — someone was watched poking empty sky looking for
+             the way in. Hidden with the other hints when Settings turns
+             hints off. A miss also lights the controls up: core/lobby.js. -->
+        <p class="lobby-hint" id="lobby-hint" data-i18n="lobby.hint">Circles take you somewhere. Poke the sky: some of it answers.</p>
         <div class="lobby-actions" id="lobby-actions">
           <svg class="lobby-star-lines" id="lobby-star-lines" aria-hidden="true"></svg>
           <button id="btn-lobby-hub-flashcards" class="lobby-hub" type="button" aria-label="Flashcards"><span>&#128209;</span></button>
@@ -855,6 +861,10 @@
        ============================================================ -->
 
   <!-- 1. Kernel + persistence -->
+  <!-- First of all: the demo switch. Off in the real app, where it does
+       nothing else. In the demo copy it gives the app storage of its own
+       before i18n.js reads it — see core/demo.js. -->
+  <script src="core/demo.js"></script>
   <script src="core/core.js"></script>
   <!-- Before the content band: Content.course() resolves {en, ru} bags
        through I18N at registration, so this must already exist. -->

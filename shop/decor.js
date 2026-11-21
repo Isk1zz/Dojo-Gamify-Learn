@@ -649,7 +649,12 @@
       const moon = moonAt(e.clientX, e.clientY);
       if (moon) { pokeMoon(moon); return; }
       const cloud = cloudAt(e.clientX, e.clientY);
-      if (cloud) poke(cloud);
+      if (cloud) { poke(cloud); return; }
+      // Hit nothing at all: no control, no bird, no sun, moon or cloud.
+      // Announced rather than handled, because what a miss should mean
+      // belongs to the screen it happened on — the lobby uses it to show
+      // what IS clickable (core/lobby.js).
+      if (Dojo.Bus) Dojo.Bus.emit("click:dead", { x: e.clientX, y: e.clientY });
     });
   }
 

@@ -265,7 +265,17 @@
 // here would load a library.js that looks for Dojo.Scenes and never
 // finds it — harmless, the course would just open without its scene,
 // which is exactly why it would go unnoticed.
-const CACHE_VERSION = "knell-v69";
+// Bumped for the lobby's clickability hint: index.html gains the line
+// under the welcome, i18n.js its string, shop/decor.js announces a tap
+// that hit nothing, core/lobby.js lights the controls on one, and
+// base.css styles both. v69 is already live, so a stale cache would
+// keep a returning visitor on the lobby without either.
+// Bumped for the demo split: core/demo.js is new and loads first,
+// core.js turns sign-in back on outside the demo, boot.js seeds the
+// demo's sample profile and routes its Forum tile to a note, and the
+// cleanup below now spares caches that are not this app's own. A stale
+// cache here would keep a returning visitor on the open-access build.
+const CACHE_VERSION = "knell-v71";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {
@@ -276,11 +286,19 @@ self.addEventListener("install", event => {
   );
 });
 
+// Only this app's OWN old caches are deleted. Every project page under
+// isk1zz.github.io shares one origin and so one Cache Storage: the real
+// app ("knell-v70") and the demo ("knell-demo-v70") live side by side,
+// and deleting everything that isn't our exact version used to mean
+// each one emptied the other's cache whenever it updated.
+const CACHE_FAMILY = CACHE_VERSION.replace(/\d+$/, "");   // "knell-v" or "knell-demo-v"
+
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k))
+        keys.filter(k => k !== CACHE_VERSION && k.startsWith(CACHE_FAMILY) && /^\d+$/.test(k.slice(CACHE_FAMILY.length)))
+          .map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
   );
