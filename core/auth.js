@@ -11,10 +11,12 @@
 // ---- Mandatory account, NOT mandatory connection ----
 // Login is required (Step 0's decision). It is deliberately NOT
 // implemented as "block the app whenever there is no live session",
-// because this is an offline-first installable PWA: sw.js caches the
-// whole thing so it runs with no network, and gating on a live session
+// because this was an offline-first installable PWA: sw.js cached the
+// whole thing so it ran with no network, and gating on a live session
 // would lock someone out of a fully-cached app the moment a refresh
-// token lapsed on a plane.
+// token lapsed on a plane. (The caching worker was retired on
+// 2026-11-22, so the app now needs a connection to open; once open, a
+// lost connection still only pauses SYNC, which is why this stays.)
 //
 // So the gate reads a localStorage marker — "has this device ever
 // completed a sign-in" — which costs no network call. First launch

@@ -121,9 +121,11 @@ An **owned** lazy course is preloaded at boot (`core/boot.js` §5), because
 Garden and Stats walk `ALL_TOPICS` long before anyone opens the Library.
 An unowned one stays off the boot path entirely — that is the saving.
 
-Bumping `CACHE_VERSION` matters more than usual here: a stale
-`index.html` paired with a fresh `course.js` gives a course with zero
-units, which reads as a scoping bug and is not one.
+Bumping `CACHE_VERSION` mattered more than usual here: a stale
+`index.html` paired with a fresh `course.js` gave a course with zero
+units, which read as a scoping bug and was not one. *Since 2026-11-22
+there is no caching service worker (see `sw.js`), so this mismatch can
+no longer come from the app's own cache.*
 
 ---
 
@@ -177,4 +179,6 @@ argument in PROJECT.md §5 collapses.
   scrolls the page to the top mid-interaction.
 - No build step, no dependencies, no network. `index.html` opens and runs.
   The PWA files (`sw.js`, `manifest.webmanifest`, `icons/`) are purely
-  additive — delete them and nothing changes. Keep it that way.
+  additive — delete them and nothing changes. Keep it that way. *Since
+  2026-11-22 `sw.js` caches nothing: it only removes the old caching
+  worker from browsers that still run it.*

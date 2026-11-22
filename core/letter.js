@@ -18,27 +18,31 @@
   const L = {
     title: { en: "A letter", ru: "Письмо" },
     date: { en: "November 2026", ru: "Ноябрь 2026" },
-    hello: { en: "Hello, whoever you are, and whenever this is.",
-             ru: "Здравствуйте — кто бы вы ни были и когда бы это ни читали." },
+    // The author's own words (2026-11-22), tidied but not rewritten. The
+    // second paragraph says what the author's part was, in concrete
+    // terms, as asked ("add some reassuring words that im not nobody"):
+    // decisions the author made and the rest of the app is built on, and
+    // nothing claimed that was not done.
+    hello: { en: "Hello, adventurer.", ru: "Привет, путник." },
     what: {
-      en: "This is Knell, a study app. It teaches in short chunks, checks what you learned with an exam, and then keeps asking about it at growing intervals, so that it stays remembered. The garden outside is that idea: every topic you pass is a plant, and it grows while you keep remembering it.",
-      ru: "Это Knell, приложение для учёбы. Оно учит короткими частями, проверяет выученное экзаменом, а потом спрашивает о нём снова через всё более длинные промежутки, чтобы оно не забылось. Сад за окном и есть эта идея: каждая сданная тема — растение, и оно растёт, пока вы её помните."
+      en: "I hear you have come a long way before stumbling upon Knell. In short, it is a study app, built to keep you engaged from the first lesson to the last. The Garden is its heart: every topic you pass becomes a plant, and it grows each time you come back to it, so that nothing you learned is left to fade.",
+      ru: "Говорят, вы проделали долгий путь, прежде чем наткнуться на Knell. Если коротко, это приложение для учёбы, устроенное так, чтобы держать интерес от первого урока до последнего. Его сердце — Сад: каждая сданная тема становится растением и растёт всякий раз, когда вы к ней возвращаетесь, чтобы ничто выученное не забылось."
     },
     who: {
-      en: "I designed Knell and made every decision in it. The code was written with AI (Claude), under my direction.",
-      ru: "Я придумал Knell и принял в нём каждое решение. Код написан с помощью ИИ (Claude) под моим руководством."
+      en: "I designed Knell and lived inside it, in my head, for a month of full-time work. Every screen, every rule and every trade-off was my call: what a lesson is, when an exam lets a topic into review, how the garden grows and withers, and what the server must never trust a browser with. The code was written with Claude, under my direction. I tested it as it grew, and nothing went in without my say.",
+      ru: "Я придумал Knell и месяц жил им с утра до ночи. Каждый экран, каждое правило и каждый компромисс — моё решение: что такое урок, когда экзамен пускает тему в повторение, как сад растёт и вянет и чего сервер никогда не доверит браузеру. Код написан с Claude под моим руководством. Я проверял его по ходу, и ничего не попало в приложение без моего решения."
     },
     demo: {
-      en: "You are in the demo. It has no server: there are no accounts, the Forum stands in the museum, and your progress stays in this browser. The Museum, in the lobby, explains how the rest was meant to work.",
-      ru: "Вы в демо. У него нет сервера: аккаунтов нет, форум стоит в музее, а прогресс хранится только в этом браузере. Как было задумано остальное, рассказывает Музей в лобби."
+      en: "You are in the demo. There is no server behind it to keep accounts or rankings, so the Forum stands in the museum and your progress stays in this browser. The Museum, in the lobby, explains how the rest was meant to work.",
+      ru: "Вы в демо. За ним нет сервера, который хранил бы аккаунты и рейтинги, поэтому форум стоит в музее, а прогресс хранится только в этом браузере. Как было задумано остальное, рассказывает Музей в лобби."
     },
     real: {
       en: "This is the real app. Its server has been switched off since 2026, so signing in no longer works. The demo opens without an account: isk1zz.github.io/knell_demo",
       ru: "Это настоящее приложение. Его сервер выключен с 2026 года, поэтому войти уже не получится. Демо открывается без аккаунта: isk1zz.github.io/knell_demo"
     },
-    source: { en: "The full source and its history: github.com/Isk1zz/Dojo-Gamify-Learn",
-              ru: "Весь код и его история: github.com/Isk1zz/Dojo-Gamify-Learn" },
-    sign: { en: "Illia", ru: "Illia" },
+    // No link to the source repository: its author does not plan to carry
+    // it on, so the letter does not point there (2026-11-22).
+    sign: { en: "Illia “isk1zz”", ru: "Illia «isk1zz»" },
     close: { en: "Close", ru: "Закрыть" }
   };
   const t = key => {
@@ -70,7 +74,6 @@
     add("p", "letter-p", t("what"));
     add("p", "letter-p", t("who"));
     add("p", "letter-p", t(Dojo.DEMO ? "demo" : "real"));
-    add("p", "letter-p", t("source"));
     add("p", "letter-sign", "— " + t("sign"));
     const ok = add("button", "btn-primary letter-close", t("close"));
     ok.addEventListener("click", closeLetter);
@@ -81,6 +84,9 @@
   function onKey(e) { if (e.key === "Escape") closeLetter(); }
   function openLetter() {
     if (!box) build();
+    // Paper sliding out and unfolding (core/sfx.js), from the mailbox or
+    // from the museum alike.
+    if (Dojo.sfx && Dojo.sfx.letter) Dojo.sfx.letter();
     box.style.display = "flex";
     document.addEventListener("keydown", onKey);
     const ok = box.querySelector(".letter-close");

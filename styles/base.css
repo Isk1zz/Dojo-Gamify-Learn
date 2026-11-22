@@ -383,7 +383,6 @@ body {
 .pd-avatar-swatch:hover { transform: translateY(-1px); }
 .pd-avatar-swatch.active { border-color: var(--accent); background: var(--accent-glow); }
 .pd-avatar-icon { font-size: 1.15rem; }
-.pd-avatar-price { font-size: 0.62rem; font-family: var(--mono); color: var(--text-muted); }
 
 .pd-profiles-list {
   max-height: 140px;

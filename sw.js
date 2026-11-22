@@ -1,376 +1,41 @@
 // ================================================
-// Knell — service worker
+// Knell — service worker: RETIRED on 2026-11-22
 // ------------------------------------------------
-// Makes the app installable and genuinely offline. It is the ONLY file
-// in the project that isn't loaded by index.html — the browser runs it
-// separately, which is why it can't use anything from Dojo or DB.
+// Knell no longer caches itself for offline use ("remove offline"). The
+// worker that lived here served a returning visitor the copy it had
+// kept, so the first visit after an update could show an old screen:
+// it happened on the live demo the day this was written, the start
+// screen still a junction after the garden had shipped. Now every visit
+// loads from the network, every visitor sees the current version, and
+// nothing suggests the app works without a connection.
 //
-// ---- Why there is no file list ----
+// The file stays as a kill switch, for browsers that still run the old
+// worker. They check this script on their next visit, find it changed,
+// and install it; it deletes this app's own caches and nobody else's
+// (several apps share isk1zz.github.io, and so one Cache Storage),
+// unregisters itself, and reloads the open pages so that they come from
+// the network. It has no fetch handler, so it never answers a request.
+// index.html registers nothing any more, and removes a leftover worker
+// and caches itself on the visits after that.
 //
-// The obvious service worker precaches an array of every asset. That
-// array then has to be kept in sync by hand with index.html's ~30
-// script tags, forever, and the failure mode is silent: you add a file,
-// forget the array, and the app half-works offline for the one person
-// who installed it.
-//
-// So: precache only index.html, then cache every same-origin GET as it
-// is actually fetched (stale-while-revalidate). After one visit the
-// whole app is cached, and adding a course or a branch needs no change
-// here at all. That matters more than a cold-start-perfect first load.
-//
-// ---- Updating ----
-// Bump CACHE_VERSION. Old caches are deleted on activate, and the new
-// worker takes over the next time every tab is closed and reopened.
-// Nothing auto-reloads mid-session: a study app swapping its JS out
-// from under someone mid-exam is worse than a stale tab.
-//
-// ---- Note on file:// ----
-// Service workers only run over http(s) or localhost. Double-clicking
-// index.html still works exactly as before — you just don't get the
-// offline cache or the install prompt. That is deliberate: the no-build,
-// open-the-file property is not being traded away for this.
+// CACHE_VERSION only names this app's cache family now: tools/make-demo.js
+// renames it to knell-demo-v… in the demo copy, which is how each copy
+// deletes its own caches and no other app's. The worker that was here,
+// and every version note it carried, is in git up to commit 4b57d4e.
 // ================================================
-
-// Bumped 2026-08-16: the Arcade branch (games.js, games.css) was deleted
-// and several files changed meaning. Stale-while-revalidate would have
-// refreshed the live ones eventually, but the DELETED ones would have
-// sat in the old cache indefinitely — nothing re-fetches a file that no
-// longer exists. Bumping drops the whole cache and starts clean.
-// Bumped 2026-08-24: core/i18n.js is a NEW file that library.js now
-// depends on at load time. Stale-while-revalidate serves the cached
-// index.html first, so a returning device would have got the OLD index
-// (no <script src="core/i18n.js">) together with the NEW library.js —
-// and library.js reads I18N.t() while building PHASE_META, at load.
-// Result: ReferenceError, Content never renders, blank Library, fixed
-// only by opening the app a second time.
-//
-// This is the case the header's "Updating" note is for, and it is worth
-// stating the rule sharply: a stale cache is acceptable when old files
-// merely render old content, and NOT acceptable once one file needs
-// another file to exist. Adding a script tag that something depends on
-// is exactly that line. Bump when you add a file, not just when you
-// delete one.
-// Bumped 2026-08-24 again: library/exam-sim.js is another new file, and
-// core/i18n.js gained the strings it renders with. A stale i18n.js
-// beside a fresh exam-sim.js would put raw keys like "sim.begin" on the
-// buttons — not a crash this time, because library.js reaches the
-// feature through a `Dojo.examSimEntry` guard, but still a broken
-// screen. Same rule as v5: adding a file that something else reads
-// means bumping.
-// Bumped 2026-08-24 a third time, and this one is not about a new file:
-// v6 shipped a mock exam you could not leave. Stale-while-revalidate
-// would hand the fix over on the SECOND open, which is the wrong shape
-// for "the exit button is dead" — the person hitting it is stuck now.
-// Bump when a cached copy is actively broken, not only when files are
-// added.
-// Renamed 2026-08-24 with the app: Knell. Safe to rename HERE and
-// nowhere else — a cache key is disposable by design (activate deletes
-// everything that isn't the current version), whereas the localStorage
-// keys in db.js, i18n.js and exam-sim.js address saved data and keep
-// their old names forever. The rename doubles as the bump that
-// index.html and the manifest need anyway.
-// Bumped for the first-run language gate: index.html gained the
-// overlay markup and core/i18n.js the code that reveals it. A stale
-// pairing shows a gate with dead buttons, or no gate at all on a device
-// that never chose.
-// Bumped again: tickets removed from db.js/admin.js, and flashcard
-// decks now include exam questions. Both are behaviour changes across
-// files that load together.
-// Bumped for interface translation pass 1: index.html gained ~56
-// data-i18n nodes and i18n.js the keys behind them. Split across a
-// stale cache that is a screen of raw keys.
-// Bumped for lazy course loading. This one MATTERS more than the usual
-// bump: index.html no longer carries the ten intro-cs <script> tags, and
-// intro-cs/course.js now builds its units from a factory that reads the
-// modules after they are injected. A stale index.html paired with a new
-// course.js (or the reverse) yields a course that registers with zero
-// units and a Library card reading "0 units" — which is exactly what a
-// stale cache produced while this was being tested, and it cost a round
-// of chasing a scoping bug that was not there.
-// Bumped for core/crypto.js: a new file in band 1. A cached index.html
-// without its tag means Dojo.Crypto is simply absent, and every caller
-// has to guess whether that means "not supported here" or "stale cache".
-// Bumped for the road-signs topic in bike-a3: data_m1.js gained a
-// seventh topic, and exam-sim.js gained the `official: false` guard that
-// keeps that topic's questions out of the mock exam. Cached apart, the
-// mock exam would draw 45 questions and stop being a simulation of the
-// Ministry's forty.
-// Bumped for interface translation pass 2: 40 new i18n keys, and the
-// shop/garden/stats catalogues turned into {en, ru} bags resolved through
-// I18N.resolve. A stale pairing shows raw keys or half-translated tiles.
-// Bumped for the Philosophy course: two new content files, a new
-// "humanities" shelf in library.js and the i18n key behind its label. A
-// stale index.html against a fresh library.js gives a shelf with no course
-// under it.
-// Bumped for three contract strings that survived every earlier
-// translation pass: "Sign & Enter", "Sign here", and the fineprint line,
-// which also still said "Dojo" instead of "Knell". Found during a live
-// walkthrough of the Philosophy course.
-// Bumped again in the same walkthrough: the topic-map back button
-// ("← Units") had no data-i18n at all and was missed by every earlier
-// sweep because it carries no emoji and sits in a two-element flex
-// wrapper my filters did not check.
-// Bumped a third time in the same walkthrough: the Map/List view
-// toggle on the unit-map and topic-map screens (4 buttons, 2 screens)
-// carried no data-i18n and no I18N.t call anywhere.
-// Bumped a fourth time: the "Analogy" and "Sources & further reading"
-// labels inside every lesson chunk carried no I18N.t call. These show on
-// EVERY chunk of EVERY course with an analogy or a source list, so this
-// was the widest-reaching gap found in the walkthrough.
-// Bumped a fifth time: the predict-phase "Back to explanation" button.
-// Bumped a sixth time: the whole mastery-exam result screen (title,
-// two buttons, the score description with day-count pluralisation) was
-// entirely hardcoded English. The widest single gap found in this
-// walkthrough -- it shows after every exam on every course.
-// Bumped a seventh time: the exam header (title suffix, subtitle,
-// question counter) and the quiz-phase next-chunk button duplicated
-// English strings that renderRecall already had translated via
-// existing btn.* keys -- the two render paths had simply drifted apart.
-// Bumped an eighth time: quiz feedback ("Correct!" / "Wrong — the
-// answer is X") and the exam-navigation buttons (Next Question, See
-// Results) were hardcoded independently in two render paths.
-// Bumped for the Supabase client scaffolding: core/supabase.js is a
-// new file in band 1, and the supabase-js CDN script is new too. Not
-// wired into any UI yet -- Dojo.Cloud.isConfigured() is false until
-// SUPABASE_URL/ANON_KEY are filled in, so this bump is precautionary,
-// not because anything user-facing changed.
-// Bumped for Philosophy topic 3: "Что он думал" -- De Re Publica (the
-// rector ideal, retroactively explaining topic 2's Catiline/Octavian
-// beats), De Officiis (sapientia vs calliditas), Tusculan Disputations
-// (closes the circle back to topic 1's death scene).
-// Bumped for the topic-3 accuracy review: six factual corrections
-// (Tusculans set-at vs written-at, a two-and-a-half-year interval called
-// eighteen months, Tullia listed in the wrong window, a backwards
-// Petrarch clause, Off. 2.24 miscited as Book One), one RU typo, and a
-// quiz-answer rebalance that pulled C off the 45% ceiling.
-// Bumped for the About-this-course blocks: a new `about` manifest field
-// carried through registry.js, rendered on unit-select, with content for
-// all three built courses. Also fixes a mis-cited De Re Publica section.
-// Bumped again: About block now also in the pre-purchase buy modal (with
-// a working unit count for lazy/unloaded courses); Garden no longer
-// force-opens an empty course plot on first paint; the sign-contract
-// modal explains signing plants the course's first Garden seed.
-// Bumped for the live Supabase connection: core/supabase.js now carries
-// a real project URL and publishable key instead of two empty strings.
-// A stale copy is the version that still believes the backend is not
-// configured, so every Cloud call throws the "not configured" error --
-// which reads exactly like a broken backend rather than a cached file.
-// Bumped for the cheat-code removal: Settings lost its Unlock-code box,
-// index.html lost the settings/codes.js tag, i18n.js lost five keys and
-// db.js lost applyAdminCode. A stale index.html against a fresh
-// settings.js renders a code box whose handler no longer exists.
-// Bumped for the account gate: core/auth.js is a NEW file index.html
-// must load, plus new i18n keys, the #auth-modal markup and the profile
-// dropdown losing its switcher. A stale index.html against a fresh
-// profile.js is a dropdown wired to elements that no longer exist.
-// Bumped for Step 4: core/migrate-cloud.js is a NEW file index.html must
-// load, and auth.js calls it. A stale index.html means Dojo.CloudMigrate
-// is simply absent and the claim silently never runs.
-// Bumped for Step 6: core/sync.js is a NEW file, plus the sync.offline
-// i18n key and .sync-notice CSS it renders with. A stale index.html
-// means Dojo.Sync is absent and nothing ever reaches the cloud.
-// Bumped for Step 7: corrected privacy/ToS text (the old copy claimed
-// no account and no server, both false since Step 3), a new
-// #delete-account-modal in index.html, and the deleteAccount plumbing
-// in supabase.js/auth.js. A stale index.html gives a delete button with
-// no modal to open.
-// Bumped for the admin-gate fix: admin/admin.js lost MASTER_ADMIN_KEYS
-// and its passcode challenge, data/db.js lost SECRET_ADMIN_NAME. A
-// stale admin.js is the version that still accepts a typed public
-// string, which is the whole hole being closed.
-// Bumped for the run-through fixes: buyCourse now goes through the
-// buy_course RPC (it was still spending locally, so the server-side
-// paywall existed but was never called), and the sign-up nickname now
-// lands after the claim instead of being overwritten by it.
-// Bumped: the delete-account modal blamed the network when the real
-// cause was "not signed in", and the section now hides entirely when
-// there is no account on the device.
-// Bumped: the landing page still promised "no account needed", which
-// has been false since the sign-in gate shipped -- the first thing a
-// new visitor read, and the third stale local-only claim found.
-// Bumped: the server economy is now mirrored into the local profile on
-// sign-in and every sync -- without it the HUD showed 0 tokens while the
-// account held 5000. Also disables the demo token-pack stub, which
-// credited local tokens the server-side paywall correctly ignores.
-// Bumped for nickname login: sign-in accepts an email OR a nickname
-// (0007 adds the lookup RPC + a unique index), the field is relabelled
-// per mode, and sign-up rejects a taken nickname up front.
-// Bumped: poking a bird now looses an arrow at it -- 75% miss, 17%
-// stuck (flies on wounded), 8% downed (tumbles out of the sky), with
-// feather counts reworked to tell you which happened.
-// Bumped for the pentagram star-links mode: core/lobby.js draws it,
-// base.css styles it, and Custom lists it alongside Spokes and Star of
-// David.
-// Bumped for the first-run appearance picker: core/onboard.js is a NEW
-// file, with its bar markup in index.html and onb.* strings in i18n.
-// Bumped for praise on replies: rep_grants goes polymorphic, replies
-// gain a score column, forum.js renders a give-button per reply, and
-// supabase.js grantReputation takes a target rather than a post id.
-// Bumped for withering and holiday: garden.js gains effectiveInterval,
-// db.js the holiday state and the due-date shift, settings.js the
-// holiday section, sync.js pullHoliday, supabase.js three RPCs, i18n
-// the set.holiday* set. A stale pairing shows a holiday switch that
-// cannot talk to the functions behind it.
-// Bumped for the notification bell: hud.js gains the bell and its panel,
-// supabase.js notifications/notificationCount/markBellSeen, i18n the
-// bell.* set, shop.css the .vital-bell and .bell-panel rules. A stale
-// pairing gives a bell with no strings behind it.
-// Bumped for view counts: forum.js gains an IntersectionObserver with a
-// 5s dwell threshold, supabase.js markViewed, plus the privacy policy
-// gaining legal.privacyForum. A stale i18n against a fresh settings.js
-// would print a raw key inside the policy.
-// Bumped for forum step 5: writing. forum.js gains the compose box and
-// threads, supabase.js createPost/createReply/writeStatus/replies, i18n
-// the forum.compose* set, base.css the .compose and .thread rules.
-// Bumped for forum step 4: the feed. forum/forum.js renders posts and
-// the give-button, supabase.js gains feed/myGrants/grantReputation,
-// i18n gains the forum.feed* set, base.css the .post rules.
-// Bumped for forum step 3: forum/forum.js reads its figures from the
-// server instead of a local balance, i18n gains the forum.given/gotMonth
-// /gotTotal set, and base.css swaps .forum-rep for the four-number
-// layout. A stale pairing shows raw keys where the numbers should be.
-// Bumped for rank rewards: core/boot.js stops crediting Tokens locally
-// and claims them from the server, which verifies the rank against its
-// own charge_earned. A stale boot.js would keep minting Tokens that the
-// next sync erases.
-// Bumped for earning moving to the server: core/earn.js is a NEW file
-// with a script tag in index.html, library.js stops granting anything
-// itself, hud.js splits awardCharge, db.js gains addXpRaw, and
-// supabase.js swaps awardXp for claimEarning. A stale cache here would
-// keep minting XP locally that the next sync silently erases.
-// Bumped for the Garden explainer replacing the dividend payout:
-// garden/garden.js loses claimDividends and gains explainPanel,
-// styles/garden.css swaps .garden-dividends for .garden-explain, and
-// i18n drops four dead keys for the garden.ex.* set. A stale cache
-// here would keep serving a Claim button that no longer has any code
-// or any system behind it.
-// Bumped for the SM-2 ease constant in data/db.js: quality 4 used to
-// cost nothing, so a learner who scraped through every review kept a
-// flat 2.5 ease and the same interval ladder as a perfect one. A stale
-// cache here would keep scheduling reviews off the old curve — silently,
-// since the numbers look plausible either way, which is the worst kind
-// of stale file to serve.
-// Bumped for sign-in being switched off (Dojo.OPEN_ACCESS in
-// core/core.js): core.js, auth.js, profile.js, theme.js, db.js,
-// tokens.js, settings.js, i18n.js and base.css all change. A stale
-// cache here is the worst case for this change in particular — it would
-// keep serving the mandatory login gate against a server that no longer
-// resolves, which locks everybody out of the app entirely.
-// Bumped for course scenes: scenes/scene.js and scenes/bike-a3.js are
-// new, index.html loads them, library.js draws one on the course screen
-// and stops locking topic order under open access, and i18n.js and
-// library.css gain the scene's strings and layout. The start screen is
-// rebuilt around the same scene (index.html, boot.js, base.css), with a
-// demo line replacing the account promise under open access. A stale index.html
-// here would load a library.js that looks for Dojo.Scenes and never
-// finds it — harmless, the course would just open without its scene,
-// which is exactly why it would go unnoticed.
-// Bumped for the lobby's clickability hint: index.html gains the line
-// under the welcome, i18n.js its string, shop/decor.js announces a tap
-// that hit nothing, core/lobby.js lights the controls on one, and
-// base.css styles both. v69 is already live, so a stale cache would
-// keep a returning visitor on the lobby without either.
-// Bumped for the demo split: core/demo.js is new and loads first,
-// core.js turns sign-in back on outside the demo, boot.js seeds the
-// demo's sample profile and routes its Forum tile to a note, and the
-// cleanup below now spares caches that are not this app's own. A stale
-// cache here would keep a returning visitor on the open-access build.
-// Bumped for the Intro to CS room: scenes/intro-cs.js is new, scene.js
-// gains walls, wall art and indoor pieces, and library.js lets a pin
-// stand for a whole unit and open its topic map. A stale cache would
-// open Intro to CS with no room in it, unnoticed.
-// Bumped for the Museum: museum/museum.js is new, index.html gains its
-// screen and script, boot.js and lobby.js give the Forum's tile to it in
-// the demo, i18n.js and base.css gain its strings and cards, and demo.js
-// loses the note it replaces. A stale boot.js in the demo would send the
-// tile to the Forum, which the demo copy no longer has.
-// Bumped for the sky's crosshair: shop/decor.js tests what is under the
-// mouse as it moves and base.css draws the cursor. A stale pair would
-// only mean the old plain arrow, but the two have to arrive together.
-// Bumped again the same day: the scope covers the whole lobby and locks
-// on over targets (decor.js), the lobby's wheel takes darts (lobby.js
-// decides, decor.js draws, base.css animates), and a miss lights the
-// controls dimmer and only one time in four (lobby.js, base.css). A
-// stale lobby.js beside a fresh decor.js would just mean no darts.
-// Bumped for the dartboard: decor.js announces how many darts are in,
-// lobby.js shows a faint board on the wheel while any are, base.css
-// fades it. And index.html now reloads once when an update takes over
-// a page right after it opened, which is what mixed versions on the
-// live demo's first visit after v75. That fix is in index.html, so it
-// first protects the update AFTER this one.
-// Bumped for the new start screen: scenes/knell-garden.js is new (a
-// garden at night with a bell tower), scene.js gains roofs, doors, the
-// growth-stage plants, a bench and a bell that swings, boot.js renders
-// it with a caption that changes per stage, sfx.js rings the bell, and
-// i18n.js has the caption. A stale index.html would not load the new
-// recipe, so the start screen would be left with no scene at all.
-// Before v77 shipped, the same version also took: people, a beach, a
-// buffet, a café and a reading corner in the garden, drawn by new
-// sprites in scene.js; the stages drawn larger with their symbol in the
-// caption (boot.js, base.css); core/letter.js and the mailbox that holds
-// it; and the museum's halls (museum/museum.js, base.css, i18n.js).
-// Also: the garden by day (scene.js, the recipe, boot.js redraws it when
-// the sky changes); a note pinned to a tapped stage (boot.js, base.css);
-// core/peel.js, the foil sticker over a newcomer's rank line that takes
-// seven seconds to peel and opens a guide to the ranks; and demo.js,
-// letter.js and peel.js reading the language with typeof, because
-// window.I18N never existed and so they always spoke English.
-const CACHE_VERSION = "knell-v77";
-const SHELL = ["./", "./index.html"];
-
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION)
-      .then(cache => cache.addAll(SHELL))
-      .then(() => self.skipWaiting())
-  );
-});
-
-// Only this app's OWN old caches are deleted. Every project page under
-// isk1zz.github.io shares one origin and so one Cache Storage: the real
-// app ("knell-v70") and the demo ("knell-demo-v70") live side by side,
-// and deleting everything that isn't our exact version used to mean
-// each one emptied the other's cache whenever it updated.
+const CACHE_VERSION = "knell-v78";
 const CACHE_FAMILY = CACHE_VERSION.replace(/\d+$/, "");   // "knell-v" or "knell-demo-v"
 
+self.addEventListener("install", () => self.skipWaiting());
+
 self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_VERSION && k.startsWith(CACHE_FAMILY) && /^\d+$/.test(k.slice(CACHE_FAMILY.length)))
-          .map(k => caches.delete(k))
-      ))
-      .then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener("fetch", event => {
-  const req = event.request;
-
-  // Only same-origin GETs. Anything else (a POST, a CDN font) goes
-  // straight to the network and is never cached.
-  if (req.method !== "GET") return;
-  const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
-
-  event.respondWith(
-    caches.open(CACHE_VERSION).then(cache =>
-      cache.match(req).then(cached => {
-        const network = fetch(req)
-          .then(res => {
-            // Only cache real successes. Caching a 404 or an opaque
-            // response is how an app ends up permanently broken offline.
-            if (res && res.status === 200 && res.type === "basic") {
-              cache.put(req, res.clone());
-            }
-            return res;
-          })
-          .catch(() => cached || caches.match("./index.html"));
-
-        // Serve the cache immediately when there is one; the network
-        // copy refreshes it for next time.
-        return cached || network;
-      })
-    )
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys
+      .filter(k => k.startsWith(CACHE_FAMILY) && /^\d+$/.test(k.slice(CACHE_FAMILY.length)))
+      .map(k => caches.delete(k)));
+    await self.registration.unregister();
+    const pages = await self.clients.matchAll({ type: "window" });
+    await Promise.all(pages.map(p => p.navigate(p.url).catch(() => { /* not ours to reload */ })));
+  })());
 });

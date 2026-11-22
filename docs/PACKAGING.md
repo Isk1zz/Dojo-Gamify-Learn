@@ -11,6 +11,13 @@ runs. Every option below preserves that — nothing here is required for the app
 to work, and if you delete `sw.js`, `manifest.webmanifest` and `icons/`, you
 are back exactly where you started.
 
+> **Changed 2026-11-22: no more offline caching.** The service worker below
+> is retired. It served a returning visitor the copy it had kept, so the
+> first visit after an update could show an old screen. `sw.js` is now a
+> kill switch that deletes the app's own caches and unregisters itself;
+> `index.html` registers nothing. The manifest and icons stay, so Knell can
+> still be added to a home screen, but it needs a connection to open.
+
 > **Corrected 2026-09-02: "no dependency and no server" is no longer true.**
 > The line said all three for months after Supabase landed. supabase-js is a
 > real dependency (loaded from a CDN, still no npm) and there is a real

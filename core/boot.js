@@ -308,9 +308,21 @@
 
     const drawGarden = () => Dojo.Scenes.render(sceneHost, "knell-garden", {
       lang: I18N.lang(),
-      onPick: showNote,
-      onChapter: ({ act }) => {
+      // A sound trail ("a nice sound trail ... for numbers 1 through 6"):
+      // each pin's note on the tap, the notes of the stages he runs past,
+      // and a softer one where he lands, or the bell at the tower.
+      onPick: info => {
+        showNote(info);
+        if (!Dojo.sfx) return;
+        if (info.act === "letter") { if (Dojo.sfx.mailbox) Dojo.sfx.mailbox(); }
+        else if (typeof info.n === "number" && Dojo.sfx.stage) Dojo.sfx.stage(info.n);
+      },
+      onPass: ({ n }) => {
+        if (typeof n === "number" && Dojo.sfx && Dojo.sfx.stage) Dojo.sfx.stage(n, true);
+      },
+      onChapter: ({ act, n }) => {
         if (act === "bell" && Dojo.sfx && Dojo.sfx.bell) Dojo.sfx.bell();
+        else if (!act && typeof n === "number" && Dojo.sfx && Dojo.sfx.stage) Dojo.sfx.stage(n, true);
         // The mailbox at the gate holds a letter (core/letter.js).
         if (act === "letter" && Dojo.openLetter) Dojo.openLetter();
       }

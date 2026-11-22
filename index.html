@@ -25,27 +25,6 @@
   <link rel="stylesheet" href="styles/shop.css" />
   <link rel="stylesheet" href="styles/admin.css" />
 
-  <!-- An update takes over the moment it installs (sw.js: skipWaiting).
-       A page opened under the old version then fetched the rest of its
-       files from the new one, so the first visit after an update mixed
-       an old index.html with new scripts (seen on the live demo on
-       2026-11-22: its Museum tile could not open). When that happens
-       right after opening, reload once, into the new version. Never on
-       a first visit, which has nothing old to mix, and never later than
-       20 seconds in, so nobody is reloaded in the middle of a lesson.
-       Here in the head so it is listening before the takeover can land. -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      const hadController = !!navigator.serviceWorker.controller;
-      const openedAt = Date.now();
-      let reloading = false;
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
-        if (!hadController || reloading || Date.now() - openedAt > 20000) return;
-        reloading = true;
-        location.reload();
-      });
-    }
-  </script>
 </head>
 <body>
   <!-- ====== Lobby decorations (shop/decor.js + core/theme.js's
@@ -1016,17 +995,26 @@
   <!-- 4. Boot -->
   <script src="core/boot.js"></script>
 
-  <!-- 5. Service worker.
-       Guarded twice: browsers without support, and file:// where service
-       workers aren't allowed at all. Opening index.html by double-click
-       must keep working, so a failure here is silent by design. -->
+  <!-- 5. No service worker any more: Knell does not cache itself for
+       offline use (2026-11-22; sw.js says why, and is now only a kill
+       switch for browsers that still run the old one). For a browser
+       that has this app's old worker or caches left, remove them here
+       too, and only this app's own: other apps share isk1zz.github.io,
+       its service workers and its Cache Storage. -->
   <script>
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("sw.js").catch(err => {
-          console.info("[sw] not registered:", err.message);
-        });
-      });
+      const here = new URL(".", location.href).href;
+      navigator.serviceWorker.getRegistrations()
+        .then(rs => rs.forEach(r => { if (r.scope === here) r.unregister(); }))
+        .catch(() => {});
+      if (window.caches) {
+        const family = Dojo.DEMO ? "knell-demo-v" : "knell-v";
+        caches.keys()
+          .then(keys => keys
+            .filter(k => k.startsWith(family) && /^\d+$/.test(k.slice(family.length)))
+            .forEach(k => caches.delete(k)))
+          .catch(() => {});
+      }
     }
   </script>
 </body>

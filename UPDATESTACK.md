@@ -11,9 +11,13 @@ Asked for as a stack item («sfx and vfx to update stack»). Not started,
 and the scope is still to be set with the author. What exists to build
 on:
 
-- **Sound** (core/sfx.js): five synthesized sounds and no audio files: a
-  click on every button, right and wrong answers, a reward, and the start
-  screen's bell. Off with Settings' sound switch.
+- **Sound** (core/sfx.js): synthesized, no audio files: a click on every
+  button, right and wrong answers, a reward, and on the start screen the
+  bell, a note for each growth stage, rising up a pentatonic scale, that
+  also plays as the runner passes each stage, and the mailbox's tin clack
+  and the letter's paper swish, the first sound made from filtered noise
+  rather than a tone (all added 2026-11-22). Off with Settings' sound
+  switch.
 - **Effects** (shop/decor.js, scenes/scene.js): what a poke at the sky
   does (rain, lightning, a rainbow, a fairy, arrows at birds, darts at the
   lobby's wheel, bats from the moon), streak confetti, and the scenes'

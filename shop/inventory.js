@@ -170,18 +170,18 @@
     }
 
     // ---- Avatars ----
-    const owned = DB.getOwnedAvatars ? DB.getOwnedAvatars() : [];
-    if (owned.length) {
+    // All of them, not only the ones bought: avatars are free since
+    // 2026-11-22 (shop/avatars.js). Equipping goes through DB.buyAvatar
+    // at a price of 0, which records the avatar as the profile's and
+    // wears it, the same as the profile dropdown does.
+    const table = Dojo.AVATARS || [];
+    if (table.length) {
       const equippedAvatar = DB.getAvatar ? DB.getAvatar() : null;
-      const table = Dojo.AVATARS || [];
       out.push({
         key: "avatar", group: "theme", icon: "\u{1F464}", title: { en: "Avatars", ru: "Аватары" },
-        items: owned.map(id => {
-          const a = table.find(x => x.id === id);
-          return { id, name: a ? a.name : id, glyph: a ? a.icon : "?", swatch: null,
-                   equipped: id === equippedAvatar };
-        }),
-        equip: id => { DB.setAvatar(id); if (Dojo.updateProfileBadge) Dojo.updateProfileBadge(); }
+        items: table.map(a => ({ id: a.id, name: a.name, glyph: a.icon, swatch: null,
+                                 equipped: a.id === equippedAvatar })),
+        equip: id => { DB.buyAvatar(id, 0); if (Dojo.updateProfileBadge) Dojo.updateProfileBadge(); }
       });
     }
 

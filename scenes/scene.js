@@ -20,8 +20,8 @@
 //   Dojo.Scenes.render(container, id, { lang, onChapter })
 //     -> { svg, goTo(pinIndex), destroy() }
 //   onChapter({ index, n, topic, unit, label, act, say, icon }) fires
-//   when the runner arrives, and onPick({ ..., el }) the moment a pin is
-//   tapped. A pin may also carry `act`, naming a piece that does
+//   when the runner arrives, onPick({ ..., el }) the moment a pin is
+//   tapped, and onPass({ index, n }) as he runs past another pin's spot. A pin may also carry `act`, naming a piece that does
 //   something when he gets there (the start screen's bell swings), and
 //   `say` and `icon`, a sentence and a symbol for the caller to show.
 // ================================================
@@ -1236,6 +1236,12 @@
           r.pos = b.slice();
           left -= d;
           r.seg++;
+          // Passing another pin's spot on the way is announced (onPass):
+          // the start screen plays each stage's note as he goes by.
+          if (opts.onPass && r.seg < r.path.length - 1) {
+            const id = r.pathIds[r.seg], k = id ? (recipe.pins || []).findIndex(p => p.stand === id) : -1;
+            if (k >= 0) opts.onPass({ index: k, n: recipe.pins[k].n });
+          }
           if (r.seg >= r.path.length - 1) {
             r.node = r.pathIds[r.pathIds.length - 1];
             r.path = null;

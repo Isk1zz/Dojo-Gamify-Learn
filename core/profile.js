@@ -139,27 +139,23 @@
     }
   });
 
-  // Bought with $, equipped on purchase — same one-click "buy = wear it"
-  // flow the old life-shop's shelter tiers used. Re-clicking an OWNED
-  // avatar just re-equips it (or lets you switch back after trying
-  // another), never charges twice.
+  // Free since 2026-11-22 (shop/avatars.js says why): a click wears it.
+  // It still goes through DB.buyAvatar, at a price of 0, because that is
+  // the one place that records an avatar as the profile's and equips it;
+  // with nothing to pay, nothing is taken from the wallet.
   function renderAvatarGrid() {
     const grid = document.getElementById("pd-avatars-grid");
     const walletNote = document.getElementById("pd-avatar-wallet");
     if (!grid || !AVATARS) return;
-    const owned = new Set(DB.getOwnedAvatars ? DB.getOwnedAvatars() : []);
     const equipped = DB.getAvatar ? DB.getAvatar() : null;
-    const wallet = DB.getWallet ? DB.getWallet() : 0;
-    if (walletNote) walletNote.textContent = `$${wallet}`;
+    if (walletNote) walletNote.textContent = "";
 
     grid.innerHTML = AVATARS.map(a => {
-      const have = owned.has(a.id);
       const active = equipped === a.id;
       return `
         <button type="button" class="pd-avatar-swatch${active ? " active" : ""}" data-avatar="${a.id}"
-                title="${a.name}${have ? "" : ` — $${a.price}`}">
+                title="${a.name}">
           <span class="pd-avatar-icon">${a.icon}</span>
-          ${have ? "" : `<span class="pd-avatar-price">$${a.price}</span>`}
         </button>`;
     }).join("");
 
@@ -168,7 +164,7 @@
         const id = btn.getAttribute("data-avatar");
         const a = AVATARS.find(x => x.id === id);
         if (!a) return;
-        const ok = DB.buyAvatar(id, a.price);
+        const ok = DB.buyAvatar(id, 0);
         if (!ok) {
           btn.classList.add("shake");
           setTimeout(() => btn.classList.remove("shake"), 350);
