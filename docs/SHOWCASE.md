@@ -23,7 +23,7 @@ Four groups, in order of how real they are:
 | **Flashcard reviews** | `library/library.js` | A due topic is reviewed as a deck built from content that already exists: one card per chunk quiz plus one per exam question. | No separate flashcard authoring. The self-rating these cards use is the system's weakest measurement, see section 3, item 6. |
 | **The Garden** | `garden/garden.js` | Each mastered topic is a plant, and **its growth stage is its review interval**: a sprout at 1 day, a blossom at 60+. A neglected topic loses a day of interval per overdue day after a 7-day grace. Holiday mode pauses that, up to 60 days a year. | It pictures what you remember, not what you once finished. A hundred topics passed once is a field of sprouts. |
 | **Course scenes** | `scenes/scene.js`, `scenes/bike-a3.js` | The e-bike course is drawn as an isometric diorama of a junction at night. Its seven chapters stand where they happen: *Junctions* at the junction, *Lights & gear* under a street lamp. Pick one and a small figure runs there along the sidewalks, **crossing only at zebras**, then opens it. | Borrowed from Knell Atlas, a separate 3D encyclopedia project, and translated to flat SVG for phones. The rule taken with it: **one engine, a data recipe per course**, never a drawing per course, so the second scene costs a fraction of the first. |
-| **Start screen** | `index.html`, `core/boot.js` | The real course scene, playable before you begin. Under the button, a line that says this is a demo with no account. | The first thing a visitor reads has to be true. The previous line promised an account that syncs to any device. |
+| **Start screen** | `index.html`, `core/boot.js`, `scenes/knell-garden.js` | A garden at night with a bell tower, playable before you begin. The Garden's five growth stages stand along one path, smallest at the gate; tap one and a small paper note beside it gives the stage's symbol from the Garden and what it means, while the runner goes there. The sixth pin is the bell, which he rings, and a mailbox at the gate holds a letter to whoever opens the app. Under the button, a line that says this is a demo with no account. | The first thing a visitor reads has to be true. The previous line promised an account that syncs to any device. *Changed 2026-11-22:* the picture was the e-bike junction, which showed one course; the garden shows the idea behind all of them, and the bell is the name. |
 | **Mock exam** | `library/exam-sim.js` | For the e-bike course: 30 questions, 40 minutes, 26 to pass, built from the course manifest. | The real test's terms. The course carries the Ministry of Transport's published question bank. |
 | **Two languages** | `core/i18n.js` | English and Russian. Interface strings are `{ en, ru }` "language bags", over 350 of them. Two of the three real courses carry content in the same shape; Intro to CS is English only. | One shape for both, so a translation pass is a fill-in, not a rewrite. |
 | **Look and feel** | `core/theme.js`, `shop/` | Themes, a day and night sky, cosmetics. All unlocked in the demo. | |
@@ -66,8 +66,10 @@ holds no Supabase address or key.
 
 **Changed 2026-11-22.** The demo copy now leaves the Forum out entirely,
 because without its server it could only be an empty screen. Its lobby
-tile opens a small museum (`museum/museum.js`), where the Forum is the
-first exhibit. It is the same tile with the same id, not a new one: two of
+tile opens a museum (`museum/museum.js`): short exhibits in plain words on
+how the courses, memory, the Garden, flashcards, scenes and accounts work,
+and on what was set aside, the Forum among them. The first start screen
+still runs there. It is the same tile with the same id, not a new one: two of
 the Star lobby looks count tiles exactly, and with one tile fewer the Star
 of David falls back to spokes and the pentagram is drawn lopsided.
 
@@ -143,7 +145,7 @@ Each decision, with the case made against it where there was one, is in
 | The oldest 57 lessons | Intro to CS modules 1–4 average 72–89 words and cite no sources, against a standard of about 200 words and two sources that the other 114 meet | Written before the standard existed; the rewrite was queued and never done |
 | Scenes for other courses | Two have one: the e-bike course (a junction, a pin per topic) and Intro to CS (a computer lab, a pin per unit, because 48 topics do not fit in one picture). Philosophy and the four empty courses have none | The engine is general; each course needs a recipe, not code. The lab added walls and wall art to the engine, and nothing course-specific |
 | Five more languages | Not started. Intro to CS is English only, 5,115 strings and no language bags | Decided: write in English first, translate as its own pass |
-| Light themes and the scene | The scene is a night picture on every theme | Not tuned yet |
+| Light themes and the scene | The start screen's garden follows the sky: under the day sky it is drawn in daylight, lamps out and no stars, and switching the sky redraws it (2026-11-22). The course scenes are still night pictures on every theme | Each scene needs its own daylight colours; the engine now takes them as part of a recipe |
 | Offline use | Not claimed | A service worker caches what has been visited, but a course that was never opened is not there offline |
 | Forum legal text | Not written | Needed before a public forum, not before a demo |
 | A nickname bug | Known: the chosen nickname does not reach the server profile | Moot while accounts are off; the diagnosis is in `UPDATESTACK.md` |

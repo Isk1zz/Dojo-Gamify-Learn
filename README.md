@@ -15,7 +15,7 @@ I designed Knell and directed every decision in it. The code was written with
 AI assistance (Claude).
 
 <p align="center">
-  <img src="docs/screenshots/start.jpg" width="32%" alt="Start screen with a playable course scene">
+  <img src="docs/screenshots/start.jpg" width="32%" alt="Start screen: a garden at night with a bell tower, the Garden's five growth stages along its path">
   <img src="docs/screenshots/course-scene.jpg" width="32%" alt="A course drawn as an isometric junction, chapters as pins">
   <img src="docs/screenshots/lesson.jpg" width="32%" alt="A lesson opening with a guess before reading">
 </p>

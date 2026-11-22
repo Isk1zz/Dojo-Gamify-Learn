@@ -19,7 +19,11 @@
 //   Dojo.Scenes.register(id, recipe)
 //   Dojo.Scenes.render(container, id, { lang, onChapter })
 //     -> { svg, goTo(pinIndex), destroy() }
-//   onChapter({ index, n, topic, label }) fires when the runner arrives.
+//   onChapter({ index, n, topic, unit, label, act, say, icon }) fires
+//   when the runner arrives, and onPick({ ..., el }) the moment a pin is
+//   tapped. A pin may also carry `act`, naming a piece that does
+//   something when he gets there (the start screen's bell swings), and
+//   `say` and `icon`, a sentence and a symbol for the caller to show.
 // ================================================
 (function () {
   "use strict";
@@ -126,7 +130,8 @@
     const { S, OX, OY } = P;
     const bd = recipe.backdrop || {};
 
-    for (let i = 0; i < (bd.stars || 46); i++) {
+    // != null, not ||: a day scene asks for 0 stars, and 0 must mean 0.
+    for (let i = 0; i < (bd.stars != null ? bd.stars : 46); i++) {
       el("circle", {
         cx: r1(rand() * VIEW_W), cy: r1(rand() * (OY + S)), r: r1(0.5 + rand() * 1.1),
         fill: "#fff", "fill-opacity": r1(0.2 + rand() * 0.6)
@@ -412,6 +417,43 @@
       const u = o.unit;
       drawBox(g, { x0: u[0], y0: u[1], x1: u[2], y1: u[3], h: 0.28, z0: z0 + h, wall: "#4a5262", windows: false }, P, col, rand, uid);
     }
+
+    // A door on one of the two faces toward the viewer: "x" is the face
+    // at x1, "y" the face at y1. Dark, centred, with a lit sill.
+    if (o.door) {
+      const dh = Math.min(1.0, h * 0.4), half = 0.24;
+      const q = o.door === "x"
+        ? (() => { const m = (y0 + y1) / 2; return [iso(x1, m - half, z0), iso(x1, m + half, z0), iso(x1, m + half, z0 + dh), iso(x1, m - half, z0 + dh)]; })()
+        : (() => { const m = (x0 + x1) / 2; return [iso(m - half, y1, z0), iso(m + half, y1, z0), iso(m + half, y1, z0 + dh), iso(m - half, y1, z0 + dh)]; })();
+      el("polygon", { points: pts(q), fill: "#0d0f14" }, g);
+      el("polyline", { points: pts([q[0], q[1]]), fill: "none", stroke: col("light"), "stroke-opacity": 0.55, "stroke-width": 1.2 }, g);
+    }
+
+    // A giant book lying flat: the box is its cover, the face toward the
+    // left shows the pages and the face toward the right is the spine,
+    // with a gold band where the title would be.
+    if (o.book) {
+      const lip = Math.min(0.06, h * 0.2), zA = z0 + lip, zB = z0 + h - lip;
+      el("polygon", { points: pts([iso(x0 + 0.05, y1, zB), iso(x1 - 0.05, y1, zB), iso(x1 - 0.05, y1, zA), iso(x0 + 0.05, y1, zA)]), fill: "#efe6cf" }, g);
+      for (let k = 1; k < 3; k++) {
+        const z = zA + (zB - zA) * k / 3;
+        el("polyline", { points: pts([iso(x0 + 0.05, y1, z), iso(x1 - 0.05, y1, z)]), fill: "none", stroke: "#cbbf9f", "stroke-width": 0.7 }, g);
+      }
+      const ya = y0 + (y1 - y0) * 0.3, yb = y0 + (y1 - y0) * 0.7, zm = (zA + zB) / 2;
+      el("polygon", { points: pts([iso(x1, ya, zm + 0.05), iso(x1, yb, zm + 0.05), iso(x1, yb, zm - 0.05), iso(x1, ya, zm - 0.05)]), fill: "#e2bd5a" }, g);
+    }
+
+    // A pyramid roof on the top face: only the two slopes that face the
+    // viewer are drawn, meeting at a ridge over the near corner.
+    if (o.roof) {
+      const top = z0 + h, apex = iso((x0 + x1) / 2, (y0 + y1) / 2, top + o.roof.h);
+      const rc = col(o.roof.color || "roof");
+      const near = iso(x1, y1, top);
+      el("polygon", { points: pts([iso(x0, y1, top), near, apex]), fill: shade(rc, 0.85) }, g);
+      el("polygon", { points: pts([iso(x1, y0, top), near, apex]), fill: shade(rc, 0.62) }, g);
+      el("polyline", { points: pts([near, apex]), fill: "none", stroke: "#fff", "stroke-opacity": 0.16, "stroke-width": 1 }, g);
+      el("circle", { cx: r1(apex[0]), cy: r1(apex[1] - 2), r: 2.6, fill: col("accent") }, g);
+    }
   }
 
   // ---- Billboards -----------------------------------------------------
@@ -472,7 +514,10 @@
       el("rect", { x: -1.4, y: -78, width: 2.8, height: 78, fill: "#1b1e25" }, g);
       el("path", { d: "M0 -76 Q 8 -86 17 -79", stroke: "#1b1e25", "stroke-width": 2.4, fill: "none", "stroke-linecap": "round" }, g);
       el("rect", { x: 12, y: -80, width: 10, height: 3.6, rx: 1.8, fill: "#2b2f38" }, g);
-      el("ellipse", { cx: 17, cy: -75.8, rx: 4.2, ry: 1.7, fill: ctx.col("light"), filter: `url(#${ctx.uid}glow)` }, g);
+      // Lit at night; by day the glass is just glass.
+      el("ellipse", ctx.day
+        ? { cx: 17, cy: -75.8, rx: 4.2, ry: 1.7, fill: "#cfd4da" }
+        : { cx: 17, cy: -75.8, rx: 4.2, ry: 1.7, fill: ctx.col("light"), filter: `url(#${ctx.uid}glow)` }, g);
     },
     tree(g, o, ctx) {
       const t = el("g", { transform: `scale(${o.size || 1})` }, g);
@@ -482,6 +527,244 @@
       el("circle", { cx: -9, cy: -34, r: 11, fill: shade(ctx.col("leaf"), 0.88) }, t);
       el("circle", { cx: 9, cy: -33, r: 12, fill: shade(ctx.col("leaf"), 1.08) }, t);
       el("circle", { cx: -5, cy: -48, r: 7, fill: shade(ctx.col("leaf"), 1.3), "fill-opacity": 0.7 }, t);
+      // In bloom: the same tree with flowers over the crown.
+      if (o.blossom) {
+        [[-10, -40, 3.2], [-3, -52, 2.8], [6, -46, 3.4], [12, -36, 2.8], [-12, -29, 2.6], [2, -36, 3],
+         [8, -27, 2.4], [-5, -44, 2.4], [13, -45, 2.2], [-1, -28, 2.2]]
+          .forEach(([cx, cy, r], i) => el("circle", { cx, cy, r, fill: shade(ctx.col("blossom"), i % 3 ? 1 : 1.15) }, t));
+      }
+      // An orange tree: fruit hanging in the crown.
+      if (o.fruit) {
+        [[-8, -38], [4, -49], [10, -31], [-11, -27], [1, -33], [7, -42], [-4, -46]]
+          .forEach(([cx, cy], i) => el("circle", { cx, cy, r: 2.6, fill: shade(ctx.col(o.fruit), i % 2 ? 1 : 1.12) }, t));
+      }
+    },
+    // ---- People, animals and things in the start screen's garden ----
+    // A visitor facing the viewer, standing or, with `sit`, seated: the
+    // body drops by the height of a seat and the shins hang down from it.
+    // `hold` is what is in the near hand: a cup, a book or a plate.
+    person(g, o, ctx) {
+      const skin = o.skin || "#e9c8a8", shirt = ctx.col(o.shirt || "#5b8def"), pants = o.pants || "#2c3550";
+      // sit: true is on a seat; sit: "ground" is cross-legged on the ground.
+      const dy = o.sit === "ground" ? 9.5 : o.sit ? 3 : 0, Y = v => v + dy;
+      el("ellipse", { cx: 0, cy: 0.6, rx: 7, ry: 2.2, fill: "#000", "fill-opacity": 0.3 }, g);
+      const p = el("g", { class: o.bob ? "ks-bob" : null }, g);
+      if (o.sit === "ground") {
+        el("ellipse", { cx: 0, cy: -1.6, rx: 6.2, ry: 2.1, fill: pants }, p);
+      } else if (o.sit) {
+        const leg = (s, c) => el("path", { d: `M${s * 2} -8.5 L${s * 2.9} -6.6 L${s * 2.5} -0.6`, stroke: c, "stroke-width": 2.6, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" }, p);
+        leg(-1, shade(pants, 0.8));
+        leg(1, pants);
+      } else {
+        el("line", { x1: -1.6, y1: -12, x2: -1.8, y2: -0.6, stroke: shade(pants, 0.8), "stroke-width": 2.8, "stroke-linecap": "round" }, p);
+        el("line", { x1: 1.6, y1: -12, x2: 1.8, y2: -0.6, stroke: pants, "stroke-width": 2.8, "stroke-linecap": "round" }, p);
+      }
+      el("path", { d: `M-4.2 ${Y(-11.5)} L-3.6 ${Y(-23)} Q0 ${Y(-25)} 3.6 ${Y(-23)} L4.2 ${Y(-11.5)} Z`, fill: shirt }, p);
+      el("line", { x1: -3.8, y1: Y(-21.5), x2: o.sit ? -3 : -4.8, y2: Y(-13.5), stroke: shade(shirt, 0.8), "stroke-width": 2.2, "stroke-linecap": "round" }, p);
+      const cam = o.hold === "camera";
+      const hx = cam ? 2.6 : o.hold ? 4.4 : (o.sit ? 3 : 4.8), hy = Y(cam ? -25 : o.hold ? -16.5 : -13.5);
+      el("line", { x1: 3.8, y1: Y(-21.5), x2: hx, y2: hy, stroke: shade(shirt, 1.1), "stroke-width": 2.2, "stroke-linecap": "round" }, p);
+      el("circle", { cx: 0, cy: Y(-27.5), r: 3.8, fill: skin }, p);
+      el("path", { d: `M-3.9 ${Y(-28)} A3.9 3.9 0 0 1 3.9 ${Y(-28.6)} Q0 ${Y(-30.8)} -3.9 ${Y(-28)} Z`, fill: o.hair || "#3a2a22" }, p);
+      if (cam) {
+        el("rect", { x: -3.2, y: Y(-29.6), width: 6.4, height: 4.2, rx: 0.8, fill: "#1b1e25" }, p);
+        el("circle", { cx: 0, cy: Y(-27.5), r: 1.4, fill: "#5b6b86" }, p);
+      }
+      if (o.hold === "cup") el("rect", { x: hx - 1, y: hy - 3.6, width: 2.8, height: 3.8, rx: 0.6, fill: "#f4f1ea" }, p);
+      if (o.hold === "book") el("rect", { x: hx - 2.4, y: hy - 4.6, width: 5, height: 4.2, rx: 0.5, fill: ctx.col("accent") }, p);
+      if (o.hold === "plate") {
+        el("ellipse", { cx: hx + 1, cy: hy - 0.6, rx: 3.8, ry: 1.2, fill: "#f4f1ea" }, p);
+        el("circle", { cx: hx + 0.2, cy: hy - 1.5, r: 1.1, fill: "#d23a3a" }, p);
+        el("circle", { cx: hx + 2, cy: hy - 1.4, r: 1, fill: "#5a3220" }, p);
+      }
+    },
+    // Someone walking a dog: a mover, so it crosses the garden on its own.
+    walker(g, o, ctx) {
+      SPRITES.person(g, { shirt: o.shirt || "#c2556b", hair: "#2a1d16", bob: true }, ctx);
+      const D = o.dog || "#c8a27a";
+      el("path", { d: "M4.6 -14 Q10 -9 13.4 -8.2", stroke: "#1b1e25", "stroke-width": 0.8, fill: "none" }, g);
+      const dog = el("g", { class: "ks-bob" }, g);
+      el("ellipse", { cx: 16, cy: 0.5, rx: 6, ry: 1.8, fill: "#000", "fill-opacity": 0.25 }, dog);
+      el("ellipse", { cx: 15.5, cy: -5, rx: 5.2, ry: 2.6, fill: D }, dog);
+      el("path", { d: "M11.6 -3.5 V0 M13.6 -3.2 V0 M17.6 -3.2 V0 M19.4 -3.5 V0", stroke: shade(D, 0.75), "stroke-width": 1.3, "stroke-linecap": "round" }, dog);
+      el("circle", { cx: 20.6, cy: -8, r: 2.6, fill: D }, dog);
+      el("path", { d: "M19.6 -10 Q18.6 -7.4 19.2 -6.6", stroke: shade(D, 0.6), "stroke-width": 1.4, fill: "none", "stroke-linecap": "round" }, dog);
+      el("circle", { cx: 23, cy: -7.6, r: 0.8, fill: "#1b1e25" }, dog);
+      el("path", { d: "M10.6 -5.6 Q8.6 -9 9.4 -10", stroke: D, "stroke-width": 1.4, fill: "none", "stroke-linecap": "round" }, dog);
+    },
+    cat(g, o) {
+      const C = o.color || "#2b2b33";
+      el("ellipse", { cx: 0.5, cy: 0.5, rx: 6, ry: 1.8, fill: "#000", "fill-opacity": 0.25 }, g);
+      el("path", { d: "M-4 0 Q-5 -7 -1 -9 Q3 -9 4 -4 Q4.5 -1 3 0 Z", fill: C }, g);
+      el("circle", { cx: 0.5, cy: -11, r: 3, fill: C }, g);
+      el("path", { d: "M-1.8 -13 L-1.4 -16 L0.2 -13.6 Z M1.2 -13.6 L2.6 -16 L3 -13 Z", fill: C }, g);
+      el("path", { d: "M3 -1 Q8.5 -1 7.2 -6.5", stroke: C, "stroke-width": 1.6, fill: "none", "stroke-linecap": "round" }, g);
+      el("circle", { cx: -0.6, cy: -11.3, r: 0.6, fill: "#e8d26a" }, g);
+      el("circle", { cx: 1.6, cy: -11.3, r: 0.6, fill: "#e8d26a" }, g);
+    },
+    // A parrot perched in a tree, shifting its weight now and then.
+    parrot(g, o) {
+      const body = o.color || "#d93a2b", wing = o.wing || "#2f6fd6";
+      const p = el("g", { class: "ks-perch" }, g);
+      if (o.delay) p.style.animationDelay = o.delay + "s";
+      el("path", { d: "M-1.4 -3 Q-3.6 3 -2.2 7 Q-0.2 3 0.6 -1.5 Z", fill: wing }, p);
+      el("ellipse", { cx: 0, cy: -6, rx: 2.8, ry: 4.6, fill: body }, p);
+      el("path", { d: "M1.4 -8 Q-2 -7 -2.4 -2 Q0.8 -4 2.4 -6.4 Z", fill: shade(wing, 1.12) }, p);
+      el("circle", { cx: 0.6, cy: -11.4, r: 2.5, fill: body }, p);
+      el("path", { d: "M2.7 -12 Q4.8 -11.2 3.1 -9.6 Z", fill: "#efe6cf" }, p);
+      el("circle", { cx: 1.3, cy: -12, r: 0.55, fill: "#111" }, p);
+    },
+    // A café table with a chair either side, backs to the outside, and a
+    // cup at each place. Seat sitters at about 13 px either side of it.
+    cafe(g) {
+      el("ellipse", { cx: 0, cy: 0.8, rx: 19, ry: 3.4, fill: "#000", "fill-opacity": 0.25 }, g);
+      [-13, 13].forEach(x => {
+        el("path", { d: `M${x - 3.4} 0 L${x - 3} -9 M${x + 3.4} 0 L${x + 3} -9`, stroke: "#1b1e25", "stroke-width": 1.2 }, g);
+        el("rect", { x: x - 4.2, y: -10.4, width: 8.4, height: 2, rx: 1, fill: "#3b4a6b" }, g);
+        el("rect", { x: x < 0 ? x - 4.4 : x + 2.8, y: -19, width: 1.6, height: 9, rx: 0.6, fill: "#3b4a6b" }, g);
+      });
+      el("rect", { x: -0.8, y: -11, width: 1.6, height: 11, fill: "#1b1e25" }, g);
+      el("ellipse", { cx: 0, cy: -11.5, rx: 7.5, ry: 2.4, fill: "#e9e4d8" }, g);
+      el("rect", { x: -3.8, y: -15, width: 2.4, height: 3, rx: 0.5, fill: "#f4f1ea" }, g);
+      el("rect", { x: 1.4, y: -14.6, width: 2.4, height: 2.8, rx: 0.5, fill: "#f4f1ea" }, g);
+    },
+    // A beach parasol: a striped dome on a pole.
+    parasol(g, o) {
+      const a = o.color || "#e86a5c";
+      el("ellipse", { cx: 3, cy: 0.8, rx: 14, ry: 3.6, fill: "#000", "fill-opacity": 0.22 }, g);
+      el("line", { x1: 0, y1: 0, x2: 1.5, y2: -31, stroke: "#d9d4c7", "stroke-width": 1.4 }, g);
+      el("path", { d: "M-16 -25 Q1.5 -42 19 -25 Q1.5 -29 -16 -25 Z", fill: a }, g);
+      el("path", { d: "M1.5 -33.6 L-10 -25.8 L-4.2 -26.6 Z M1.5 -33.6 L7.2 -26.6 L13 -25.8 Z", fill: "#f4f1ea" }, g);
+      el("circle", { cx: 1.5, cy: -33.8, r: 1.2, fill: shade(a, 0.8) }, g);
+    },
+    sandcastle(g) {
+      const s = "#d9c08a", d = shade("#d9c08a", 0.82);
+      el("ellipse", { cx: 0, cy: 0.6, rx: 10, ry: 2.6, fill: "#000", "fill-opacity": 0.2 }, g);
+      el("rect", { x: -9, y: -11, width: 5, height: 11, fill: d }, g);
+      el("rect", { x: 4, y: -11, width: 5, height: 11, fill: d }, g);
+      el("rect", { x: -7, y: -6, width: 14, height: 6, fill: s }, g);
+      el("rect", { x: -2.5, y: -15, width: 5, height: 15, fill: s }, g);
+      [-9, -6.4, 4, 6.6].forEach(x => el("rect", { x, y: -12.6, width: 2.4, height: 1.8, fill: d }, g));
+      el("path", { d: "M0 -15 V-21", stroke: "#3a2a1d", "stroke-width": 0.8 }, g);
+      el("path", { d: "M0 -21 L4.2 -19.6 L0 -18.2 Z", fill: "#d93a2b" }, g);
+    },
+    // A mailbox with its flag up and a letter showing at the top.
+    mailbox(g) {
+      const blue = "#2f5b8e";
+      el("ellipse", { cx: 1, cy: 0.6, rx: 6, ry: 1.8, fill: "#000", "fill-opacity": 0.3 }, g);
+      el("rect", { x: -1, y: -16, width: 2, height: 16, fill: "#3a2a1d" }, g);
+      el("rect", { x: -6, y: -30.5, width: 8.5, height: 6, rx: 0.6, fill: "#f4f1ea", transform: "rotate(-8 -2 -27)" }, g);
+      el("path", { d: "M-7 -16 V-24 A7 5 0 0 1 7 -24 V-16 Z", fill: blue }, g);
+      el("rect", { x: -7, y: -17.2, width: 14, height: 1.4, fill: shade(blue, 0.7) }, g);
+      el("rect", { x: 7, y: -28, width: 1.2, height: 10, fill: "#c8102e" }, g);
+      el("rect", { x: 8.2, y: -28, width: 4.2, height: 3, fill: "#c8102e" }, g);
+    },
+    // A few books stacked on the grass, page edges toward the right.
+    books(g) {
+      el("ellipse", { cx: 0, cy: 0.6, rx: 9, ry: 2.4, fill: "#000", "fill-opacity": 0.28 }, g);
+      [[-7, 0, 14, 3.2, "#b5483c"], [-6, -3.2, 12, 3, "#3b6fb5"], [-7.5, -6.2, 13, 3.2, "#d8b45a"], [-5.5, -9.4, 11, 2.8, "#4a8a5a"]]
+        .forEach(([x, y, w, h, c]) => {
+          el("rect", { x, y: y - h, width: w, height: h, rx: 0.6, fill: c }, g);
+          el("rect", { x: x + w - 2.2, y: y - h + 0.6, width: 1.6, height: h - 1.2, fill: "#efe6cf", "fill-opacity": 0.9 }, g);
+        });
+    },
+    // An espresso machine, for the coffee cart. Steam rises off the cup.
+    coffee(g) {
+      el("rect", { x: -9, y: -17, width: 18, height: 17, rx: 2, fill: "#b8bec8" }, g);
+      el("rect", { x: -9.6, y: -20, width: 19.2, height: 3.6, rx: 1.4, fill: "#8d939c" }, g);
+      el("rect", { x: -6.5, y: -14, width: 13, height: 5.2, rx: 1, fill: "#2b2f38" }, g);
+      el("rect", { x: -2.2, y: -8.6, width: 4.4, height: 3.8, rx: 0.7, fill: "#f4f1ea" }, g);
+      el("circle", { cx: 6.4, cy: -17.6, r: 1, fill: "#3ce68a", class: "ks-blink" }, g);
+      el("path", { class: "ks-steam", d: "M-0.8 -10 Q-2.4 -13 -0.6 -15.4 Q1 -17.6 -0.4 -20", stroke: "#fff", "stroke-opacity": 0.5, "stroke-width": 1, fill: "none", "stroke-linecap": "round" }, g);
+    },
+    // A chocolate fountain: three steel tiers with chocolate running
+    // down between them into the bowl.
+    fountain(g) {
+      const choc = "#5a3220", steel = "#c9ced6";
+      el("ellipse", { cx: 0, cy: -1.5, rx: 10, ry: 3, fill: steel }, g);
+      el("ellipse", { cx: 0, cy: -2, rx: 8.4, ry: 2.2, fill: choc }, g);
+      el("rect", { x: -0.8, y: -25, width: 1.6, height: 23, fill: steel }, g);
+      [[-9, 7], [-15, 5], [-20.5, 3.2]].forEach(([y, rx]) => {
+        el("path", { d: `M${-rx} ${y} Q${-rx - 1} ${y + 4} ${-rx - 1.6} ${y + 6.5} L${rx + 1.6} ${y + 6.5} Q${rx + 1} ${y + 4} ${rx} ${y} Z`, fill: choc, "fill-opacity": 0.92 }, g);
+        el("ellipse", { cx: 0, cy: y, rx, ry: rx * 0.3, fill: steel }, g);
+        el("ellipse", { cx: 0, cy: y - 0.3, rx: rx * 0.8, ry: rx * 0.22, fill: choc }, g);
+      });
+      el("circle", { cx: 0, cy: -26, r: 1.6, fill: choc }, g);
+    },
+    // A plate on the buffet, heaped with `food`: strawberries by default.
+    plate(g, o) {
+      const c = o.food || "#d23a3a";
+      el("ellipse", { cx: 0, cy: -1, rx: 6, ry: 1.9, fill: "#f4f1ea" }, g);
+      [[-2.2, -2.4], [0.4, -2.8], [2.6, -2.2], [-0.8, -3.8], [1.6, -3.8]].forEach(([dx, dy]) =>
+        el("circle", { cx: dx, cy: dy, r: 1.3, fill: c }, g));
+    },
+    flowers(g, o, ctx) {
+      const cols = o.colors || ["#f4a8c6", "#f2c14e", "#e86a5c", "#c7a6ff"];
+      el("ellipse", { cx: 0, cy: 0, rx: 13, ry: 3.8, fill: ctx.col("soil") }, g);
+      [[-9, -1], [-5, -3.5], [-1, -0.5], [3, -3], [7, -1], [10, -2.6], [-7, 1.6], [1, 1.8], [6, 1.6]]
+        .forEach(([x, y], i) => {
+          el("line", { x1: x, y1: y, x2: x, y2: y - 4, stroke: shade(ctx.col("leaf"), 1.1), "stroke-width": 0.9 }, g);
+          el("circle", { cx: x, cy: y - 4.6, r: 1.6, fill: cols[i % cols.length] }, g);
+        });
+    },
+    // Fireflies over the water, each blinking out of step.
+    fireflies(g, o, ctx) {
+      [[-22, -14, 0], [-8, -26, 0.5], [6, -18, 1.1], [18, -30, 0.3], [26, -12, 0.8], [-16, -34, 1.4]]
+        .forEach(([x, y, d]) => {
+          const f = el("circle", { cx: x, cy: y, r: 1.3, fill: "#e9ff8a", filter: `url(#${ctx.uid}glow)`, class: "ks-blink" }, g);
+          f.style.animationDelay = d + "s";
+        });
+    },
+    // ---- The Garden's growth stages, smallest to largest ----
+    // Sprout, seedling and growing are drawn here; tree and blossom are
+    // the tree above. Each stands on its own patch of soil.
+    sprout(g, o, ctx) {
+      const L = ctx.col("leaf");
+      el("ellipse", { cx: 0, cy: 0, rx: 9, ry: 3, fill: ctx.col("soil") }, g);
+      el("path", { d: "M0 0 V-8", stroke: shade(L, 1.15), "stroke-width": 1.6, "stroke-linecap": "round" }, g);
+      el("path", { d: "M0 -6 Q-6 -11 -8 -5 Q-3 -4 0 -6 Z", fill: L }, g);
+      el("path", { d: "M0 -8 Q6 -14 9 -8 Q4 -6 0 -8 Z", fill: shade(L, 1.2) }, g);
+    },
+    seedling(g, o, ctx) {
+      const L = ctx.col("leaf");
+      el("ellipse", { cx: 0, cy: 0, rx: 10, ry: 3.2, fill: ctx.col("soil") }, g);
+      el("path", { d: "M0 0 V-18", stroke: shade(L, 1.1), "stroke-width": 1.8, "stroke-linecap": "round" }, g);
+      [[-1, -5, 8], [1, -9, 8], [-1, -13, 7], [1, -17, 6]].forEach(([side, y, len], i) =>
+        el("path", { d: `M0 ${y} q${side * len * 0.5} ${-len * 0.55} ${side * len} ${-len * 0.1} q${-side * len * 0.4} ${len * 0.35} ${-side * len} ${len * 0.1} Z`,
+          fill: shade(L, i % 2 ? 1.18 : 0.95) }, g));
+    },
+    // "Growing" is ears of grain in the Garden, so it is a clump of them.
+    stalks(g, o, ctx) {
+      const L = ctx.col("leaf"), G = ctx.col("grain");
+      el("ellipse", { cx: 0, cy: 0, rx: 12, ry: 3.6, fill: ctx.col("soil") }, g);
+      [[-7, 24, -5], [-3, 30, -2], [1, 33, 1], [5, 28, 3], [8, 22, 6]].forEach(([x, h, lean]) => {
+        el("path", { d: `M${x} 0 Q${x + lean * 0.3} ${-h * 0.6} ${x + lean} ${-h}`, stroke: shade(L, 1.1), "stroke-width": 1.4, fill: "none", "stroke-linecap": "round" }, g);
+        el("ellipse", { cx: x + lean, cy: -h - 3, rx: 1.9, ry: 4.2, fill: G, transform: `rotate(${lean * 3} ${x + lean} ${-h - 3})` }, g);
+      });
+    },
+    bench(g, o, ctx) {
+      const wood = ctx.col("trunk");
+      el("ellipse", { cx: 1, cy: 1, rx: 17, ry: 3.5, fill: "#000", "fill-opacity": 0.3 }, g);
+      el("rect", { x: -14, y: -9, width: 2.4, height: 9, fill: "#1b1e25" }, g);
+      el("rect", { x: 11.6, y: -9, width: 2.4, height: 9, fill: "#1b1e25" }, g);
+      el("rect", { x: -16, y: -11, width: 32, height: 3.4, rx: 1, fill: shade(wood, 1.25) }, g);
+      el("rect", { x: -16, y: -20, width: 32, height: 3, rx: 1, fill: shade(wood, 1.1) }, g);
+      el("rect", { x: -16, y: -15.5, width: 32, height: 3, rx: 1, fill: shade(wood, 1.1) }, g);
+    },
+    // A bell hanging in a belfry. It registers itself as an actor, so a
+    // pin with act: "bell" swings it when the runner gets there. Its own
+    // group swings, pivoting at the top, and the beam stays still.
+    bell(g, o, ctx) {
+      const B = ctx.col("bell");
+      el("rect", { x: -16, y: -38, width: 32, height: 3.4, rx: 1.4, fill: "#3a2a1d" }, g);
+      const swing = el("g", { class: "ks-bell" }, g);
+      el("path", { d: "M-3 -35 Q0 -39 3 -35", stroke: shade(B, 0.7), "stroke-width": 2, fill: "none" }, swing);
+      el("path", { d: "M-6 -34 Q-8.5 -34 -9 -27 L-10.5 -12 Q-11.5 -6 -14.5 -4 L14.5 -4 Q11.5 -6 10.5 -12 L9 -27 Q8.5 -34 6 -34 Z", fill: B }, swing);
+      el("rect", { x: -15, y: -5.2, width: 30, height: 2.8, rx: 1.4, fill: shade(B, 0.72) }, swing);
+      el("path", { d: "M-5 -30 Q-6.6 -20 -8.4 -9", stroke: "#fff", "stroke-opacity": 0.35, "stroke-width": 1.4, fill: "none", "stroke-linecap": "round" }, swing);
+      el("circle", { cx: 0, cy: -1.4, r: 2.4, fill: shade(B, 0.55) }, swing);
+      const name = o.actor || "bell";
+      (ctx.actors[name] = ctx.actors[name] || []).push(swing);
     },
     bush(g, o, ctx) {
       el("ellipse", { cx: 2, cy: 1, rx: 11, ry: 3.5, fill: "#000", "fill-opacity": 0.25 }, g);
@@ -742,7 +1025,16 @@
       ".ks-pin[aria-disabled=true]{cursor:not-allowed}" +
       ".ks-shake{animation:ks-shake .4s ease}" +
       "@keyframes ks-shake{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}" +
-      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake,.ks-blink{animation:none}}";
+      ".ks-bell{transform-box:fill-box;transform-origin:50% 0}" +
+      ".ks-bell.ks-act{animation:ks-ring 2.6s cubic-bezier(.3,.6,.4,1)}" +
+      "@keyframes ks-ring{12%{transform:rotate(16deg)}30%{transform:rotate(-12deg)}48%{transform:rotate(8deg)}66%{transform:rotate(-5deg)}84%{transform:rotate(2deg)}}" +
+      ".ks-perch{transform-box:fill-box;transform-origin:50% 100%;animation:ks-perch 4.2s ease-in-out infinite}" +
+      "@keyframes ks-perch{0%,62%,100%{transform:rotate(0)}68%{transform:rotate(-9deg)}76%{transform:rotate(6deg) translateY(-1.5px)}84%{transform:rotate(0)}}" +
+      ".ks-bob{animation:ks-bob .45s ease-in-out infinite alternate}" +
+      "@keyframes ks-bob{to{transform:translateY(-1px)}}" +
+      ".ks-steam{animation:ks-steam 2.4s ease-in-out infinite}" +
+      "@keyframes ks-steam{0%{opacity:0;transform:translateY(2px)}40%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}" +
+      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake,.ks-blink,.ks-act,.ks-perch,.ks-bob,.ks-steam{animation:none}}";
     document.head.appendChild(st);
   }
 
@@ -752,7 +1044,15 @@
     opts = opts || {};
     const lang = opts.lang || "en";
     const uid = "ks" + (++uidCounter) + "-";
-    const palette = recipe.palette || {};
+    // Day or night follows the app's sky (core/theme.js sets data-sky on
+    // <html>), unless the caller says which. A recipe with a `day` part
+    // gets its daylight colours, no stars, its lamps out and its `hide`
+    // list left out; one without stays the night picture it was drawn
+    // as. Added 2026-11-22: the night garden under a sunny sky was
+    // "unrealistically dark".
+    const day = (opts.time || document.documentElement.dataset.sky) === "day" && !!recipe.day;
+    const view = day ? dayView(recipe) : recipe;
+    const palette = view.palette || {};
     const col = c => (c && palette[c]) || c;
     const rand = rng(recipe.seed || 1);
     const P = projector(recipe.block);
@@ -771,21 +1071,25 @@
     const lines = el("g", null, svg);
     const pinsLayer = el("g", null, svg);
 
-    drawBackdrop(far, recipe, P, col, rand, uid);
-    drawBlock(block, recipe, P, col, uid);
+    drawBackdrop(far, view, P, col, rand, uid);
+    drawBlock(block, view, P, col, uid);
 
     // Objects, back to front. For billboards depth is x + y of the foot;
     // for a box it is the centre, which stops a sign standing in front
     // of a building's face from being painted over by it.
     const objectsG = el("g", null, block);
-    const ctx = { uid, col, lights: [] };
+    const ctx = { uid, col, lights: [], actors: {}, day };
     // Sprites are drawn for a 12-unit block; spriteScale lets a recipe
     // exaggerate them the way a diorama does, so small things stay
     // legible on a phone.
     const k = (P.S / 36.57) * (recipe.spriteScale || 1);
     const items = [];
-    for (const o of recipe.objects || []) {
-      if (o.kind === "box") items.push({ depth: (o.x0 + o.x1) / 2 + (o.y0 + o.y1) / 2, o });
+    // A recipe may set `depth` itself, for pieces built on top of one
+    // another, like a belfry's posts round a bell: by footprint they
+    // would all tie, and a tie paints the bell over the post in front.
+    for (const o of view.objects || []) {
+      if (o.depth != null) items.push({ depth: o.depth, o });
+      else if (o.kind === "box") items.push({ depth: (o.x0 + o.x1) / 2 + (o.y0 + o.y1) / 2, o });
       // Something standing ON something (a monitor on a desk) sorts just
       // after what it stands on, which shares its spot on the floor.
       else items.push({ depth: o.at[0] + o.at[1] + (o.z ? 0.02 : 0), o });
@@ -795,7 +1099,11 @@
       const g = el("g", { "data-depth": it.depth }, objectsG);
       if (it.o.kind === "box") { drawBox(g, it.o, P, col, rand, uid); continue; }
       const p = P.iso(it.o.at[0], it.o.at[1], it.o.z || 0);
-      g.setAttribute("transform", `translate(${r1(p[0])},${r1(p[1])}) scale(${r1(k * 100) / 100})`);
+      // `scale` enlarges one piece past the rest, for the things a scene
+      // is about: the start screen's growth stages are drawn bigger than
+      // life so that a sprout can be told from a seedling on a phone.
+      const s = k * (it.o.scale || 1);
+      g.setAttribute("transform", `translate(${r1(p[0])},${r1(p[1])}) scale(${r1(s * 100) / 100})`);
       if (SPRITES[it.o.kind]) SPRITES[it.o.kind](g, it.o, ctx);
     }
 
@@ -888,10 +1196,18 @@
       setHere(i);
       pulse(i);
       if (runner) runner.hop = performance.now();
+      const p = recipe.pins[i];
+      // Whatever this pin names to act, acts: the class restarts the
+      // piece's own animation, which its sprite's CSS defines.
+      (ctx.actors[p.act] || []).forEach(a => {
+        a.classList.remove("ks-act");
+        void a.getBoundingClientRect();
+        a.classList.add("ks-act");
+      });
       if (opts.onChapter) {
-        const p = recipe.pins[i];
         // A pin names a topic (a one-unit course) or a whole unit.
-        opts.onChapter({ index: i, n: p.n, topic: p.topic, unit: p.unit, label: textOf(p.label, lang) });
+        opts.onChapter({ index: i, n: p.n, topic: p.topic, unit: p.unit, label: textOf(p.label, lang),
+          act: p.act || "", say: p.say ? textOf(p.say, lang) : "", icon: p.icon || "" });
       }
     }
 
@@ -962,10 +1278,22 @@
       if (visible && !raf) raf = requestAnimationFrame(frame);
     }
 
+    // A tap on a pin is announced at once (onPick), before the runner has
+    // gone anywhere, so the caller can answer the tap itself: the start
+    // screen pins a small note about what was picked. `el` is the pin, to
+    // place things next to.
+    function pick(i) {
+      if (opts.onPick && pins[i].state !== "locked") {
+        const p = recipe.pins[i];
+        opts.onPick({ index: i, n: p.n, label: textOf(p.label, lang), say: p.say ? textOf(p.say, lang) : "",
+          icon: p.icon || "", act: p.act || "", el: pins[i].outer });
+      }
+      goTo(i);
+    }
     pins.forEach((p, i) => {
-      p.outer.addEventListener("click", () => goTo(i));
+      p.outer.addEventListener("click", () => pick(i));
       p.outer.addEventListener("keydown", e => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goTo(i); }
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(i); }
       });
     });
     if (runner) setHere((recipe.pins || []).findIndex(p => p.stand === runner.node));
@@ -1061,6 +1389,19 @@
         svg.remove();
       }
     };
+  }
+
+  // The recipe as daylight sees it: its day colours over its night ones,
+  // the stars it asks for (none unless it says), no pools of lamp light,
+  // and none of the objects listed in day.hide (fireflies, say).
+  function dayView(recipe) {
+    const d = recipe.day, hide = new Set(d.hide || []);
+    return Object.assign({}, recipe, {
+      palette: Object.assign({}, recipe.palette, d.palette),
+      backdrop: Object.assign({}, recipe.backdrop, { stars: d.stars || 0 }),
+      surface: (recipe.surface || []).filter(s => s.kind !== "pool"),
+      objects: (recipe.objects || []).filter(o => !hide.has(o.kind))
+    });
   }
 
   function register(id, recipe) { recipes[id] = recipe; }

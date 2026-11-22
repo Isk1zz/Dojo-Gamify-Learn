@@ -5,64 +5,77 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## QUEUED 2026-11-22 — sound and visual effects
+
+Asked for as a stack item («sfx and vfx to update stack»). Not started,
+and the scope is still to be set with the author. What exists to build
+on:
+
+- **Sound** (core/sfx.js): five synthesized sounds and no audio files: a
+  click on every button, right and wrong answers, a reward, and the start
+  screen's bell. Off with Settings' sound switch.
+- **Effects** (shop/decor.js, scenes/scene.js): what a poke at the sky
+  does (rain, lightning, a rainbow, a fairy, arrows at birds, darts at the
+  lobby's wheel, bats from the moon), streak confetti, and the scenes'
+  own movement (the runner, the swinging bell, parrots, steam, a dog
+  walker). The scenes and some of the CSS effects honour reduced motion;
+  shop/decor.js never checks it, so that wants auditing in the same pass.
+- **Open:** which moments get sound or effects next, and whether effects
+  stay synthesized and drawn, or audio files and sprites come in. Most of
+  what pokes the sky is silent today.
+
+## QUEUED 2026-11-22 — full Hebrew localisation
+
+Asked for as a stack item («to update stack: full hebrew localization»).
+Not started. The first right-to-left language, so it is more than strings:
+
+- **Direction.** `dir="rtl"` on `<html>` when the language is Hebrew, and
+  every layout checked in it. CSS written with left/right (margins,
+  `text-align`, absolute positions) needs logical properties or
+  `[dir=rtl]` rules. Arrows and chevrons that mean "back" or "open"
+  (`← Lobby`, the museum's `›`) flip. Code, numbers and the isometric
+  scenes do not mirror.
+- **Strings.** `LANGS` in core/i18n.js gains `he`, the language gate and
+  Settings gain it, and every `{ en, ru }` bag gains a `he` (the UI's 350+,
+  core/demo.js, core/letter.js, the museum, the scene recipes' labels and
+  captions).
+- **Content.** Part of the localisation pass already decided above: author
+  in English, translate as its own job. Intro to CS has no language bags
+  at all (5,115 bare strings), so it goes first or stays English.
+- **Fonts.** Check that the app's fonts carry Hebrew glyphs; if not, add a
+  Hebrew face with a system fallback.
+- **SVG text** in scene pins needs `direction` set, or labels render
+  reversed.
+- **Done means** a full pass over every screen in Hebrew, on a phone.
+
 ## QUEUED 2026-11-22 — asks from looking at the demo
 
-Asked for in one message and recorded so none is lost. Two have shipped
-since and are erased from here: the crosshair (which grew into a scope
-over the whole lobby, darts at the Star wheel, and a dimmer, rarer miss
-glow), and the first version of the museum below.
+Asked for in one message and recorded so none is lost. Shipped since, and
+erased from here: the crosshair (grown into a scope over the lobby, darts
+at the Star wheel with a dartboard showing through, and a dimmer, rarer
+miss glow); the memo, which became a letter you press instead (the mailbox
+at the garden gate, core/letter.js); and the museum's first version and
+halls. What is left:
 
-1. **A memo on entering the demo** («памятку при заходе в демо (можно
-   отклонить или продолжить листать)»). A few short cards on what to
-   look at; dismiss at once or flip through. Demo copy only
-   (`Dojo.DEMO`), shown once per browser. It must not hide the start
-   screen's line saying this is a demo with no account.
-2. **Documentation that explains the logic as simply as possible,** so
+1. **Documentation that explains the logic as simply as possible,** so
    an employer can see indirectly what its author is capable of. The
    list given: how the library is built, how lessons work, and more.
-   Likely chapters: a course (manifest → units → topics → chunks); a
-   lesson (chunk → quiz → missed questions return → exam → review
-   schedule); the Garden reading that schedule; a scene drawn from a
-   data recipe. Build on docs/INTERVIEW.md, docs/SHOWCASE.md and
-   data/DATA.md rather than repeating them. Keeps the attribution:
-   designed and directed by its author, code written with AI (Claude).
-3. **A museum in the Forum's place** («чтобы не терять работы со
-   стилями я бы либо хотел добавить их в музей за место форума и там
-   можно было бы прогрузить старые сцены или прогуляться по истории
-   проекта»). It replaces the «prime / legacy» switch first proposed. A
-   look that gets retired goes to the museum instead of being deleted,
-   and the project's history can be walked through.
-   - **The slot.** In the demo the Forum tile only shows a note, so the
-     place is free there. The Forum becomes an exhibit itself, so the
-     demo still says it is built and not launched.
-   - **Old scenes can load live.** A scene is a data recipe and the
-     engine draws any recipe, so a retired recipe is kept as a file and
-     the museum draws it. That holds only while the engine can still
-     draw old recipes.
-   - **Old versions of the whole app can't run there.** Old commits hold
-     the production Supabase address and key, which the demo must not.
-     They stop at a sign-in whose server is gone. They would write
-     unprefixed storage on the shared `isk1zz.github.io` origin, and
-     their service workers delete every cache that isn't theirs (checked
-     in `77a563a:sw.js`), the demo's included. So history halls show a
-     screenshot and a few lines, or link to the separate `cs_dojo_demo`
-     site.
-   - **Decided 2026-11-22: demo only.** The real app keeps its Forum.
-     The code still lives in this repository and runs only under
-     `Dojo.DEMO`, like core/demo.js, because the demo is a copy that
-     tools/make-demo.js takes from here.
-   - **The Forum is cut from the demo** («и вырежи форум тогда раз он
-     лишний», 2026-11-22). Its tile couldn't simply be hidden, because
-     two of the five lobby looks count tiles exactly (core/lobby.js).
-     The hexagram draws only at `n === 6` and otherwise falls back to
-     spokes, and the pentagram joins `nodeAt(i % n)` and goes lopsided
-     at four. So the museum took the tile, keeping the id
-     `btn-lobby-games` («за место форума музей просто либо кнопка
-     назад»).
-   - **First version shipped 2026-11-22:** the screen, a back button and
-     one exhibit, the Forum. tools/make-demo.js leaves forum/ out and
-     checks that none of it is left.
-   - **Open:** which halls come next.
+   *First version shipped 2026-11-22:* the museum's halls ("How it
+   works", "Behind the scenes", "Set aside", "How to"), one short card
+   each on courses, remembering, the Garden, flashcards, ranks, scenes and
+   accounts. Still open: a longer written version, built on
+   docs/INTERVIEW.md, docs/SHOWCASE.md and data/DATA.md rather than
+   repeating them, keeping the attribution (designed and directed by its
+   author, code written with AI).
+2. **The museum: a walk through the project's history** («прогуляться по
+   истории проекта»). Retired looks already go there (the first start
+   screen runs live in "Set aside"). Still open: halls by date. Old
+   versions of the whole app cannot run there: old commits hold the
+   production Supabase address and key, stop at a dead sign-in, write
+   unprefixed storage on the shared `isk1zz.github.io` origin, and their
+   service workers delete every cache that is not theirs (checked in
+   `77a563a:sw.js`). So a history hall is a screenshot and a few lines,
+   or a link to the separate `cs_dojo_demo` site.
 
 ## IN PROGRESS 2026-11-19 — cut dead code; scenes for the other courses
 

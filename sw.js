@@ -292,7 +292,30 @@
 // decides, decor.js draws, base.css animates), and a miss lights the
 // controls dimmer and only one time in four (lobby.js, base.css). A
 // stale lobby.js beside a fresh decor.js would just mean no darts.
-const CACHE_VERSION = "knell-v75";
+// Bumped for the dartboard: decor.js announces how many darts are in,
+// lobby.js shows a faint board on the wheel while any are, base.css
+// fades it. And index.html now reloads once when an update takes over
+// a page right after it opened, which is what mixed versions on the
+// live demo's first visit after v75. That fix is in index.html, so it
+// first protects the update AFTER this one.
+// Bumped for the new start screen: scenes/knell-garden.js is new (a
+// garden at night with a bell tower), scene.js gains roofs, doors, the
+// growth-stage plants, a bench and a bell that swings, boot.js renders
+// it with a caption that changes per stage, sfx.js rings the bell, and
+// i18n.js has the caption. A stale index.html would not load the new
+// recipe, so the start screen would be left with no scene at all.
+// Before v77 shipped, the same version also took: people, a beach, a
+// buffet, a café and a reading corner in the garden, drawn by new
+// sprites in scene.js; the stages drawn larger with their symbol in the
+// caption (boot.js, base.css); core/letter.js and the mailbox that holds
+// it; and the museum's halls (museum/museum.js, base.css, i18n.js).
+// Also: the garden by day (scene.js, the recipe, boot.js redraws it when
+// the sky changes); a note pinned to a tapped stage (boot.js, base.css);
+// core/peel.js, the foil sticker over a newcomer's rank line that takes
+// seven seconds to peel and opens a guide to the ranks; and demo.js,
+// letter.js and peel.js reading the language with typeof, because
+// window.I18N never existed and so they always spoke English.
+const CACHE_VERSION = "knell-v77";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

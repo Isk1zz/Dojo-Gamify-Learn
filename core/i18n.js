@@ -292,8 +292,8 @@ const I18N = (() => {
     // Course scene — library/library.js renderCourseScene, scenes/scene.js.
     "scene.hint":           { en: "Pick a chapter: your runner goes there and opens it.",
                               ru: "Выберите главу — человечек добежит туда и откроет её." },
-    "scene.landingCaption": { en: "This is a course. Tap a chapter.",
-                              ru: "Это курс. Нажмите на главу." },
+    "scene.landingCaption": { en: "Every topic you pass is a plant, and it grows while you keep remembering it. Tap one.",
+                              ru: "Каждая сданная тема — растение, и оно растёт, пока вы её помните. Нажмите на любое." },
     // Sign-in switched off — Dojo.OPEN_ACCESS in core/core.js.
     "auth.offTitle":        { en: "Sign-in is switched off",  ru: "Вход отключён" },
     "auth.offBody":         { en: "Accounts are turned off for now. Everyone uses one open profile with everything unlocked, and your progress is saved on this device.",
@@ -402,7 +402,7 @@ const I18N = (() => {
     "ui.tile.flashcards":   { en: "Flashcards",         ru: "Карточки" },
     "ui.tile.forum":        { en: "Forum",              ru: "Форум" },
     "ui.tile.museum":       { en: "Museum",             ru: "Музей" },
-    "ui.sum.museum":        { en: "Built and set aside", ru: "Построенное и отложенное" },
+    "ui.sum.museum":        { en: "How it works, and what was set aside", ru: "Как всё устроено и что отложено" },
     "ui.tile.custom":       { en: "Custom",             ru: "Кастом" },
     "ui.tile.customSub":    { en: "Everything you've unlocked, ready to equip",
                               ru: "Всё открытое, готовое к использованию" },

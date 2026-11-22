@@ -738,7 +738,8 @@
   // shrinking as it goes into the board, lands tip first a few pixels off
   // the aim point, quivers, and is pulled out after a few seconds. Three
   // at most stay in the board, a round of darts; a fourth takes the
-  // oldest out.
+  // oldest out. Each change in how many are in is announced
+  // (darts:changed), and the lobby shows its dartboard while any are.
   const DART_SVG =
     `<svg viewBox="0 0 10 46">
        <path class="dt-tip" d="M5 0 L 5 10" />
@@ -763,9 +764,11 @@
     spawn(d, 3200);
     darts.push(d);
     if (darts.length > 3) darts.shift().classList.add("pulled");
+    const announce = () => Dojo.Bus && Dojo.Bus.emit("darts:changed", { count: darts.length });
+    announce();
     setTimeout(() => {
       const i = darts.indexOf(d);
-      if (i >= 0) darts.splice(i, 1);
+      if (i >= 0) { darts.splice(i, 1); announce(); }
     }, 3200);
     setTimeout(() => { if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click(); }, 300);
   }

@@ -740,26 +740,95 @@
   // ---- The wheel takes darts ----
   // In the Star layout the ring of tiles reads as a wheel, and a click on
   // it that hits no tile throws a dart (shop/decor.js draws the throw;
-  // asked for 2026-11-22). The wheel is the disc out to the far edge of
-  // its tiles, measured from the same centre the ring is laid out on.
-  // Exported so the sky's crosshair can lock on over it too.
-  function wheelAt(x, y) {
+  // asked for 2026-11-22). The wheel is the disc inside the orbit ring
+  // that layoutLobbyRadial draws just outside the tiles, so a dart lands
+  // exactly where the board below shows. Before that ring exists, it is
+  // the disc out to the tiles' far edge. Coordinates are relative to the
+  // ring's own box, which is the space the orbit ring is drawn in.
+  // wheelAt is exported so the sky's crosshair can lock on over it too.
+  function wheelGeometry() {
     const lobby = document.getElementById("lobby");
     const ring = document.getElementById("lobby-actions");
     if (!lobby || !lobby.classList.contains("active")) return null;
     if (!ring || !ring.classList.contains("lobby-style-star")) return null;
     const box = ring.getBoundingClientRect();
-    const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
-    let reach = 0;
+    const orbit = ring.querySelector(".lobby-orbit-ring");
+    const or = orbit ? parseFloat(orbit.getAttribute("r")) : 0;
+    if (or > 0) {
+      return { ring, box, r: or,
+        x: parseFloat(orbit.getAttribute("cx")), y: parseFloat(orbit.getAttribute("cy")) };
+    }
+    const x = box.width / 2, y = box.height / 2;
+    let r = 0;
     ring.querySelectorAll(".lobby-tile").forEach(t => {
       if (t.style.display === "none") return;
-      const r = t.getBoundingClientRect();
-      if (!r.width) return;
-      const d = Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy) + r.width / 2;
-      if (d > reach) reach = d;
+      const tr = t.getBoundingClientRect();
+      if (!tr.width) return;
+      const d = Math.hypot(tr.left + tr.width / 2 - box.left - x,
+                           tr.top + tr.height / 2 - box.top - y) + tr.width / 2;
+      if (d > r) r = d;
     });
-    return reach && Math.hypot(x - cx, y - cy) <= reach ? ring : null;
+    return r ? { ring, box, x, y, r } : null;
   }
+  function wheelAt(px, py) {
+    const g = wheelGeometry();
+    return g && Math.hypot(px - g.box.left - g.x, py - g.box.top - g.y) <= g.r ? g.ring : null;
+  }
+
+  // ---- The board ----
+  // While darts are in the wheel, a dartboard shows through it, faintly
+  // («darts skin on the wheel if user throws a dart (low opacity)»,
+  // 2026-11-22). It fades in with the first dart and out once the last
+  // one is pulled; shop/decor.js announces how many are in. Built once,
+  // then sized to the wheel every time it shows. Under the spokes and the
+  // tiles, so they stay exactly as they are.
+  //
+  // A regulation board, scaled so the double ring's outer edge is 100:
+  // bull 3.7, outer bull 9.4, treble 58.2 to 62.9, double 95.3 to 100.
+  // Twenty sectors of 18 degrees, the first centred straight up. The
+  // singles alternate dark and light, with red rings on the dark ones
+  // and green on the light, as on a real board.
+  const BOARD = { dark: "#15151a", light: "#efe3c4", red: "#c8102e", green: "#0e8a45" };
+  let boardEl = null;
+  function buildBoard() {
+    const pt = (r, a) => {
+      const t = a * Math.PI / 180;
+      return `${(r * Math.cos(t)).toFixed(2)} ${(r * Math.sin(t)).toFixed(2)}`;
+    };
+    const seg = (r0, r1, a0, a1, fill) =>
+      `<path fill="${fill}" d="M${pt(r0, a0)} L${pt(r1, a0)} A${r1} ${r1} 0 0 1 ${pt(r1, a1)} ` +
+      `L${pt(r0, a1)} A${r0} ${r0} 0 0 0 ${pt(r0, a0)} Z"/>`;
+    let paths = "";
+    for (let i = 0; i < 20; i++) {
+      const a0 = -99 + i * 18, a1 = a0 + 18, dark = i % 2 === 0;
+      const single = dark ? BOARD.dark : BOARD.light;
+      const band = dark ? BOARD.red : BOARD.green;
+      paths += seg(9.4, 58.2, a0, a1, single) + seg(58.2, 62.9, a0, a1, band) +
+               seg(62.9, 95.3, a0, a1, single) + seg(95.3, 100, a0, a1, band);
+    }
+    paths += `<circle r="9.4" fill="${BOARD.green}"/><circle r="3.7" fill="${BOARD.red}"/>`;
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    el.setAttribute("class", "lobby-board");
+    el.setAttribute("viewBox", "-100 -100 200 200");
+    el.setAttribute("aria-hidden", "true");
+    el.innerHTML = paths;
+    return el;
+  }
+  Dojo.Bus.on("darts:changed", (info) => {
+    const count = (info && info.count) || 0;
+    if (!count) { if (boardEl) boardEl.classList.remove("on"); return; }
+    const g = wheelGeometry();
+    if (!g) return;
+    if (!boardEl) boardEl = buildBoard();
+    if (boardEl.parentNode !== g.ring) g.ring.insertBefore(boardEl, g.ring.firstChild);
+    Object.assign(boardEl.style, {
+      left: `${g.x - g.r}px`, top: `${g.y - g.r}px`,
+      width: `${2 * g.r}px`, height: `${2 * g.r}px`
+    });
+    // A frame later, so a board that has just been inserted fades in
+    // rather than appearing at full strength.
+    requestAnimationFrame(() => boardEl.classList.add("on"));
+  });
 
   // ---- A miss shows what can be clicked, sometimes ----
   // shop/decor.js announces a tap that hit nothing at all. In the lobby

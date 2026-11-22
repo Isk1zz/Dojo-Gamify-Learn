@@ -67,6 +67,18 @@
     // its own per-button wiring.
     click() { tone(720, { duration: 0.045, gain: 0.035, type: "triangle" }); },
 
+    // The start screen's bell (scenes/knell-garden.js), and the one
+    // sound allowed to ring out, because it is the app's name and it
+    // only plays when someone sends the runner to ring it. A struck
+    // bell's partials, the hum an octave down to the nominal an octave
+    // up, each dying away at its own rate, the low ones last.
+    bell() {
+      const f = 330;
+      [[0.5, 3.2, 0.028], [1, 2.6, 0.05], [1.2, 1.6, 0.022], [1.5, 1.3, 0.018],
+       [2, 1.9, 0.028], [2.5, 1.0, 0.011], [3, 0.8, 0.009]]
+        .forEach(([ratio, duration, gain]) => tone(f * ratio, { duration, gain, type: "sine" }));
+    },
+
     // A right answer — two quick notes, rising.
     correct() {
       tone(660, { duration: 0.1, gain: 0.05, type: "sine" });

@@ -57,7 +57,7 @@ Dojo.DEMO = false;   // tools/make-demo.js sets this to true in the demo copy
               ru: "Демо: прогресс сохраняется только в этом браузере." }
   };
   const t = key => {
-    const lang = (window.I18N && I18N.lang && I18N.lang()) || "en";
+    const lang = (typeof I18N !== "undefined" && I18N.lang && I18N.lang()) || "en";
     return T[key][lang] || T[key].en;
   };
 
@@ -136,6 +136,8 @@ Dojo.DEMO = false;   // tools/make-demo.js sets this to true in the demo copy
   // profile yet, so it never overwrites what a visitor has done.
   Dojo.seedDemo = function () {
     if (DB.getActiveProfile()) return;
+    // A first visit: core/peel.js shows the rank sticker only to newcomers.
+    Dojo.freshProfile = true;
     const db = { version: 9, activeProfileId: "demo", profiles: { demo: sampleProfile() } };
     const file = new Blob([JSON.stringify(db)], { type: "application/json" });
     DB.importData(file)

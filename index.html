@@ -24,6 +24,28 @@
   <link rel="stylesheet" href="styles/settings.css" />
   <link rel="stylesheet" href="styles/shop.css" />
   <link rel="stylesheet" href="styles/admin.css" />
+
+  <!-- An update takes over the moment it installs (sw.js: skipWaiting).
+       A page opened under the old version then fetched the rest of its
+       files from the new one, so the first visit after an update mixed
+       an old index.html with new scripts (seen on the live demo on
+       2026-11-22: its Museum tile could not open). When that happens
+       right after opening, reload once, into the new version. Never on
+       a first visit, which has nothing old to mix, and never later than
+       20 seconds in, so nobody is reloaded in the middle of a lesson.
+       Here in the head so it is listening before the takeover can land. -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      const hadController = !!navigator.serviceWorker.controller;
+      const openedAt = Date.now();
+      let reloading = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (!hadController || reloading || Date.now() - openedAt > 20000) return;
+        reloading = true;
+        location.reload();
+      });
+    }
+  </script>
 </head>
 <body>
   <!-- ====== Lobby decorations (shop/decor.js + core/theme.js's
@@ -521,8 +543,9 @@
              gate in front of the way in. -->
         <button id="btn-start" class="btn-primary" data-i18n="ui.landing.begin">Begin Training</button>
         <p class="landing-hint" id="landing-hint" data-i18n="ui.landing.hint">Free account — your progress follows you to any device</p>
-        <!-- A real course scene, drawn by scenes/scene.js from boot.js.
-             Playable here: tap a chapter and the runner goes to it. Left
+        <!-- The Knell garden (scenes/knell-garden.js), drawn by
+             scenes/scene.js from boot.js. Playable here: tap a plant and
+             the runner goes to it, tap the bell and he rings it. Left
              empty, and the orb above shown instead, if no scene loads. -->
         <div class="landing-scene" id="landing-scene" aria-hidden="false"></div>
         <div class="landing-features">
@@ -895,6 +918,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="core/supabase.js"></script>
   <script src="core/sfx.js"></script>
+  <script src="core/letter.js"></script>
+  <script src="core/peel.js"></script>
   <script src="data/db.js"></script>
   <script src="admin/logger.js"></script>
 
@@ -968,6 +993,7 @@
   <script src="scenes/scene.js"></script>
   <script src="scenes/bike-a3.js"></script>
   <script src="scenes/intro-cs.js"></script>
+  <script src="scenes/knell-garden.js"></script>
   <script src="library/library.js"></script>
   <script src="library/stats.js"></script>
   <script src="library/exam-sim.js"></script>

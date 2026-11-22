@@ -117,6 +117,22 @@ body {
   position: relative;
 }
 
+/* The letter for whoever opens Knell (core/letter.js): the app's modal,
+   dressed as a sheet of paper. Its colours are fixed rather than themed
+   on purpose: paper is paper on every theme. */
+.letter-card {
+  max-width: 460px; max-height: 85vh; overflow-y: auto;
+  text-align: left; padding: 1.8rem 1.9rem 1.5rem;
+  background: #f6f0e1; color: #2a2620; border-color: #d9cfb6;
+  font-family: Georgia, "Times New Roman", serif;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+}
+.letter-date { text-align: right; font-size: 0.8rem; color: #7a705e; margin: 0 0 1rem; }
+.letter-hello { font-size: 1.05rem; margin: 0 0 0.8rem; }
+.letter-p { font-size: 0.92rem; line-height: 1.6; margin: 0 0 0.8rem; }
+.letter-sign { font-style: italic; margin: 1rem 0 1.2rem; }
+.letter-close { font-family: inherit; }
+
 .modal-card-wide {
   max-width: 520px;
   text-align: left;
@@ -519,6 +535,42 @@ body {
   font-size: 0.8rem;
   color: var(--text-muted);
 }
+/* The note a tapped pin gets (core/boot.js): a scrap of the letter's
+   paper, pointing at what it explains. Fixed paper colours on every
+   theme, like the letter. --tail is where the pin is, along its edge. */
+.scene-note {
+  position: absolute; z-index: 3;
+  width: max-content; max-width: min(240px, 72vw);
+  transform: translate(-50%, -100%);
+  padding: 0.6rem 0.75rem 0.65rem; border-radius: 6px;
+  background: #f6f0e1; color: #2a2620; border: 1px solid #d9cfb6;
+  font-family: Georgia, "Times New Roman", serif; text-align: left;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  cursor: pointer; animation: scene-note-in 0.22s ease-out;
+}
+.scene-note[hidden] { display: none; }
+.scene-note.below { transform: translate(-50%, 0); animation-name: scene-note-in-below; }
+.scene-note::after {
+  content: ""; position: absolute; left: var(--tail, 50%); top: 100%;
+  margin-left: -7px; border: 7px solid transparent; border-top-color: #f6f0e1;
+}
+.scene-note.below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: #f6f0e1; }
+/* Beside the pin, the usual place: the tail points sideways at it. */
+.scene-note.right { transform: translate(0, -50%); animation-name: scene-note-in-right; }
+.scene-note.left { transform: translate(-100%, -50%); animation-name: scene-note-in-left; }
+.scene-note.right::after, .scene-note.left::after {
+  top: 50%; margin: -7px 0 0; border-top-color: transparent;
+}
+.scene-note.right::after { left: auto; right: 100%; border-right-color: #f6f0e1; }
+.scene-note.left::after { left: 100%; border-left-color: #f6f0e1; }
+@keyframes scene-note-in-right { from { opacity: 0; transform: translate(-6px, -50%); } }
+@keyframes scene-note-in-left { from { opacity: 0; transform: translate(calc(-100% + 6px), -50%); } }
+.scene-note-head { display: flex; align-items: center; gap: 0.45rem; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; }
+.scene-note-icon { font-size: 1.6rem; line-height: 1; }
+.scene-note-text { font-size: 0.83rem; line-height: 1.45; margin: 0; }
+@keyframes scene-note-in { from { opacity: 0; transform: translate(-50%, calc(-100% + 6px)); } }
+@keyframes scene-note-in-below { from { opacity: 0; transform: translate(-50%, -6px); } }
+@media (prefers-reduced-motion: reduce) { .scene-note { animation: none; } }
 .landing-content.has-scene .logo-glow { display: none; }
 .landing-content.has-scene .landing-sub { margin-bottom: 1.4rem; }
 
@@ -704,6 +756,123 @@ body {
   white-space: nowrap;
 }
 .hud-nickname:not(:empty)::before { content: "\00b7"; margin-right: 0.35rem; }
+
+/* The foil sticker over the rank line, for newcomers (core/peel.js).
+   It shines and lifts a corner now and then to say it can be peeled.
+   Peeling takes seven seconds of work: --peel (0 to 1) is how much has
+   come away, clipped off from the right, with a lifted edge (the curl)
+   at the line where it is coming up and the rank showing behind. */
+.rank-peel {
+  position: absolute; z-index: 2; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 0.6rem; border-radius: 6px; cursor: grab; touch-action: none;
+  user-select: none; -webkit-user-select: none;
+  background: linear-gradient(115deg, #d4d9e1 0%, #f8f9fb 22%, #b7bec9 40%, #eef0f3 58%, #a8afba 80%, #e2e5ea 100%);
+  background-size: 220% 100%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+  color: #3a3f48; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap;
+  transform-origin: 0 50%;
+  animation: rank-peel-shine 3.4s linear infinite, rank-peel-hint 5s ease-in-out infinite;
+  transition: transform 0.25s ease;
+}
+.rank-peel::after {
+  content: ""; position: absolute; top: 0; right: 0; width: 11px; height: 11px;
+  border-top-right-radius: 6px;
+  background: linear-gradient(225deg, rgba(var(--bg-deep-rgb), 0.9) 48%, #c7ccd4 50%, #eef0f3 100%);
+  box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.25);
+}
+.rank-peel:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rank-peel { clip-path: inset(0 calc(var(--peel, 0) * 100%) 0 0); }
+.rank-peel-curl {
+  display: none; position: absolute; top: 0; bottom: 0; width: 12px;
+  right: calc(var(--peel, 0) * 100%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.28), #f6f7f9 45%, #c3c9d2);
+  border-radius: 3px 0 0 3px;
+}
+.rank-peel.started { animation: rank-peel-shine 3.4s linear infinite; }
+.rank-peel.started::after { display: none; }
+.rank-peel.started .rank-peel-curl { display: block; }
+.rank-peel.peeling { animation: rank-peel-shine 3.4s linear infinite; transition: none; cursor: grabbing; }
+.rank-peel.gone { animation: rank-peel-off 0.45s ease-in forwards; pointer-events: none; }
+@keyframes rank-peel-shine { from { background-position: 0% 0; } to { background-position: 220% 0; } }
+@keyframes rank-peel-hint {
+  0%, 84%, 100% { transform: none; }
+  90% { transform: perspective(320px) rotateY(-14deg); }
+}
+@keyframes rank-peel-off {
+  to { transform: perspective(320px) rotateY(-115deg) translateY(-18px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rank-peel, .rank-peel.peeling { animation: none; }
+  .rank-peel.gone { animation: none; opacity: 0; }
+}
+
+/* The guide under the sticker (core/peel.js): five cards, each a picture
+   drawn from the learner's own numbers over a title and a line or two,
+   slid through by the buttons, a swipe or the arrow keys. The steps fill
+   from the left as you go. */
+.rank-guide-card { max-width: 380px; padding: 0; overflow: hidden; text-align: left; }
+.rg-close {
+  position: absolute; top: 0.55rem; right: 0.6rem; z-index: 2;
+  width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(0, 0, 0, 0.28); color: var(--text); font-size: 1.15rem; line-height: 1;
+}
+.rg-close:hover, .rg-close:focus-visible { background: rgba(0, 0, 0, 0.45); }
+/* Clips at the cards, so the next one never peeks in. */
+.rank-guide-view { overflow: hidden; }
+.rank-guide-track { display: flex; transition: transform 0.35s ease; touch-action: pan-y; }
+.rank-guide-slide { flex: 0 0 100%; box-sizing: border-box; display: flex; flex-direction: column; }
+.rg-art {
+  height: 150px; display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(120% 95% at 50% 0%, var(--accent-glow), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent);
+  border-bottom: 1px solid var(--border);
+}
+.rg-body { padding: 1rem 1.3rem 0.2rem; }
+.rg-step {
+  font-size: 0.68rem; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 0.35rem;
+}
+.rg-title { margin: 0 0 0.45rem; font-size: 1.25rem; line-height: 1.25; }
+.rg-text { margin: 0; color: var(--text-dim); font-size: 0.95rem; line-height: 1.5; }
+.rg-demo { margin: 0.6rem 0 0; color: var(--text-muted); font-size: 0.82rem; font-style: italic; }
+.rg-foot { padding: 1.1rem 1.3rem 1.2rem; }
+.rg-steps { display: flex; gap: 5px; margin-bottom: 0.9rem; }
+.rg-steps span { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background 0.25s ease; }
+.rg-steps span.on { background: var(--accent); }
+.rank-guide-nav { display: flex; justify-content: space-between; gap: 0.6rem; }
+/* The pictures. */
+.rg-rank, .rg-xp, .rg-reward, .rg-lock, .rg-ladder {
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem; text-align: center;
+}
+.rg-insignia svg { width: 60px; height: 60px; display: block; }
+.rg-rank-name { font-weight: 800; font-size: 1.05rem; }
+.rg-sub { font-size: 0.8rem; color: var(--text-muted); }
+.rg-big { font-size: 2.8rem; line-height: 1; }
+.rg-xp { width: 78%; }
+.rg-xp-num { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.rg-bar {
+  width: 100%; height: 10px; border-radius: 5px; overflow: hidden;
+  background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border);
+}
+.rg-bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--accent), var(--yellow)); }
+.rg-chip {
+  display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 1rem;
+  border-radius: 999px; background: var(--bg-card); border: 1px solid var(--border-accent);
+}
+.rg-chip-icon { font-size: 1.5rem; line-height: 1; }
+.rg-chip-text { font-weight: 700; font-size: 0.95rem; }
+.rg-ladder { gap: 4px; }
+.rg-rung {
+  display: flex; align-items: center; gap: 0.5rem; width: 230px; box-sizing: border-box;
+  padding: 0.25rem 0.6rem; border-radius: 8px; font-size: 0.82rem; text-align: left;
+  border: 1px solid var(--border); background: var(--bg-card);
+}
+.rg-rung.ahead { opacity: 0.6; border-style: dashed; }
+.rg-rung.here { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); font-weight: 700; }
+.rg-rung-ins svg { width: 20px; height: 20px; display: block; }
+@media (prefers-reduced-motion: reduce) { .rank-guide-track { transition: none; } }
 
 /* Collapsed to zero width rather than display:none, so the expand is an
    animated reveal instead of a layout jump. */
@@ -1739,17 +1908,35 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 }
 
 /* Museum (museum/museum.js), in the demo where the Forum's tile was.
-   An exhibit is a card in the Forum's own panel style, because the
-   first one IS the Forum. */
+   Halls of exhibits. An exhibit is a card that opens on a tap, so the
+   screen reads as a list of titles until something is chosen. */
 .museum-intro { color: var(--text-muted); margin: 0.2rem 0 0.9rem; }
+.museum-hall {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-muted); margin: 1.3rem 0 0.55rem;
+}
 .museum-exhibit {
-  padding: 0.85rem 1rem; margin-bottom: 0.8rem;
+  margin-bottom: 0.55rem;
   border-radius: var(--radius); border: 1px solid var(--border);
   background: var(--bg-card);
 }
-.museum-icon { font-size: 1.6rem; line-height: 1; margin-bottom: 0.45rem; }
-.museum-title { font-size: 1.05rem; margin: 0 0 0.35rem; }
-.museum-text { font-size: 0.9rem; line-height: 1.5; color: var(--text-muted); margin: 0; }
+.museum-exhibit[open] { border-color: var(--border-accent); }
+.museum-summary {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.75rem 1rem; cursor: pointer; list-style: none;
+}
+.museum-summary::-webkit-details-marker { display: none; }
+.museum-summary::after {
+  content: "\203A"; margin-left: auto; color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+.museum-exhibit[open] .museum-summary::after { transform: rotate(90deg); }
+.museum-icon { font-size: 1.4rem; line-height: 1; }
+.museum-title { font-size: 1rem; font-weight: 600; }
+.museum-body { padding: 0 1rem 0.9rem; }
+.museum-text { font-size: 0.9rem; line-height: 1.55; color: var(--text-muted); margin: 0 0 0.6rem; }
+.museum-action { margin-top: 0.2rem; }
+.museum-scene { margin-top: 0.4rem; }
 
 /* Flying bolt */
 .bolt-layer { position: fixed; inset: 0; pointer-events: none; z-index: 70; }
@@ -2215,6 +2402,16 @@ body.hide-hints .lobby-hint { display: none; }
 .lobby-style-star .lobby-star-lines line {
   stroke: var(--border-accent); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.55;
 }
+/* The dartboard that shows through the wheel while darts are in it
+   (core/lobby.js, "The board"). Faint on purpose: it is a skin on the
+   wheel, not something new to read. Under the spokes (z-index 1) and
+   the tiles. */
+.lobby-board {
+  position: absolute; z-index: 0; pointer-events: none;
+  opacity: 0; transition: opacity 0.6s ease;
+}
+.lobby-board.on { opacity: 0.16; }
+@media (prefers-reduced-motion: reduce) { .lobby-board { transition: none; } }
 /* Finer dashes than the spokes above (1.5/7 vs 4/4) so the track reads
    as a separate, quieter object rather than more of the same network. */
 .lobby-style-star .lobby-star-lines .lobby-orbit-ring {

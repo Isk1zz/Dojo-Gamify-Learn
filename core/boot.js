@@ -227,18 +227,104 @@
   // actually comes back, and profile:changed doesn't fire for it.
   if (Dojo.checkWarnings) Dojo.checkWarnings();
 
-  // ---- Landing: a real course, playable before you begin ----
-  // The start screen shows the e-bike course's scene, and it works: a
-  // visitor can send the runner around before deciding to start. Here it
-  // only plays (no onChapter), so arriving opens nothing. Off screen its
-  // own IntersectionObserver stops it, so it costs nothing behind the app.
+  // ---- Landing: the Knell garden, playable before you begin ----
+  // The start screen shows a garden with a bell tower (scenes/
+  // knell-garden.js): the Garden's five growth stages along one path. A
+  // visitor can send the runner around before deciding to start. Arriving
+  // at a plant puts that stage's meaning in the caption, and arriving at
+  // the tower rings the bell (the scene swings it; the sound is here).
+  // Off screen its own IntersectionObserver stops it, so it costs nothing
+  // behind the app. Until 2026-11-22 this was the e-bike junction, which
+  // showed one course rather than what Knell is.
   const sceneHost = document.getElementById("landing-scene");
-  if (sceneHost && Dojo.Scenes && Dojo.Scenes.has("bike-a3")) {
-    Dojo.Scenes.render(sceneHost, "bike-a3", { lang: I18N.lang() });
+  if (sceneHost && Dojo.Scenes && Dojo.Scenes.has("knell-garden")) {
     const cap = document.createElement("p");
     cap.className = "landing-scene-caption";
     cap.textContent = I18N.t("scene.landingCaption");
-    sceneHost.appendChild(cap);
+
+    // A tap on a pin pins a small note to it, on the letter's paper: the
+    // stage's symbol from the Garden, its name, and a line or two on what
+    // it means ("can it open a tiny letter saying what that is? like a
+    // note", 2026-11-22). In the scene a sprout is a few pixels tall on a
+    // phone, so the note is what says which stage was picked. It sits
+    // beside the pin, because the pins stand in one column and a note
+    // above one covers the next; only where there is no room beside it
+    // (a phone) does it go above the pin, or below when there is no room
+    // above either. A tap on the note puts it away; the next pin
+    // replaces it.
+    const note = document.createElement("div");
+    note.className = "scene-note";
+    note.hidden = true;
+    note.setAttribute("role", "status");
+    const noteHead = document.createElement("div");
+    noteHead.className = "scene-note-head";
+    const noteIcon = document.createElement("span");
+    noteIcon.className = "scene-note-icon";
+    noteIcon.setAttribute("aria-hidden", "true");
+    const noteTitle = document.createElement("span");
+    const noteText = document.createElement("p");
+    noteText.className = "scene-note-text";
+    noteHead.append(noteIcon, noteTitle);
+    note.append(noteHead, noteText);
+    note.addEventListener("click", () => { note.hidden = true; });
+    const showNote = ({ say, icon, label, el }) => {
+      if (!say || !el) { note.hidden = true; return; }
+      noteIcon.textContent = icon;
+      noteTitle.textContent = label;
+      noteText.textContent = say;
+      note.hidden = false;
+      note.classList.remove("below", "right", "left");
+      const host = sceneHost.getBoundingClientRect(), pin = el.getBoundingClientRect();
+      const px = pin.left + pin.width / 2 - host.left, py = pin.top + pin.height / 2 - host.top;
+      // Beside the whole column of pins, not just this one: they zigzag,
+      // so a note just past one pin lands on the next. The note narrows
+      // to the room there is, down to 150 px, before giving up the side.
+      const xs = [...sceneHost.querySelectorAll(".ks-pin")].map(p => {
+        const r = p.getBoundingClientRect();
+        return r.left + r.width / 2 - host.left;
+      });
+      const colRight = Math.max(...xs) + 20, colLeft = Math.min(...xs) - 20;
+      const roomR = host.width - colRight - 16, roomL = colLeft - 16;
+      const side = roomR >= 150 ? "right" : roomL >= 150 ? "left" : "";
+      note.style.maxWidth = side ? Math.min(240, side === "right" ? roomR : roomL) + "px" : "";
+      const w = note.offsetWidth, h = note.offsetHeight, half = w / 2;
+      if (side) {
+        note.classList.add(side);
+        note.style.left = (side === "right" ? colRight + 6 : colLeft - 6) + "px";
+        note.style.top = Math.max(h / 2 + 4, Math.min(host.height - h / 2 - 4, py)) + "px";
+      } else {
+        const x = Math.max(half + 6, Math.min(host.width - half - 6, px));
+        const below = pin.top - host.top - h - 10 < 0;
+        note.classList.toggle("below", below);
+        note.style.left = x + "px";
+        note.style.top = (below ? pin.bottom - host.top + 10 : pin.top - host.top - 10) + "px";
+        note.style.setProperty("--tail", (px - (x - half)) + "px");
+      }
+      // Restart the pop-in, so a second tap visibly lands a new note.
+      note.style.animation = "none";
+      void note.offsetWidth;
+      note.style.animation = "";
+    };
+
+    const drawGarden = () => Dojo.Scenes.render(sceneHost, "knell-garden", {
+      lang: I18N.lang(),
+      onPick: showNote,
+      onChapter: ({ act }) => {
+        if (act === "bell" && Dojo.sfx && Dojo.sfx.bell) Dojo.sfx.bell();
+        // The mailbox at the gate holds a letter (core/letter.js).
+        if (act === "letter" && Dojo.openLetter) Dojo.openLetter();
+      }
+    });
+    let garden = drawGarden();
+    sceneHost.append(note, cap);
+    // The garden is drawn for the sky it opens under, day or night, so a
+    // switch of sky redraws it, above the note and the caption.
+    Bus.on("sky:changed", () => {
+      note.hidden = true;
+      garden.destroy();
+      garden = drawGarden();
+      sceneHost.insertBefore(garden.svg, note);
+    });
     const content = sceneHost.closest(".landing-content");
     if (content) content.classList.add("has-scene");
   }
