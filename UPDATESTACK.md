@@ -5,6 +5,65 @@ record). Items here get **erased on completion**, not marked `[x]` and
 left — BACKLOG.md is where finished work gets written up. This file is
 just "what's still owed."
 
+## QUEUED 2026-11-22 — asks from looking at the demo
+
+Asked for in one message and recorded so none is lost. Two have shipped
+since and are erased from here: the crosshair (which grew into a scope
+over the whole lobby, darts at the Star wheel, and a dimmer, rarer miss
+glow), and the first version of the museum below.
+
+1. **A memo on entering the demo** («памятку при заходе в демо (можно
+   отклонить или продолжить листать)»). A few short cards on what to
+   look at; dismiss at once or flip through. Demo copy only
+   (`Dojo.DEMO`), shown once per browser. It must not hide the start
+   screen's line saying this is a demo with no account.
+2. **Documentation that explains the logic as simply as possible,** so
+   an employer can see indirectly what its author is capable of. The
+   list given: how the library is built, how lessons work, and more.
+   Likely chapters: a course (manifest → units → topics → chunks); a
+   lesson (chunk → quiz → missed questions return → exam → review
+   schedule); the Garden reading that schedule; a scene drawn from a
+   data recipe. Build on docs/INTERVIEW.md, docs/SHOWCASE.md and
+   data/DATA.md rather than repeating them. Keeps the attribution:
+   designed and directed by its author, code written with AI (Claude).
+3. **A museum in the Forum's place** («чтобы не терять работы со
+   стилями я бы либо хотел добавить их в музей за место форума и там
+   можно было бы прогрузить старые сцены или прогуляться по истории
+   проекта»). It replaces the «prime / legacy» switch first proposed. A
+   look that gets retired goes to the museum instead of being deleted,
+   and the project's history can be walked through.
+   - **The slot.** In the demo the Forum tile only shows a note, so the
+     place is free there. The Forum becomes an exhibit itself, so the
+     demo still says it is built and not launched.
+   - **Old scenes can load live.** A scene is a data recipe and the
+     engine draws any recipe, so a retired recipe is kept as a file and
+     the museum draws it. That holds only while the engine can still
+     draw old recipes.
+   - **Old versions of the whole app can't run there.** Old commits hold
+     the production Supabase address and key, which the demo must not.
+     They stop at a sign-in whose server is gone. They would write
+     unprefixed storage on the shared `isk1zz.github.io` origin, and
+     their service workers delete every cache that isn't theirs (checked
+     in `77a563a:sw.js`), the demo's included. So history halls show a
+     screenshot and a few lines, or link to the separate `cs_dojo_demo`
+     site.
+   - **Decided 2026-11-22: demo only.** The real app keeps its Forum.
+     The code still lives in this repository and runs only under
+     `Dojo.DEMO`, like core/demo.js, because the demo is a copy that
+     tools/make-demo.js takes from here.
+   - **The Forum is cut from the demo** («и вырежи форум тогда раз он
+     лишний», 2026-11-22). Its tile couldn't simply be hidden, because
+     two of the five lobby looks count tiles exactly (core/lobby.js).
+     The hexagram draws only at `n === 6` and otherwise falls back to
+     spokes, and the pentagram joins `nodeAt(i % n)` and goes lopsided
+     at four. So the museum took the tile, keeping the id
+     `btn-lobby-games` («за место форума музей просто либо кнопка
+     назад»).
+   - **First version shipped 2026-11-22:** the screen, a back button and
+     one exhibit, the Forum. tools/make-demo.js leaves forum/ out and
+     checks that none of it is left.
+   - **Open:** which halls come next.
+
 ## IN PROGRESS 2026-11-19 — cut dead code; scenes for the other courses
 
 Paused by a usage limit mid-task. Nothing has been deleted yet.
@@ -40,14 +99,12 @@ reviewed yet.
 check-schema, load the app and walk lobby, library, a course, a lesson.
 
 **Then, scenes for every course** (asked: "you didn't create scenes for
-other than ebike"). Philosophy: a Roman forum, three topic pins. Intro CS:
-48 topics will not fit on one scene, so its pins are its 8 UNITS and a pin
-opens that unit's topic map — the engine needs a pin that targets a unit,
-not only a topic. The four empty courses have no lessons; decide whether
-they get a scene before any content.
-
-**Also uncommitted:** the lobby clickability hint (CACHE_VERSION v70),
-built and verified, not pushed.
+other than ebike"). Intro CS shipped 2026-11-22: a computer lab at night,
+where its 48 topics would not fit, so its pins are its 8 units and a pin
+opens that unit's topic map. The engine gained pins that target a unit,
+walls with art on them, and indoor pieces. Still to do: Philosophy (a
+Roman forum, three topic pins), and a decision on whether the four empty
+courses get a scene before they have any lessons.
 
 ---
 

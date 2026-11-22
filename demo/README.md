@@ -31,8 +31,8 @@
 ## What this demo is, and is not
 
 - **A copy of the app with its server switched off.** It holds no database address and no key, and it never contacts the backend. Because rewards come from the server, nothing earns XP here; the sample profile's rank stays where it is.
-- **The Forum is built but not launched yet.** It needs the server, so here its tile only says so.
-- **Course scenes** (a course drawn as a place you walk through) exist for one course so far, the e-bike course.
+- **The Forum is built but not launched yet.** It needs the server, so this demo leaves it out. Its tile opens a small museum instead, and the Forum is the first exhibit there.
+- **Course scenes** (a course drawn as a place you walk through) exist for two courses so far: the e-bike course is a junction whose chapters are its topics, and Intro to CS is a computer lab whose chapters are its eight units.
 
 Full source, backend and history: <https://github.com/Isk1zz/Dojo-Gamify-Learn>
 

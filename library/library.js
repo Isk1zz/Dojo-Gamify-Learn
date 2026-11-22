@@ -526,9 +526,24 @@
       }
       return null;
     };
-    // The roadmap's own lock rule, so the scene can never open a topic
-    // the map would refuse.
+    // Or, in a course with many units (Intro to CS), a pin names a whole
+    // UNIT. Matched as strings: ids are numbers in the content and could
+    // arrive either way from a recipe.
+    const unitAt = unitId => unitsToShow.findIndex(u => String(u.id) === String(unitId));
+    const unitDone = u => {
+      const topics = UNIT_TOPICS[u.id] || [];
+      return topics.length > 0 && topics.every(t => completedTopics.has(t.id));
+    };
+    // The roadmap's own lock rules, so the scene can never open a topic
+    // or a unit the map would refuse.
     const stateOf = pin => {
+      if (pin.unit != null) {
+        const i = unitAt(pin.unit);
+        if (i < 0) return "locked";
+        if (unitDone(unitsToShow[i])) return "done";
+        const prereqDone = i === 0 || DB.getUnitsUnlocked() || unitDone(unitsToShow[i - 1]);
+        return prereqDone ? "open" : "locked";
+      }
       const at = locate(pin.topic);
       if (!at) return "locked";
       if (completedTopics.has(pin.topic)) return "done";
@@ -542,14 +557,18 @@
     courseScene = Dojo.Scenes.render(wrap, course.id, {
       lang: I18N.lang(),
       pinState: stateOf,
-      onChapter: ({ topic }) => {
-        const at = locate(topic);
-        if (!at) return;
+      onChapter: ({ topic, unit }) => {
+        const i = unit != null ? unitAt(unit) : -1;
+        const at = unit != null ? null : locate(topic);
+        if (i < 0 && !at) return;
         // A beat after arriving, so the hop reads before the screen
         // changes; and only if the learner is still on this screen.
         setTimeout(() => {
           const screen = document.getElementById("unit-select");
           if (!screen || !screen.classList.contains("active")) return;
+          // A unit pin opens that unit's topic map, the same door its
+          // card on this screen opens.
+          if (i >= 0) { selectUnit(unitsToShow[i].id); return; }
           state.currentUnit = at.unit.id;
           state.currentTopics = at.topics;
           startTopic(at.idx);

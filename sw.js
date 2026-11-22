@@ -275,7 +275,24 @@
 // demo's sample profile and routes its Forum tile to a note, and the
 // cleanup below now spares caches that are not this app's own. A stale
 // cache here would keep a returning visitor on the open-access build.
-const CACHE_VERSION = "knell-v71";
+// Bumped for the Intro to CS room: scenes/intro-cs.js is new, scene.js
+// gains walls, wall art and indoor pieces, and library.js lets a pin
+// stand for a whole unit and open its topic map. A stale cache would
+// open Intro to CS with no room in it, unnoticed.
+// Bumped for the Museum: museum/museum.js is new, index.html gains its
+// screen and script, boot.js and lobby.js give the Forum's tile to it in
+// the demo, i18n.js and base.css gain its strings and cards, and demo.js
+// loses the note it replaces. A stale boot.js in the demo would send the
+// tile to the Forum, which the demo copy no longer has.
+// Bumped for the sky's crosshair: shop/decor.js tests what is under the
+// mouse as it moves and base.css draws the cursor. A stale pair would
+// only mean the old plain arrow, but the two have to arrive together.
+// Bumped again the same day: the scope covers the whole lobby and locks
+// on over targets (decor.js), the lobby's wheel takes darts (lobby.js
+// decides, decor.js draws, base.css animates), and a miss lights the
+// controls dimmer and only one time in four (lobby.js, base.css). A
+// stale lobby.js beside a fresh decor.js would just mean no darts.
+const CACHE_VERSION = "knell-v75";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

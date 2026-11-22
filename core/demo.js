@@ -5,8 +5,9 @@
 // real app DEMO is false and nothing below the flag runs.
 //
 // tools/make-demo.js builds the demo by copying the app and flipping the
-// flag; it also blanks the Supabase keys in that copy, so the demo holds
-// no production key at all. Nothing else in the app is edited for it.
+// flag. It also blanks the Supabase keys in that copy, so the demo holds
+// no production key at all, and it leaves the Forum out. Nothing else in
+// the app is edited for it.
 //
 // With DEMO on, and all of it here:
 //   1. Storage of its own. Every project page under isk1zz.github.io is
@@ -18,8 +19,11 @@
 //      it arrives with reviews due and a healthy garden however long
 //      after this was written someone opens it.
 //   4. A small permanent banner: progress stays in this browser.
-//   5. The Forum stays closed. It needs a server the demo does not have;
-//      its lobby tile opens a one-line note instead (wired in boot.js).
+//   5. No Forum. It needs a server the demo does not have, so
+//      tools/make-demo.js leaves forum/ out of the copy, and its lobby
+//      tile opens the Museum instead, where the Forum is an exhibit
+//      (museum/museum.js, wired in boot.js). Changed 2026-11-22: until
+//      then the tile opened a note that lived here.
 //
 // Loads FIRST, before core.js and i18n.js: i18n.js reads storage while
 // it loads, and the prefix has to be in place before anything does.
@@ -50,11 +54,7 @@ Dojo.DEMO = false;   // tools/make-demo.js sets this to true in the demo copy
 
   const T = {
     banner: { en: "Demo: progress is saved only in this browser.",
-              ru: "Демо: прогресс сохраняется только в этом браузере." },
-    forumTitle: { en: "Forum: built, not launched yet", ru: "Форум: построен, ещё не запущен" },
-    forumBody: { en: "Posts, replies, praise, reports and moderation are in the code and were tested against a live database. The demo has no server, so the Forum stays closed here.",
-                 ru: "Посты, ответы, похвала, жалобы и модерация есть в коде и проверялись на живой базе. У демо нет сервера, поэтому здесь форум закрыт." },
-    ok: { en: "OK", ru: "Понятно" }
+              ru: "Демо: прогресс сохраняется только в этом браузере." }
   };
   const t = key => {
     const lang = (window.I18N && I18N.lang && I18N.lang()) || "en";
@@ -161,39 +161,6 @@ Dojo.DEMO = false;   // tools/make-demo.js sets this to true in the demo copy
     });
     document.body.appendChild(b);
   }
-
-  // ---- 5. The Forum note -------------------------------------------------
-  // Its own small dialog, built here, so the Forum branch is not touched.
-  Dojo.demoForumNote = function () {
-    let m = document.getElementById("demo-forum-note");
-    if (!m) {
-      m = document.createElement("div");
-      m.id = "demo-forum-note";
-      m.className = "modal-overlay";
-      m.setAttribute("role", "dialog");
-      m.setAttribute("aria-modal", "true");
-      const card = document.createElement("div");
-      card.className = "modal-card";
-      const icon = document.createElement("div");
-      icon.className = "modal-icon";
-      icon.textContent = "\u{1F4AC}";
-      const h = document.createElement("h2");
-      h.className = "modal-title";
-      h.textContent = t("forumTitle");
-      const p = document.createElement("p");
-      p.className = "modal-desc";
-      p.textContent = t("forumBody");
-      const ok = document.createElement("button");
-      ok.className = "btn-primary";
-      ok.textContent = t("ok");
-      ok.addEventListener("click", () => { m.style.display = "none"; });
-      m.addEventListener("click", e => { if (e.target === m) m.style.display = "none"; });
-      card.append(icon, h, p, ok);
-      m.appendChild(card);
-      document.body.appendChild(m);
-    }
-    m.style.display = "flex";
-  };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", addBanner);
   else addBanner();

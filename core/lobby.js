@@ -97,7 +97,9 @@
     };
     tile("btn-lobby-garden", "lobby-garden-sub", gardenSummary());
     tile("btn-lobby-shop",   "lobby-shop-sub",   shopSummary());
-    tile("btn-lobby-games",  "lobby-games-sub",  Dojo.forumSummary ? Dojo.forumSummary() : null);
+    // The Forum's slot holds the Museum in the demo (see core/boot.js).
+    const slotSummary = Dojo.DEMO ? Dojo.museumSummary : Dojo.forumSummary;
+    tile("btn-lobby-games",  "lobby-games-sub",  slotSummary ? slotSummary() : null);
     tile("btn-lobby-flashcards", "lobby-flashcards-sub", Dojo.flashcardsSummary ? Dojo.flashcardsSummary() : null);
 
     renderCharge();
@@ -735,17 +737,52 @@
   });
 
   // ---- seam: what this branch offers to everyone else ----
-  // ---- A miss shows what can be clicked ----
+  // ---- The wheel takes darts ----
+  // In the Star layout the ring of tiles reads as a wheel, and a click on
+  // it that hits no tile throws a dart (shop/decor.js draws the throw;
+  // asked for 2026-11-22). The wheel is the disc out to the far edge of
+  // its tiles, measured from the same centre the ring is laid out on.
+  // Exported so the sky's crosshair can lock on over it too.
+  function wheelAt(x, y) {
+    const lobby = document.getElementById("lobby");
+    const ring = document.getElementById("lobby-actions");
+    if (!lobby || !lobby.classList.contains("active")) return null;
+    if (!ring || !ring.classList.contains("lobby-style-star")) return null;
+    const box = ring.getBoundingClientRect();
+    const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+    let reach = 0;
+    ring.querySelectorAll(".lobby-tile").forEach(t => {
+      if (t.style.display === "none") return;
+      const r = t.getBoundingClientRect();
+      if (!r.width) return;
+      const d = Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy) + r.width / 2;
+      if (d > reach) reach = d;
+    });
+    return reach && Math.hypot(x - cx, y - cy) <= reach ? ring : null;
+  }
+
+  // ---- A miss shows what can be clicked, sometimes ----
   // shop/decor.js announces a tap that hit nothing at all. In the lobby
   // that is someone looking for the way in — it was watched happening,
-  // thirty taps on empty sky and clouds — so every real control lights
-  // up for a moment and the miss itself becomes the hint. Throttled to
-  // one glow at a time, and off when Settings turns hints off, like
-  // every other hint in the app.
+  // thirty taps on empty sky and clouds — so the real controls light up
+  // for a moment and the miss itself becomes the hint. Throttled to one
+  // glow at a time, and off when Settings turns hints off, like every
+  // other hint in the app.
+  //
+  // Changed 2026-11-22: it lit on EVERY miss, brightly, and that grated
+  // («every click shouldnt be that bright. make more dim and lower
+  // chance»). Now one miss in four, and dimmer (styles/base.css). A miss
+  // on the wheel throws a dart instead, which is its own answer.
+  const REVEAL_CHANCE = 0.25;
   let revealTimer = 0;
-  Dojo.Bus.on("click:dead", () => {
+  Dojo.Bus.on("click:dead", (at) => {
     const lobby = document.getElementById("lobby");
-    if (!lobby || !lobby.classList.contains("active") || revealTimer) return;
+    if (!lobby || !lobby.classList.contains("active")) return;
+    if (at && wheelAt(at.x, at.y)) {
+      if (Dojo.dartAt) Dojo.dartAt(at.x, at.y);
+      return;
+    }
+    if (revealTimer || Math.random() >= REVEAL_CHANCE) return;
     if (document.body.classList.contains("hide-hints")) return;
     lobby.classList.add("lobby-reveal");
     revealTimer = setTimeout(() => {
@@ -756,5 +793,5 @@
 
   // HEX_FLAGS is exported so settings/settings.js can paint its swatches
   // from the same table the ring uses — one definition of each flag.
-  Object.assign(Dojo, { showLobby, HEX_FLAGS, HEX_FLAG_MODES, HEX_FLAG_LABELS });
+  Object.assign(Dojo, { showLobby, wheelAt, HEX_FLAGS, HEX_FLAG_MODES, HEX_FLAG_LABELS });
 })();

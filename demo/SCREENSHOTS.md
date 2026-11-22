@@ -26,7 +26,7 @@ so that the review screen's own back buttons lead straight into the course.
 |---|---|---|
 | 0:00 | Open the demo link, choose **English** | *Knell: a study app. This is the demo, no account needed.* |
 | 0:06 | Click **Begin Training**, then **Skip** on the tour | *A sample student, mid-course: rank, streak, where they stopped.* |
-| 0:12 | Click **Forum**, then **OK** | *Forum: built, not launched yet. The demo has no server.* |
+| 0:12 | Click **Museum**, then **← Lobby** | *The Forum is built, not launched yet. Here it is an exhibit.* |
 | 0:18 | Click **Garden** | *Every passed topic is a plant. Its size is its review interval.* |
 | 0:26 | Click **Water the first →** | *Reviews come back on a schedule. Three are due.* |
 | 0:34 | Click **← Topics**, then **← Units** | *A course is a place. Ticked chapters are done.* |

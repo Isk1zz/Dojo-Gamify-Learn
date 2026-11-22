@@ -219,7 +219,118 @@
 
     // Rim light along the top, the line the eye reads the block's shape by.
     el("polygon", { points: pts(quadTop(iso, 0, 0, w, d, 0)), fill: "none", stroke: "#fff", "stroke-opacity": 0.16, "stroke-width": 1.2 }, g);
+
+    if (recipe.walls) drawWalls(g, recipe, P, col, uid);
   }
+
+  // ---- A room: the block with its two back walls standing ----------------
+  // The cut-away room of a diorama. Only the two walls at the back are
+  // built, so the camera looks into the room over where the front walls
+  // would be; their cut ends and tops are drawn so the walls read as
+  // having thickness. Drawn after the floor and before every object, so
+  // whatever stands in the room is in front of them.
+  function drawWalls(g, recipe, P, col, uid) {
+    const { iso } = P;
+    const W = recipe.block.w, D = recipe.block.d;
+    const spec = recipe.walls, H = spec.height || 3.6, t = spec.thickness || 0.22;
+    const base = col(spec.color || "wall");
+    const quad = (pts4, fill) => el("polygon", { points: pts(pts4), fill }, g);
+
+    quad([iso(0, 0, 0), iso(W, 0, 0), iso(W, 0, H), iso(0, 0, H)], shade(base, 0.95));   // back, faces the viewer
+    quad([iso(0, 0, 0), iso(0, D, 0), iso(0, D, H), iso(0, 0, H)], shade(base, 0.78));   // left
+    // Skirting along the foot of both walls.
+    quad([iso(0, 0, 0), iso(W, 0, 0), iso(W, 0, 0.14), iso(0, 0, 0.14)], shade(base, 0.62));
+    quad([iso(0, 0, 0), iso(0, D, 0), iso(0, D, 0.14), iso(0, 0, 0.14)], shade(base, 0.52));
+
+    for (const a of spec.art || []) drawWallArt(g, a, P, col);
+
+    // The cut: each wall's open end, then both tops as one L.
+    quad([iso(W, -t, 0), iso(W, 0, 0), iso(W, 0, H), iso(W, -t, H)], shade(base, 0.6));
+    quad([iso(-t, D, 0), iso(0, D, 0), iso(0, D, H), iso(-t, D, H)], shade(base, 0.7));
+    el("polygon", {
+      points: pts([iso(-t, -t, H), iso(W, -t, H), iso(W, 0, H), iso(0, 0, H), iso(0, D, H), iso(-t, D, H)]),
+      fill: shade(col(spec.cap || base), 1.2), stroke: "#fff", "stroke-opacity": 0.18, "stroke-width": 1
+    }, g);
+  }
+
+  // Art lives in the wall's own plane. The group's matrix maps local
+  // pixels (u along the wall, v downward) onto the wall, so a rectangle
+  // or a line of text drawn flat comes out in isometric perspective. On
+  // the left wall u runs toward the viewer's right, so text still reads
+  // left to right instead of mirrored.
+  function drawWallArt(g, a, P, col) {
+    const { iso, S } = P;
+    const len = (a.to - a.from) * S, h = (a.z1 - a.z0) * S;
+    const o = a.wall === "left" ? iso(0, a.to, a.z1) : iso(a.from, 0, a.z1);
+    const m = a.wall === "left"
+      ? `matrix(${r1(COS30 * 1000) / 1000},-0.5,0,1,${r1(o[0])},${r1(o[1])})`
+      : `matrix(${r1(COS30 * 1000) / 1000},0.5,0,1,${r1(o[0])},${r1(o[1])})`;
+    const grp = el("g", { transform: m }, g);
+    if (WALL_ART[a.art]) WALL_ART[a.art](grp, len, h, a, col);
+  }
+
+  const MONO = "ui-monospace, Consolas, monospace";
+  const WALL_ART = {
+    whiteboard(g, w, h, a) {
+      el("rect", { width: r1(w), height: r1(h), rx: 2, fill: "#aeb6c3" }, g);
+      el("rect", { x: 4, y: 4, width: r1(w - 8), height: r1(h - 12), fill: "#eef2f7" }, g);
+      el("rect", { x: 10, y: r1(h - 8), width: r1(w - 20), height: 5, rx: 1, fill: "#8d96a5" }, g);
+      (a.lines || []).forEach((line, i) => {
+        const tx = el("text", { x: 12, y: 26 + i * 22, "font-size": 16, "font-weight": 700,
+          "font-family": "'Segoe Print', 'Comic Sans MS', cursive", fill: i % 2 ? "#c0392b" : "#1d3b8a" }, g);
+        tx.textContent = line;
+      });
+    },
+    screen(g, w, h, a) {
+      el("rect", { width: r1(w), height: r1(h), rx: 3, fill: "#0b0f16" }, g);
+      el("rect", { x: 5, y: 5, width: r1(w - 10), height: r1(h - 10), fill: "#061a10" }, g);
+      const lines = a.lines || [];
+      lines.forEach((line, i) => {
+        const tx = el("text", { x: 11, y: 20 + i * 14, "font-size": 11, "font-family": MONO, fill: "#3ce68a" }, g);
+        tx.textContent = line;
+      });
+      el("rect", { class: "ks-blink", x: 11, y: r1(10 + lines.length * 14), width: 7, height: 11, fill: "#3ce68a" }, g);
+    },
+    poster(g, w, h, a) {
+      el("rect", { width: r1(w), height: r1(h), rx: 2, fill: a.bg || "#1e2a44", stroke: "#0b1020", "stroke-width": 2 }, g);
+      const title = el("text", { x: r1(w / 2), y: 18, "text-anchor": "middle", "font-size": 11, "font-weight": 800,
+        "letter-spacing": 1.5, "font-family": MONO, fill: a.ink || "#9fd3ff" }, g);
+      title.textContent = a.title || "";
+      if (a.diagram === "cpu") {
+        // Von Neumann in three boxes: the processor, memory, input/output.
+        const bx = (x, y, bw, label) => {
+          el("rect", { x: r1(x), y: r1(y), width: r1(bw), height: 22, rx: 3, fill: "none", stroke: a.ink || "#9fd3ff", "stroke-width": 1.6 }, g);
+          const t2 = el("text", { x: r1(x + bw / 2), y: r1(y + 15), "text-anchor": "middle", "font-size": 10, "font-weight": 700, "font-family": MONO, fill: "#e8eefc" }, g);
+          t2.textContent = label;
+        };
+        const cw = (w - 30) / 2;
+        bx(10, 30, cw, "CPU");
+        bx(20 + cw, 30, cw, "RAM");
+        bx(10 + cw / 2, h - 34, cw + 10, "I/O");
+        el("path", { d: `M${r1(10 + cw)} 41 H${r1(20 + cw)} M${r1(10 + cw / 2)} 52 V${r1(h - 34)} M${r1(20 + cw * 1.5)} 52 V${r1(h - 34)}`,
+          stroke: "#f2c14e", "stroke-width": 1.6, fill: "none" }, g);
+      } else if (a.diagram === "net") {
+        // A small neural network: three layers, every node joined forward.
+        const layers = [3, 4, 2], cols = layers.length;
+        const pos = layers.map((n, li) => Array.from({ length: n }, (_, k) =>
+          [r1(18 + li * (w - 36) / (cols - 1)), r1(34 + (k + 0.5) * (h - 44) / n)]));
+        for (let li = 0; li < cols - 1; li++) {
+          for (const p of pos[li]) for (const q of pos[li + 1]) {
+            el("line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], stroke: a.ink || "#9fd3ff", "stroke-opacity": 0.45, "stroke-width": 1 }, g);
+          }
+        }
+        pos.flat().forEach(p => el("circle", { cx: p[0], cy: p[1], r: 4, fill: "#f2c14e" }, g));
+      }
+    },
+    window(g, w, h) {
+      el("rect", { width: r1(w), height: r1(h), rx: 2, fill: "#5d6a87" }, g);
+      el("rect", { x: 5, y: 5, width: r1(w - 10), height: r1(h - 10), fill: "#0d1a38" }, g);
+      [[0.2, 0.25], [0.7, 0.2], [0.45, 0.55], [0.82, 0.62], [0.3, 0.8]].forEach(([fx, fy]) =>
+        el("circle", { cx: r1(5 + fx * (w - 10)), cy: r1(5 + fy * (h - 10)), r: 1.3, fill: "#fff", "fill-opacity": 0.85 }, g));
+      el("circle", { cx: r1(w * 0.72), cy: r1(h * 0.36), r: 7, fill: "#f4f1e4", "fill-opacity": 0.9 }, g);
+      el("path", { d: `M${r1(w / 2)} 5 V${r1(h - 5)} M5 ${r1(h / 2)} H${r1(w - 5)}`, stroke: "#5d6a87", "stroke-width": 3 }, g);
+    }
+  };
 
   function drawSurface(g, surface, P, col, uid) {
     const { iso, S } = P;
@@ -270,6 +381,23 @@
         }
         for (let y = y0 + 0.25; y + 0.26 <= y1 - 0.15; y += 0.5) {
           win([iso(x1, y, zb), iso(x1, y + 0.26, zb), iso(x1, y + 0.26, za), iso(x1, y, za)], rand() < 0.42, 0.62);
+        }
+      }
+    }
+
+    // A server rack: rack-unit seams and rows of status lights on the face
+    // toward the viewer, a few of them blinking out of step.
+    if (o.leds) {
+      for (let z = z0 + 0.25; z < z0 + h - 0.15; z += 0.3) {
+        el("polyline", { points: pts([iso(x0, y1, z), iso(x1, y1, z)]), fill: "none", stroke: "#000", "stroke-opacity": 0.35, "stroke-width": 1 }, g);
+        for (let x = x0 + 0.18, i = 0; x + 0.08 < x1 - 0.1 && i < 5; x += 0.22, i++) {
+          const on = rand();
+          if (on < 0.35) continue;
+          const led = el("polygon", {
+            points: pts([iso(x, y1, z + 0.13), iso(x + 0.08, y1, z + 0.13), iso(x + 0.08, y1, z + 0.07), iso(x, y1, z + 0.07)]),
+            fill: on < 0.8 ? "#3ce68a" : "#ffb547"
+          }, g);
+          if (on > 0.88) { led.setAttribute("class", "ks-blink"); led.style.animationDelay = r1(rand() * 2) + "s"; }
         }
       }
     }
@@ -360,6 +488,64 @@
       el("circle", { cx: -5, cy: -5, r: 6.5, fill: shade(ctx.col("leaf"), 0.9) }, g);
       el("circle", { cx: 4, cy: -6, r: 7.5, fill: ctx.col("leaf") }, g);
       el("circle", { cx: 0, cy: -10, r: 5.5, fill: shade(ctx.col("leaf"), 1.2) }, g);
+    },
+    // ---- Indoor pieces, for rooms ----
+    monitor(g, o, ctx) {
+      const A = ctx.col("accent");
+      el("rect", { x: -7, y: -3, width: 14, height: 3, rx: 1, fill: "#1b1f29" }, g);
+      el("rect", { x: -1.4, y: -11, width: 2.8, height: 9, fill: "#1b1f29" }, g);
+      el("rect", { x: -18, y: -34, width: 36, height: 24, rx: 2, fill: "#0b0f16" }, g);
+      el("rect", { x: -16, y: -32, width: 32, height: 19, fill: "#0d1b2a" }, g);
+      // Code on the screen: indented lines in three colours.
+      [[-14, -29, 12, "#c792ea"], [-11, -26, 18, A], [-11, -23, 10, "#3ce68a"], [-8, -20, 16, A], [-14, -17, 7, "#c792ea"]]
+        .forEach(([x, y, w, c]) => el("rect", { x, y, width: w, height: 1.6, rx: 0.8, fill: c }, g));
+    },
+    database(g, o, ctx) {
+      const A = ctx.col("accent");
+      el("ellipse", { cx: 3, cy: 1, rx: 15, ry: 4, fill: "#000", "fill-opacity": 0.3 }, g);
+      for (let i = 0; i < 3; i++) {
+        const y = -14 * (i + 1);
+        el("rect", { x: -12, y, width: 24, height: 12, fill: shade(A, 0.55 + i * 0.08) }, g);
+        el("ellipse", { cx: 0, cy: y + 12, rx: 12, ry: 4, fill: shade(A, 0.5 + i * 0.08) }, g);
+        el("ellipse", { cx: 0, cy: y, rx: 12, ry: 4, fill: shade(A, 0.85 + i * 0.08) }, g);
+        el("circle", { cx: 7, cy: y + 7, r: 1.4, fill: "#3ce68a", class: i === 1 ? "ks-blink" : null }, g);
+      }
+    },
+    logicSign(g, o, ctx) {
+      const A = ctx.col("accent");
+      el("rect", { x: -1, y: -16, width: 2, height: 16, fill: "#5a6378" }, g);
+      el("rect", { x: -17, y: -40, width: 34, height: 25, rx: 3, fill: "#101826", stroke: A, "stroke-width": 1.2 }, g);
+      // An AND gate: two inputs in, one output out, and a lamp on it.
+      el("path", { d: "M-6 -36 H0 A8 8 0 0 1 0 -20 H-6 Z", fill: "none", stroke: "#e8eefc", "stroke-width": 1.6 }, g);
+      el("path", { d: "M-13 -32 H-6 M-13 -24 H-6 M8 -28 H12", stroke: "#e8eefc", "stroke-width": 1.4 }, g);
+      el("circle", { cx: 13.5, cy: -28, r: 2.4, fill: "#3ce68a", filter: `url(#${ctx.uid}glow)`, class: "ks-blink" }, g);
+    },
+    robot(g, o, ctx) {
+      const A = ctx.col("accent");
+      el("ellipse", { cx: 2, cy: 1, rx: 12, ry: 3.5, fill: "#000", "fill-opacity": 0.3 }, g);
+      el("rect", { x: -9, y: -6, width: 6, height: 6, rx: 2, fill: "#5a6378" }, g);
+      el("rect", { x: 3, y: -6, width: 6, height: 6, rx: 2, fill: "#5a6378" }, g);
+      el("rect", { x: -10, y: -24, width: 20, height: 19, rx: 4, fill: "#8fa3c0" }, g);
+      el("rect", { x: -5, y: -19, width: 10, height: 7, rx: 1.5, fill: "#2b3550" }, g);
+      el("path", { d: "M-10 -20 L-15 -11 M10 -20 L15 -11", stroke: "#8fa3c0", "stroke-width": 3, "stroke-linecap": "round" }, g);
+      el("rect", { x: -8, y: -39, width: 16, height: 13, rx: 4, fill: "#b5c4da" }, g);
+      el("circle", { cx: -3.5, cy: -33, r: 2, fill: A, filter: `url(#${ctx.uid}glow)` }, g);
+      el("circle", { cx: 3.5, cy: -33, r: 2, fill: A, filter: `url(#${ctx.uid}glow)` }, g);
+      el("line", { x1: 0, y1: -39, x2: 0, y2: -45, stroke: "#8fa3c0", "stroke-width": 1.6 }, g);
+      el("circle", { cx: 0, cy: -46.5, r: 2, fill: "#f2c14e", class: "ks-blink" }, g);
+    },
+    plant(g, o, ctx) {
+      el("ellipse", { cx: 2, cy: 1, rx: 10, ry: 3, fill: "#000", "fill-opacity": 0.3 }, g);
+      el("path", { d: "M-7 -12 H7 L5 0 H-5 Z", fill: "#b5653d" }, g);
+      el("circle", { cx: -4, cy: -18, r: 6.5, fill: shade(ctx.col("leaf"), 0.9) }, g);
+      el("circle", { cx: 4, cy: -19, r: 7, fill: ctx.col("leaf") }, g);
+      el("circle", { cx: 0, cy: -25, r: 6, fill: shade(ctx.col("leaf"), 1.2) }, g);
+    },
+    chair(g, o) {
+      el("ellipse", { cx: 0, cy: 0, rx: 9, ry: 2.8, fill: "#000", "fill-opacity": 0.3 }, g);
+      el("path", { d: "M-8 -1 L0 -4 L8 -1 M0 -4 V-12", stroke: "#2a2f3b", "stroke-width": 2, fill: "none" }, g);
+      el("rect", { x: -9, y: -15, width: 18, height: 4, rx: 2, fill: "#3b4a6b" }, g);
+      el("rect", { x: -8, y: -31, width: 16, height: 15, rx: 4, fill: "#465a80" }, g);
     },
     rider(g, o, ctx) {
       const A = ctx.col("accent"), skin = "#d9dce3";
@@ -551,10 +737,12 @@
       ".ks-pin:focus-visible .ks-pill{stroke-opacity:1;stroke-width:2}" +
       ".ks-pulse{transform-box:fill-box;transform-origin:center;animation:ks-pulse .9s ease-out forwards}" +
       "@keyframes ks-pulse{from{transform:scale(1);opacity:1}to{transform:scale(3.4);opacity:0}}" +
+      ".ks-blink{animation:ks-blink 1.6s steps(1) infinite}" +
+      "@keyframes ks-blink{50%{opacity:.15}}" +
       ".ks-pin[aria-disabled=true]{cursor:not-allowed}" +
       ".ks-shake{animation:ks-shake .4s ease}" +
       "@keyframes ks-shake{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}" +
-      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake{animation:none}}";
+      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake,.ks-blink{animation:none}}";
     document.head.appendChild(st);
   }
 
@@ -598,13 +786,15 @@
     const items = [];
     for (const o of recipe.objects || []) {
       if (o.kind === "box") items.push({ depth: (o.x0 + o.x1) / 2 + (o.y0 + o.y1) / 2, o });
-      else items.push({ depth: o.at[0] + o.at[1], o });
+      // Something standing ON something (a monitor on a desk) sorts just
+      // after what it stands on, which shares its spot on the floor.
+      else items.push({ depth: o.at[0] + o.at[1] + (o.z ? 0.02 : 0), o });
     }
     items.sort((a, b) => a.depth - b.depth);
     for (const it of items) {
       const g = el("g", { "data-depth": it.depth }, objectsG);
       if (it.o.kind === "box") { drawBox(g, it.o, P, col, rand, uid); continue; }
-      const p = P.iso(it.o.at[0], it.o.at[1], 0);
+      const p = P.iso(it.o.at[0], it.o.at[1], it.o.z || 0);
       g.setAttribute("transform", `translate(${r1(p[0])},${r1(p[1])}) scale(${r1(k * 100) / 100})`);
       if (SPRITES[it.o.kind]) SPRITES[it.o.kind](g, it.o, ctx);
     }
@@ -700,7 +890,8 @@
       if (runner) runner.hop = performance.now();
       if (opts.onChapter) {
         const p = recipe.pins[i];
-        opts.onChapter({ index: i, n: p.n, topic: p.topic, label: textOf(p.label, lang) });
+        // A pin names a topic (a one-unit course) or a whole unit.
+        opts.onChapter({ index: i, n: p.n, topic: p.topic, unit: p.unit, label: textOf(p.label, lang) });
       }
     }
 

@@ -7,11 +7,12 @@
 //
 // Not a build: the output is the same files the app already runs on.
 // It copies what the app needs to RUN (no working docs, no migrations)
-// and changes exactly four things in the copy:
+// and changes exactly these things in the copy:
 //
 //   core/demo.js      Dojo.DEMO = false  ->  true
 //   core/supabase.js  project URL and publishable key  ->  ""
 //   index.html        the supabase-js <script> tag  ->  removed
+//   index.html        the Forum's <script> tag and screen  ->  removed
 //   sw.js             "knell-vNN"  ->  "knell-demo-vNN"
 //
 // With the keys blank, Dojo.Cloud.isConfigured() is false and every
@@ -19,6 +20,11 @@
 // database and does not even hold its address. The last step checks
 // that: if any production identifier survives anywhere in the copy, it
 // fails rather than leaving something publishable.
+//
+// The Forum is left out whole (added 2026-11-22): forum/ is not copied,
+// because without the server it could only ever be an empty screen. Its
+// lobby tile opens the Museum instead (museum/museum.js), where the
+// Forum is an exhibit. The last step checks that no trace of it is left.
 //
 // The target's .git folder survives a re-run, so the demo repository
 // keeps its history; everything else in the target is replaced.
@@ -36,7 +42,7 @@ if (DEST === SRC || SRC.startsWith(DEST + path.sep) || DEST.startsWith(SRC + pat
 // What the app needs to run. Branch .md files and dev scripts stay in
 // the main repository, which is where the full source and history are.
 const RUNTIME = ["index.html", "manifest.webmanifest", "sw.js", "LICENSE",
-  "core/", "data/", "library/", "garden/", "shop/", "forum/", "settings/",
+  "core/", "data/", "library/", "garden/", "shop/", "museum/", "settings/",
   "admin/", "scenes/", "styles/", "icons/"];
 // Not library/content/build.js: despite the name it runs in the app,
 // publishing COURSES / UNITS / ALL_TOPICS (index.html loads it).
@@ -93,6 +99,8 @@ edit("core/demo.js", /Dojo\.DEMO = false;/, "Dojo.DEMO = true;", "demo switch on
 edit("core/supabase.js", /const SUPABASE_URL = "[^"]*";/, 'const SUPABASE_URL = "";', "project URL blanked");
 edit("core/supabase.js", /const SUPABASE_PUBLISHABLE_KEY = "[^"]*";/, 'const SUPABASE_PUBLISHABLE_KEY = "";', "publishable key blanked");
 edit("index.html", /[ \t]*<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/[^"]*"><\/script>\r?\n/, "", "supabase-js tag removed");
+edit("index.html", /[ \t]*<script src="forum\/forum\.js"><\/script>\r?\n/, "", "Forum's script removed");
+edit("index.html", /[ \t]*<!-- ====== Forum \(forum\/forum\.js\) ======[\s\S]*?<\/section>\r?\n/, "", "Forum's screen removed");
 edit("sw.js", /const CACHE_VERSION = "knell-v(\d+)";/, 'const CACHE_VERSION = "knell-demo-v$1";', "cache renamed");
 
 // ---- Nothing of production may survive ---------------------------------
@@ -114,3 +122,13 @@ const leaks = [];
 })(DEST);
 if (leaks.length) die("production identifiers in the demo copy:\n  " + leaks.join("\n  "));
 console.log("  checked: no project URL, key or reference anywhere in the copy");
+
+// ---- Nor any of the Forum ---------------------------------------------
+const page = fs.readFileSync(path.join(DEST, "index.html"), "utf8");
+const forumLeft = [
+  fs.existsSync(path.join(DEST, "forum")) && "a forum/ folder",
+  page.includes("forum/forum.js") && "index.html loads forum/forum.js",
+  /id="forum"/.test(page) && "index.html has the Forum's screen"
+].filter(Boolean);
+if (forumLeft.length) die("the Forum is still in the demo copy: " + forumLeft.join("; "));
+console.log("  checked: no Forum in the copy");

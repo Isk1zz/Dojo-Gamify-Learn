@@ -1138,6 +1138,11 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
    that constraint is gone, and at 5% a cloud passing a star hid nothing
    — the star read as being in front of the cloud (reported). */
 .decor-clouds { position: absolute; color: var(--text); pointer-events: none; }
+/* The crosshair over a pokeable bird, sun, moon or cloud (shop/decor.js,
+   "Aim"). It is set on the root only while the pointer is over one and
+   never over a control, so the !important cannot take a link's hand
+   cursor away: on a control the class is simply not there. */
+html.sky-aim, html.sky-aim * { cursor: var(--sky-aim, crosshair) !important; }
 .decor-clouds g { fill: currentColor; }
 .decor-clouds.cloud-poked { animation-play-state: paused; transform-origin: 50% 50%; }
 .decor-clouds.cloud-poked g { animation: cloud-squish 0.55s ease-out; }
@@ -1338,6 +1343,49 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   0%   { transform: rotate(var(--rot)) translateY(0); opacity: 1; }
   80%  { opacity: 1; }
   100% { transform: rotate(var(--rot)) translateY(-140vh); opacity: 0; }
+}
+
+/* ---- Darts at the lobby's wheel (shop/decor.js, dartAt) ----
+   The outer box sits on the landing point, turned along the throw; the
+   body hangs from its tip, so "back along the throw" is +Y and one set of
+   keyframes serves every angle, like the arrows. It flies in shrinking,
+   as if going away into the board, quivers on impact, and is pulled out
+   backwards. A fourth dart pulls the oldest early (.pulled). */
+.fx-dart {
+  position: absolute; width: 0; height: 0;
+  transform: rotate(var(--rot)); pointer-events: none;
+}
+.fx-dart-body {
+  position: absolute; left: -5px; top: 0; width: 10px;
+  transform-origin: 50% 0;
+  animation:
+    fx-dart-in 0.3s cubic-bezier(0.2, 0.7, 0.4, 1) both,
+    fx-dart-quiver 0.5s 0.3s ease-out,
+    fx-dart-out 0.4s 2.7s forwards;
+}
+.fx-dart.pulled .fx-dart-body { animation: fx-dart-out 0.3s forwards; }
+.fx-dart svg { width: 100%; display: block; overflow: visible; }
+.fx-dart .dt-tip    { stroke: #d5dae1; stroke-width: 1.2; fill: none; stroke-linecap: round; }
+.fx-dart .dt-barrel { fill: #8b929c; }
+.fx-dart .dt-grip   { stroke: #5b616a; stroke-width: 0.8; fill: none; }
+.fx-dart .dt-shaft  { stroke: #2b2f36; stroke-width: 1.6; fill: none; }
+.fx-dart .dt-flight { fill: var(--accent); }
+@keyframes fx-dart-in {
+  from { transform: translateY(var(--travel)) scale(1.7); }
+  to   { transform: none; }
+}
+@keyframes fx-dart-quiver {
+  0%   { transform: rotate(0); }
+  25%  { transform: rotate(5deg); }
+  50%  { transform: rotate(-3.5deg); }
+  75%  { transform: rotate(1.5deg); }
+  100% { transform: rotate(0); }
+}
+@keyframes fx-dart-out {
+  to { opacity: 0; transform: translateY(10px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-dart-body { animation: fx-dart-out 0.4s 2.7s forwards; }
 }
 
 /* ---- Struck, but still flying ----
@@ -1690,6 +1738,19 @@ html[data-bg-scene="village"] .scene-village { display: block; }
   .fig-label { margin-bottom: 0; }
 }
 
+/* Museum (museum/museum.js), in the demo where the Forum's tile was.
+   An exhibit is a card in the Forum's own panel style, because the
+   first one IS the Forum. */
+.museum-intro { color: var(--text-muted); margin: 0.2rem 0 0.9rem; }
+.museum-exhibit {
+  padding: 0.85rem 1rem; margin-bottom: 0.8rem;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.museum-icon { font-size: 1.6rem; line-height: 1; margin-bottom: 0.45rem; }
+.museum-title { font-size: 1.05rem; margin: 0 0 0.35rem; }
+.museum-text { font-size: 0.9rem; line-height: 1.5; color: var(--text-muted); margin: 0; }
+
 /* Flying bolt */
 .bolt-layer { position: fixed; inset: 0; pointer-events: none; z-index: 70; }
 .flying-bolt {
@@ -1920,8 +1981,11 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 }
 body.hide-hints .lobby-hint { display: none; }
 
-/* A tap that hit nothing lights every real control for a moment
-   (core/lobby.js). Box-shadow only, so nothing moves or reflows. */
+/* A tap that hit nothing sometimes lights every real control for a
+   moment (core/lobby.js). Box-shadow only, so nothing moves or reflows.
+   Dim on purpose: it was a solid 3px accent ring with a 24px glow, and
+   on every miss that grated (2026-11-22). Now a faint ring, a small
+   glow, and one miss in four. */
 #lobby.lobby-reveal .lobby-tile,
 #lobby.lobby-reveal .lobby-hub,
 #lobby.lobby-reveal .lobby-spark-btn,
@@ -1930,7 +1994,7 @@ body.hide-hints .lobby-hint { display: none; }
 }
 @keyframes lobby-reveal {
   0%   { box-shadow: 0 0 0 0 transparent; }
-  22%  { box-shadow: 0 0 0 3px var(--accent), 0 0 24px var(--accent-glow); }
+  22%  { box-shadow: 0 0 0 2px var(--border-accent), 0 0 12px var(--accent-glow); }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1939,7 +2003,7 @@ body.hide-hints .lobby-hint { display: none; }
   #lobby.lobby-reveal .lobby-spark-btn,
   #lobby.lobby-reveal .lobby-rotate-control {
     animation: none;
-    outline: 2px solid var(--accent);
+    outline: 1px solid var(--border-accent);
     outline-offset: 2px;
   }
 }

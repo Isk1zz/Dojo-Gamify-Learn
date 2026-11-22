@@ -64,6 +64,13 @@ two days it was, in the real app as well. Now it follows `Dojo.DEMO`
 in the separate demo copy that `tools/make-demo.js` produces. That copy also
 holds no Supabase address or key.
 
+**Changed 2026-11-22.** The demo copy now leaves the Forum out entirely,
+because without its server it could only be an empty screen. Its lobby
+tile opens a small museum (`museum/museum.js`), where the Forum is the
+first exhibit. It is the same tile with the same id, not a new one: two of
+the Star lobby looks count tiles exactly, and with one tile fewer the Star
+of David falls back to spokes and the pentagram is drawn lopsided.
+
 ### Engineering worth looking at in the dormant half
 
 - **Money, XP, reputation and the Forum cannot be written by a client.**
@@ -134,7 +141,7 @@ Each decision, with the case made against it where there was one, is in
 |---|---|---|
 | Four of seven courses | Shells: biology, chemistry, physics and science literacy have a manifest and no lessons | Content takes about 4–6 hours per researched topic |
 | The oldest 57 lessons | Intro to CS modules 1–4 average 72–89 words and cite no sources, against a standard of about 200 words and two sources that the other 114 meet | Written before the standard existed; the rewrite was queued and never done |
-| Scenes for other courses | Only the e-bike course has one | The engine is general; each course needs a recipe, not code |
+| Scenes for other courses | Two have one: the e-bike course (a junction, a pin per topic) and Intro to CS (a computer lab, a pin per unit, because 48 topics do not fit in one picture). Philosophy and the four empty courses have none | The engine is general; each course needs a recipe, not code. The lab added walls and wall art to the engine, and nothing course-specific |
 | Five more languages | Not started. Intro to CS is English only, 5,115 strings and no language bags | Decided: write in English first, translate as its own pass |
 | Light themes and the scene | The scene is a night picture on every theme | Not tuned yet |
 | Offline use | Not claimed | A service worker caches what has been visited, but a course that was never opened is not there offline |

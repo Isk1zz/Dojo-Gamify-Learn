@@ -25,6 +25,7 @@
     garden:         () => Dojo.renderGarden,
     shop:           () => Dojo.renderShop,
     forum:          () => Dojo.renderForum,
+    museum:         () => Dojo.renderMuseum,
     inventory:      () => Dojo.renderInventory,
     store:          () => Dojo.renderStore,
     settings:       () => Dojo.renderSettings
@@ -33,7 +34,10 @@
   Object.entries(SCREENS).forEach(([id, get]) => {
     const fn = get();
     if (typeof fn === "function") Router.register(id, { render: fn });
-    else console.info(`[boot] branch for "${id}" not loaded — its tile will hide`);
+    // Says no more than that: in the demo the Forum is left out on
+    // purpose and its tile goes to the Museum, so "its tile will hide"
+    // (what this used to add) was not true for every branch.
+    else console.info(`[boot] branch for "${id}" not loaded`);
   });
 
   // ---- 2. Cross-branch wiring ----
@@ -64,9 +68,19 @@
   on("btn-token-shop",     () => Router.go("store", { cat: "packs" }));
   on("btn-lobby-garden",   () => Router.go("garden"));
   on("btn-lobby-shop",     () => Router.go("shop"));
-  // The demo has no server for the Forum to run on, so its tile says so
-  // instead of opening an empty screen (core/demo.js owns the note).
-  on("btn-lobby-games",    () => (Dojo.DEMO && Dojo.demoForumNote) ? Dojo.demoForumNote() : Router.go("forum"));
+  // The demo has no Forum: it needs a server the demo does not have, so
+  // tools/make-demo.js leaves forum/ out of the copy. There the Forum's
+  // tile becomes the Museum (museum/museum.js), with the Forum as its
+  // first exhibit. It is the same tile and id, not a new one, because
+  // two Star looks count tiles exactly (core/lobby.js, RING_TRIM).
+  if (Dojo.DEMO) {
+    const slot = document.getElementById("btn-lobby-games");
+    const icon = slot && slot.querySelector(".lt-icon");
+    const title = slot && slot.querySelector(".lt-title");
+    if (icon) icon.textContent = "\u{1F3DB}️";
+    if (title) { title.dataset.i18n = "ui.tile.museum"; title.textContent = I18N.t("ui.tile.museum"); }
+  }
+  on("btn-lobby-games",    () => Router.go(Dojo.DEMO ? "museum" : "forum"));
   on("btn-lobby-settings", () => Router.go("settings"));
   // Statistics merged into Career; this tile is Inventory now (its id
   // is unchanged on purpose — see index.html).
@@ -102,6 +116,7 @@
   // than to the Lobby). The Forum has no sub-screens, so it is an
   // ordinary back button now.
   on("btn-back-lobby5", () => Dojo.showLobby());
+  on("btn-back-museum", () => Dojo.showLobby());
 
   // Resume: jump straight back into the exact chunk they left.
   // Lives here rather than in library/ because the lobby owns the tile.

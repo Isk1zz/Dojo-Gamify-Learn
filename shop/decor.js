@@ -656,6 +656,118 @@
       // what IS clickable (core/lobby.js).
       if (Dojo.Bus) Dojo.Bus.emit("click:dead", { x: e.clientX, y: e.clientY });
     });
+
+    // ---- Aim -------------------------------------------------------------
+    // The mouse is a scope (decided 2026-11-22: «курсор на прицел», over a
+    // glow around clouds and birds). Poking a bird already looses an
+    // arrow at it, so a scope is the honest picture of what a click does.
+    //
+    // Two reticles. In the lobby a faint one covers the whole surface
+    // («make it work across all the surface»). Over something a click
+    // will actually hit (a bird, the sun, the moon, a cloud, or the
+    // lobby's wheel, which takes darts) it locks on: brighter, in the
+    // theme's accent, with a dot. Off the lobby only the lock-on shows,
+    // so reading screens keep their own cursors.
+    //
+    // It asks the same questions as the click above, in the same order,
+    // and never shows over a control. CSS :hover can't do this: the sky
+    // layers are pointer-events:none on purpose, so they are never the
+    // thing under the pointer. Nothing shows on the study screens, where
+    // the sky is hidden but its pieces still sit at their old positions.
+    //
+    // Mouse only. Touch has no hover, and a missed tap can still light
+    // the lobby's controls (core/lobby.js). At most one test per frame,
+    // however fast the mouse reports.
+    let aimX = 0, aimY = 0, aimOver = null, aimQueued = false, aimMode = "";
+    const root = document.documentElement;
+    const inLobby = () => {
+      const l = document.getElementById("lobby");
+      return !!(l && l.classList.contains("active"));
+    };
+    const aim = () => {
+      aimQueued = false;
+      let mode = "";
+      const onControl = aimOver && aimOver.closest && aimOver.closest(INTERACTIVE);
+      if (!onControl && !root.dataset.study) {
+        const target = eagleAt(aimX, aimY) || sunAt(aimX, aimY) || moonAt(aimX, aimY) ||
+                       cloudAt(aimX, aimY) || (Dojo.wheelAt && Dojo.wheelAt(aimX, aimY));
+        mode = target ? "lock" : inLobby() ? "scope" : "";
+      }
+      if (mode === aimMode) return;
+      aimMode = mode;
+      if (mode) root.style.setProperty("--sky-aim", aimCursor(mode === "lock"));
+      root.classList.toggle("sky-aim", !!mode);
+    };
+    document.addEventListener("pointermove", e => {
+      if (e.pointerType !== "mouse") return;
+      aimX = e.clientX; aimY = e.clientY; aimOver = e.target;
+      if (!aimQueued) { aimQueued = true; requestAnimationFrame(aim); }
+    }, { passive: true });
+  }
+
+  // The reticles themselves, each with a dark edge so it reads on a night
+  // sky and a day sky alike. The faint one is the theme's dim text
+  // colour; the lock-on is its accent, heavier, with a dot. CSS can't put
+  // var() inside url(), so the whole cursor value is built here and
+  // handed to base.css as --sky-aim, once per colour.
+  const aimCache = {};
+  function aimCursor(locked) {
+    const css = getComputedStyle(document.documentElement);
+    const c = css.getPropertyValue(locked ? "--accent" : "--text-dim").trim() ||
+      (locked ? "#6366f1" : "#94a3b8");
+    const key = (locked ? "lock:" : "scope:") + c;
+    if (aimCache[key]) return aimCache[key];
+    const marks = '<circle cx="16" cy="16" r="9"/><path d="M16 2v7M16 23v7M2 16h7M23 16h7"/>';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' +
+      '<g fill="none" stroke-linecap="round">' +
+        `<g stroke="rgba(0,0,0,${locked ? 0.6 : 0.45})" stroke-width="${locked ? 3.6 : 2.8}">${marks}</g>` +
+        `<g stroke="${c}" stroke-width="${locked ? 1.7 : 1.1}">${marks}</g>` +
+      '</g>' +
+      (locked ? `<circle cx="16" cy="16" r="1.7" fill="${c}"/>` : "") + '</svg>';
+    aimCache[key] = `url("data:image/svg+xml,${encodeURIComponent(svg)}") 16 16, crosshair`;
+    return aimCache[key];
+  }
+
+  // ---- Darts ---------------------------------------------------------------
+  // In the lobby's Star layout the ring of tiles reads as a wheel, and a
+  // click on it that hits no tile throws a dart («if pointed on wheel
+  // throw a dart», 2026-11-22). The lobby decides that a miss landed on
+  // the wheel (core/lobby.js, wheelAt); this only draws the throw.
+  //
+  // Thrown from below, like the arrows: it flies in along its own axis,
+  // shrinking as it goes into the board, lands tip first a few pixels off
+  // the aim point, quivers, and is pulled out after a few seconds. Three
+  // at most stay in the board, a round of darts; a fourth takes the
+  // oldest out.
+  const DART_SVG =
+    `<svg viewBox="0 0 10 46">
+       <path class="dt-tip" d="M5 0 L 5 10" />
+       <rect class="dt-barrel" x="2.6" y="9" width="4.8" height="14" rx="2.2" />
+       <path class="dt-grip" d="M2.8 13 H 7.2 M2.8 16 H 7.2 M2.8 19 H 7.2" />
+       <path class="dt-shaft" d="M5 23 L 5 34" />
+       <path class="dt-flight" d="M5 31 L 9.6 45 L 5 41.5 L 0.4 45 Z" />
+     </svg>`;
+  const darts = [];
+  function dartAt(x, y) {
+    const tx = x + (Math.random() * 14 - 7);
+    const ty = y + (Math.random() * 14 - 7);
+    const sx = tx + (Math.random() * 140 - 70);
+    const sy = window.innerHeight + 60;
+    const d = document.createElement("div");
+    d.className = "fx-dart";
+    d.style.left = `${tx}px`;
+    d.style.top = `${ty}px`;
+    d.style.setProperty("--rot", `${Math.atan2(ty - sy, tx - sx) * 180 / Math.PI + 90}deg`);
+    d.style.setProperty("--travel", `${Math.hypot(tx - sx, ty - sy)}px`);
+    d.innerHTML = `<div class="fx-dart-body">${DART_SVG}</div>`;
+    spawn(d, 3200);
+    darts.push(d);
+    if (darts.length > 3) darts.shift().classList.add("pulled");
+    setTimeout(() => {
+      const i = darts.indexOf(d);
+      if (i >= 0) darts.splice(i, 1);
+    }, 3200);
+    setTimeout(() => { if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click(); }, 300);
   }
 
   if (document.readyState === "loading") {
@@ -664,5 +776,5 @@
     initClouds();
   }
 
-  Object.assign(Dojo, { BG_DECORS, SCENES, decorFace, pokeCloud: poke, pokeMoon, pokeSun });
+  Object.assign(Dojo, { BG_DECORS, SCENES, decorFace, pokeCloud: poke, pokeMoon, pokeSun, dartAt });
 })();
