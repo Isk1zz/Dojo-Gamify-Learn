@@ -98,8 +98,11 @@ Dojo.DEMO = false;   // tools/make-demo.js sets this to true in the demo copy
         examsTaken: 9, examsPassed: 8,
         topicStats: {}
       },
-      // 2,150 XP: rank 2, Research Assistant I (shop/ranks.js).
-      charge: 2150, chargeEarned: 2150,
+      // 950 XP: rank 1, Lab Intern (shop/ranks.js). A visit starts on the
+      // first rank, like a real new profile; the bar is most of the way to
+      // Research Assistant I (1,200) so it shows what it does. The demo has
+      // no server, so studying here earns no XP: this number is the rank.
+      charge: 950, chargeEarned: 950,
       // Only badges these stats really earn (library/stats.js's BADGES):
       // a mastered topic, a 100% exam, and the 9-day streak below.
       pinnedBadges: ["first-topic", "perfect-exam", "week-streak"],

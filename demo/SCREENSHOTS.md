@@ -7,13 +7,15 @@ build on its sample profile ("Alex"), at a 1200 × 800 window.
 
 | File | Screen | State | What it proves |
 |---|---|---|---|
-| `demo-lobby.jpg` | Lobby | Just after **Begin**, first-run tour skipped | Opens with no sign-in. A real student state: rank *Research Assistant I*, a 9-day streak, "Continue where you left off". The demo banner is visible. |
+| `demo-lobby.jpg` | Lobby | Just after **Begin**, first-run tour skipped | Opens with no sign-in. A real student state: rank *Lab Intern*, most of the way to the next, a 9-day streak, "Continue where you left off". The demo banner is visible. |
 | `demo-course-scene.jpg` | Inside the e-bike course | Chapters 1–5 done, 6 next | A course drawn as a place. Progress shows on the scene itself: finished chapters ticked, the next highlighted, the runner standing at it. |
 | `demo-garden.jpg` | Garden | e-bike course expanded | Spaced review made visible: one topic at every growth stage (blossom, tree, growing, seedling, sprout, empty), and "3 plants need watering". |
 | `demo-lesson.jpg` | Lesson | Resumed from **Continue**, chunk 2 of 3 | The app remembers where you stopped, and a lesson is a real explanation with sections, not a flashcard. |
 
 To retake them: open the demo in a private window (a fresh visit gets the
-sample profile), choose English, set the window to about 1200 × 800.
+sample profile), choose English, set the window to about 1200 × 800. A
+fresh visit covers the rank with a sticker: rub it for 7 seconds (or hold
+Enter on it) and close the guide that follows, so the top bar shows the rank.
 
 ## 60-second screen recording
 

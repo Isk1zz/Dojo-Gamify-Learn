@@ -247,7 +247,7 @@
     quad([iso(0, 0, 0), iso(W, 0, 0), iso(W, 0, 0.14), iso(0, 0, 0.14)], shade(base, 0.62));
     quad([iso(0, 0, 0), iso(0, D, 0), iso(0, D, 0.14), iso(0, 0, 0.14)], shade(base, 0.52));
 
-    for (const a of spec.art || []) drawWallArt(g, a, P, col);
+    for (const a of spec.art || []) drawWallArt(g, a, P, col, !!recipe.isDay);
 
     // The cut: each wall's open end, then both tops as one L.
     quad([iso(W, -t, 0), iso(W, 0, 0), iso(W, 0, H), iso(W, -t, H)], shade(base, 0.6));
@@ -263,7 +263,7 @@
   // or a line of text drawn flat comes out in isometric perspective. On
   // the left wall u runs toward the viewer's right, so text still reads
   // left to right instead of mirrored.
-  function drawWallArt(g, a, P, col) {
+  function drawWallArt(g, a, P, col, day) {
     const { iso, S } = P;
     const len = (a.to - a.from) * S, h = (a.z1 - a.z0) * S;
     const o = a.wall === "left" ? iso(0, a.to, a.z1) : iso(a.from, 0, a.z1);
@@ -271,7 +271,7 @@
       ? `matrix(${r1(COS30 * 1000) / 1000},-0.5,0,1,${r1(o[0])},${r1(o[1])})`
       : `matrix(${r1(COS30 * 1000) / 1000},0.5,0,1,${r1(o[0])},${r1(o[1])})`;
     const grp = el("g", { transform: m }, g);
-    if (WALL_ART[a.art]) WALL_ART[a.art](grp, len, h, a, col);
+    if (WALL_ART[a.art]) WALL_ART[a.art](grp, len, h, a, col, day);
   }
 
   const MONO = "ui-monospace, Consolas, monospace";
@@ -327,12 +327,22 @@
         pos.flat().forEach(p => el("circle", { cx: p[0], cy: p[1], r: 4, fill: "#f2c14e" }, g));
       }
     },
-    window(g, w, h) {
+    // A window: stars and the moon at night; by day (a recipe's daylight
+    // view) the scene's own sky colour, a cloud and the sun, unless
+    // Custom asks for stars whatever the hour (windowView below).
+    window(g, w, h, a, col, day) {
+      const daylight = day && windowView() !== "stars";
       el("rect", { width: r1(w), height: r1(h), rx: 2, fill: "#5d6a87" }, g);
-      el("rect", { x: 5, y: 5, width: r1(w - 10), height: r1(h - 10), fill: "#0d1a38" }, g);
-      [[0.2, 0.25], [0.7, 0.2], [0.45, 0.55], [0.82, 0.62], [0.3, 0.8]].forEach(([fx, fy]) =>
-        el("circle", { cx: r1(5 + fx * (w - 10)), cy: r1(5 + fy * (h - 10)), r: 1.3, fill: "#fff", "fill-opacity": 0.85 }, g));
-      el("circle", { cx: r1(w * 0.72), cy: r1(h * 0.36), r: 7, fill: "#f4f1e4", "fill-opacity": 0.9 }, g);
+      el("rect", { x: 5, y: 5, width: r1(w - 10), height: r1(h - 10), fill: daylight ? col("window") : "#0d1a38" }, g);
+      if (daylight) {
+        el("circle", { cx: r1(w * 0.72), cy: r1(h * 0.34), r: 7, fill: "#ffd76a" }, g);
+        el("ellipse", { cx: r1(w * 0.36), cy: r1(h * 0.62), rx: r1(w * 0.16), ry: 4.5, fill: "#fff", "fill-opacity": 0.9 }, g);
+        el("ellipse", { cx: r1(w * 0.46), cy: r1(h * 0.58), rx: r1(w * 0.1), ry: 5.5, fill: "#fff", "fill-opacity": 0.9 }, g);
+      } else {
+        [[0.2, 0.25], [0.7, 0.2], [0.45, 0.55], [0.82, 0.62], [0.3, 0.8]].forEach(([fx, fy]) =>
+          el("circle", { cx: r1(5 + fx * (w - 10)), cy: r1(5 + fy * (h - 10)), r: 1.3, fill: "#fff", "fill-opacity": 0.85 }, g));
+        el("circle", { cx: r1(w * 0.72), cy: r1(h * 0.36), r: 7, fill: "#f4f1e4", "fill-opacity": 0.9 }, g);
+      }
       el("path", { d: `M${r1(w / 2)} 5 V${r1(h - 5)} M5 ${r1(h / 2)} H${r1(w - 5)}`, stroke: "#5d6a87", "stroke-width": 3 }, g);
     }
   };
@@ -443,16 +453,33 @@
       el("polygon", { points: pts([iso(x1, ya, zm + 0.05), iso(x1, yb, zm + 0.05), iso(x1, yb, zm - 0.05), iso(x1, ya, zm - 0.05)]), fill: "#e2bd5a" }, g);
     }
 
-    // A pyramid roof on the top face: only the two slopes that face the
-    // viewer are drawn, meeting at a ridge over the near corner.
+    // A roof on the top face. By default a pyramid: the two slopes that
+    // face the viewer, meeting at a ridge over the near corner, with a
+    // finial. With `gable: "x"` it is pitched, its ridge along x, so its
+    // triangular end (a temple's pediment) faces the viewer's right; with
+    // "y" the ridge runs along y and the end faces left. Only the slope
+    // and the end toward the viewer are drawn; the ridge hides the rest.
     if (o.roof) {
-      const top = z0 + h, apex = iso((x0 + x1) / 2, (y0 + y1) / 2, top + o.roof.h);
-      const rc = col(o.roof.color || "roof");
-      const near = iso(x1, y1, top);
-      el("polygon", { points: pts([iso(x0, y1, top), near, apex]), fill: shade(rc, 0.85) }, g);
-      el("polygon", { points: pts([iso(x1, y0, top), near, apex]), fill: shade(rc, 0.62) }, g);
-      el("polyline", { points: pts([near, apex]), fill: "none", stroke: "#fff", "stroke-opacity": 0.16, "stroke-width": 1 }, g);
-      el("circle", { cx: r1(apex[0]), cy: r1(apex[1] - 2), r: 2.6, fill: col("accent") }, g);
+      const top = z0 + h, rh = o.roof.h, rc = col(o.roof.color || "roof");
+      const end = col(o.roof.end || o.wall || "wall");
+      const ridge = (a, b) => el("polyline", { points: pts([a, b]), fill: "none", stroke: "#fff", "stroke-opacity": 0.16, "stroke-width": 1 }, g);
+      if (o.roof.gable === "x") {
+        const ym = (y0 + y1) / 2;
+        el("polygon", { points: pts([iso(x0, y1, top), iso(x1, y1, top), iso(x1, ym, top + rh), iso(x0, ym, top + rh)]), fill: shade(rc, 0.85) }, g);
+        el("polygon", { points: pts([iso(x1, y0, top), iso(x1, y1, top), iso(x1, ym, top + rh)]), fill: shade(end, 0.66) }, g);
+        ridge(iso(x0, ym, top + rh), iso(x1, ym, top + rh));
+      } else if (o.roof.gable === "y") {
+        const xm = (x0 + x1) / 2;
+        el("polygon", { points: pts([iso(x1, y0, top), iso(x1, y1, top), iso(xm, y1, top + rh), iso(xm, y0, top + rh)]), fill: shade(rc, 0.62) }, g);
+        el("polygon", { points: pts([iso(x0, y1, top), iso(x1, y1, top), iso(xm, y1, top + rh)]), fill: shade(end, 0.85) }, g);
+        ridge(iso(xm, y0, top + rh), iso(xm, y1, top + rh));
+      } else {
+        const apex = iso((x0 + x1) / 2, (y0 + y1) / 2, top + rh), near = iso(x1, y1, top);
+        el("polygon", { points: pts([iso(x0, y1, top), near, apex]), fill: shade(rc, 0.85) }, g);
+        el("polygon", { points: pts([iso(x1, y0, top), near, apex]), fill: shade(rc, 0.62) }, g);
+        ridge(near, apex);
+        el("circle", { cx: r1(apex[0]), cy: r1(apex[1] - 2), r: 2.6, fill: col("accent") }, g);
+      }
     }
   }
 
@@ -544,12 +571,17 @@
     // body drops by the height of a seat and the shins hang down from it.
     // `hold` is what is in the near hand: a cup, a book or a plate.
     person(g, o, ctx) {
-      const skin = o.skin || "#e9c8a8", shirt = ctx.col(o.shirt || "#5b8def"), pants = o.pants || "#2c3550";
+      const skin = o.skin || "#e9c8a8", shirt = ctx.col(o.shirt || (o.toga ? "toga" : "#5b8def")), pants = o.pants || "#2c3550";
       // sit: true is on a seat; sit: "ground" is cross-legged on the ground.
       const dy = o.sit === "ground" ? 9.5 : o.sit ? 3 : 0, Y = v => v + dy;
       el("ellipse", { cx: 0, cy: 0.6, rx: 7, ry: 2.2, fill: "#000", "fill-opacity": 0.3 }, g);
       const p = el("g", { class: o.bob ? "ks-bob" : null }, g);
-      if (o.sit === "ground") {
+      if (o.toga) {
+        // A toga: one draped robe from the shoulders to the feet, with a
+        // fold across it (for the Roman forum, scenes/philosophy.js).
+        el("path", { d: `M-4.4 ${Y(-23)} Q0 ${Y(-25.5)} 4.4 ${Y(-23)} L5.8 -0.8 L-5.8 -0.8 Z`, fill: shirt }, p);
+        el("path", { d: `M-3.6 ${Y(-21.5)} Q1.5 ${Y(-14)} 5.2 ${Y(-6)}`, stroke: shade(shirt, 0.78), "stroke-width": 1.3, fill: "none" }, p);
+      } else if (o.sit === "ground") {
         el("ellipse", { cx: 0, cy: -1.6, rx: 6.2, ry: 2.1, fill: pants }, p);
       } else if (o.sit) {
         const leg = (s, c) => el("path", { d: `M${s * 2} -8.5 L${s * 2.9} -6.6 L${s * 2.5} -0.6`, stroke: c, "stroke-width": 2.6, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" }, p);
@@ -559,10 +591,12 @@
         el("line", { x1: -1.6, y1: -12, x2: -1.8, y2: -0.6, stroke: shade(pants, 0.8), "stroke-width": 2.8, "stroke-linecap": "round" }, p);
         el("line", { x1: 1.6, y1: -12, x2: 1.8, y2: -0.6, stroke: pants, "stroke-width": 2.8, "stroke-linecap": "round" }, p);
       }
-      el("path", { d: `M-4.2 ${Y(-11.5)} L-3.6 ${Y(-23)} Q0 ${Y(-25)} 3.6 ${Y(-23)} L4.2 ${Y(-11.5)} Z`, fill: shirt }, p);
+      if (!o.toga) el("path", { d: `M-4.2 ${Y(-11.5)} L-3.6 ${Y(-23)} Q0 ${Y(-25)} 3.6 ${Y(-23)} L4.2 ${Y(-11.5)} Z`, fill: shirt }, p);
       el("line", { x1: -3.8, y1: Y(-21.5), x2: o.sit ? -3 : -4.8, y2: Y(-13.5), stroke: shade(shirt, 0.8), "stroke-width": 2.2, "stroke-linecap": "round" }, p);
-      const cam = o.hold === "camera";
-      const hx = cam ? 2.6 : o.hold ? 4.4 : (o.sit ? 3 : 4.8), hy = Y(cam ? -25 : o.hold ? -16.5 : -13.5);
+      // arm: "up" raises the near arm, an orator mid-sentence.
+      const cam = o.hold === "camera", up = o.arm === "up";
+      const hx = up ? 6.8 : cam ? 2.6 : o.hold ? 4.4 : (o.sit ? 3 : 4.8);
+      const hy = Y(up ? -34 : cam ? -25 : o.hold ? -16.5 : -13.5);
       el("line", { x1: 3.8, y1: Y(-21.5), x2: hx, y2: hy, stroke: shade(shirt, 1.1), "stroke-width": 2.2, "stroke-linecap": "round" }, p);
       el("circle", { cx: 0, cy: Y(-27.5), r: 3.8, fill: skin }, p);
       el("path", { d: `M-3.9 ${Y(-28)} A3.9 3.9 0 0 1 3.9 ${Y(-28.6)} Q0 ${Y(-30.8)} -3.9 ${Y(-28)} Z`, fill: o.hair || "#3a2a22" }, p);
@@ -613,6 +647,56 @@
       el("circle", { cx: 0.6, cy: -11.4, r: 2.5, fill: body }, p);
       el("path", { d: "M2.7 -12 Q4.8 -11.2 3.1 -9.6 Z", fill: "#efe6cf" }, p);
       el("circle", { cx: 1.3, cy: -12, r: 0.55, fill: "#111" }, p);
+    },
+    // ---- Rome, for the Philosophy course (scenes/philosophy.js) ----
+    // A column: base, fluted shaft, capital. `h` is its height in px.
+    column(g, o, ctx) {
+      const h = o.h || 60, c = ctx.col(o.color || "marble");
+      el("rect", { x: -6, y: -4, width: 12, height: 4, fill: shade(c, 0.82) }, g);
+      el("rect", { x: -4.6, y: -h + 6, width: 9.2, height: h - 10, fill: c }, g);
+      [-2.6, 0, 2.6].forEach(x => el("line", { x1: x, y1: -h + 7, x2: x, y2: -5, stroke: shade(c, 0.76), "stroke-width": 0.9 }, g));
+      el("rect", { x: -6.5, y: -h, width: 13, height: 6, rx: 1, fill: shade(c, 1.08) }, g);
+    },
+    // A marble statue in a toga, on a pedestal.
+    statue(g, o, ctx) {
+      const m = ctx.col("marble");
+      el("ellipse", { cx: 1, cy: 0.8, rx: 10, ry: 3, fill: "#000", "fill-opacity": 0.3 }, g);
+      el("rect", { x: -7, y: -14, width: 14, height: 14, fill: shade(m, 0.78) }, g);
+      el("rect", { x: -8, y: -16, width: 16, height: 3, fill: shade(m, 0.9) }, g);
+      el("path", { d: "M-4.4 -38 Q0 -40.5 4.4 -38 L5.6 -16 L-5.6 -16 Z", fill: m }, g);
+      el("path", { d: "M-3.6 -36.5 Q1.5 -29 5 -21", stroke: shade(m, 0.8), "stroke-width": 1.2, fill: "none" }, g);
+      el("line", { x1: 3.8, y1: -36.5, x2: 7.5, y2: -47, stroke: shade(m, 1.05), "stroke-width": 2.2, "stroke-linecap": "round" }, g);
+      el("circle", { cx: 0, cy: -42.5, r: 3.8, fill: shade(m, 1.04) }, g);
+    },
+    // A cypress: tall, narrow, dark, the tree of Italian roads.
+    cypress(g, o, ctx) {
+      const s = o.size || 1, L = ctx.col("cypress");
+      const t = el("g", { transform: `scale(${s})` }, g);
+      el("ellipse", { cx: 2, cy: 1, rx: 7, ry: 2.4, fill: "#000", "fill-opacity": 0.3 }, t);
+      el("rect", { x: -1.2, y: -7, width: 2.4, height: 7, fill: ctx.col("trunk") }, t);
+      el("path", { d: "M0 -62 Q8 -40 7 -18 Q4 -6 0 -6 Q-4 -6 -7 -18 Q-8 -40 0 -62 Z", fill: L }, t);
+      el("path", { d: "M0 -58 Q-6 -38 -5 -18 Q-2 -9 0 -8 Z", fill: shade(L, 1.25), "fill-opacity": 0.6 }, t);
+    },
+    // A brazier: a bronze bowl on three legs, with a fire that flickers.
+    brazier(g, o, ctx) {
+      const b = ctx.col("bronze");
+      el("ellipse", { cx: 1, cy: 0.6, rx: 7, ry: 2.2, fill: "#000", "fill-opacity": 0.3 }, g);
+      el("path", { d: "M-5 0 L-2 -12 M5 0 L2 -12 M0 0 L0 -12", stroke: shade(b, 0.7), "stroke-width": 1.4 }, g);
+      el("path", { d: "M-7 -13 Q0 -8 7 -13 L5 -16 L-5 -16 Z", fill: b }, g);
+      const fire = el("g", { class: ctx.day ? null : "ks-flicker" }, g);
+      if (!ctx.day) el("circle", { cx: 0, cy: -20, r: 9, fill: ctx.col("light"), "fill-opacity": 0.25, filter: `url(#${ctx.uid}glow)` }, fire);
+      el("path", { d: "M-4.5 -16 Q-5 -22 -1 -27 Q-1 -22 1 -21 Q2 -26 4.5 -29 Q5.5 -22 4.5 -16 Z", fill: ctx.col("fire") }, fire);
+      el("path", { d: "M-2 -16 Q-2 -20 0 -23 Q1 -20 2.4 -16 Z", fill: "#fff3c4" }, fire);
+    },
+    // Scrolls on a table: rolled papyrus, ends dark, one open.
+    scrolls(g, o, ctx) {
+      const pp = ctx.col("parchment");
+      [[-9, -3], [-3, -3.6], [3.5, -3], [-6, -7], [0.5, -7.4]].forEach(([x, y]) => {
+        el("rect", { x, y: y - 3, width: 6.5, height: 3, rx: 1.5, fill: pp }, g);
+        el("circle", { cx: x + 6.5, cy: y - 1.5, r: 1.5, fill: shade(pp, 0.7) }, g);
+      });
+      el("path", { d: "M5 -6 L13 -7.5 L13 -2 L5 -0.5 Z", fill: shade(pp, 1.06) }, g);
+      el("path", { d: "M6.5 -4.6 L11.5 -5.6 M6.5 -3 L11 -3.9", stroke: "#6b5a3e", "stroke-width": 0.5 }, g);
     },
     // A café table with a chair either side, backs to the outside, and a
     // cup at each place. Seat sitters at about 13 px either side of it.
@@ -1033,8 +1117,10 @@
       ".ks-bob{animation:ks-bob .45s ease-in-out infinite alternate}" +
       "@keyframes ks-bob{to{transform:translateY(-1px)}}" +
       ".ks-steam{animation:ks-steam 2.4s ease-in-out infinite}" +
+      ".ks-flicker{transform-box:fill-box;transform-origin:50% 100%;animation:ks-flicker 1.1s ease-in-out infinite alternate}" +
+      "@keyframes ks-flicker{0%{transform:scale(1,1);opacity:1}40%{transform:scale(.92,1.08);opacity:.85}100%{transform:scale(1.06,.94);opacity:.95}}" +
       "@keyframes ks-steam{0%{opacity:0;transform:translateY(2px)}40%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}" +
-      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake,.ks-blink,.ks-act,.ks-perch,.ks-bob,.ks-steam{animation:none}}";
+      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake,.ks-blink,.ks-act,.ks-perch,.ks-bob,.ks-steam,.ks-flicker{animation:none}}";
     document.head.appendChild(st);
   }
 
@@ -1403,6 +1489,7 @@
   function dayView(recipe) {
     const d = recipe.day, hide = new Set(d.hide || []);
     return Object.assign({}, recipe, {
+      isDay: true,
       palette: Object.assign({}, recipe.palette, d.palette),
       backdrop: Object.assign({}, recipe.backdrop, { stars: d.stars || 0 }),
       surface: (recipe.surface || []).filter(s => s.kind !== "pool"),
@@ -1414,5 +1501,17 @@
   function has(id) { return !!recipes[id]; }
 
   window.Dojo = window.Dojo || {};
-  Dojo.Scenes = { register, render, has };
+  // How a window in a scene looks by day: the day sky ("sky", the
+  // default), or stars whatever the hour ("stars"), a look a bug once
+  // produced and that was liked (2026-11-22). Chosen in Custom, kept per
+  // device in localStorage; WALL_ART.window reads it.
+  const WINDOW_KEY = "knell.sceneWindow";
+  function windowView() {
+    try { return localStorage.getItem(WINDOW_KEY) === "stars" ? "stars" : "sky"; } catch (e) { return "sky"; }
+  }
+  function setWindowView(v) {
+    try { localStorage.setItem(WINDOW_KEY, v === "stars" ? "stars" : "sky"); } catch (e) { /* private mode */ }
+  }
+
+  Dojo.Scenes = { register, render, has, windowView, setWindowView };
 })();

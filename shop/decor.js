@@ -635,21 +635,43 @@
     return null;
   }
 
+  // Whether something is drawn here, over the sky. The sky is the page's
+  // backdrop, so where a shape, a picture, a line of text or a filled
+  // panel sits on top of it, the cloud or bird behind can't be seen, and
+  // aiming or poking "through" it read as a glitch: on the start screen
+  // the reticle blinked on and off over the garden as clouds drifted
+  // behind it (2026-11-23, «sniping coursos on pre screen is glitchy»).
+  // Open sky inside a scene's frame still counts as sky: there the
+  // pointer is on the <svg> itself, not on one of its shapes.
+  function coversSky(el) {
+    if (!el || el === document.documentElement || el === document.body) return false;
+    if (el instanceof SVGElement) return el.tagName.toLowerCase() !== "svg";
+    if (/^(IMG|CANVAS|VIDEO)$/.test(el.tagName)) return true;
+    for (const n of el.childNodes) if (n.nodeType === 3 && n.nodeValue.trim()) return true;
+    const cs = getComputedStyle(el);
+    if (cs.backgroundImage !== "none") return true;
+    const alpha = cs.backgroundColor.match(/^rgba\(.*,\s*([\d.]+)\)$/);
+    return cs.backgroundColor !== "transparent" && !(alpha && parseFloat(alpha[1]) === 0);
+  }
+
   function initClouds() {
     if (document.body.dataset.cloudsBound) return;
     document.body.dataset.cloudsBound = "1";
     document.addEventListener("click", e => {
       if (e.target.closest && e.target.closest(INTERACTIVE)) return;
       // Birds first: they're small and often drawn over a cloud, so the
-      // cloud would otherwise swallow every attempt to hit one.
-      const bird = eagleAt(e.clientX, e.clientY);
-      if (bird) { pokeEagle(bird); return; }
-      const sun = sunAt(e.clientX, e.clientY);
-      if (sun) { pokeSun(sun); return; }
-      const moon = moonAt(e.clientX, e.clientY);
-      if (moon) { pokeMoon(moon); return; }
-      const cloud = cloudAt(e.clientX, e.clientY);
-      if (cloud) { poke(cloud); return; }
+      // cloud would otherwise swallow every attempt to hit one. None of
+      // them through something drawn on top (coversSky).
+      if (!coversSky(e.target)) {
+        const bird = eagleAt(e.clientX, e.clientY);
+        if (bird) { pokeEagle(bird); return; }
+        const sun = sunAt(e.clientX, e.clientY);
+        if (sun) { pokeSun(sun); return; }
+        const moon = moonAt(e.clientX, e.clientY);
+        if (moon) { pokeMoon(moon); return; }
+        const cloud = cloudAt(e.clientX, e.clientY);
+        if (cloud) { poke(cloud); return; }
+      }
       // Hit nothing at all: no control, no bird, no sun, moon or cloud.
       // Announced rather than handled, because what a miss should mean
       // belongs to the screen it happened on — the lobby uses it to show
@@ -670,7 +692,8 @@
     // so reading screens keep their own cursors.
     //
     // It asks the same questions as the click above, in the same order,
-    // and never shows over a control. CSS :hover can't do this: the sky
+    // never shows over a control, and never locks on to sky that
+    // something drawn is hiding (coversSky). CSS :hover can't do this: the sky
     // layers are pointer-events:none on purpose, so they are never the
     // thing under the pointer. Nothing shows on the study screens, where
     // the sky is hidden but its pieces still sit at their old positions.
@@ -689,8 +712,11 @@
       let mode = "";
       const onControl = aimOver && aimOver.closest && aimOver.closest(INTERACTIVE);
       if (!onControl && !root.dataset.study) {
-        const target = eagleAt(aimX, aimY) || sunAt(aimX, aimY) || moonAt(aimX, aimY) ||
-                       cloudAt(aimX, aimY) || (Dojo.wheelAt && Dojo.wheelAt(aimX, aimY));
+        // The wheel is outside the coversSky test: its own ring and the
+        // dartboard behind it are drawn, and they are what takes the dart.
+        const sky = !coversSky(aimOver) && (eagleAt(aimX, aimY) || sunAt(aimX, aimY) ||
+                    moonAt(aimX, aimY) || cloudAt(aimX, aimY));
+        const target = sky || (Dojo.wheelAt && Dojo.wheelAt(aimX, aimY));
         mode = target ? "lock" : inLobby() ? "scope" : "";
       }
       if (mode === aimMode) return;
@@ -779,5 +805,5 @@
     initClouds();
   }
 
-  Object.assign(Dojo, { BG_DECORS, SCENES, decorFace, pokeCloud: poke, pokeMoon, pokeSun, dartAt });
+  Object.assign(Dojo, { BG_DECORS, SCENES, decorFace, pokeMoon, pokeSun, dartAt });
 })();

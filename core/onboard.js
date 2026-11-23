@@ -105,6 +105,7 @@
     return [
       {
         key: "look",
+        icon: "\u{1F9ED}",
         label: () => I18N.t("onb.stepLayout"),
         why:   () => I18N.t("onb.whyLayout"),
         items: LOOK_CHOICES,
@@ -125,6 +126,7 @@
       },
       {
         key: "theme",
+        icon: "\u{1F3A8}",
         label: () => I18N.t("onb.stepTheme"),
         why:   () => I18N.t("onb.whyTheme"),
         items: themeChoices,
@@ -157,6 +159,37 @@
     el("onb-progress").textContent = `${stepIdx + 1} / ${all.length}`;
     el("onb-next").textContent = stepIdx === all.length - 1
       ? I18N.t("onb.done") : I18N.t("onb.next");
+
+    // Polished 2026-11-22 ("polish scene customization offer menu"): the
+    // step's own symbol by its title, a strip along the top that fills as
+    // the steps go by, and a row of dots under the choice, one per option,
+    // instead of a bare "5 / 5". On the colour step each dot is that
+    // theme's own swatch, so the whole palette is in view at once; any
+    // dot can be tapped to jump straight to it. The count stays, for
+    // screen readers.
+    const icon = el("onb-icon");
+    if (icon) icon.textContent = step.icon || "";
+    const strip = el("onb-steps");
+    if (strip) {
+      strip.replaceChildren(...all.map((s, k) => {
+        const seg = document.createElement("span");
+        if (k <= stepIdx) seg.className = "on";
+        return seg;
+      }));
+    }
+    const dots = el("onb-dots");
+    if (dots) {
+      dots.replaceChildren(...items.map((it, k) => {
+        const d = document.createElement("button");
+        d.type = "button";
+        d.className = "onb-dot" + (k === at ? " on" : "");
+        d.title = it.name || it.id;
+        d.setAttribute("aria-label", it.name || it.id);
+        if (it.swatch) d.style.background = it.swatch;
+        d.addEventListener("click", () => { step.set(it.id); render(); });
+        return d;
+      }));
+    }
   }
 
   // Cycling wraps in both directions — a picker that dead-ends at the

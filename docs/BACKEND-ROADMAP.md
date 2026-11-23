@@ -329,6 +329,11 @@ someone studying on a plane, or simply past their refresh-token expiry
 while offline, gets locked out of an app that is fully cached on their
 own device and needs nothing from the network to teach them anything.
 
+*2026-11-22: the service worker is retired (see `sw.js`), so the app no
+longer opens with no network at all. The gate stays a localStorage read,
+not a network call: an expired token or a dropped connection still must
+not lock a returning user out.*
+
 **So gate on "has this device ever completed a sign-in", not "is a
 session currently valid."** Supabase persists its session (JWT +
 refresh token) in `localStorage`, so this is a local read, not a network
@@ -578,7 +583,8 @@ Recommendation: **(c) now, Cloud Functions when real money starts.**
 
 ## Phase 4 — Sync & offline
 
-Don't lose the offline-first property; it's a real strength.
+Don't lose the offline-first property; it's a real strength. *(Dropped
+2026-11-22: the service worker was retired, see `sw.js`.)*
 
 - Firestore has built-in offline persistence — enable it.
 - Conflict policy: **last-write-wins per document** is fine for

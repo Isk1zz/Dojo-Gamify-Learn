@@ -64,17 +64,6 @@
       earned: (_s, _streak, xp) => Dojo.Ranks ? Dojo.Ranks.rankFor(xp).n >= 8 : false }
   ]);
 
-  // Earned badges, computed fresh each call — the one place both the
-  // modal grid and core/profile.js's pin picker read from, so the two
-  // can never disagree about what's actually been earned.
-  function earnedBadges() {
-    const stats = DB.getStats();
-    if (!stats) return [];
-    const streak = DB.getStreak ? DB.getStreak() : null;
-    const xp = DB.getXp();
-    return BADGES.filter(b => b.earned(stats, streak, xp));
-  }
-
   function badgeGridHtml(stats) {
     const streak = DB.getStreak ? DB.getStreak() : null;
     const xp = DB.getXp();
@@ -339,5 +328,5 @@
   });
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { showStatsModal, hideStatsModal, renderStats, earnedBadges, BADGES });
+  Object.assign(Dojo, { showStatsModal, hideStatsModal, renderStats, BADGES });
 })();

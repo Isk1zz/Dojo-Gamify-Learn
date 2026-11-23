@@ -60,17 +60,6 @@
   const claimChunk = (topicId, i, originEl) =>
     claimWork(Dojo.Earn.id.chunk(topicId, i), originEl);
 
-  // Totals other branches ask for instead of walking ALL_TOPICS
-  // themselves. Keeps content knowledge inside this branch.
-  function libraryTotals() {
-    const done = DB.getCompletedTopics();
-    return {
-      courses: COURSES.length,
-      topics: ALL_TOPICS.length,
-      completed: ALL_TOPICS.filter(t => done.has(t.id)).length
-    };
-  }
-
   // ---- Unit & course completion rewards ----
   // Milestone rewards along the same roadmap spine already drawn for
   // units — a style pass modeled on mobile racing games' career reward
@@ -510,6 +499,13 @@
   // screen exactly as it was. The scene is an addition: the unit map, the
   // list and every entry below it are all still there.
   let courseScene = null;
+  // Every scene follows the sky, day or night (2026-11-22). The course
+  // screen redraws its scene when the sky changes while it is showing.
+  let redrawCourseScene = null;
+  Dojo.Bus.on("sky:changed", () => {
+    const screen = document.getElementById("unit-select");
+    if (redrawCourseScene && screen && screen.classList.contains("active")) redrawCourseScene();
+  });
 
   function renderCourseScene(course, unitsToShow, body, completedTopics) {
     // Torn down first: innerHTML = "" removes the old scene's picture but
@@ -554,7 +550,7 @@
     const wrap = document.createElement("div");
     wrap.className = "course-scene";
     body.appendChild(wrap);
-    courseScene = Dojo.Scenes.render(wrap, course.id, {
+    const sceneOpts = {
       lang: I18N.lang(),
       pinState: stateOf,
       onChapter: ({ topic, unit }) => {
@@ -574,7 +570,14 @@
           startTopic(at.idx);
         }, 420);
       }
-    });
+    };
+    courseScene = Dojo.Scenes.render(wrap, course.id, sceneOpts);
+    // A scene is drawn for the sky it opens under; switching the sky
+    // while it is on screen draws it again (see the listener below).
+    redrawCourseScene = () => {
+      if (courseScene) courseScene.destroy();
+      courseScene = Dojo.Scenes.render(wrap, course.id, sceneOpts);
+    };
     const hint = document.createElement("p");
     hint.className = "course-scene-hint";
     hint.textContent = I18N.t("scene.hint");
@@ -1224,7 +1227,7 @@
   //   RECALL — a free-text prompt with NO options at the end. Producing
   //     an answer beats recognising one (the generation effect), which
   //     is exactly what multiple choice can't test. Self-graded,
-  //     because grading free text offline isn't possible and a wrong
+  //     because nothing here can grade free text and a wrong
   //     self-grade costs nothing here.
   //
   // `apply` is the existing multiple-choice question, renamed in the
@@ -1372,8 +1375,8 @@
   //
   // Free text, no options, self-graded. Producing an answer beats
   // recognising one, which is the thing multiple choice structurally
-  // cannot test. Self-grading is honest about what an offline app can
-  // do: nothing here can mark prose, and a generous self-grade costs
+  // cannot test. Self-grading is honest about what this app can do:
+  // nothing here can mark prose, and a generous self-grade costs
   // the learner nothing because it isn't scored either.
   function renderRecall(body, chunk) {
     const topic = getTopic();
@@ -2894,5 +2897,5 @@
   }
 
   // ---- seam: what this branch offers to everyone else ----
-  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, startFinalQuiz, libraryTotals, resumeAt, startNextDueReview, openDeckBuilder, renderDeckBuilder, openFlashcardsHub, flashcardsSummary, CONFIDENCE });
+  Object.assign(Dojo, { phasesFor, finishChunk, renderCourseSelect, renderUnitSelect, selectUnit, renderTopicMap, updateGlobalProgress, startTopic, getTopic, startExam, startFinalQuiz, resumeAt, startNextDueReview, openDeckBuilder, renderDeckBuilder, openFlashcardsHub, flashcardsSummary, CONFIDENCE });
 })();

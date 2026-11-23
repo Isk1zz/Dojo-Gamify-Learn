@@ -1065,19 +1065,6 @@ const DB = (() => {
     return p ? (p.chargeEarned || 0) : 0;
   }
 
-  // Used only by the rank cheat codes. Not part of normal play — XP
-  // moves in one direction, by studying, everywhere else.
-  function setXp(total) {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return 0;
-    const v = Math.max(0, Math.floor(total) || 0);
-    p.charge = v;
-    p.chargeEarned = v;
-    save(db);
-    return v;
-  }
-
   // Patron tiers (shop/tokens.js's PATRON_TIERS) grant a permanent XP
   // multiplier as part of the "thank you" — 0 = no patron, tier 1/2/3
   // match the Supporter/Patron/Contributor tiers there by index.
@@ -1119,14 +1106,6 @@ const DB = (() => {
     return granted;
   }
 
-  function getChargeTotals() {
-    const p = getActiveProfile();
-    return {
-      earned: (p && p.chargeEarned) || 0,
-      spent: (p && p.chargeSpent) || 0
-    };
-  }
-
   // ---- Shop ----
   function getOwnedThemes() {
     const p = getActiveProfile();
@@ -1135,20 +1114,6 @@ const DB = (() => {
 
   function ownsTheme(id) {
     return getOwnedThemes().has(id);
-  }
-
-  // Grants a theme outright. Themes are no longer bought — they arrive
-  // with a rank — but the list is kept so anything unlocked under the
-  // old paid system stays owned.
-  function grantTheme(id) {
-    if (ownsTheme(id)) return false;
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return false;
-    if (!Array.isArray(p.ownedThemes)) p.ownedThemes = [];
-    p.ownedThemes.push(id);
-    save(db);
-    return true;
   }
 
   // ---- Profile customization (avatars, pinned badges) ----
@@ -1598,22 +1563,6 @@ const DB = (() => {
   // field, so an existing profile keeps its narrative history intact in
   // case the branch ever comes back.
 
-  // ---- Admin ----
-  // Marks every topic complete. Used by the settings cheat code so a
-  // reviewer can see the later screens without a 26-topic grind.
-  // Deliberately does NOT touch reviews, stats or the wallet — a
-  // cheated profile should still look obviously cheated in Stats.
-  function unlockAllTopics(topicIds) {
-    const db = load();
-    const p = db.profiles[db.activeProfileId];
-    if (!p) return 0;
-    const set = new Set(p.completedTopics || []);
-    topicIds.forEach(id => set.add(id));
-    p.completedTopics = [...set];
-    save(db);
-    return p.completedTopics.length;
-  }
-
   // ---- Export / Import ----
   function exportData() {
     const db = load();
@@ -1704,11 +1653,8 @@ const DB = (() => {
     pushSeenQuote,
     getXp,
     addXp, addXpRaw,
-    setXp,
-    getChargeTotals,
     getOwnedThemes,
     ownsTheme,
-    grantTheme,
     getWallet,
     addMoney,
     spendMoney,
@@ -1723,7 +1669,6 @@ const DB = (() => {
     setLastDividendClaim,
     getInventory,
     addInventory,
-    unlockAllTopics,
     getTheme,
     setTheme,
     getLobbyStyle,

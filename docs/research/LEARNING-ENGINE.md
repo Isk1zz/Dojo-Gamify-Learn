@@ -383,7 +383,7 @@ By (value ÷ cost), not by how interesting the idea is.
 
 | | Change | Cost | Blocked on |
 |---|---|---|---|
-| 1 | **Raise five-phase coverage from 19%** — see §5 | content work, no code | nothing |
+| 1 | **Fill the missing `predict` and `recall` in intro-cs** — see §5 (the 19% first given here measured the wrong target) | content work, no code | nothing |
 | 2 | **WSM gains the overdue term** | trivial | nothing |
 | 3 | **Start collecting SER and SDI** — inputs already exist | low | nothing |
 | 4 | **Confidence before feedback + hypercorrection flow** (24–48h re-test) | medium | nothing |
@@ -417,11 +417,28 @@ optimal learning*) and comes off this list.
 
 ## 5. The thing the report could not see — MEASURED
 
+**Corrected 2026-11-22.** The count below measured `predict` against every
+chunk, a target CONTENT-MODEL.md never set: `predict` belongs on a topic's
+first chunk and `recall` on every chunk (§3 there). So the 19% was never
+the gap. Against the model, with the content unchanged since the count:
+
+| Course | `predict` on chunk 1 | `recall` |
+|---|---|---|
+| bike-a3 | 7 of 7 topics | 21 of 21 chunks |
+| intro-cs | 23 of 48 topics | 67 of 141 chunks |
+| philosophy | 3 of 3 topics | 9 of 9 chunks |
+
+bike-a3 and philosophy are complete. The gap is intro-cs alone: 25 topics
+without `predict` and 74 chunks without `recall`. The counter was deleted,
+since it kept reporting the wrong target; `library/content/check-content.js`
+checks content against the model. The text below is the original finding,
+kept as it was written.
+
 It describes the five-phase unit as though every chunk has five. Both
 `predict` and `recall` are OPTIONAL in the schema, and `phasesFor()` builds
 the list from whatever a chunk actually carries.
 
-Counted, 2026-09-02, with `library/content/count-phases.js`:
+Counted, 2026-09-02, with a one-off counter (deleted 2026-11-22):
 
 | Course | Chunks | predict | recall | all five |
 |---|---|---|---|---|
@@ -439,12 +456,12 @@ schema was frozen. It is **content that never adopted them**, and it is worth
 more than anything else on the shortlist: turning on a technique already built
 beats adding a technique that is not.
 
-Note the split is uneven in a way that suggests how it happened.  is
-at 57% and  at 19%; bike-a3 and philosophy have recall on *every*
+Note the split is uneven in a way that suggests how it happened. `recall` is
+at 57% and `predict` at 19%; bike-a3 and philosophy have recall on *every*
 chunk but predict on a third. Recall was adopted as content was written;
 predict mostly was not.
 
 Nothing in the research shortlist should start before this number is either
-raised or deliberately accepted. Adding backward fading to a  phase
-in a chunk that has no  and no  is decorating a room with
+raised or deliberately accepted. Adding backward fading to an `example` phase
+in a chunk that has no `predict` and no `recall` is decorating a room with
 two walls missing.

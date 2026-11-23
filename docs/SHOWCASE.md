@@ -68,8 +68,11 @@ holds no Supabase address or key.
 because without its server it could only be an empty screen. Its lobby
 tile opens a museum (`museum/museum.js`): short exhibits in plain words on
 how the courses, memory, the Garden, flashcards, scenes and accounts work,
-and on what was set aside, the Forum among them. The first start screen
-still runs there. It is the same tile with the same id, not a new one: two of
+and on what was set aside, the Forum among them. Since 2026-11-23 each
+exhibit that explains something also has a longer "Read more", in both
+languages. A hall walks through the project's history by date, with
+pictures of the old versions, and the Arcade shows its four games. The first
+start screen still runs there. It is the same tile with the same id, not a new one: two of
 the Star lobby looks count tiles exactly, and with one tile fewer the Star
 of David falls back to spokes and the pentagram is drawn lopsided.
 
@@ -143,9 +146,9 @@ Each decision, with the case made against it where there was one, is in
 |---|---|---|
 | Four of seven courses | Shells: biology, chemistry, physics and science literacy have a manifest and no lessons | Content takes about 4–6 hours per researched topic |
 | The oldest 57 lessons | Intro to CS modules 1–4 average 72–89 words and cite no sources, against a standard of about 200 words and two sources that the other 114 meet | Written before the standard existed; the rewrite was queued and never done |
-| Scenes for other courses | Two have one: the e-bike course (a junction, a pin per topic) and Intro to CS (a computer lab, a pin per unit, because 48 topics do not fit in one picture). Philosophy and the four empty courses have none | The engine is general; each course needs a recipe, not code. The lab added walls and wall art to the engine, and nothing course-specific |
+| Scenes for other courses | Three have one: the e-bike course (a junction, a pin per topic), Intro to CS (a computer lab, a pin per unit, because 48 topics do not fit in one picture) and Philosophy (the Roman Forum at night, 2026-11-22: Cicero's three topics at the Rostra, a table of scrolls and the Curia). The four empty courses have none | The engine is general; each course needs a recipe, not code. The lab added walls and wall art to the engine, the forum pitched roofs, columns and togas, and nothing course-specific |
 | Five more languages | Not started. Intro to CS is English only, 5,115 strings and no language bags | Decided: write in English first, translate as its own pass |
-| Light themes and the scene | The start screen's garden follows the sky: under the day sky it is drawn in daylight, lamps out and no stars, and switching the sky redraws it (2026-11-22). The course scenes are still night pictures on every theme | Each scene needs its own daylight colours; the engine now takes them as part of a recipe |
+| Light themes and the scene | **Done 2026-11-22:** every scene follows the sky. Under the day sky the garden, the junction, the lab and the forum are drawn in daylight, lamps out, no stars, the lab's window showing the sun; switching the sky redraws the start screen and any course scene on screen | Each recipe carries its own daylight colours, and the engine draws whichever the sky asks for |
 | Offline use | **Removed 2026-11-22**, and never claimed | There was a service worker that cached what had been visited, and it served a returning visitor the copy it had kept: the first visit after an update could show an old screen. Now every visit loads the current version from the network. `sw.js` remains only to remove the old worker and its caches from browsers that still have them |
 | Forum legal text | Not written | Needed before a public forum, not before a demo |
 | A nickname bug | Known: the chosen nickname does not reach the server profile | Moot while accounts are off; the diagnosis is in `UPDATESTACK.md` |

@@ -1,52 +1,3 @@
-/* ── Theme picker (Settings) ── */
-.theme-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 0.7rem;
-}
-.theme-swatch {
-  display: flex; flex-direction: column; gap: 0.5rem;
-  padding: 0.6rem; cursor: pointer;
-  border: 2px solid var(--border); border-radius: var(--radius-sm);
-  /* Was rgba(255,255,255,0.02) — a near-invisible white wash on dark
-     themes, and equally near-invisible (white-on-near-white) on a light
-     one. var(--bg-card) is themed either way. */
-  background: var(--bg-card); color: var(--text); font: inherit;
-  transition: border-color 0.15s ease, transform 0.15s ease;
-}
-.theme-swatch:hover { transform: translateY(-2px); }
-.theme-swatch.active { border-color: var(--sw); }
-.sw-preview {
-  display: flex; align-items: center; justify-content: center;
-  height: 46px; border-radius: var(--radius-xs);
-  background: var(--sw-bg);
-}
-.sw-dot {
-  width: 20px; height: 20px; border-radius: 50%;
-  background: var(--sw); box-shadow: 0 0 12px var(--sw);
-}
-.sw-name { font-size: 0.78rem; text-align: center; }
-
-/* Locked themes: same card, dimmed, with a lock badge and the rank that
-   unlocks it. Still clickable — it previews instead of selecting. */
-.theme-swatch.locked { opacity: 0.6; }
-.theme-swatch.locked:hover { opacity: 0.85; }
-.theme-swatch.locked .sw-preview { position: relative; }
-.sw-lock {
-  position: absolute; top: 4px; right: 4px; font-size: 0.75rem;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
-}
-.sw-req {
-  font-size: 0.68rem; text-align: center; color: var(--text-muted);
-  font-family: var(--mono);
-}
-.theme-preview-bar {
-  display: flex; align-items: center; justify-content: space-between; gap: 0.7rem;
-  margin-top: 0.9rem; padding: 0.6rem 0.85rem;
-  border: 1px solid var(--border-accent); border-radius: var(--radius-sm);
-  background: var(--accent-glow);
-  font-size: 0.82rem;
-}
-
 /* ── Hints toggle ── */
 .hint-toggle-row {
   display: flex; align-items: center; gap: 0.6rem; cursor: pointer;
@@ -55,52 +6,7 @@
 .hint-toggle-row input { width: 16px; height: 16px; cursor: pointer; }
 body.hide-hints .settings-hint { display: none; }
 
-/* ── Lobby style picker — see styles/base.css's .lobby-style-cards /
-   .lobby-style-radial / .lobby-style-star for what each actually does
-   on the Lobby itself. ── */
-.lobby-style-grid { display: flex; gap: 0.7rem; flex-wrap: wrap; }
-.style-swatch {
-  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-  width: 110px; padding: 0.7rem; cursor: pointer;
-  border: 2px solid var(--border); border-radius: var(--radius-sm);
-  background: var(--bg-card); color: var(--text); font: inherit;
-  transition: border-color 0.15s ease, transform 0.15s ease;
-}
-.style-swatch:hover { transform: translateY(-2px); }
-.style-swatch.active { border-color: var(--border-accent); background: var(--accent-glow); }
-.style-preview { display: flex; flex-direction: column; gap: 4px; width: 100%; }
-
-/* ── Background-stripe picker — same swatch shell as Lobby style, a
-   filled preview box instead of the bars/radial thumbnail. ── */
-.stripe-swatch.locked { opacity: 0.55; cursor: default; }
-.stripe-swatch.locked:hover { transform: none; }
-.stripe-preview {
-  display: block; width: 100%; height: 46px; border-radius: var(--radius-xs);
-  background-color: var(--bg-surface);
-}
-
-/* Dot-ring thumbnail for Radial/Star — dots and (for star) hub + spokes
-   are laid out in JS with the same angle formula core/lobby.js uses on
-   the real tiles, just fixed at 6 stand-ins since this is a thumbnail,
-   not the live tile count. */
-.style-preview-radial { position: relative; width: 44px; height: 44px; margin: 0 auto; }
-.rp-dot {
-  position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px;
-  border-radius: 50%; background: var(--text-dim);
-}
-.rp-hub {
-  position: absolute; left: 22px; top: 22px; width: 8px; height: 8px;
-  margin: -4px 0 0 -4px; border-radius: 50%; background: var(--accent);
-  box-shadow: 0 0 6px var(--accent-glow-strong);
-}
-.rp-line {
-  position: absolute; height: 1px; background: var(--border-accent);
-  transform-origin: 0 50%; opacity: 0.7;
-}
-
-/* ── Admin code & legal placeholders ── */
-.admin-row { display: flex; gap: 0.5rem; align-items: center; }
-.admin-input { flex: 1; margin: 0; font-family: var(--mono); }
+/* ── Legal placeholders ── */
 .legal-block {
   border: 1px solid var(--border); border-radius: var(--radius-sm);
   padding: 0.7rem 0.9rem; margin-bottom: 0.6rem;

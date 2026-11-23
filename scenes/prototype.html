@@ -6,8 +6,7 @@
 <title>Knell — course scene prototype</title>
 <!--
   A harness for scenes/scene.js, NOT part of the app: index.html does not
-  load it and sw.js does not precache it. ?lang=ru shows the Russian
-  labels, ?id= picks a recipe.
+  load it. ?lang=ru shows the Russian labels, ?id= picks a recipe.
 -->
 <style>
   html, body { margin: 0; min-height: 100%; }
@@ -41,9 +40,9 @@
 <div class="stage" id="stage"></div>
 <div class="toast" id="toast"></div>
 <script>
-  // Cache-busting on purpose: the app's service worker serves this origin
-  // stale-while-revalidate, so a plain reload would show the PREVIOUS
-  // version of a file that is being iterated on.
+  // Cache-busting on purpose: the browser's own cache can hand back a
+  // file from before the last save, so a plain reload might show the
+  // PREVIOUS version of a file that is being iterated on.
   const v = Date.now();
   const load = src => new Promise((ok, no) => {
     const s = document.createElement("script");

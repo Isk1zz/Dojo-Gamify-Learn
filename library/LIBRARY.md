@@ -20,7 +20,7 @@ Stylesheet: `styles/library.css`.
 
 ## Exports
 `renderCourseSelect`, `renderUnitSelect`, `selectUnit`, `renderTopicMap`,
-`updateGlobalProgress`, `startTopic`, `getTopic`, `startExam`, `libraryTotals`,
+`updateGlobalProgress`, `startTopic`, `getTopic`, `startExam`,
 `resumeAt`, `startNextDueReview`, `showStatsModal`, `renderStats`
 
 `resumeAt(pos)` and `startNextDueReview()` exist because the **lobby** owns the
@@ -243,7 +243,10 @@ Full reasoning in PROJECT.md §5. Short version:
   `renderQuiz`, which re-runs on every click.
 - Wrong chunk answers re-ask that chunk before the exam, straight to the
   question — no re-reading.
-- No hard locks. Order is a recommendation badge, not a gate.
+- **Locks, by explicit request.** Order was once a recommendation, not a
+  gate. Now units, topics and chapters open in order; `PROJECT.md` §5
+  keeps the objection. A due review and a saved position are never
+  blocked. Corrected 2026-11-23.
 - **No leaderboards.** Points and streaks are a different story: both
   were on this list and both shipped anyway, by explicit request.
   `PROJECT.md` §5 records each reversal with the objection intact; this

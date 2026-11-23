@@ -138,6 +138,11 @@
 
   const peeled = () => { try { return localStorage.getItem(KEY) === "1"; } catch (e) { return true; } };
   const remember = () => { try { localStorage.setItem(KEY, "1"); } catch (e) { /* private mode: it peels again next time */ } };
+  // "0": shown to someone new and not peeled yet. A reload before peeling
+  // finds a profile, which on its own reads as "used before the sticker
+  // existed"; this mark keeps the sticker on until it is really peeled.
+  const shownUnpeeled = () => { try { return localStorage.getItem(KEY) === "0"; } catch (e) { return false; } };
+  const markShown = () => { try { localStorage.setItem(KEY, "0"); } catch (e) { /* private mode: shown on this visit only */ } };
 
   // ---- The guide -------------------------------------------------------
   let box = null, i = 0;
@@ -269,8 +274,9 @@
     // marked as peeled and never shown the sticker.
     // typeof, not window.DB: data/db.js declares DB with const, which is
     // global but never a property of window.
-    const fresh = Dojo.freshProfile || !(typeof DB !== "undefined" && DB.getActiveProfile && DB.getActiveProfile());
+    const fresh = Dojo.freshProfile || shownUnpeeled() || !(typeof DB !== "undefined" && DB.getActiveProfile && DB.getActiveProfile());
     if (!fresh) { remember(); return; }
+    markShown();
     const s = document.createElement("div");
     s.id = "rank-peel";
     s.className = "rank-peel";

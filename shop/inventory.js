@@ -223,6 +223,24 @@
       equip: id => { if (Dojo.setSky) Dojo.setSky(id); }
     });
 
+    // ---- Windows in the scenes ----
+    // By day a window in a scene (the lab's, so far) shows the day sky,
+    // or, chosen here, stars whatever the hour: the look a bug once
+    // produced, a sunlit room with a night in its window, and that was
+    // liked ("your glitch wouldve been a nice styling option", 2026-11-22).
+    // Free, like the sky itself. scenes/scene.js keeps the choice.
+    if (Dojo.Scenes && Dojo.Scenes.windowView) {
+      const winNow = Dojo.Scenes.windowView();
+      out.push({
+        key: "sceneWindow", group: "style", icon: "\u{1FA9F}", title: { en: "Windows in scenes", ru: "Окна в сценах" },
+        items: I18N.resolve([
+          { id: "sky",   name: { en: "Follow the sky", ru: "Как небо" },      glyph: "☀\u{FE0F}", swatch: null, equipped: winNow === "sky" },
+          { id: "stars", name: { en: "Always starry", ru: "Всегда звёзды" }, glyph: "✨",    swatch: null, equipped: winNow === "stars" }
+        ]),
+        equip: id => Dojo.Scenes.setWindowView(id)
+      });
+    }
+
     // ---- Scenery ----
     // Single-select, so "None" is a real listed option here (it is on
     // the stripe slot too) — otherwise there'd be no way to take a

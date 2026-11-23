@@ -42,7 +42,7 @@
     },
     // No link to the source repository: its author does not plan to carry
     // it on, so the letter does not point there (2026-11-22).
-    sign: { en: "Illia “isk1zz”", ru: "Illia «isk1zz»" },
+    sign: { en: "Illia “isk1zz” Polianskyi", ru: "Illia «isk1zz» Polianskyi" },
     close: { en: "Close", ru: "Закрыть" }
   };
   const t = key => {

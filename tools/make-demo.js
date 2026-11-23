@@ -46,14 +46,17 @@ const RUNTIME = ["index.html", "manifest.webmanifest", "sw.js", "LICENSE",
   "admin/", "scenes/", "styles/", "icons/"];
 // Not library/content/build.js: despite the name it runs in the app,
 // publishing COURSES / UNITS / ALL_TOPICS (index.html loads it).
-const DEV_ONLY = /(^|\/)(check-content|count-phases)\.js$|scenes\/prototype\.html$/;
+const DEV_ONLY = /(^|\/)check-content\.js$|scenes\/prototype\.html$/;
 
 // Tracked files plus new ones not yet committed, minus anything
-// .gitignore excludes (the local test-account notes among them).
+// .gitignore excludes (the local test-account notes among them), and
+// minus files no longer on disk: one deleted but not yet committed is
+// still in git's index, and copying it would stop the build halfway.
 const tracked = execSync("git ls-files --cached --others --exclude-standard", { cwd: SRC, encoding: "utf8" }).trim().split("\n");
 const files = tracked.filter(f =>
   RUNTIME.some(r => r.endsWith("/") ? f.startsWith(r) : f === r) &&
-  !f.endsWith(".md") && !DEV_ONLY.test(f));
+  !f.endsWith(".md") && !DEV_ONLY.test(f) &&
+  fs.existsSync(path.join(SRC, f)));
 // From disk, not from git: a screenshot taken for this run may not be
 // committed yet.
 const SHOTS = path.join(SRC, "docs", "screenshots");

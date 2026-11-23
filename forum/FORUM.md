@@ -42,7 +42,7 @@ says plainly that nobody is here yet. There are no posts, and there is no
 faked community.
 
 **This is not laziness, it's the only honest option available.** A forum is
-inherently multi-user; this app is offline-first, stores everything in
+inherently multi-user; this app stores everything on the device, in
 `localStorage`, and deploys as static files. Two people running it share
 nothing — no posts, no replies, no reputation. Seeding it with invented
 "community" posts would look like a forum, teach mechanics that don't exist,

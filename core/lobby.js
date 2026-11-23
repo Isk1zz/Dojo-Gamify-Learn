@@ -181,7 +181,45 @@
   // colours there. Bands are given a couple of percent of overlap so
   // the boundary reads as a crisp edge rather than a smeared fade —
   // these are flags, not a sunset.
+  //
+  // ---- Colour themes, not only flags ----
+  // Added 2026-11-22 ("offer a people appealing color themes"): the star
+  // wore only national flags, which many people will not want to wear.
+  // These are smooth three-colour gradients, sunsets rather than flags,
+  // free like the flags, and listed first. Spokes take each one's three
+  // colours in turn, the pentagram its first, the hexagram the whole
+  // gradient on each triangle.
   const HEX_FLAGS = {
+    sunset: {
+      name: "Sunset", price: 0,
+      stops: [[0, "#ff7a45"], [50, "#ff3d81"], [100, "#9b4dff"]],
+      bar: "linear-gradient(90deg,#ff7a45,#ff3d81,#9b4dff)"
+    },
+    ocean: {
+      name: "Ocean", price: 0,
+      stops: [[0, "#00d2ff"], [55, "#3a7bd5"], [100, "#2541b2"]],
+      bar: "linear-gradient(90deg,#00d2ff,#3a7bd5,#2541b2)"
+    },
+    aurora: {
+      name: "Aurora", price: 0,
+      stops: [[0, "#43e97b"], [50, "#38f9d7"], [100, "#8e7cff"]],
+      bar: "linear-gradient(90deg,#43e97b,#38f9d7,#8e7cff)"
+    },
+    neon: {
+      name: "Neon", price: 0,
+      stops: [[0, "#ff2bd6"], [50, "#b54cff"], [100, "#2b7bff"]],
+      bar: "linear-gradient(90deg,#ff2bd6,#b54cff,#2b7bff)"
+    },
+    rosegold: {
+      name: "Rose gold", price: 0,
+      stops: [[0, "#f6d365"], [50, "#fda085"], [100, "#f78fb3"]],
+      bar: "linear-gradient(90deg,#f6d365,#fda085,#f78fb3)"
+    },
+    forest: {
+      name: "Forest", price: 0,
+      stops: [[0, "#a8e063"], [50, "#3fa34d"], [100, "#1e6f5c"]],
+      bar: "linear-gradient(90deg,#a8e063,#3fa34d,#1e6f5c)"
+    },
     ukraine: {
       name: "Ukraine", price: 0,
       stops: [[0, "#0057B7"], [48, "#0057B7"], [52, "#FFD700"], [100, "#FFD700"]],
@@ -214,7 +252,16 @@
   // the hexagram shipped with; the rest fly one flag on both triangles.
   // Real flags first, the combo last — it's built FROM the first two,
   // so listing it ahead of them read backwards in the Shop.
+  // The colour themes come first (2026-11-22), each on both triangles,
+  // then a pair of them the way "combined" pairs two flags.
   const HEX_FLAG_MODES = {
+    sunset: ["sunset", "sunset"],
+    ocean: ["ocean", "ocean"],
+    aurora: ["aurora", "aurora"],
+    neon: ["neon", "neon"],
+    rosegold: ["rosegold", "rosegold"],
+    forest: ["forest", "forest"],
+    twilight: ["sunset", "ocean"],
     ukraine: ["ukraine", "ukraine"],
     israel: ["israel", "israel"],
     usa: ["usa", "usa"],
@@ -227,12 +274,22 @@
   // broken"). That's an OS font gap no CSS can fix, so the fix is not
   // depending on the emoji existing — text only here, and a real drawn
   // swatch (HEX_FLAG_CHIP below) wherever a visual is needed instead.
-  const HEX_FLAG_LABELS = {
-    combined: "Mixtape (Ukraine + Israel)",
-    ukraine: "Ukraine",
-    israel: "Israel",
-    usa: "USA"
-  };
+  // In the reader's language since 2026-11-22: they were English only,
+  // so a Russian Custom showed "Ukraine" and "Mixtape". Resolved here, so
+  // every place that shows one still gets a plain string.
+  const HEX_FLAG_LABELS = I18N.resolve({
+    sunset: { en: "Sunset", ru: "Закат" },
+    ocean: { en: "Ocean", ru: "Океан" },
+    aurora: { en: "Aurora", ru: "Северное сияние" },
+    neon: { en: "Neon", ru: "Неон" },
+    rosegold: { en: "Rose gold", ru: "Розовое золото" },
+    forest: { en: "Forest", ru: "Лес" },
+    twilight: { en: "Twilight (Sunset + Ocean)", ru: "Сумерки (Закат + Океан)" },
+    combined: { en: "Mixtape (Ukraine + Israel)", ru: "Микс (Украина + Израиль)" },
+    ukraine: { en: "Ukraine", ru: "Украина" },
+    israel: { en: "Israel", ru: "Израиль" },
+    usa: { en: "USA", ru: "США" }
+  });
 
   // No drawn-chip helper here: every place that shows one of these
   // labels (Settings' hexPreview, the Shop's card preview, Inventory's

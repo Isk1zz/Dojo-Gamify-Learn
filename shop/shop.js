@@ -65,7 +65,7 @@
         <p class="settings-hint" style="margin:0.6rem 0 0;">
           XP comes from finishing chunks and passing exams, and is never spent.
           Rewards arrive when you reach the rank \u2014 there is nothing to buy. Themes
-          and background stripes are equipped from Settings once they're unlocked.
+          and background stripes are equipped from Custom once they're unlocked.
         </p>
       </div>
       <div class="settings-section">

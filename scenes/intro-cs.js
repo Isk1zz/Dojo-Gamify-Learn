@@ -33,6 +33,17 @@
       leaf: "#2f7a52", trunk: "#6b4a35", haze: "#5ec2ff", skyline: "#141a27"
     },
 
+    // The same lab by day (added 2026-11-22, so that every scene follows
+    // the sky): pale walls and floor, daylight in the window. The racks
+    // stay dark; machines do not change colour with the sun.
+    day: {
+      palette: {
+        floor: "#c9ced8", floorEdge: "#aeb4c0", floorLine: "#b8bec9", rug: "#7f9cc8",
+        wall: "#dfe3ea", cap: "#c3c9d4", desk: "#a9805e",
+        window: "#d6ecff", leaf: "#4caa55", trunk: "#7a5a3a"
+      }
+    },
+
     // A raised floor: thin tiles over a dark cable void over concrete.
     block: {
       w: 12, d: 12, top: 250, skin: 0.1,

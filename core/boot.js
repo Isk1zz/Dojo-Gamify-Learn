@@ -49,9 +49,8 @@
   // Accounts are mandatory (BACKEND-ROADMAP.md Step 3): requireAccount()
   // opens the sign-in gate and returns false when this device has never
   // signed in, so the lobby is never painted behind it. It returns true
-  // offline for anyone who HAS signed in here before — the gate is a
-  // localStorage read, not a network call, so an installed PWA still
-  // opens on a plane. See core/auth.js.
+  // for anyone who HAS signed in here before, connection or not — the
+  // gate is a localStorage read, not a network call. See core/auth.js.
   //
   // Dojo.checkProfile stays as the fallback for a build where auth.js
   // is absent; deleting a branch file should degrade, not crash.
@@ -153,8 +152,8 @@
   // data/db.js emits this when localStorage rejects a write (quota
   // exhausted, Safari private mode). It was emitted but never listened
   // to, so progress could silently stop persisting mid-session with no
-  // indication — the one failure mode in an offline-first app that
-  // actually loses a user's work. See core/hud.js's warnSaveFailed.
+  // indication. Progress lives on the device, so this is the one failure
+  // mode that actually loses a user's work. See core/hud.js's warnSaveFailed.
   Bus.on("db:saveFailed", () => Dojo.warnSaveFailed && Dojo.warnSaveFailed());
 
   // Free Tokens, event-driven off the SAME rank-up crossing that already

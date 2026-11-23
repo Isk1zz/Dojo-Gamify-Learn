@@ -9,9 +9,6 @@
   border: 1px solid var(--border-accent); border-radius: var(--radius);
   background: var(--bg-card);
 }
-.sw-balance { font-family: var(--mono); font-size: 1.9rem; font-weight: 700; color: var(--bolt-3); }
-.sw-bolt { margin-right: 0.35rem; }
-.sw-cap { font-size: 1rem; color: var(--text-muted); }
 .sw-meta { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.2rem; }
 
 .shop-grid {
@@ -64,24 +61,6 @@
 .shop-btn.buy { font-family: var(--mono); }
 .shop-btn.short, .shop-btn:disabled { cursor: default; opacity: 0.5; }
 .shop-btn.equipped { background: transparent; color: var(--text-dim); }
-.shop-price { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); }
-
-/* ── Tabs (shared by Shop and Arcade) ── */
-.tab-row {
-  display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border);
-}
-.tab-btn {
-  display: flex; flex-direction: column; gap: 0.1rem; align-items: flex-start;
-  padding: 0.6rem 0.9rem; cursor: pointer; font: inherit; font-weight: 600;
-  font-size: 0.9rem; color: var(--text-dim);
-  background: none; border: none; border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-.tab-btn:hover { color: var(--text); }
-.tab-btn.active { color: var(--accent-light); border-bottom-color: var(--accent); }
-.tab-note { font-size: 0.66rem; font-weight: 400; color: var(--text-muted); }
 
 /* ── Vitals ── */
 .vitals-strip {

@@ -44,8 +44,9 @@ Transport's published question bank) and *Philosophy: Cicero* (3 topics).
 
 ## Engineering
 
-- **No framework, no build step, no npm dependencies.** About 17,000 lines
-  of plain JavaScript, 12,600 of course content and 5,200 of CSS. The only
+- **No framework, no build step, no npm dependencies.** About 19,800 lines
+  of plain JavaScript, 12,600 of course content and 5,400 of CSS (measured
+  2026-11-23). The only
   third-party code is `supabase-js`, the backend's client; the fonts come
   from Google Fonts.
 - **Branches you can delete.** A small kernel (events, router, state) and
@@ -101,8 +102,7 @@ how it works and why.
 
 ## Run it
 
-It has to be served over http, because a service worker will not register
-from a file:
+Serve the folder over http with any static server:
 
 ```bash
 git clone https://github.com/Isk1zz/Dojo-Gamify-Learn.git
@@ -117,6 +117,7 @@ at `/scenes/prototype.html`.
 
 | If you want to… | Read |
 |---|---|
+| understand how it works, in plain words | `docs/HOW-IT-WORKS.md` |
 | see what is real and what is not | `docs/SHOWCASE.md` |
 | understand how the pieces fit | `docs/ARCHITECTURE.md` |
 | know why it is built this way | `PROJECT.md` |

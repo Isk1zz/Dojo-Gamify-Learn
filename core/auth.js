@@ -37,8 +37,8 @@
 
   // Whether this device has ever completed a sign-in. Its own key, not
   // derived from Supabase's session storage: that entry is cleared on
-  // sign-out and on token expiry, and both of those must still leave a
-  // returning user able to open the app offline.
+  // sign-out and on token expiry, and both of those must still let a
+  // returning user past the gate without a network call.
   //
   // Name matches the app's existing convention of a stable key that
   // addresses data (see data/db.js's note on never renaming these).

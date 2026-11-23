@@ -90,5 +90,3 @@ uncapped and never spent.
 ## Gotchas
 - `completedChunks` powers resume. It went unread for a long time. Don't
   "clean it up".
-- `unlockAllTopics` (the admin code) deliberately does not touch reviews,
-  stats or the wallet — a cheated profile should still look cheated in Stats.

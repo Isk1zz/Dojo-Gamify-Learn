@@ -301,32 +301,6 @@
     const pop = document.getElementById("wallet-popover");
     if (pop) pop.style.display = "none";
   }
-  function toggleWalletPopover(chip) {
-    const pop = document.getElementById("wallet-popover");
-    if (!pop || !chip) return;
-    // Only a click on the SAME chip that's already open should close it —
-    // tapping the OTHER chip while one is open used to just close
-    // whichever was open (this check didn't know which chip that was),
-    // so switching from $ to 🪙 looked like the popover "didn't show."
-    // It should switch straight to the new chip's content instead.
-    if (pop.style.display === "block" && pop.dataset.forChip === chip.id) {
-      hideWalletPopover();
-      return;
-    }
-    pop.dataset.forChip = chip.id;
-    const isTokens = chip.classList.contains("vital-tokens");
-    pop.innerHTML = isTokens
-      ? `<strong>🪙 ${DB.getTokens()}</strong><br>`
-        + `Earned free from rank-ups, or bought in 🪙 Token Shop (Library). Spent `
-        + `to unlock courses.`
-      : `<strong>👏 ${DB.getReputation()}</strong><br>`
-        + `Earned in the Garden. Spent on other people's Forum posts — `
-        + `never on your own.`;
-    const r = chip.getBoundingClientRect();
-    pop.style.display = "block";
-    pop.style.top = `${r.bottom + 6}px`;
-    pop.style.right = `${window.innerWidth - r.right}px`;
-  }
   // The chips are now doors, not labels: $ opens Career (the Shop) and
   // 🪙 opens the Token Shop. The explanatory popover they used to open
   // moved to `title` on each chip — the text is still one hover away,

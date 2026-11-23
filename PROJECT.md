@@ -18,7 +18,7 @@ exam schedules it for spaced review rather than marking it finished forever.
 Open `index.html` in a browser. No build step, no npm. That's the current
 implementation, not a permanent commitment — no server is temporary, tracked
 at the top of `UPDATESTACK.md`; the plan is Supabase as the system of record
-for progress and the economy, with `localStorage` staying as the offline
+for progress and the economy, with `localStorage` staying as the local
 cache once that lands. **Don't add a build step or a dependency without a
 very good reason.**
 
@@ -220,19 +220,20 @@ actually predicts engagement.
 - **No points, badges, or leaderboards.** Meta-analyses find small and unstable
   motivational effects; Hanus & Fox (2015) found badges and leaderboards *reduced*
   motivation. Researchers call the shallow version "racing stripes on a bicycle."
-- **No AI features** — they'd break the no-build property, and what is
-  left of working without a network.
+- **No AI features** — they'd break the no-build property.
 
-  > **"Offline" needs qualifying, corrected 2026-09-02.** This line used
-  > to say "the offline/no-build property" flatly, and that stopped being
-  > true when accounts became mandatory. What actually works with no
-  > network: studying, but only on a device that has signed in at least
-  > once — the gate is a localStorage read, not a request. What does not:
-  > signing in on a fresh device, earning anything (claims queue and pay
-  > on reconnect, see `core/earn.js`), and the Forum entirely.
+  > **"Offline" needs qualifying, corrected 2026-09-02 and again
+  > 2026-11-22.** This line used to say "the offline/no-build property"
+  > flatly, and that stopped being true when accounts became mandatory.
+  > Since the service worker was retired (2026-11-22, see `sw.js`) the app
+  > caches nothing for use without a network: with no connection it does
+  > not open at all. If the connection drops while it is open, studying
+  > carries on and progress is written locally, to sync on reconnect;
+  > earning queues and pays on reconnect (`core/earn.js`); signing in and
+  > the Forum stop.
   >
-  > Caught by a reader, not by this file. The full table is in
-  > `docs/LEARNING-DESIGN.html`.
+  > The first correction was caught by a reader, not by this file. The
+  > table is in `docs/LEARNING-DESIGN.html`.
 
 > **Badges were on this list too, and no longer are.** Added back by explicit
 > request (2026-08-12), alongside a real user profile screen showing stats and
@@ -243,6 +244,10 @@ actually predicts engagement.
 > the same restraint the rest of the app has: real accomplishments (topics
 > mastered, streaks held, exams passed clean), not participation trophies for
 > opening the app.
+>
+> Built since: ten badges in `library/stats.js`, every one for a real
+> accomplishment (a topic mastered, a share of a course, exams passed clean,
+> accuracy, a streak held, a rank reached). Checked 2026-11-23.
 
 > **Streaks were on this list too, and no longer are.** Added back by explicit
 > request with 2 freezes/week (`DB.touchStreak`, `data/DATA.md`). The

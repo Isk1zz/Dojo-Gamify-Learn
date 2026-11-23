@@ -22,8 +22,8 @@
 // it reloads.
 //
 // That is not a workaround, it is the cheap correct option: a reload
-// costs nothing here (static files, all cached by the service worker,
-// progress is in the DB) and it makes it impossible to hold a
+// costs little here (static files; progress is in the DB) and it
+// makes it impossible to hold a
 // half-switched app. The alternative — threading a resolver through
 // ~60 render call sites — is more code and more places to forget one.
 //
@@ -349,7 +349,6 @@ const I18N = (() => {
                               ru: "Не удалось удалить аккаунт. Возможно, вы офлайн — попробуйте при подключении." },
     "del.notSignedIn":      { en: "You're not signed in on this device, so there's no account here to delete.",
                               ru: "На этом устройстве вы не вошли в аккаунт — удалять нечего." },
-    "del.done":             { en: "Your account has been deleted.", ru: "Аккаунт удалён." },
 
     "shop.buyFailed":       { en: "Purchase failed — check your connection",
                               ru: "Покупка не прошла — проверьте соединение" },
@@ -364,9 +363,6 @@ const I18N = (() => {
     "onb.stepLayout":       { en: "Pick a layout",      ru: "Выберите вид" },
     "onb.whyLayout":        { en: "How the lobby arranges itself. Star rings the tiles and can wire them three different ways; the others are lists.",
                               ru: "Как устроено главное меню. «Звезда» ставит плитки в кольцо и умеет соединять их тремя способами; остальные — списки." },
-    "onb.stepLinks":        { en: "Pick the wiring",    ru: "Выберите связи" },
-    "onb.whyLinks":         { en: "The figure drawn between the Star's tiles.",
-                              ru: "Фигура, соединяющая плитки «Звезды»." },
     "onb.next":             { en: "Next",               ru: "Далее" },
     "onb.done":             { en: "Lock it in",         ru: "Оставить так" },
     "onb.skip":             { en: "Skip",               ru: "Пропустить" },
@@ -388,7 +384,6 @@ const I18N = (() => {
     "ui.stats.import":      { en: "Import Data",        ru: "Загрузить данные" },
     "ui.pd.profile":        { en: "Profile",            ru: "Профиль" },
     "ui.pd.avatar":         { en: "Avatar",             ru: "Аватар" },
-    "ui.pd.newProfile":     { en: "New Profile",        ru: "Новый профиль" },
     "ui.pd.stats":          { en: "View Statistics",    ru: "Статистика" },
     "ui.pd.admin":          { en: "Admin & Logs",       ru: "Админка и логи" },
 
@@ -408,7 +403,6 @@ const I18N = (() => {
                               ru: "Всё открытое, готовое к использованию" },
     "ui.tile.settings":     { en: "Settings",           ru: "Настройки" },
     "ui.tile.settingsSub":  { en: "Colour theme and data", ru: "Оформление и данные" },
-    "ui.lobby.welcomeBack": { en: "Welcome back.",      ru: "С возвращением." },
 
     // Screen titles and their back buttons
     "ui.back.lobby":        { en: "← Lobby",            ru: "← В лобби" },
@@ -549,8 +543,6 @@ const I18N = (() => {
     "set.hintsExample":     { en: "The small explainer text under section titles across the app — like this one.",
                               ru: "Мелкие пояснения под заголовками разделов — вот такие." },
     "set.showHints":        { en: "Show hints",         ru: "Показывать подсказки" },
-    "set.staysLocal":       { en: "Nothing you do here leaves your device.",
-                              ru: "Ничто из сделанного здесь не покидает ваше устройство." },
     "set.terms":            { en: "Terms of Service",   ru: "Условия использования" },
 
     // Forum (pass 2)

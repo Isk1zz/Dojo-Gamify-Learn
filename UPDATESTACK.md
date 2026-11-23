@@ -52,76 +52,53 @@ Not started. The first right-to-left language, so it is more than strings:
   reversed.
 - **Done means** a full pass over every screen in Hebrew, on a phone.
 
-## QUEUED 2026-11-22 — asks from looking at the demo
-
-Asked for in one message and recorded so none is lost. Shipped since, and
-erased from here: the crosshair (grown into a scope over the lobby, darts
-at the Star wheel with a dartboard showing through, and a dimmer, rarer
-miss glow); the memo, which became a letter you press instead (the mailbox
-at the garden gate, core/letter.js); and the museum's first version and
-halls. What is left:
-
-1. **Documentation that explains the logic as simply as possible,** so
-   an employer can see indirectly what its author is capable of. The
-   list given: how the library is built, how lessons work, and more.
-   *First version shipped 2026-11-22:* the museum's halls ("How it
-   works", "Behind the scenes", "Set aside", "How to"), one short card
-   each on courses, remembering, the Garden, flashcards, ranks, scenes and
-   accounts. Still open: a longer written version, built on
-   docs/INTERVIEW.md, docs/SHOWCASE.md and data/DATA.md rather than
-   repeating them, keeping the attribution (designed and directed by its
-   author, code written with AI).
-2. **The museum: a walk through the project's history** («прогуляться по
-   истории проекта»). Retired looks already go there (the first start
-   screen runs live in "Set aside"). Still open: halls by date. Old
-   versions of the whole app cannot run there: old commits hold the
-   production Supabase address and key, stop at a dead sign-in, write
-   unprefixed storage on the shared `isk1zz.github.io` origin, and their
-   service workers delete every cache that is not theirs (checked in
-   `77a563a:sw.js`). So a history hall is a screenshot and a few lines,
-   or a link to the separate `cs_dojo_demo` site.
-
 ## IN PROGRESS 2026-11-19 — cut dead code; scenes for the other courses
 
-Paused by a usage limit mid-task. Nothing has been deleted yet.
+The dead functions are cut (2026-11-22), with their exports and their
+lines in data/DATA.md and library/LIBRARY.md. node --check is clean,
+check-schema finds no drift, and the demo walked through lobby, library,
+a course, the Garden and a lesson with no console errors. check-content
+still fails 4 intro-cs modules, all untouched legacy content (old `text`
+explanations, no sources), not this cut.
 
-**Verified dead** — no caller in any tracked file, no `DB[...]` or
-`Dojo[...]` string access anywhere. Two of them (`setXp`, `unlockAllTopics`)
-were called by the cheat-code system, but that system is gone: no
-`settings/codes.js`, no `codes.example.js`, no script tag, no `DOJO_CODES`
-in settings.js. `CHEATCODES.md`, outside the repo, still describes it.
+Also cut 2026-11-22: `library/content/count-phases.js` (the 19% counter;
+docs/research/LEARNING-ENGINE.md §5 now opens with the correction), 6
+translation keys nothing looks up, and 51 CSS rules for classes nothing
+renders (the old Settings theme, layout and stripe pickers, the admin
+ban/warning/inspect modals, the profile switcher's list, the old shop
+tabs). Audits re-run after: no unused key (the last one, `onb.changeLater`, is back
+in the onboarding bar, 2026-11-23), no unused class.
+Class names built at run time (`tier-`, `lvl-`, `conf-`) were checked by
+hand and are live.
 
-- `data/db.js`: `getChargeTotals`, `getLastDividendClaim`,
-  `setLastDividendClaim`, `grantTheme`, `setXp`, `unlockAllTopics` (and
-  their entries in the returned API; `data/DATA.md` mentions the last one)
-- `library/library.js`: `libraryTotals` (+ its line in LIBRARY.md)
-- `library/stats.js`: `earnedBadges`
-- `shop/decor.js`: the `pokeCloud: poke` export alias only; `poke` is live
-- `core/hud.js`: `toggleWalletPopover`
+**Do not cut:** `getLastDividendClaim` and `setLastDividendClaim` in
+data/db.js have no caller either, but their own comment says to delete
+them together with the server column and the profile field, or not at all.
 
 **Not dead, leave alone:** about 20 `Dojo.*` exports are called only inside
 their own file. The function is live; only the export is spare, and the
 export seam is deliberate (docs/ARCHITECTURE.md). `$` in auth.js was a
 false positive of the search.
 
-**Files:** `library/content/count-phases.js` measures against a target the
-content model forbids (the wrong 19%) — cut it and fix the reference in
-docs/research/LEARNING-ENGINE.md. Keep `scenes/prototype.html`: it is the
-harness for building the next recipes. `docs/LEARNING-DESIGN.html` not
-reviewed yet.
-
-**Not yet audited:** unused i18n keys, unused CSS selectors.
-
-**After cutting:** node --check every touched file, check-content and
-check-schema, load the app and walk lobby, library, a course, a lesson.
+**Files:** keep `scenes/prototype.html`: it is the harness for building the
+next recipes. `docs/LEARNING-DESIGN.html` was checked against the code
+2026-11-23 and kept (PROJECT.md and the research cite it); its stale parts
+are corrected, along with the same claims in PROJECT.md, LIBRARY.md,
+FORUM-PLAN.md and the Garden's Sprout hint.
 
 **Then, scenes for every course** (asked: "you didn't create scenes for
 other than ebike"). Intro CS shipped 2026-11-22: a computer lab at night,
 where its 48 topics would not fit, so its pins are its 8 units and a pin
 opens that unit's topic map. The engine gained pins that target a unit,
-walls with art on them, and indoor pieces. Still to do: Philosophy (a
-Roman forum, three topic pins), and a decision on whether the four empty
-courses get a scene before they have any lessons.
+walls with art on them, and indoor pieces. Philosophy built 2026-11-22
+(scenes/philosophy.js, "add a scene for philosophy like for all other
+courses"): the Roman Forum at night, Cicero's three topics at the Rostra,
+a table of scrolls before the archive, and the Curia; it has daylight
+colours too, and the engine gained pitched roofs with pediments,
+columns, a statue, cypresses, braziers, scrolls and togas. Every scene
+now has daylight colours and follows the sky (2026-11-22). Still to do: a
+decision on whether the four empty courses get a scene before they have
+any lessons.
 
 ---
 

@@ -29,6 +29,21 @@ Dojo.Scenes.register("bike-a3", {
     leaf: "#2d6744", trunk: "#4b3527"
   },
 
+  // The same junction by day (added 2026-11-22, so that every scene
+  // follows the sky): sunlit asphalt and grass, unlit windows that
+  // reflect the sky, a hazy daytime skyline, the street lamps out.
+  day: {
+    palette: {
+      grass: "#5a9e4e", topsoil: "#7a5a3a",
+      sidewalk: "#b9bec6", concrete: "#9aa0a8", curb: "#d8dce2",
+      road: "#5d6470", asphalt: "#4e545e", marking: "#ffffff",
+      bikePath: "#c46a52",
+      window: "#cfe3f5", haze: "#dbe9ff", skyline: "#a9b6c9",
+      wall: "#8f98ab", wall2: "#7d879b",
+      leaf: "#4caa55", trunk: "#7a5a3a"
+    }
+  },
+
   block: {
     w: 12, d: 12, top: 196, skin: 0.14,
     // Under the surface: the road's own layers, the way a cut through a

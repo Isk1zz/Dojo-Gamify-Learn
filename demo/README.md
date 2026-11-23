@@ -33,7 +33,7 @@
 - **A copy of the app with its server switched off.** It holds no database address and no key, and it never contacts the backend. Because rewards come from the server, nothing earns XP here; the sample profile's rank stays where it is.
 - **The Forum is built but not launched yet.** It needs the server, so this demo leaves it out. Its tile opens a museum instead: short cards on how Knell works and what it set aside, the Forum among them.
 - **A letter** for whoever opens this, now or years from now, waits in the mailbox at the garden gate on the start screen.
-- **Course scenes** (a course drawn as a place you walk through) exist for two courses so far: the e-bike course is a junction whose chapters are its topics, and Intro to CS is a computer lab whose chapters are its eight units.
+- **Course scenes** (a course drawn as a place you walk through) exist for three courses so far: the e-bike course is a junction whose chapters are its topics, Intro to CS is a computer lab whose chapters are its eight units, and Philosophy is the Roman Forum at night, where Cicero's three topics stand at the speakers' platform, a table of scrolls and the Senate house.
 
 Full source, backend and history: <https://github.com/Isk1zz/Dojo-Gamify-Learn>
 
