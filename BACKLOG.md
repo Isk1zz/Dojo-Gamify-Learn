@@ -3,6 +3,11 @@
 
 ## 2026-11-24 — the museum's halls get scenes; feedback; what went into it
 
+- [x] **The language is chosen on the start screen** («can you integrate
+      language choise by adding buttons on prescreen? this is
+      unattractive»): the first-visit modal is gone; three small buttons
+      above the wordmark, each naming its language in that language, the
+      one in use lit. A first visit still opens in the browser's language.
 - [x] **A small scene over each hall** («как на счет визуальных сцен в
       музей?», then «сцена скучная», then «Мини-сцена в каждом зале»):
       five recipes in `scenes/museum.js`, a pin for each card in the

@@ -88,27 +88,39 @@ const I18N = (() => {
   function choose(next) {
     if (!LANGS.includes(next)) return false;
     try { localStorage.setItem(KEY, next); } catch (e) { /* private mode */ }
-    if (next === lang) { hideGate(); return true; }
+    if (next === lang) { markLangs(); return true; }
     location.reload();
     return true;
   }
 
-  function hideGate() {
-    const gate = document.getElementById("lang-gate");
-    if (gate) gate.style.display = "none";
+  // ---- The language buttons on the start screen ----
+  // Until 2026-11-24 a first visit opened a modal asking for a language
+  // («this is unattractive»). Now the start screen carries three small
+  // buttons, each naming its language in that language, the one in use
+  // lit. Nothing is asked: the first visit opens in the browser's
+  // language (detect()), and a tap switches. The buttons' own words never
+  // go through t(): a picker written in a language you may not read is a
+  // locked door with the key inside.
+  const NAMES = { en: "English", ru: "Русский", he: "עברית" };
+  function markLangs() {
+    document.querySelectorAll(".landing-lang").forEach(btn =>
+      btn.setAttribute("aria-pressed", String(btn.dataset.lang === lang)));
   }
-
-  // Shown only when nothing was ever chosen on this device. A guessed
-  // language is not a choice, which is why detect()'s navigator fallback
-  // does not count as one.
-  function openGateIfUnset() {
-    if (stored()) return;
-    const gate = document.getElementById("lang-gate");
-    if (!gate) return;
-    gate.style.display = "flex";
-    gate.querySelectorAll(".lang-gate-btn").forEach(btn => {
-      btn.addEventListener("click", () => choose(btn.dataset.lang));
+  function mountLangs() {
+    const host = document.getElementById("landing-langs");
+    if (!host || host.childElementCount) return;
+    LANGS.forEach(l => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "landing-lang";
+      btn.dataset.lang = l;
+      btn.lang = l;
+      if (RTL.includes(l)) btn.dir = "rtl";
+      btn.textContent = NAMES[l];
+      btn.addEventListener("click", () => choose(l));
+      host.appendChild(btn);
     });
+    markLangs();
   }
 
   // ---- Content ----
@@ -1035,10 +1047,7 @@ const I18N = (() => {
   }
   applyStatic();
 
-  // After applyStatic so the rest of the chrome is already in the
-  // detected language behind the overlay — if someone dismisses by
-  // choosing what was guessed, there is no flash of the wrong labels.
-  openGateIfUnset();
+  mountLangs();
 
   return {
     langs: () => LANGS.slice(),

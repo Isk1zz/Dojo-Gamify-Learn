@@ -2804,19 +2804,26 @@ html[data-theme-mode="light"] #brand-watermark > span { opacity: 0.03; }
   #brand-watermark { transition: none; }
 }
 
-/* ---- First-run language gate (#lang-gate) ----
-   Two equal buttons, not a primary and a secondary: neither language is
-   the default here, and styling one as the obvious choice would be
-   making the choice for them. */
-.lang-gate-row {
-  display: flex; gap: 0.6rem; justify-content: center;
-  flex-wrap: wrap; margin: 0.4rem 0 0.9rem;
+/* ---- The language buttons on the start screen (core/i18n.js) ----
+   One quiet segmented row above the wordmark; the language in use is
+   lit with the accent, the others stay text. Equal widths: no language
+   is styled as the default. */
+.landing-langs {
+  display: inline-flex; gap: 2px; padding: 3px; margin: 0 auto 1.1rem;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-card) 70%, transparent);
+  backdrop-filter: blur(6px);
 }
-.lang-gate-btn { min-width: 8.5rem; }
-.lang-gate-hint {
-  font-size: 0.8rem; line-height: 1.6; color: var(--text-muted);
-  margin-bottom: 0;
+.landing-lang {
+  min-width: 5.6rem; padding: 0.38rem 0.9rem; border: 0; border-radius: 999px;
+  background: transparent; color: var(--text-muted);
+  font: 600 0.82rem/1.2 var(--font); cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
 }
+.landing-lang:hover { color: var(--text); background: var(--bg-card-hover, rgba(255,255,255,0.06)); }
+.landing-lang[aria-pressed="true"] { color: #fff; background: var(--accent); cursor: default; }
+.landing-lang:focus-visible { outline: 2px solid var(--accent-light, var(--accent)); outline-offset: 2px; }
+@media (max-width: 420px) { .landing-lang { min-width: 0; padding: 0.38rem 0.75rem; } }
 
 
 /* ============================================================
