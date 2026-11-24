@@ -22,7 +22,11 @@ only if accounts come back (path B below); *after* = after release.
 
 ## 0. One decision first
 
-- [ ] **0. What "final" means.** The server (Supabase project in
+- [x] **Decided 2026-11-24: path A, and the project goes to the archive.**
+  No accounts for now («пусть пока без аккаунтов я проект оставлю в
+  архиве. если в будущем пригодится подниму»). The demo is the final
+  version as it stands; everything below is for a revival, not owed.
+- [x] **0. What "final" means.** The server (Supabase project in
   `core/supabase.js:36`) has been asleep since autumn 2026. **A**: the final
   has no accounts — open access, progress in the browser, like the demo;
   most blockers below fall away. **B**: accounts come back — restore the

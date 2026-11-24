@@ -147,7 +147,7 @@
         const owned = !Dojo.ownsPalette || Dojo.ownsPalette(id);
         return {
           id, name: LABELS[id] || id,
-          swatch: first ? `background:${first.bar}` : null,
+          swatch: first ? `background:${first.bar}` : "background:var(--accent)",
           equipped: owned && id === current,
           locked: !owned,
           price: Dojo.paletteCost ? Dojo.paletteCost(id) : 0
@@ -157,13 +157,13 @@
       if (linksNow === "hexagram") {
         out.push({
           key: "flags", group: "style", icon: "\u{1F38C}", title: { en: "Star of David colours", ru: "Цвета звезды Давида", he: "צבעי מגן הדוד" }, previewKind: "flags",
-          items: paletteItems(DB.getHexFlags ? DB.getHexFlags() : "combined"),
+          items: paletteItems(DB.getHexFlags ? DB.getHexFlags() : "neutral"),
           equip: id => DB.setHexFlags(id)
         });
       } else {
         out.push({
           key: "spokes", group: "style", icon: "\u{1F517}", title: { en: "Spoke colours", ru: "Цвета лучей", he: "צבעי החישורים" }, previewKind: "spokes",
-          items: paletteItems(DB.getSpokeFlags ? DB.getSpokeFlags() : "combined"),
+          items: paletteItems(DB.getSpokeFlags ? DB.getSpokeFlags() : "neutral"),
           equip: id => DB.setSpokeFlags(id)
         });
       }
@@ -325,24 +325,24 @@
     let out = "";
     if (links === "hexagram") {
       const flagsNow = preview && preview.kind === "flags" ? preview.id
-        : (DB.getHexFlags ? DB.getHexFlags() : "combined");
+        : (DB.getHexFlags ? DB.getHexFlags() : "neutral");
       const pair = paletteOf(flagsNow);
       for (let i = 0; i < n; i++) {
         const [x1, y1] = pt(i), [x2, y2] = pt((i + 2) % n);
         const f = pair[i % 2] || pair[0];
-        const col = f ? f.stops[Math.floor(f.stops.length / 2)][1] : "#888";
-        out += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/>`;
+        const col = f ? f.stops[Math.floor(f.stops.length / 2)][1] : "var(--accent)";
+        out += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" style="stroke:${col}" stroke-width="2.4" stroke-linecap="round"/>`;
       }
     } else {
       const spokesNow = preview && preview.kind === "spokes" ? preview.id
-        : (DB.getSpokeFlags ? DB.getSpokeFlags() : "combined");
+        : (DB.getSpokeFlags ? DB.getSpokeFlags() : "neutral");
       const pal = paletteOf(spokesNow)
         .flatMap(f => f.stops.map(x => x[1]));
       const uniq = [...new Set(pal)];
       for (let i = 0; i < n; i++) {
         const [x, y] = pt(i);
-        const col = uniq.length ? uniq[i % uniq.length] : "#888";
-        out += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${col}" stroke-width="2" stroke-linecap="round" opacity="0.9"/>`;
+        const col = uniq.length ? uniq[i % uniq.length] : "var(--accent)";
+        out += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" style="stroke:${col}" stroke-width="2" stroke-linecap="round" opacity="0.9"/>`;
       }
     }
     for (let i = 0; i < n; i++) {

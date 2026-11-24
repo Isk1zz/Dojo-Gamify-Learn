@@ -34,7 +34,7 @@
   // owns would mean a broken-looking ring on a fresh profile.
   const paletteKey = id => `palette_${id}`;
   function ownsPalette(id) {
-    if (id === "combined") return true;
+    if (id === "combined" || id === "neutral") return true;
     if (!paletteCost(id)) return true;                   // free tier
     return DB.getInventory().includes(paletteKey(id));
   }

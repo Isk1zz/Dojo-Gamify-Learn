@@ -44,6 +44,18 @@
   // added later shows up here for free. Only ungated entries: an
   // onboarding step that offers something locked is a shop, not a
   // welcome.
+  // The star's line colours, free ones only, with their own swatches.
+  const starIsHex = () => (DB.getStarLinks && DB.getStarLinks()) === "hexagram";
+  function starChoices() {
+    const FLAGS = Dojo.HEX_FLAGS || {}, MODES = Dojo.HEX_FLAG_MODES || {}, LABELS = Dojo.HEX_FLAG_LABELS || {};
+    return Object.keys(MODES)
+      .filter(id => !Dojo.ownsPalette || Dojo.ownsPalette(id))
+      .map(id => {
+        const first = FLAGS[(MODES[id] || [])[0]];
+        return { id, name: LABELS[id] || id, swatch: first ? first.bar : "var(--accent)" };
+      });
+  }
+
   function themeChoices() {
     const all = (Dojo.THEMES || []).filter(t =>
       !Dojo.isPremium || !Dojo.isPremium(t.id) || (Dojo.ownsTheme && Dojo.ownsTheme(t.id)));
@@ -124,6 +136,22 @@
           if (Dojo.showLobby) Dojo.showLobby();
         }
       },
+      // Only when a Star look is chosen: the colour of its lines
+      // (2026-11-24). Neutral, the theme's accent, comes first and is the
+      // default; the palettes and flags follow. The star of David keeps
+      // its own setting, the spokes and the pentagram share one.
+      ...(DB.getLobbyStyle() === "star" ? [{
+        key: "star",
+        icon: "\u2728",
+        label: () => I18N.t("onb.stepStar"),
+        why:   () => I18N.t("onb.whyStar"),
+        items: starChoices,
+        get: () => starIsHex() ? DB.getHexFlags() : DB.getSpokeFlags(),
+        set: id => {
+          if (starIsHex()) DB.setHexFlags(id); else DB.setSpokeFlags(id);
+          if (Dojo.showLobby) Dojo.showLobby();
+        }
+      }] : []),
       {
         key: "theme",
         icon: "\u{1F3A8}",

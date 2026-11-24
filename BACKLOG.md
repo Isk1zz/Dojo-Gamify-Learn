@@ -3,6 +3,13 @@
 
 ## 2026-11-24 — the museum's halls get scenes; feedback; what went into it
 
+- [x] **The star's line colours: neutral by default, offered when Star is
+      chosen** («make default neutal and if chosen star add star spikes
+      color offer»): a Neutral choice, the theme's own accent, first in the
+      list and the default for spokes, pentagram and star of David (it was
+      Ukraine + Israel for everyone); onboarding gains a "Colour the star"
+      step, only when a Star look is picked. Profiles that already stored
+      a choice keep it.
 - [x] **The start screen's three explanations on a phone** («phone version
       has broken shapes»): one column of equal cards instead of a staircase.
 - [x] **The language is chosen on the start screen** («can you integrate

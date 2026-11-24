@@ -255,6 +255,10 @@
   // The colour themes come first (2026-11-22), each on both triangles,
   // then a pair of them the way "combined" pairs two flags.
   const HEX_FLAG_MODES = {
+    // Neutral: no palette at all, the lines take the theme's own accent.
+    // The default since 2026-11-24 («make default neutal»): Ukraine and
+    // Israel on everybody's star was one person's choice made for all.
+    neutral: [],
     sunset: ["sunset", "sunset"],
     ocean: ["ocean", "ocean"],
     aurora: ["aurora", "aurora"],
@@ -278,6 +282,7 @@
   // so a Russian Custom showed "Ukraine" and "Mixtape". Resolved here, so
   // every place that shows one still gets a plain string.
   const HEX_FLAG_LABELS = I18N.resolve({
+    neutral: { en: "Neutral (theme colour)", ru: "Нейтральный (цвет темы)", he: "ניטרלי (צבע ערכת הנושא)" },
     sunset: { en: "Sunset", ru: "Закат", he: "שקיעה" },
     ocean: { en: "Ocean", ru: "Океан", he: "אוקיינוס" },
     aurora: { en: "Aurora", ru: "Северное сияние", he: "זוהר צפוני" },
@@ -635,10 +640,10 @@
       // shapes overlapping. It still takes its colour from the equipped
       // flag, so Custom still restyles it — just the first stop rather
       // than the whole ramp.
-      const mode = (DB.getSpokeFlags && DB.getSpokeFlags()) || "combined";
-      const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.combined;
-      const flag = HEX_FLAGS[pair[0]] || HEX_FLAGS.ukraine;
-      const col = (flag.stops && flag.stops[0] && flag.stops[0][1]) || "#4da3ff";
+      const mode = (DB.getSpokeFlags && DB.getSpokeFlags()) || "neutral";
+      const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.neutral;
+      const flag = pair.length ? (HEX_FLAGS[pair[0]] || HEX_FLAGS.ukraine) : null;
+      const col = flag ? ((flag.stops && flag.stops[0] && flag.stops[0][1]) || "#4da3ff") : "var(--accent)";
 
       const edges = [0, 1, 2, 3, 4].map(k => {
         const [ax, ay] = pt((k * 2) % 5);
@@ -669,8 +674,8 @@
       // same flag, so the two triangles read as whole flags rather than
       // six independently-shaded sticks.
       const y0 = (cy - orbitR).toFixed(1), y1g = (cy + orbitR).toFixed(1);
-      const mode = (DB.getHexFlags && DB.getHexFlags()) || "combined";
-      const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.combined;
+      const mode = (DB.getHexFlags && DB.getHexFlags()) || "neutral";
+      const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.neutral;
       const defs = `<defs>` + pair.map((flagId, i) => {
         const flag = HEX_FLAGS[flagId] || HEX_FLAGS.ukraine;
         return `<linearGradient id="hexGrad${i}" gradientUnits="userSpaceOnUse" x1="0" y1="${y0}" x2="0" y2="${y1g}">` +
@@ -699,15 +704,17 @@
         // `.lobby-star-lines line` rule above sets stroke to the theme
         // accent — which silently repainted both flags in the theme
         // colour when this was first written as an attribute.
-        edges.map(e => line(e.ax, e.ay, e.bx, e.by, "hex-edge", `style="stroke:url(#${e.grad})"`)).join("");
+        // Neutral has no gradients: both triangles take the accent.
+        edges.map(e => line(e.ax, e.ay, e.bx, e.by, "hex-edge",
+          pair.length ? `style="stroke:url(#${e.grad})"` : 'style="stroke:var(--accent)"')).join("");
     } else {
       // Spokes pick up the flag palette too, as a neon glow: each spoke
       // takes one colour from the equipped flag(s) and carries a soft
       // drop-shadow in that same colour. Uses the SAME palette table as
       // the hexagram, so switching flags in Settings restyles both
       // modes rather than only one of them.
-      const mode = (DB.getSpokeFlags && DB.getSpokeFlags()) || "combined";
-      const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.combined;
+      const mode = (DB.getSpokeFlags && DB.getSpokeFlags()) || "neutral";
+      const pair = HEX_FLAG_MODES[mode] || HEX_FLAG_MODES.neutral;
       // Distinct colours across the flag(s), duplicates dropped — the
       // Israeli flag is only two colours, so cycling its raw stop list
       // would give three near-identical blues in a row.

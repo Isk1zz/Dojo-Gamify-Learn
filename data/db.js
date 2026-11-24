@@ -71,10 +71,10 @@ const DB = (() => {
       // Which flag(s) the hexagram's two triangles wear — "combined"
       // (Ukraine + Israel), "ukraine", "israel" or "usa". Only read
       // when starLinks is "hexagram". See core/lobby.js's HEX_FLAGS.
-      hexFlags: "combined",
+      hexFlags: "neutral",   // the theme accent; see core/lobby.js HEX_FLAG_MODES
       // Spokes carry their own colour choice, independent of the
       // hexagram's — they're sold as two separate things.
-      spokeFlags: "combined",
+      spokeFlags: "neutral",
       hintsEnabled: true,    // shows/hides the small .settings-hint guidance text app-wide
       soundEnabled: true,    // mutes core/sfx.js's synthesized UI sounds app-wide
       bgStripe: "none",      // rank-reward background-stripe overlay id, independent of theme
@@ -1239,12 +1239,12 @@ const DB = (() => {
 
   function getHexFlags() {
     const p = getActiveProfile();
-    return (p && p.hexFlags) || "combined";
+    return (p && p.hexFlags) || "neutral";
   }
 
   function getSpokeFlags() {
     const p = getActiveProfile();
-    return (p && p.spokeFlags) || "combined";
+    return (p && p.spokeFlags) || "neutral";
   }
 
   function setSpokeFlags(id) {
