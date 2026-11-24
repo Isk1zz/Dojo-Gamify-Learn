@@ -13,7 +13,7 @@ out of the app.)
 | Skill | What in Knell proves it | Whose | Confidence |
 |---|---|---|---|
 | Product Design | The decisions below, each recorded with its reason in `docs/archive/UPDATESTACK-frozen.md` and `BACKLOG.md`; the live demo | Decisions: the author's. Building them: Claude's | **Strong** |
-| AI-Assisted Development | The whole repository: 222 commits, 191 of them carrying Claude's co-author line (the rest are early uploads and a merge); the working method (a queue of asks, one decision at a time, nothing done until seen in a browser) in `UPDATESTACK.md` and `BACKLOG.md` | Direction: the author's. Code: Claude's | **Strong** |
+| AI-Assisted Development | The whole repository: 223 commits, 192 of them carrying Claude's co-author line (the rest are early uploads and a merge); the working method (a queue of asks, one decision at a time, nothing done until seen in a browser) in `UPDATESTACK.md` and `BACKLOG.md` | Direction: the author's. Code: Claude's | **Strong** |
 | SQL | 28 Postgres migrations in `supabase/migrations/`: row-level security, a rewards ledger, race-safe purchases | The rules they enforce: the author's. Every line of SQL: Claude's | **Weak** until the migrations below are understood |
 | Python | Nothing. Knell has no Python | — | **None** |
 | Java | Nothing. Knell has no Java | — | **None** |
@@ -33,7 +33,7 @@ of it; `PROJECT.md` says the Garden "was requested without a spec".
 ## 1. For LinkedIn — one line per skill (under 200 characters)
 
 - **Product Design:** Designed Knell, a study app (live demo): plants that grow only with what you remember, give-only reputation, rewards paid by the server. Every product call mine.
-- **AI-Assisted Development:** Directed an AI (Claude) to build Knell: 222 commits, one decision at a time, every change checked in a browser. I set the rules and priorities; the AI wrote the code.
+- **AI-Assisted Development:** Directed an AI (Claude) to build Knell: 223 commits, one decision at a time, every change checked in a browser. I set the rules and priorities; the AI wrote the code.
 - **SQL:** Specified the server rules of Knell in Postgres (row-level security, a once-only rewards ledger, race-safe purchases). The SQL was AI-written to my spec.
 - **Python:** Not shown in Knell.
 - **Java:** Not shown in Knell.

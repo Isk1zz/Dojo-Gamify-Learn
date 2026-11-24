@@ -695,7 +695,12 @@ body {
    Responsive
    ============================================ */
 @media (max-width: 600px) {
-  .landing-features { flex-direction: column; align-items: center; }
+  /* One column of equal cards on a phone: centred, each sized to its own
+     text, they stepped in and out like a staircase (2026-11-24, «phone
+     version has broken shapes of 3 explanatory things»). */
+  .landing-features { flex-direction: column; align-items: stretch; gap: 0.6rem; width: 100%; max-width: 360px; margin-inline: auto; }
+  .landing-features .feat { justify-content: flex-start; text-align: start; }
+  .landing-scene-caption { padding-inline: 0.75rem; }
   .profile-name-display { display: none; }
   .profile-dropdown { right: 0.5rem; width: calc(100vw - 1rem); max-width: 300px; }
 }

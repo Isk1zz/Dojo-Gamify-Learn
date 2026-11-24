@@ -3,6 +3,8 @@
 
 ## 2026-11-24 — the museum's halls get scenes; feedback; what went into it
 
+- [x] **The start screen's three explanations on a phone** («phone version
+      has broken shapes»): one column of equal cards instead of a staircase.
 - [x] **The language is chosen on the start screen** («can you integrate
       language choise by adding buttons on prescreen? this is
       unattractive»): the first-visit modal is gone; three small buttons
