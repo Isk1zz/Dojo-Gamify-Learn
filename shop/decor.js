@@ -963,12 +963,17 @@
   // the plane every two to four minutes, towing a banner with a peace sign
   // and its name; the rocket every three to six, with flame and smoke.
   // Nothing happens on a tap yet; that was not asked.
+  // Seen from the side, nose to the right, the way it flies: one wing,
+  // one tail fin. Until 2026-11-24 it was drawn from above, and its two
+  // wings and two tailplanes read as «4 крыла».
   const PLANE_SVG =
     '<svg viewBox="0 0 64 24" class="pl-svg">' +
-    '<path d="M4 12c0-2 2-3 5-3h34l8-6h4l-4 6h7c3 0 4 1.5 4 3s-1 3-4 3h-7l4 6h-4l-8-6H9c-3 0-5-1-5-3z" fill="#e9eef5"/>' +
-    '<path d="M22 9l-6-7h5l9 7zM22 15l-6 7h5l9-7z" fill="#c9d3e0"/>' +
-    '<path d="M50 9h8c1.5 0 2.5 1 2.5 3" stroke="#4cc9f0" stroke-width="1.6" fill="none"/>' +
-    '<circle cx="14" cy="12" r="1.2" fill="#4cc9f0"/><circle cx="19" cy="12" r="1.2" fill="#4cc9f0"/><circle cx="24" cy="12" r="1.2" fill="#4cc9f0"/>' +
+    '<path d="M7 11.5 L3.5 3 H8.5 L15.5 11.5 Z" fill="#c9d3e0"/>' +
+    '<path d="M6 12.4 H17 L15.5 14 H6 Z" fill="#b5c0cf"/>' +
+    '<path d="M6.5 13 C6.5 11.6 8 10.6 10 10.6 H50 C55.5 10.6 59.5 11.6 61.5 13.2 C59.5 14.8 55.5 15.8 50 15.8 H10 C8 15.8 6.5 14.5 6.5 13 Z" fill="#e9eef5"/>' +
+    '<path d="M29 14.6 H40 L32 21.5 H26.6 Z" fill="#c9d3e0"/>' +
+    '<path d="M52 11.6 H56 C57.6 11.6 58.8 12.2 59.6 13 H52 Z" fill="#4cc9f0"/>' +
+    [20, 25, 30, 35, 40, 45].map(x => `<circle cx="${x}" cy="12.9" r="0.9" fill="#4cc9f0"/>`).join("") +
     '</svg>';
   const ROCKET_SVG =
     '<svg viewBox="0 0 20 52" class="rk-svg">' +

@@ -238,6 +238,74 @@
     },
 
     // A right answer — two quick notes, rising.
+    // The museum's exhibits (scenes/museum.js), each answering in a voice
+    // of its own when the runner reaches it (2026-11-24, «я не слышу
+    // звуков как в прескрине»): pages, chalk, a plant growing, coins, a
+    // knock at the server's door, a fanfare for the podium, beeps for the
+    // robot, an arcade's arpeggio, a bicycle bell. Short and quiet.
+    act(kind) {
+      switch (kind) {
+        case "page":
+          swish({ duration: 0.16, gain: 0.03, freq: 2600 });
+          swish({ delay: 0.12, duration: 0.14, gain: 0.022, freq: 3400 });
+          break;
+        case "chalk":
+          [0, 0.09, 0.2, 0.27].forEach(d => swish({ delay: d, duration: 0.07, gain: 0.022, freq: 4200 }));
+          break;
+        case "grow":
+          glide(330, 990, { duration: 0.6, gain: 0.03, type: "sine" });
+          tone(1318.5, { delay: 0.5, duration: 0.45, gain: 0.02, type: "sine" });
+          break;
+        case "flip":
+          swish({ duration: 0.22, gain: 0.03, freq: 1800 });
+          tone(1046.5, { delay: 0.2, duration: 0.14, gain: 0.022, type: "triangle" });
+          break;
+        case "fanfare":
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, i) =>
+            tone(f, { delay: i * 0.1, duration: i === 3 ? 0.5 : 0.14, gain: 0.032, type: "triangle" }));
+          break;
+        case "chime":
+          tone(1046.5, { duration: 0.6, gain: 0.026, type: "sine" });
+          tone(1568, { delay: 0.12, duration: 0.6, gain: 0.018, type: "sine" });
+          break;
+        case "type":
+          for (let i = 0; i < 7; i++) tone(1500 + (i % 3) * 260, { delay: i * 0.07, duration: 0.025, gain: 0.02, type: "square" });
+          break;
+        case "sync":
+          glide(440, 880, { duration: 0.25, gain: 0.026, type: "sine" });
+          glide(880, 440, { delay: 0.28, duration: 0.25, gain: 0.026, type: "sine" });
+          break;
+        case "chat":
+          tone(1174.7, { duration: 0.06, gain: 0.03, type: "sine" });
+          tone(1568, { delay: 0.12, duration: 0.06, gain: 0.03, type: "sine" });
+          tone(1318.5, { delay: 0.26, duration: 0.08, gain: 0.028, type: "sine" });
+          break;
+        case "beep":
+          [988, 1318.5, 784, 1568].forEach((f, i) => tone(f, { delay: i * 0.09, duration: 0.06, gain: 0.022, type: "square" }));
+          break;
+        case "kiai":
+          glide(520, 300, { duration: 0.16, gain: 0.035, type: "square" });
+          swish({ delay: 0.05, duration: 0.12, gain: 0.03, freq: 1200 });
+          break;
+        case "coins":
+          [2093, 2637, 3136, 2637].forEach((f, i) => tone(f, { delay: i * 0.07, duration: 0.07, gain: 0.022, type: "triangle" }));
+          break;
+        case "knock":
+          [0, 0.17].forEach(d => tone(95, { delay: d, duration: 0.08, gain: 0.07, type: "square" }));
+          swish({ delay: 0.36, duration: 0.1, gain: 0.022, freq: 4500 });
+          break;
+        case "spin": swish({ duration: 0.4, gain: 0.028, freq: 1100 }); break;
+        case "bike":
+          [0, 0.22].forEach(d => tone(2349, { delay: d, duration: 0.18, gain: 0.026, type: "sine" }));
+          break;
+        case "arcade":
+          [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5].forEach((f, i) =>
+            tone(f, { delay: i * 0.06, duration: 0.05, gain: 0.02, type: "square" }));
+          break;
+        default: break;
+      }
+    },
+
     correct() {
       tone(660, { duration: 0.1, gain: 0.05, type: "sine" });
       tone(880, { delay: 0.07, duration: 0.14, gain: 0.05, type: "sine" });

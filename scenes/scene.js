@@ -863,6 +863,21 @@
       el("rect", { x: -1.4, y: -11, width: 2.8, height: 9, fill: "#1b1f29" }, g);
       el("rect", { x: -18, y: -34, width: 36, height: 24, rx: 2, fill: "#0b0f16" }, g);
       el("rect", { x: -16, y: -32, width: 32, height: 19, fill: "#0d1b2a" }, g);
+      // `game` shows a little brick game instead of code (the museum's
+      // Arcade), and `text` a word (its DEMO).
+      if (o.game) {
+        ["#ff6ad5", "#f2c14e", "#3ce68a"].forEach((c, row) => {
+          for (let i = 0; i < 6; i++) el("rect", { x: r1(-15 + i * 5.1), y: r1(-31 + row * 2.8), width: 4.4, height: 2, fill: c }, g);
+        });
+        el("circle", { cx: 3, cy: -20, r: 1.2, fill: "#fff", class: "ks-blink" }, g);
+        el("rect", { x: -4, y: -15.4, width: 9, height: 1.6, rx: 0.8, fill: "#5bd1ff" }, g);
+        return;
+      }
+      if (o.text) {
+        const t = el("text", { x: 0, y: -19.6, "text-anchor": "middle", "font-size": 9.5, "font-weight": 800, "letter-spacing": 1, "font-family": MONO, fill: A, class: "ks-blink" }, g);
+        t.textContent = o.text;
+        return;
+      }
       // Code on the screen: indented lines in three colours.
       [[-14, -29, 12, "#c792ea"], [-11, -26, 18, A], [-11, -23, 10, "#3ce68a"], [-8, -20, 16, A], [-14, -17, 7, "#c792ea"]]
         .forEach(([x, y, w, c]) => el("rect", { x, y, width: w, height: 1.6, rx: 0.8, fill: c }, g));
@@ -930,7 +945,225 @@
       el("path", { d: "M0.2 -31 A3.6 3.6 0 0 1 7.1 -31.2 Z", fill: A }, g);
       el("circle", { cx: 9.2, cy: -12, r: 1.5, fill: "#fff6d0", filter: `url(#${ctx.uid}glow)` }, g);
       el("circle", { cx: -9.3, cy: -13, r: 1.2, fill: "#ff3b3b", filter: `url(#${ctx.uid}glow)` }, g);
+    },
+
+    // ---- For the museum's halls (scenes/museum.js, 2026-11-24) ----
+    // Any of these, given an `actor` name, hops when a pin with that
+    // `act` is reached (the render loop wraps it, see SELF_ACTING).
+
+    // An easel holding a board. `lines`: writing, as on a whiteboard;
+    // `big`: one large figure under a red band, a calendar's page, and
+    // `tick` a green tick beside it; `art`: "picture" (a landscape in a
+    // gilt frame), "chart" (rising bars) or "forum" (speech bubbles).
+    // `w` and `h` size the board for what it carries.
+    board(g, o) {
+      const wood = "#6b4a33", W = o.w || 30, H = o.h || 22, x = -W / 2, y = -26 - H;
+      const gilt = o.art === "picture";
+      el("ellipse", { cx: 1, cy: 0.8, rx: 12, ry: 3, fill: "#000", "fill-opacity": 0.28 }, g);
+      el("path", { d: `M-9 0 L-4 ${y + 6} M9 0 L4 ${y + 6} M0.6 ${y + H} L3.4 0`, stroke: wood, "stroke-width": 1.8, "stroke-linecap": "round", fill: "none" }, g);
+      el("rect", { x: x - 1.6, y: y - 1.6, width: W + 3.2, height: H + 3.2, rx: 1.6, fill: gilt ? "#c99a3e" : "#aeb6c3" }, g);
+      el("rect", { x, y, width: W, height: H, fill: o.bg || (gilt ? "#9fd3ff" : "#f4f6f9") }, g);
+      el("rect", { x: x - 3, y: y + H + 1.2, width: W + 6, height: 2.4, rx: 1, fill: wood }, g);
+      if (o.big != null) {
+        el("rect", { x, y, width: W, height: 6, fill: "#c8202b" }, g);
+        [x + W * 0.28, x + W * 0.72].forEach(cx => el("rect", { x: r1(cx - 0.8), y: y - 3, width: 1.6, height: 5, rx: 0.8, fill: "#5d6a87" }, g));
+        const t = el("text", { x: r1(o.tick ? x + W * 0.4 : 0), y: r1(y + H - 3.4), "text-anchor": "middle", "font-size": 12.5, "font-weight": 800, "font-family": "system-ui, sans-serif", fill: "#1b1e25" }, g);
+        t.textContent = String(o.big);
+        if (o.tick) el("path", { d: `M${r1(x + W * 0.68)} ${r1(y + H - 9)} l2.6 3 l5 -6.4`, stroke: "#2fa35a", "stroke-width": 2.2, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" }, g);
+      }
+      (o.lines || []).forEach((line, i) => {
+        const t = el("text", { x: r1(x + 2.4), y: r1(y + 8.4 + i * 7.6), "font-size": 6.6, "font-weight": 700,
+          "font-family": "'Segoe Print', 'Comic Sans MS', cursive", fill: i % 2 ? "#c0392b" : "#1d3b8a" }, g);
+        t.textContent = line;
+      });
+      if (gilt) {
+        el("path", { d: `M${x} ${y + H} V${r1(y + H * 0.64)} Q${r1(x + W * 0.3)} ${r1(y + H * 0.42)} ${r1(x + W * 0.58)} ${r1(y + H * 0.62)} Q${r1(x + W * 0.8)} ${r1(y + H * 0.74)} ${x + W} ${r1(y + H * 0.56)} V${y + H} Z`, fill: "#4caa55" }, g);
+        el("circle", { cx: r1(x + W * 0.78), cy: r1(y + H * 0.3), r: 2.8, fill: "#ffd76a" }, g);
+        const hx = r1(x + W * 0.2), hy = r1(y + H * 0.62);
+        el("rect", { x: hx, y: r1(hy - 4), width: 5.4, height: 4.4, fill: "#f4f1ea" }, g);
+        el("path", { d: `M${r1(hx - 1)} ${r1(hy - 4)} L${r1(hx + 2.7)} ${r1(hy - 7.4)} L${r1(hx + 6.4)} ${r1(hy - 4)} Z`, fill: "#c8202b" }, g);
+      }
+      if (o.art === "chart") {
+        const n = 5, bw = (W - 6) / n;
+        for (let i = 0; i < n; i++) {
+          const bh = (H - 7) * (0.3 + i * 0.17);
+          el("rect", { x: r1(x + 3 + i * bw + 0.7), y: r1(y + H - 2 - bh), width: r1(bw - 1.4), height: r1(bh), rx: 0.5, fill: i === n - 1 ? "#f2c14e" : "#5b8def" }, g);
+        }
+      }
+      if (o.art === "forum") {
+        const bubble = (bx, by, bw, c, left) => {
+          el("rect", { x: r1(bx), y: r1(by), width: r1(bw), height: 6.4, rx: 2.4, fill: c }, g);
+          el("path", { d: left ? `M${r1(bx + 2)} ${r1(by + 6)} l-1.6 3 l4 -3 Z` : `M${r1(bx + bw - 2)} ${r1(by + 6)} l1.6 3 l-4 -3 Z`, fill: c }, g);
+          el("path", { d: `M${r1(bx + 2)} ${r1(by + 3.2)} H${r1(bx + bw - 3)}`, stroke: "#fff", "stroke-opacity": 0.8, "stroke-width": 1 }, g);
+        };
+        bubble(x + 2, y + 2, W * 0.56, "#5b8def", true);
+        bubble(x + W * 0.4, y + H * 0.38, W * 0.54, "#2fa35a", false);
+        bubble(x + 2, y + H * 0.7, W * 0.46, "#e86a5c", true);
+      }
+    },
+    // Flashcards: a deck fanned out on a little round stand, the front
+    // card asking its question.
+    cards(g) {
+      el("ellipse", { cx: 1, cy: 0.8, rx: 9, ry: 2.6, fill: "#000", "fill-opacity": 0.28 }, g);
+      el("rect", { x: -1.2, y: -15, width: 2.4, height: 15, fill: "#3a2a1d" }, g);
+      el("ellipse", { cx: 0, cy: -15, rx: 10, ry: 2.6, fill: "#6b4a33" }, g);
+      [[-16, "#5b8def"], [-5, "#f2c14e"], [8, "#f4f1ea"]].forEach(([r, c]) =>
+        el("rect", { x: -5.5, y: -30, width: 11, height: 14, rx: 1.4, fill: c, stroke: "#1b1e25", "stroke-opacity": 0.3, "stroke-width": 0.6, transform: `rotate(${r} 0 -16)` }, g));
+      const q = el("text", { x: 0, y: -19.6, "text-anchor": "middle", "font-size": 9, "font-weight": 800, "font-family": "system-ui, sans-serif", fill: "#c0392b", transform: "rotate(8 0 -16)" }, g);
+      q.textContent = "?";
+    },
+    // A podium for three, with a gold cup on the top step and a glint.
+    trophy(g) {
+      const gold = "#f2c14e";
+      el("ellipse", { cx: 1, cy: 0.8, rx: 15, ry: 3.2, fill: "#000", "fill-opacity": 0.28 }, g);
+      el("rect", { x: -14, y: -8, width: 9.4, height: 8, fill: "#9aa4b2" }, g);
+      el("rect", { x: -4.6, y: -13, width: 9.2, height: 13, fill: "#d9dde3" }, g);
+      el("rect", { x: 4.6, y: -5.5, width: 9.4, height: 5.5, fill: "#8d939c" }, g);
+      [[-9.3, -2.4, "2"], [0, -4.4, "1"], [9.3, -1.2, "3"]].forEach(([cx, cy, n]) => {
+        const t = el("text", { x: cx, y: cy, "text-anchor": "middle", "font-size": 5, "font-weight": 800, "font-family": "system-ui, sans-serif", fill: "#5d6a87" }, g);
+        t.textContent = n;
+      });
+      el("rect", { x: -3.4, y: -15.6, width: 6.8, height: 2.6, rx: 0.6, fill: "#b8862e" }, g);
+      el("rect", { x: -0.9, y: -19, width: 1.8, height: 3.6, fill: "#d9ad4a" }, g);
+      el("path", { d: "M-5 -29 H5 Q5 -20.5 0 -19 Q-5 -20.5 -5 -29 Z", fill: gold }, g);
+      el("path", { d: "M-5 -27.4 Q-8.6 -27.4 -7.6 -23.6 Q-6.8 -21.6 -3.6 -21.6 M5 -27.4 Q8.6 -27.4 7.6 -23.6 Q6.8 -21.6 3.6 -21.6", stroke: gold, "stroke-width": 1.3, fill: "none" }, g);
+      el("path", { d: "M-3 -27.6 Q-3 -23 -1 -21", stroke: "#fff", "stroke-opacity": 0.6, "stroke-width": 0.9, fill: "none" }, g);
+      el("path", { d: "M6 -33 l0.8 2 l2 0.8 l-2 0.8 l-0.8 2 l-0.8 -2 l-2 -0.8 l2 -0.8 Z", fill: "#fff6d0", class: "ks-blink" }, g);
+    },
+    // An hourglass in a wooden frame, its sand running.
+    hourglass(g) {
+      const wood = "#6b4a33", sand = "#e2bd5a";
+      el("ellipse", { cx: 1, cy: 0.8, rx: 9, ry: 2.4, fill: "#000", "fill-opacity": 0.28 }, g);
+      el("rect", { x: -8, y: -3, width: 16, height: 3, rx: 1, fill: wood }, g);
+      el("rect", { x: -8, y: -32, width: 16, height: 3, rx: 1, fill: wood }, g);
+      el("path", { d: "M-6 -29 Q-6 -20 -1.2 -16.5 Q-6 -13 -6 -3 H6 Q6 -13 1.2 -16.5 Q6 -20 6 -29 Z", fill: "#cfe8ff", "fill-opacity": 0.35, stroke: "#fff", "stroke-opacity": 0.55, "stroke-width": 0.7 }, g);
+      el("path", { d: "M-3.6 -22 Q0 -20.6 3.6 -22 Q2.2 -18.6 0 -17.4 Q-2.2 -18.6 -3.6 -22 Z", fill: sand }, g);
+      el("path", { d: "M-5.6 -3 Q0 -12.5 5.6 -3 Z", fill: sand }, g);
+      el("line", { x1: 0, y1: -17, x2: 0, y2: -8, stroke: sand, "stroke-width": 0.8, "stroke-dasharray": "1.4 1.2", class: "ks-sand" }, g);
+      el("path", { d: "M-7.2 -29 V-3 M7.2 -29 V-3", stroke: wood, "stroke-width": 1.3 }, g);
+    },
+    // Stacks of gold coins, and one standing on its edge.
+    coins(g) {
+      const gold = "#f2c14e";
+      el("ellipse", { cx: 1, cy: 0.8, rx: 14, ry: 3, fill: "#000", "fill-opacity": 0.28 }, g);
+      [[-9, 4], [-1.5, 7], [6, 2]].forEach(([cx, n]) => {
+        for (let i = 0; i < n; i++) {
+          const cy = r1(-1.4 - i * 2.2);
+          el("ellipse", { cx, cy: r1(cy + 0.9), rx: 4, ry: 1.4, fill: shade(gold, 0.66) }, g);
+          el("rect", { x: cx - 4, y: r1(cy - 0.3), width: 8, height: 1.2, fill: shade(gold, 0.66) }, g);
+          el("ellipse", { cx, cy: r1(cy - 0.3), rx: 4, ry: 1.4, fill: i === n - 1 ? shade(gold, 1.12) : gold }, g);
+        }
+      });
+      el("circle", { cx: 13, cy: -5.4, r: 5, fill: gold, stroke: shade(gold, 0.7), "stroke-width": 1 }, g);
+      el("path", { d: "M13 -8.4 l0.9 2.2 l2.3 0.1 l-1.8 1.4 l0.6 2.3 l-2 -1.3 l-2 1.3 l0.6 -2.3 l-1.8 -1.4 l2.3 -0.1 Z", fill: shade(gold, 0.72) }, g);
+    },
+    // A raincloud `z` units up, with its shadow on the ground. It acts
+    // itself: an act makes it rain for a few seconds.
+    cloud(g, o, ctx) {
+      const c = ctx.day ? "#f4f6f9" : "#c9d3e0";
+      el("ellipse", { cx: 0, cy: r1((o.z || 0) * ctx.unit / (o.scale || 1)), rx: 12, ry: 3, fill: "#000", "fill-opacity": 0.12 }, g);
+      const f = el("g", { class: "ks-float" }, g);
+      const rain = el("g", { class: "ks-rain" }, f);
+      [-8, -3, 2, 7, 11].forEach((x, i) => {
+        const d = el("line", { x1: x, y1: 2, x2: x - 1.4, y2: 7, stroke: "#9fd3ff", "stroke-width": 1.2, "stroke-linecap": "round" }, rain);
+        d.style.animationDelay = (i * 0.13).toFixed(2) + "s";
+      });
+      el("ellipse", { cx: 0, cy: 0, rx: 15, ry: 4.5, fill: shade(c, 0.86) }, f);
+      el("circle", { cx: -7, cy: -3, r: 6, fill: c }, f);
+      el("circle", { cx: 1, cy: -6.5, r: 8, fill: c }, f);
+      el("circle", { cx: 9, cy: -3, r: 5.5, fill: shade(c, 1.04) }, f);
+      el("circle", { cx: -1, cy: -9, r: 3.6, fill: "#fff", "fill-opacity": 0.5 }, f);
+      if (o.actor) (ctx.actors[o.actor] = ctx.actors[o.actor] || []).push(rain);
+    },
+    // A door standing on its own, shut and padlocked: the server's door.
+    // `sleep` sets a z-z-z rising over it.
+    door(g, o, ctx) {
+      el("ellipse", { cx: 1, cy: 0.8, rx: 12, ry: 3, fill: "#000", "fill-opacity": 0.3 }, g);
+      el("rect", { x: -10.5, y: -41, width: 21, height: 41, rx: 1, fill: "#5d6a87" }, g);
+      el("rect", { x: -8.5, y: -39, width: 17, height: 39, fill: o.color || "#7a4a2c" }, g);
+      el("rect", { x: -6.2, y: -36, width: 12.4, height: 14, rx: 0.8, fill: "none", stroke: "#000", "stroke-opacity": 0.22, "stroke-width": 0.9 }, g);
+      el("rect", { x: -6.2, y: -19.5, width: 12.4, height: 16, rx: 0.8, fill: "none", stroke: "#000", "stroke-opacity": 0.22, "stroke-width": 0.9 }, g);
+      el("circle", { cx: -5, cy: -20.5, r: 1.1, fill: "#e2bd5a" }, g);
+      el("path", { d: "M1.4 -17.6 V-19.6 A2.4 2.4 0 0 1 6.2 -19.6 V-17.6", stroke: "#c9ced6", "stroke-width": 1.1, fill: "none" }, g);
+      el("rect", { x: 0.6, y: -18, width: 6.4, height: 5, rx: 0.8, fill: "#f2c14e" }, g);
+      el("circle", { cx: 3.8, cy: -15.8, r: 0.7, fill: "#5a3f2c" }, g);
+      if (!ctx.day) el("rect", { x: -8.5, y: -1.2, width: 17, height: 1.2, fill: ctx.col("light"), "fill-opacity": 0.7 }, g);
+      if (o.sleep) {
+        ["z", "z", "Z"].forEach((s, i) => {
+          const t = el("text", { x: r1(9 + i * 3.4), y: -44 - i * 4, "font-size": r1(5 + i * 1.6), "font-weight": 800, "font-family": "system-ui, sans-serif", fill: "#9fd3ff", class: "ks-zzz" }, g);
+          t.style.animationDelay = (i * 0.8).toFixed(1) + "s";
+          t.textContent = s;
+        });
+      }
+    },
+    // A signpost: a post with arms pointing either way. `arms` is a list
+    // of [text, colour], top to bottom, pointing right, left, right.
+    signpost(g, o) {
+      const wood = "#6b4a33";
+      el("ellipse", { cx: 1, cy: 0.8, rx: 8, ry: 2.4, fill: "#000", "fill-opacity": 0.28 }, g);
+      el("rect", { x: -1.4, y: -46, width: 2.8, height: 46, fill: wood }, g);
+      el("path", { d: "M-1.4 -46 L0 -49 L1.4 -46 Z", fill: wood }, g);
+      (o.arms || []).forEach(([text, c], i) => {
+        const y = -43 + i * 9, s = i % 2 ? -1 : 1;
+        el("path", { d: `M${s * 1.4} ${y} H${s * 17} L${s * 21} ${r1(y + 3.3)} L${s * 17} ${r1(y + 6.6)} H${s * 1.4} Z`, fill: c }, g);
+        if (text) {
+          const t = el("text", { x: s * 10, y: r1(y + 5.2), "text-anchor": "middle", "font-size": 5.4, "font-weight": 800, "font-family": "system-ui, sans-serif", fill: "#fff" }, g);
+          t.textContent = text;
+        }
+      });
+    },
+    // A hot-air balloon `z` units up, over its own shadow, drifting.
+    balloon(g, o, ctx) {
+      el("ellipse", { cx: 0, cy: r1((o.z || 0) * ctx.unit / (o.scale || 1)), rx: 10, ry: 2.8, fill: "#000", "fill-opacity": 0.16 }, g);
+      const f = el("g", { class: "ks-float" }, g);
+      el("path", { d: "M-4 -6 L-3 2 M4 -6 L3 2", stroke: "#5a3f2c", "stroke-width": 0.8 }, f);
+      el("rect", { x: -3.8, y: 1.5, width: 7.6, height: 5.5, rx: 1, fill: "#8a5a33" }, f);
+      el("path", { d: "M-3.8 3.6 H3.8", stroke: "#5a3f2c", "stroke-width": 0.7 }, f);
+      el("path", { d: "M0 -44 C-15 -44 -18 -27 -10 -15 L-4 -6 H4 L10 -15 C18 -27 15 -44 0 -44 Z", fill: o.color || "#e86a5c" }, f);
+      el("path", { d: "M0 -44 C-7 -40 -7 -20 -2.4 -6 H2.4 C7 -20 7 -40 0 -44 Z", fill: o.color2 || "#f2c14e" }, f);
+      el("path", { d: "M-13.6 -24 Q0 -20 13.6 -24", stroke: "#5b8def", "stroke-width": 2.2, fill: "none" }, f);
+      el("path", { d: "M-6 -41 Q-11 -34 -10 -26", stroke: "#fff", "stroke-opacity": 0.4, "stroke-width": 1.6, fill: "none", "stroke-linecap": "round" }, f);
+      if (!ctx.day) el("circle", { cx: 0, cy: -4, r: 2.4, fill: "#ffd166", filter: `url(#${ctx.uid}glow)`, class: "ks-blink" }, f);
+    },
+    // A red pillar box, for letters going out, one half in at the slot.
+    postbox(g) {
+      const red = "#c8202b";
+      el("ellipse", { cx: 1, cy: 0.8, rx: 7.5, ry: 2.2, fill: "#000", "fill-opacity": 0.3 }, g);
+      el("rect", { x: -6.4, y: -3, width: 12.8, height: 3, rx: 0.6, fill: shade(red, 0.55) }, g);
+      el("rect", { x: -5.4, y: -25, width: 10.8, height: 22, fill: red }, g);
+      el("path", { d: "M-6 -25 Q0 -32 6 -25 Z", fill: shade(red, 1.12) }, g);
+      el("rect", { x: -6, y: -25.6, width: 12, height: 1.8, rx: 0.6, fill: shade(red, 0.72) }, g);
+      el("rect", { x: -3.4, y: -21, width: 6.8, height: 1.5, rx: 0.7, fill: "#1b1e25" }, g);
+      el("rect", { x: -2.6, y: -16.5, width: 5.2, height: 3.6, rx: 0.4, fill: "#f4f1ea", "fill-opacity": 0.85 }, g);
+      el("path", { d: "M-3.8 -23 V-5", stroke: "#fff", "stroke-opacity": 0.22, "stroke-width": 1.2 }, g);
+      el("rect", { x: -2.4, y: -24.4, width: 4.8, height: 3.6, rx: 0.4, fill: "#f4f1ea", transform: "rotate(-6 0 -22)" }, g);
+    },
+    // Museum stanchions with a rope slung between them, `len` units long
+    // along x, or along y with `dir: "y"`.
+    rope(g, o, ctx) {
+      const half = ((o.len || 1.6) * ctx.unit) / 2 / (o.scale || 1);
+      const dx = r1(half * COS30 * (o.dir === "y" ? -1 : 1)), dy = r1(half * 0.5);
+      const post = (x, y) => {
+        el("ellipse", { cx: x, cy: y, rx: 3, ry: 1, fill: "#000", "fill-opacity": 0.3 }, g);
+        el("rect", { x: r1(x - 0.8), y: r1(y - 15), width: 1.6, height: 15, fill: "#c99a3e" }, g);
+        el("circle", { cx: x, cy: r1(y - 15.6), r: 1.6, fill: "#e2bd5a" }, g);
+      };
+      post(-dx, -dy);
+      post(dx, dy);
+      el("path", { d: `M${-dx} ${r1(-dy - 13.5)} Q0 -5.5 ${dx} ${r1(dy - 13.5)}`, stroke: "#b5202e", "stroke-width": 1.6, fill: "none", "stroke-linecap": "round" }, g);
     }
+  };
+  // Sprites that act by themselves (the bell swings, the cloud rains).
+  // Any other sprite with an `actor` is wrapped in a group that moves
+  // the way that thing would (ACT_CLASS, the CSS in injectStyle): an
+  // hourglass turns over, a signpost spins, a door rattles, a cup
+  // shines, a balloon rises, a plant grows; the rest hop. `fx` on the
+  // object picks another; `delay` staggers several on one pin.
+  const SELF_ACTING = new Set(["bell", "cloud"]);
+  const ACT_CLASS = {
+    hourglass: "ks-flip", signpost: "ks-spin", door: "ks-rattle", trophy: "ks-shine", balloon: "ks-rise",
+    cards: "ks-fan", board: "ks-tilt", monitor: "ks-flash", database: "ks-pulse", robot: "ks-wiggle",
+    tree: "ks-grow", sprout: "ks-grow", seedling: "ks-grow", stalks: "ks-grow", rider: "ks-ride"
   };
 
   // ---- Pins -----------------------------------------------------------
@@ -1123,7 +1356,52 @@
       ".ks-flicker{transform-box:fill-box;transform-origin:50% 100%;animation:ks-flicker 1.1s ease-in-out infinite alternate}" +
       "@keyframes ks-flicker{0%{transform:scale(1,1);opacity:1}40%{transform:scale(.92,1.08);opacity:.85}100%{transform:scale(1.06,.94);opacity:.95}}" +
       "@keyframes ks-steam{0%{opacity:0;transform:translateY(2px)}40%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}" +
-      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake,.ks-blink,.ks-act,.ks-perch,.ks-bob,.ks-steam,.ks-flicker{animation:none}}";
+      // The museum's pieces (2026-11-24): a hop when a pin reaches one,
+      // a slow drift for what floats, rain from the cloud, a sleeping
+      // door's z-z-z, an hourglass's running sand.
+      ".ks-jump,.ks-flip,.ks-spin,.ks-rattle,.ks-shine,.ks-rise,.ks-fan,.ks-tilt,.ks-flash,.ks-pulse,.ks-wiggle,.ks-grow,.ks-ride{transform-box:fill-box;transform-origin:50% 100%}" +
+      ".ks-flip,.ks-spin{transform-origin:50% 50%}" +
+      ".ks-jump.ks-act{animation:ks-jump .9s cubic-bezier(.3,.7,.4,1)}" +
+      "@keyframes ks-jump{20%{transform:translateY(-7px) scale(1.06)}45%{transform:translateY(0) scale(1.04,.95)}65%{transform:translateY(-2px)}}" +
+      ".ks-flip.ks-act{animation:ks-flip 1.4s cubic-bezier(.5,0,.3,1)}" +
+      "@keyframes ks-flip{40%,60%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}" +
+      ".ks-spin.ks-act{animation:ks-spin 1.2s ease-in-out}" +
+      "@keyframes ks-spin{25%,75%{transform:scaleX(-1)}50%{transform:scaleX(1)}}" +
+      ".ks-rattle.ks-act{animation:ks-rattle .8s linear}" +
+      "@keyframes ks-rattle{10%,30%,50%,70%{transform:translateX(-2px) rotate(-3deg)}20%,40%,60%,80%{transform:translateX(2px) rotate(3deg)}}" +
+      ".ks-shine.ks-act{animation:ks-shine 1.4s ease}" +
+      "@keyframes ks-shine{30%{transform:translateY(-8px) scale(1.2);filter:brightness(1.7) drop-shadow(0 0 4px #ffe58a)}100%{transform:none;filter:none}}" +
+      ".ks-rise.ks-act{animation:ks-rise 2.8s cubic-bezier(.4,0,.3,1)}" +
+      "@keyframes ks-rise{40%{transform:translateY(-34px)}100%{transform:none}}" +
+      ".ks-fan.ks-act{animation:ks-fan 1.1s ease}" +
+      "@keyframes ks-fan{25%{transform:rotate(-16deg) translateY(-3px)}55%{transform:rotate(14deg)}80%{transform:rotate(-5deg)}}" +
+      ".ks-tilt.ks-act{animation:ks-tilt 1s ease}" +
+      "@keyframes ks-tilt{30%{transform:rotate(-7deg) translateY(-4px)}60%{transform:rotate(5deg)}}" +
+      ".ks-flash.ks-act{animation:ks-flash 1.3s linear}" +
+      "@keyframes ks-flash{15%,55%{filter:brightness(2.3) drop-shadow(0 0 5px #9fd3ff)}35%,75%{filter:none}}" +
+      ".ks-pulse.ks-act{animation:ks-pulse 1.1s ease}" +
+      "@keyframes ks-pulse{25%,75%{transform:scale(1.14)}50%{transform:scale(.96)}}" +
+      ".ks-wiggle.ks-act{animation:ks-wiggle 1s ease}" +
+      "@keyframes ks-wiggle{20%{transform:rotate(-10deg)}40%{transform:rotate(10deg) translateY(-4px)}60%{transform:rotate(-6deg)}80%{transform:rotate(3deg)}}" +
+      ".ks-grow.ks-act{animation:ks-grow 1.2s cubic-bezier(.3,1.6,.5,1) backwards}" +
+      "@keyframes ks-grow{0%{transform:scale(.45)}60%{transform:scale(1.18)}100%{transform:scale(1)}}" +
+      ".ks-ride.ks-act{animation:ks-ride 1.8s ease-in-out}" +
+      "@keyframes ks-ride{40%,60%{transform:translateX(18px)}100%{transform:none}}" +
+      // The arrival burst: sparks off the exhibit, its icon floating up.
+      ".ks-spark{animation:ks-spark .95s cubic-bezier(.2,.8,.3,1) forwards}" +
+      "@keyframes ks-spark{0%{transform:translate(0,0) scale(.4);opacity:1}70%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}" +
+      ".ks-icon-pop{transform-box:fill-box;transform-origin:center;animation:ks-icon-pop 1.6s ease-out forwards}" +
+      "@keyframes ks-icon-pop{0%{transform:translateY(8px) scale(.3);opacity:0}25%{transform:translateY(-8px) scale(1.2);opacity:1}70%{opacity:1}100%{transform:translateY(-30px) scale(1);opacity:0}}" +
+      ".ks-float{animation:ks-float 3.4s ease-in-out infinite alternate}" +
+      "@keyframes ks-float{to{transform:translateY(-3px)}}" +
+      ".ks-rain line{opacity:0}" +
+      ".ks-rain.ks-act line{animation:ks-drop .6s linear 5}" +
+      "@keyframes ks-drop{0%{opacity:0;transform:translateY(-1px)}30%{opacity:.95}100%{opacity:0;transform:translateY(8px)}}" +
+      ".ks-zzz{opacity:0;animation:ks-zzz 2.4s ease-in-out infinite}" +
+      "@keyframes ks-zzz{0%{opacity:0;transform:translate(0,2px)}30%{opacity:1}100%{opacity:0;transform:translate(3px,-5px)}}" +
+      ".ks-sand{animation:ks-sand .5s linear infinite}" +
+      "@keyframes ks-sand{to{stroke-dashoffset:-2.6}}" +
+      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake,.ks-blink,.ks-act,.ks-perch,.ks-bob,.ks-steam,.ks-flicker,.ks-float,.ks-zzz,.ks-sand,.ks-rain.ks-act line{animation:none}.ks-zzz{opacity:.8}}";
     document.head.appendChild(st);
   }
 
@@ -1148,8 +1426,12 @@
     const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     injectStyle();
+    // `frame: { y, h }` crops the picture to the band it uses, for a small
+    // scene that would otherwise carry empty sky above and below it.
+    // With `x` and `w` too it zooms in: the same picture, less margin.
+    const crop = recipe.frame || {}, viewW = crop.w || VIEW_W;
     const svg = el("svg", {
-      viewBox: `0 0 ${VIEW_W} ${VIEW_H}`, class: "ks-scene", role: "img",
+      viewBox: `${crop.x || 0} ${crop.y || 0} ${viewW} ${crop.h || VIEW_H}`, class: "ks-scene", role: "img",
       "aria-label": textOf(recipe.title, lang), preserveAspectRatio: "xMidYMid meet"
     });
     container.appendChild(svg);   // before the pins, which measure their text
@@ -1167,7 +1449,9 @@
     // for a box it is the centre, which stops a sign standing in front
     // of a building's face from being painted over by it.
     const objectsG = el("g", null, block);
-    const ctx = { uid, col, lights: [], actors: {}, day };
+    // `unit`: one world unit in a sprite's own pixels, for the few that
+    // measure the ground (a floating cloud's shadow, a rope's length).
+    const ctx = { uid, col, lights: [], actors: {}, day, unit: 36.57 / (recipe.spriteScale || 1) };
     // Sprites are drawn for a 12-unit block; spriteScale lets a recipe
     // exaggerate them the way a diorama does, so small things stay
     // legible on a phone.
@@ -1193,7 +1477,11 @@
       // life so that a sprout can be told from a seedling on a phone.
       const s = k * (it.o.scale || 1);
       g.setAttribute("transform", `translate(${r1(p[0])},${r1(p[1])}) scale(${r1(s * 100) / 100})`);
-      if (SPRITES[it.o.kind]) SPRITES[it.o.kind](g, it.o, ctx);
+      const acts = it.o.actor && !SELF_ACTING.has(it.o.kind);
+      const into = acts ? el("g", { class: it.o.fx || ACT_CLASS[it.o.kind] || "ks-jump" }, g) : g;
+      if (acts && it.o.delay) into.style.animationDelay = it.o.delay + "s";
+      if (SPRITES[it.o.kind]) SPRITES[it.o.kind](into, it.o, ctx);
+      if (acts) (ctx.actors[it.o.actor] = ctx.actors[it.o.actor] || []).push(into);
     }
 
     // Movers walk a straight line on the ground and re-sort themselves
@@ -1259,9 +1547,11 @@
     function relayout() {
       const w = svg.getBoundingClientRect().width;
       if (!w) return;
-      const s = w / VIEW_W;
+      const s = w / viewW;
       const c = clamp(1 / s, 0.85, 2.6);
-      compact = s < 0.62;
+      // A recipe can ask for numbers only at any size: a small scene with
+      // a pin per museum card would be all labels otherwise.
+      compact = !!recipe.compact || s < 0.62;
       pins.forEach((p, j) => {
         p.counter.setAttribute("transform", `scale(${r1(c * 100) / 100})`);
         layoutPin(p, compact, j === here);
@@ -1281,9 +1571,29 @@
       setTimeout(() => ring.remove(), 950);
     }
 
+    // On arrival, for a pin with an `icon` (the museum's): a ring of
+    // sparks off the exhibit, and the icon floating up out of it.
+    function burst(i) {
+      const p = recipe.pins[i];
+      if (reduced || !p.icon) return;
+      const z0 = p.z0 || 0, mid = P.iso(p.at[0], p.at[1], z0 + ((p.z1 || 1) - z0) * 0.4);
+      const g = el("g", { transform: `translate(${r1(mid[0])},${r1(mid[1])}) scale(${kStr})`, "pointer-events": "none" }, rings);
+      const cols = [col("accent"), "#ff6ad5", "#5bd1ff", "#7dff9e", "#fff6d0"];
+      for (let j = 0; j < 12; j++) {
+        const a = (j / 12) * Math.PI * 2 + 0.25, d = 20 + (j % 3) * 7;
+        const s = el("circle", { r: j % 2 ? 1.5 : 2.2, fill: cols[j % cols.length], class: "ks-spark" }, g);
+        s.style.setProperty("--dx", r1(Math.cos(a) * d) + "px");
+        s.style.setProperty("--dy", r1(Math.sin(a) * d * 0.8 - 6) + "px");
+      }
+      const t = el("text", { y: -4, "text-anchor": "middle", "font-size": 17, class: "ks-icon-pop" }, g);
+      t.textContent = p.icon;
+      setTimeout(() => g.remove(), 1700);
+    }
+
     function arrive(i) {
       setHere(i);
       pulse(i);
+      burst(i);
       if (runner) runner.hop = performance.now();
       const p = recipe.pins[i];
       // Whatever this pin names to act, acts: the class restarts the
@@ -1390,6 +1700,13 @@
       p.outer.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(i); }
       });
+      // Folded to a number, a pin still shows its name while pointed at
+      // or focused, so what it opens can be read before it is chosen.
+      const peek = on => { if (compact) layoutPin(p, true, on || i === here); };
+      p.outer.addEventListener("pointerenter", () => peek(true));
+      p.outer.addEventListener("pointerleave", () => peek(false));
+      p.outer.addEventListener("focus", () => peek(true));
+      p.outer.addEventListener("blur", () => peek(false));
     });
     if (runner) setHere((recipe.pins || []).findIndex(p => p.stand === runner.node));
     relayout();

@@ -72,7 +72,11 @@ and on what was set aside, the Forum among them. Since 2026-11-23 each
 exhibit that explains something also has a longer "Read more", in both
 languages. A hall walks through the project's history by date, with
 pictures of the old versions, and the Arcade shows its four games. The first
-start screen still runs there. It is the same tile with the same id, not a new one: two of
+start screen still runs there. *Since 2026-11-24* each hall opens with a
+small scene of its own (`scenes/museum.js`), a pin for each card: the
+runner goes to the exhibit, it answers with a sound and a movement of its
+own, and the card opens; a Feedback card gives the author's email and
+Instagram. It is the same tile with the same id, not a new one: two of
 the Star lobby looks count tiles exactly, and with one tile fewer the Star
 of David falls back to spokes and the pentagram is drawn lopsided.
 

@@ -134,6 +134,8 @@ body {
 .letter-hello { font-size: 1.05rem; margin: 0 0 0.8rem; }
 .letter-p { font-size: 0.92rem; line-height: 1.6; margin: 0 0 0.8rem; }
 .letter-sign { font-style: italic; margin: 1rem 0 1.2rem; }
+.letter-ps { font-size: 0.85rem; line-height: 1.6; margin: -0.4rem 0 1.2rem; }
+.letter-ps a { color: inherit; white-space: nowrap; }
 .letter-close { font-family: inherit; }
 
 .modal-card-wide {
@@ -2076,6 +2078,8 @@ html[dir="rtl"] :is(.topic-title, .topic-desc, .roadmap-label, .gc-label, .plot-
 /* Museum (museum/museum.js), in the demo where the Forum's tile was.
    Halls of exhibits. An exhibit is a card that opens on a tap, so the
    screen reads as a list of titles until something is chosen. */
+/* A small scene over each hall, a pin for each of its cards (scenes/museum.js). */
+.museum-hall-scene { max-width: 640px; margin: 0.1rem auto 0.8rem; }
 .museum-intro { color: var(--text-muted); margin: 0.2rem 0 0.9rem; }
 .museum-hall {
   font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
@@ -2105,6 +2109,8 @@ html[dir="rtl"] .museum-exhibit[open] .museum-summary::after { transform: rotate
 .museum-body { padding: 0 1rem 0.9rem; }
 .museum-text { font-size: 0.9rem; line-height: 1.55; color: var(--text-muted); margin: 0 0 0.6rem; }
 .museum-action { margin-top: 0.2rem; }
+.museum-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.2rem 0 0; }
+.museum-link { text-decoration: none; }
 .museum-scene { margin-top: 0.4rem; }
 /* "Read more": a fold inside the card, set off by a rule on its left so
    it reads as the card's own longer version, not as a second card. */

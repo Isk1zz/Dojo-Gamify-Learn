@@ -58,9 +58,13 @@
   // keeps its place while the picture loads. Full screenshots are 775 by
   // 517; the Arcade's are cropped to the game.
   const shot = (src, caption, w = 775, h = 517) => ({ src, caption, w, h });
+  // The feedback card's address, put together from two halves so that a
+  // script combing the source for addresses does not find it whole.
+  const MAIL = ["reveralrise", "gmail.com"].join("@");
   const HALLS = [
     {
       title: { en: "How it works", ru: "Как это устроено", he: "איך זה עובד" },
+      scene: "museum-how",
       exhibits: [
         {
           icon: "\u{1F4A1}", title: { en: "The one idea", ru: "Главная идея", he: "הרעיון האחד" },
@@ -110,7 +114,7 @@
             { en: "The first time you enter a course you sign an enrolment contract with the mouse. It is a joke: nothing is checked, and the drawing never leaves your browser.",
               ru: "При первом входе в курс вы подписываете мышкой договор о зачислении. Это шутка: ничего не проверяется, и подпись не покидает браузер.", he: "בפעם הראשונה שנכנסים לקורס חותמים בעכבר על חוזה הרשמה. זו בדיחה: שום דבר לא נבדק, והציור לא יוצא מהדפדפן." },
             { en: "Three courses have lessons: Intro to Computer Science (48 topics), A3 Theory — Electric Bicycle (7, built on the Israeli Ministry of Transport's question bank) and Philosophy: Cicero (3). Four more have a plan and no lessons yet.",
-              ru: "Уроки есть в трёх курсах: Intro to Computer Science (48 тем), A3 Theory — Electric Bicycle (7, по банку вопросов Министерства транспорта Израиля) и Philosophy: Cicero (3). Ещё у четырёх есть план, но пока нет уроков.", he: "בשלושה קורסים יש שיעורים: Intro to Computer Science ‏(48 נושאים), תאוריה A3 — אופניים חשמליים (7, על בסיס מאגר השאלות של משרד התחבורה) ופילוסופיה: קיקרו (3). לעוד ארבעה יש תוכנית, אבל עוד אין שיעורים." }
+              ru: "Уроки есть в трёх курсах: Intro to Computer Science (48 тем), A3 Theory — Electric Bicycle (7, по банку вопросов Министерства транспорта Израиля) и Philosophy: Cicero (3). Ещё у четырёх есть план, но пока нет уроков.", he: "בשלושה קורסים יש שיעורים: Intro to Computer Science (48 נושאים), תאוריה A3 — אופניים חשמליים (7, על בסיס מאגר השאלות של משרד התחבורה) ופילוסופיה: קיקרו (3). לעוד ארבעה יש תוכנית, אבל עוד אין שיעורים." }
           ],
           code: "library/library.js, library/content/"
         },
@@ -231,8 +235,8 @@
         {
           icon: "\u{1F5FA}️", title: { en: "Scenes", ru: "Сцены", he: "סצנות" },
           body: [
-            { en: "Some courses are drawn as places: the e-bike course is a junction, Intro to CS a computer lab, Philosophy the Roman Forum at night, and the start screen a garden. Pick a chapter and a small figure walks there along the paths, then opens it.",
-              ru: "Некоторые курсы нарисованы как места: курс по электровелосипеду — перекрёсток, Intro to CS — компьютерный класс, философия — ночной Римский форум, а стартовый экран — сад. Выберите главу, и человечек дойдёт до неё по дорожкам и откроет её.", he: "חלק מהקורסים מצוירים כמקומות: קורס האופניים החשמליים הוא צומת, Intro to CS מעבדת מחשבים, הפילוסופיה הפורום הרומי בלילה, ומסך הפתיחה גינה. בוחרים פרק, ודמות קטנה הולכת אליו בשבילים ופותחת אותו." },
+            { en: "Some courses are drawn as places: the e-bike course is a junction, Intro to CS a computer lab, Philosophy the Roman Forum at night, and the start screen a garden. Each hall of this museum has a small scene of its own, a pin for each card. Pick a chapter and a small figure walks there along the paths, then opens it.",
+              ru: "Некоторые курсы нарисованы как места: курс по электровелосипеду — перекрёсток, Intro to CS — компьютерный класс, философия — ночной Римский форум, а стартовый экран — сад. У каждого зала этого музея своя маленькая сцена, с меткой на каждую карточку. Выберите главу, и человечек дойдёт до неё по дорожкам и откроет её.", he: "חלק מהקורסים מצוירים כמקומות: קורס האופניים החשמליים הוא צומת, Intro to CS מעבדת מחשבים, הפילוסופיה הפורום הרומי בלילה, ומסך הפתיחה גינה. לכל אולם במוזיאון הזה יש סצנה קטנה משלו, עם סיכה לכל כרטיס. בוחרים פרק, ודמות קטנה הולכת אליו בשבילים ופותחת אותו." },
             { en: "Every scene is drawn by one engine from a recipe, which is plain data: what stands where, and in what colours. A new scene is a new recipe. When it needs a new kind of thing, the engine learns it once, for every scene.",
               ru: "Все сцены рисует один движок по рецепту — это просто данные: что где стоит и каких цветов. Новая сцена — это новый рецепт. Если ей нужна новая вещь, движок учится рисовать её один раз, для всех сцен сразу.", he: "כל סצנה מצוירת על ידי מנוע אחד לפי מתכון, שהוא נתונים פשוטים: מה עומד איפה, ובאילו צבעים. סצנה חדשה היא מתכון חדש. כשהיא צריכה סוג חדש של דבר, המנוע לומד אותו פעם אחת, לכל הסצנות." }
           ],
@@ -243,8 +247,8 @@
               ru: "Каждая сцена следует за небом: днём фонари гаснут, а в окне класса светит солнце. До меток можно добраться с клавиатуры, режим уменьшенного движения соблюдается, а сцена вне экрана не анимируется.", he: "כל סצנה עוקבת אחרי השמיים: ביום הפנסים כבים, ובחלון המעבדה נראית השמש. לסיכות אפשר להגיע במקלדת, העדפת תנועה מופחתת נשמרת, ושום דבר לא זז כשהסצנה מחוץ למסך." },
             { en: "Intro to CS has a pin per unit rather than per topic, because 48 topics do not fit in one picture. On the start screen each stage of the Garden plays its own note of a pentatonic scale, and the figure plays them as it passes.",
               ru: "В Intro to CS метка стоит на каждый блок, а не на тему: 48 тем в одну картинку не помещаются. На стартовом экране каждая стадия Сада звучит своей нотой пентатоники, а человечек проигрывает их, когда проходит мимо.", he: "ב־Intro to CS יש סיכה לכל יחידה ולא לכל נושא, כי 48 נושאים לא נכנסים לתמונה אחת. במסך הפתיחה כל שלב של הגינה מנגן תו משלו בסולם פנטטוני, והדמות מנגנת אותם כשהיא עוברת." },
-            { en: "The rule that keeps scenes cheap: never a drawing per course. The lab taught the engine walls and pictures on them; the forum taught it pitched roofs, columns and togas, for every scene after.",
-              ru: "Правило, которое делает сцены дешёвыми: никогда не рисовать каждый курс отдельно. Класс научил движок стенам и картинкам на них, форум — двускатным крышам, колоннам и тогам, для всех следующих сцен.", he: "הכלל ששומר על סצנות זולות: אף פעם לא ציור לכל קורס. המעבדה לימדה את המנוע קירות ותמונות עליהם; הפורום לימד אותו גגות משופעים, עמודים וטוגות, לכל הסצנות שאחריו." }
+            { en: "The rule that keeps scenes cheap: never a drawing per course. The lab taught the engine walls and pictures on them; the forum taught it pitched roofs, columns and togas; the museum's halls taught it easels, a signpost, a raincloud and a hot-air balloon, for every scene after.",
+              ru: "Правило, которое делает сцены дешёвыми: никогда не рисовать каждый курс отдельно. Класс научил движок стенам и картинкам на них, форум — двускатным крышам, колоннам и тогам, залы музея — мольбертам, указателю, дождевому облаку и воздушному шару, для всех следующих сцен.", he: "הכלל ששומר על סצנות זולות: אף פעם לא ציור לכל קורס. המעבדה לימדה את המנוע קירות ותמונות עליהם; הפורום לימד אותו גגות משופעים, עמודים וטוגות; אולמות המוזיאון לימדו אותו כני ציור, שלט הכוונה, ענן גשם וכדור פורח, לכל הסצנות שאחריו." }
           ],
           code: { en: "scenes/scene.js, and one recipe per scene in scenes/", ru: "scenes/scene.js и по рецепту на сцену в scenes/", he: "scenes/scene.js, ומתכון אחד לכל סצנה ב־scenes/" }
         }
@@ -252,6 +256,7 @@
     },
     {
       title: { en: "Behind the scenes", ru: "За кадром", he: "מאחורי הקלעים" },
+      scene: "museum-behind",
       exhibits: [
         {
           icon: "\u{1F9E9}", title: { en: "How the code is built", ru: "Как устроен код", he: "איך הקוד בנוי" },
@@ -264,8 +269,8 @@
               ru: "Небольшое ядро отвечает за хранение, события, экраны и за одно место, где каждая функция публикует, что она умеет. Функции живут в своих папках и общаются только через ядро, поэтому если удалить папку и её теги script, функция исчезнет, а остальное продолжит работать.", he: "ליבה קטנה אחראית על אחסון, אירועים, מסכים ועל מקום אחד שבו כל תכונה מפרסמת מה היא מציעה. תכונות גרות בתיקיות משלהן ומדברות רק דרך הליבה, ולכן מחיקת תיקייה ותגי ה־script שלה מוציאה את התכונה, והשאר ממשיך לעבוד." },
             { en: "Your data is one document in the browser's storage, with a version number. When it loads it is upgraded step by step, so an old save always opens in a new build.",
               ru: "Ваши данные — один документ в хранилище браузера с номером версии. При загрузке он обновляется шаг за шагом, поэтому старое сохранение всегда открывается в новой версии.", he: "הנתונים שלכם הם מסמך אחד באחסון של הדפדפן, עם מספר גרסה. כשהוא נטען הוא משודרג צעד אחר צעד, כך ששמירה ישנה תמיד נפתחת בגרסה חדשה." },
-            { en: "Three languages: English, Russian and Hebrew. Course text is chosen once per page load, and the interface has about 350 keyed strings. Switching the language reloads the page, which is cheap and makes a half-translated screen impossible; Hebrew also turns the whole page to read right to left.",
-              ru: "Три языка: английский, русский и иврит. Текст курсов выбирается один раз при загрузке страницы, а у интерфейса около 350 строк по ключам. Смена языка перезагружает страницу — это дёшево и исключает наполовину переведённый экран; а с ивритом вся страница ещё и читается справа налево.", he: "שלוש שפות: אנגלית, רוסית ועברית. טקסט הקורסים נבחר פעם אחת בטעינת הדף, ולממשק יש כ־350 מחרוזות לפי מפתח. החלפת שפה טוענת את הדף מחדש — זה זול ומונע מסך שתורגם רק בחלקו; ועברית גם הופכת את כל הדף לקריאה מימין לשמאל." },
+            { en: "Three languages: English, Russian and Hebrew. Course text is chosen once per page load, and the interface has about 500 keyed strings. Switching the language reloads the page, which is cheap and makes a half-translated screen impossible; Hebrew also turns the whole page to read right to left.",
+              ru: "Три языка: английский, русский и иврит. Текст курсов выбирается один раз при загрузке страницы, а у интерфейса около 500 строк по ключам. Смена языка перезагружает страницу — это дёшево и исключает наполовину переведённый экран; а с ивритом вся страница ещё и читается справа налево.", he: "שלוש שפות: אנגלית, רוסית ועברית. טקסט הקורסים נבחר פעם אחת בטעינת הדף, ולממשק יש כ־500 מחרוזות לפי מפתח. החלפת שפה טוענת את הדף מחדש — זה זול ומונע מסך שתורגם רק בחלקו; ועברית גם הופכת את כל הדף לקריאה מימין לשמאל." },
             { en: "Sounds are made by the browser as they play, with no audio files, and respect the mute switch.",
               ru: "Звуки браузер создаёт сам в момент проигрывания, без аудиофайлов, и соблюдает выключение звука.", he: "הצלילים נוצרים בדפדפן בזמן הניגון, בלי קובצי שמע, ומכבדים את מתג ההשתקה." },
             { en: "Three scripts check the work from the command line: lessons against the content standard, the app's fields against the database's columns, and the demo build against any production key.",
@@ -335,30 +340,61 @@
               ru: "Что дальше: экзамен длиннее и короткая проверка через день-два, напечатанный ответ вместо самооценки карточек и сервер, который сверяет прогресс с работой, за которую он действительно заплатил.", he: "מה היה בא אחר כך: מבחן ארוך יותר עם בדיקה קצרה יום־יומיים אחריו, תשובות מוקלדות במקום כרטיסים עם דירוג עצמי, ושרת שבודק את ההתקדמות מול העבודה שהוא באמת שילם עליה." }
           ],
           code: "docs/HOW-IT-WORKS.md, docs/SHOWCASE.md, docs/INTERVIEW.md"
+        },
+        {
+          icon: "\u{1F4CA}", title: { en: "The author, and the data side", ru: "Автор и данные", he: "המחבר, וצד הנתונים" },
+          body: [
+            { en: "Knell was made by Illia (github.com/Isk1zz), who studies computer science at the Open University and is learning data science. It shows in what the app measures: not how many topics were finished, but how long each one stays remembered.",
+              ru: "Knell сделал Illia (github.com/Isk1zz): он изучает компьютерные науки в Открытом университете и учит data science. Это видно по тому, что приложение измеряет: не сколько тем пройдено, а как долго каждая держится в памяти.", he: "את Knell בנה Illia (github.com/Isk1zz), שלומד מדעי המחשב באוניברסיטה הפתוחה ולומד מדע נתונים. רואים את זה במה שהאפליקציה מודדת: לא כמה נושאים הסתיימו, אלא כמה זמן כל אחד נשאר בזיכרון." }
+          ],
+          more: [
+            { en: "The data work in it:",
+              ru: "Работа с данными в нём:", he: "עבודת הנתונים שבו:" },
+            { list: [
+              { en: "Memory is modelled with SM-2, and one of its constants was changed only after simulating learners: someone who barely passes every review now meets their sixth review at 153 days instead of 238.",
+              ru: "Память моделируется по SM-2, и одну из её констант изменили только после симуляции учеников: тот, кто еле сдаёт каждое повторение, теперь встречает шестое через 153 дня вместо 238.", he: "הזיכרון ממודל לפי SM-2, ואחד הקבועים שלו שונה רק אחרי הדמיה של לומדים: מי שעובר כל חזרה בקושי פוגש עכשיו את החזרה השישית אחרי 153 ימים במקום 238." },
+              { en: "SM-2 rather than the newer FSRS, because FSRS needs hundreds of reviews per learner before its model fits: more data than a small app ever collects.",
+              ru: "SM-2, а не более новый FSRS, потому что FSRS нужны сотни повторений на ученика, прежде чем модель подстроится: больше данных, чем соберёт маленькое приложение.", he: "SM-2 ולא FSRS החדש יותר, כי FSRS צריך מאות חזרות לכל לומד עד שהמודל שלו מתכייל: יותר נתונים משאפליקציה קטנה תאסוף אי פעם." },
+              { en: "The one metric is retention, the review interval, not completion; the Garden is that metric drawn as plants.",
+              ru: "Метрика одна — удержание, то есть промежуток до повторения, а не завершённость; Сад — это та же метрика, нарисованная растениями.", he: "המדד האחד הוא שימור, כלומר מרווח החזרה, ולא השלמה; הגינה היא אותו מדד, מצויר כצמחים." },
+              { en: "Weak spots are ranked by a score from the last result and the reviews that lapsed, so the app can answer what to study now.",
+              ru: "Слабые места ранжируются по оценке из последнего результата и сорванных повторений, чтобы приложение могло ответить, что учить сейчас.", he: "הנקודות החלשות מדורגות לפי ציון מהתוצאה האחרונה ומהחזרות שהוחמצו, כדי שהאפליקציה תוכל לענות מה ללמוד עכשיו." },
+              { en: "The weakest measurement is named, not hidden: a flashcard rated by its own learner. The fix, typed answers checked against key points, is written down.",
+              ru: "Самое слабое измерение названо, а не спрятано: карточка, которую оценивает сам ученик. Исправление — набранный ответ, сверенный с ключевыми пунктами, — записано.", he: "המדידה החלשה ביותר מוצגת ולא מוסתרת: כרטיסייה שהלומד מדרג בעצמו. התיקון, תשובה מוקלדת שנבדקת מול נקודות מפתח, כתוב." },
+              { en: "Numbers in the documents are measured, not remembered, and three research reports were checked against their sources before any was believed.",
+              ru: "Числа в документах измерены, а не взяты по памяти, а три исследовательских отчёта сверены с источниками, прежде чем им поверили.", he: "המספרים במסמכים נמדדו ולא נשלפו מהזיכרון, ושלושה דוחות מחקר נבדקו מול המקורות שלהם לפני שהאמינו לאחד מהם." }
+            ] }
+          ]
         }
       ]
     },
     {
       title: { en: "History, by date", ru: "История по датам", he: "היסטוריה, לפי תאריכים" },
+      scene: "museum-history",
       exhibits: [
         {
           icon: "⏳", title: { en: "What went into it", ru: "Сколько в это вложено", he: "כמה הושקע בזה" },
           body: [
-            { en: "For about a month, Knell was its author's full-time work, by day and by night. The dates in this hall are when work reached the repository; reading, thinking and testing went on around them.",
-              ru: "Около месяца Knell был основной работой автора, днём и ночью. Даты в этом зале — это когда работа попадала в репозиторий; чтение, обдумывание и проверки шли вокруг них.", he: "במשך כחודש Knell היה העבודה המלאה של המחבר, ביום ובלילה. התאריכים באולם הזה הם הרגעים שבהם העבודה הגיעה למאגר; קריאה, חשיבה ובדיקות נמשכו סביבם." },
+            // Reworded 2026-11-24 after «12 600 уроков, 5 600 стилей ????»:
+            // the line counts read as counts of lessons and styles. Each
+            // number now stands after the name of what it measures, and
+            // the lead says they are lines. Every figure re-measured that
+            // day: git log for the commits, tracked files for the lines.
+            { en: "Knell took about a month of full-time work, by day and by night: from 10 August to 3 September, and again from 19 to 24 November. The dates in this hall are when work reached the repository; reading, thinking and testing went on around them.",
+              ru: "На Knell ушёл примерно месяц работы с утра до ночи: с 10 августа по 3 сентября и ещё раз с 19 по 24 ноября. Даты в этом зале — это когда работа попадала в репозиторий; чтение, обдумывание и проверки шли вокруг них.", he: "העבודה על Knell נמשכה כחודש במשרה מלאה, ביום ובלילה: מ־10 באוגוסט עד 3 בספטמבר, ושוב מ־19 עד 24 בנובמבר. התאריכים באולם הזה הם הרגעים שבהם העבודה הגיעה למאגר; קריאה, חשיבה ובדיקות נמשכו סביבם." },
             { list: [
-              { en: "216 commits on 19 days of work, from 10 August to 23 November.",
-                ru: "216 коммитов за 19 рабочих дней, с 10 августа по 23 ноября.", he: "216 קומיטים ב־19 ימי עבודה, מ־10 באוגוסט עד 23 בנובמבר." },
-              { en: "The busiest day, 13 August: 43 commits between 03:27 and 23:57.",
-                ru: "Самый плотный день, 13 августа: 43 коммита между 03:27 и 23:57.", he: "היום העמוס ביותר, 13 באוגוסט: 43 קומיטים בין 03:27 ל־23:57." },
-              { en: "13,514 lines were already written before the first commit: the repository starts after twelve stages of the app's own changelog.",
-                ru: "13 514 строк были написаны ещё до первого коммита: репозиторий начинается после двенадцати стадий собственного журнала изменений.", he: "13,514 שורות כבר היו כתובות לפני הקומיט הראשון: המאגר מתחיל אחרי שנים־עשר שלבים ביומן השינויים של האפליקציה עצמה." },
-              { en: "About 54,000 lines today: 19,800 of code, 12,600 of lessons, 5,400 of styles, 4,000 of database, 9,800 of documents and 2,800 of research notes.",
-                ru: "Около 54 000 строк сегодня: 19 800 кода, 12 600 уроков, 5 400 стилей, 4 000 базы данных, 9 800 документов и 2 800 исследований.", he: "כ־54,000 שורות היום: 19,800 של קוד, 12,600 של שיעורים, 5,400 של עיצוב, 4,000 של מסד נתונים, 9,800 של מסמכים ו־2,800 של רשימות מחקר." }
+              { en: "219 commits as of 24 November. 207 of them came between 10 August and 3 September, on 14 days; one on 13 October; and eleven in November, fewer but larger: the demo, the scenes, this museum, Hebrew.",
+                ru: "219 коммитов на 24 ноября. Из них 207 — с 10 августа по 3 сентября, за 14 дней; один — 13 октября; одиннадцать — в ноябре: реже, но крупнее (демо, сцены, этот музей, иврит).", he: "219 קומיטים נכון ל־24 בנובמבר. 207 מהם נעשו בין 10 באוגוסט ל־3 בספטמבר, ב־14 ימים; אחד ב־13 באוקטובר; ואחד־עשר בנובמבר, מעטים אבל גדולים יותר: הדמו, הסצנות, המוזיאון הזה, העברית." },
+              { en: "The busiest day was 13 August: 43 commits, from 03:27 to 23:57.",
+                ru: "Самый плотный день — 13 августа: 43 коммита, с 03:27 до 23:57.", he: "היום העמוס ביותר היה 13 באוגוסט: 43 קומיטים, מ־03:27 עד 23:57." },
+              { en: "The repository did not start empty: its first upload, on 10 August, already held 13,514 lines, the twelve stages of work that the app's own changelog records.",
+                ru: "Репозиторий начался не с нуля: первая загрузка, 10 августа, уже содержала 13 514 строк — двенадцать этапов работы, которые записаны в журнале изменений самого приложения.", he: "המאגר לא התחיל ריק: ההעלאה הראשונה, ב־10 באוגוסט, כבר הכילה 13,514 שורות — שנים־עשר שלבי העבודה שמתועדים ביומן השינויים של האפליקציה עצמה." },
+              { en: "About 58,000 lines in all today (measured 24 November). By kind: code 22,700 · courses (lessons and questions) 13,000 · styles (CSS) 5,600 · database 4,600 · documentation 9,700 · research notes 2,800.",
+                ru: "Всего сейчас около 58 000 строк (замер 24 ноября). Из них: код — 22 700, курсы (уроки и вопросы) — 13 000, оформление (CSS) — 5 600, база данных — 4 600, документация — 9 700, заметки исследований — 2 800.", he: "כ־58,000 שורות בסך הכול היום (נמדד ב־24 בנובמבר). לפי סוג: קוד — 22,700, קורסים (שיעורים ושאלות) — 13,000, עיצוב (CSS) — 5,600, מסד נתונים — 4,600, תיעוד — 9,700, רשימות מחקר — 2,800." }
             ] }
           ],
           images: [
-            shot("museum/history/hours.svg", { en: "Commits by hour of the day, 10 August to 22 November. Nearly a third came between midnight and six in the morning.", ru: "Коммиты по часам суток, с 10 августа по 22 ноября. Почти треть — между полуночью и шестью утра.", he: "קומיטים לפי שעה ביממה, מ־10 באוגוסט עד 22 בנובמבר. כמעט שליש נעשו בין חצות לשש בבוקר." }, 600, 170)
+            shot("museum/history/hours.svg", { en: "Commits by hour of the day, 10 August to 24 November. A third came between midnight and six in the morning.", ru: "Коммиты по часам суток, с 10 августа по 24 ноября. Треть — между полуночью и шестью утра.", he: "קומיטים לפי שעה ביממה, מ־10 באוגוסט עד 24 בנובמבר. שליש נעשו בין חצות לשש בבוקר." }, 600, 170)
           ],
           more: [
             { en: "Attention to detail, in small things that were not left alone:",
@@ -368,12 +404,6 @@
                 ru: "В курсе по электровелосипеду человечек переходит дорогу только по зебрам: его путь считается по графу тротуаров и переходов.", he: "בקורס האופניים החשמליים הדמות חוצה רק במעברי חצייה: המסלול שלה מחושב על גרף של מדרכות ומעברים." },
               { en: "Questions and their options reshuffle on every attempt, because hand-written answer keys drift: in one module the right answer was B in 10 of 11 questions.",
                 ru: "Вопросы и варианты перемешиваются при каждой попытке, потому что ключи, написанные вручную, перекашиваются: в одном модуле верным был вариант B в 10 вопросах из 11.", he: "שאלות והאפשרויות שלהן מעורבבות בכל ניסיון, כי מפתחות תשובות שנכתבים ביד נוטים להטות: במודול אחד התשובה הנכונה הייתה B ב־10 מתוך 11 שאלות." },
-              { en: "A flashcard answered in under 2.5 seconds earns nothing, so tapping through a deck does not pay.",
-                ru: "Карточка, отвеченная быстрее чем за 2,5 секунды, ничего не приносит — пролистать колоду ради награды не выйдет.", he: "כרטיסייה שנענתה בפחות מ־2.5 שניות לא מזכה בכלום, ולכן דפדוף מהיר בחפיסה לא משתלם." },
-              { en: "One constant of SM-2 was changed only after measuring it: a marginal learner's sixth review moves from 238 days to 153, a perfect learner's stays at 393.",
-                ru: "Одну константу SM-2 изменили только после замера: шестое повторение у еле сдающего переезжает с 238 дней на 153, у идеального остаётся 393.", he: "קבוע אחד של SM-2 שונה רק אחרי מדידה: החזרה השישית של לומד גבולי זזה מ־238 יום ל־153, ושל לומד מושלם נשארת על 393." },
-              { en: "Five facts in the e-bike course were corrected against the regulation itself, and one crossing rule after reading the road sign.",
-                ru: "Пять фактов в курсе по электровелосипеду исправлены по самим правилам, а одно правило перехода — после чтения дорожного знака.", he: "חמש עובדות בקורס האופניים תוקנו מול התקנות עצמן, וכלל חצייה אחד — אחרי קריאת תמרור הדרך." },
               { en: "A Forum view counts only after five seconds on screen: a scroll past counts nothing, a second visit does not count twice, and your own post never counts.",
                 ru: "Просмотр на форуме засчитывается только после пяти секунд на экране: пролистывание не считается, повторный визит не считается дважды, а свой пост — никогда.", he: "צפייה בפורום נספרת רק אחרי חמש שניות על המסך: גלילה חולפת לא נספרת, ביקור שני לא נספר פעמיים, והפוסט שלכם לעולם לא נספר." },
               { en: "A uniqueness rule the database was not enforcing was found by asking the database's own catalogue, not by rereading the rule.",
@@ -507,12 +537,25 @@
             { en: "Also in these days: the service worker's cache was retired, because it served returning visitors an old copy; a letter went into the mailbox at the garden gate; and the rank line got a sticker to peel.",
               ru: "А ещё в эти дни сняли кэш service worker — он показывал вернувшимся старую копию; в почтовый ящик у входа в сад положили письмо, а на строку ранга — наклейку, которую надо отклеить.", he: "גם בימים האלה: המטמון של ה־service worker הוסר, כי הוא הגיש למבקרים חוזרים עותק ישן; מכתב נכנס לתיבת הדואר בשער הגינה; ושורת הדרגה קיבלה מדבקה לקלף." }
           ],
-          code: { en: "git 77a563a … today", ru: "git 77a563a … сегодня", he: "git 77a563a … היום" }
+          code: "git 77a563a … 20c698a"
+        },
+        {
+          icon: "\u{1F30D}", title: { en: "23–24 November: three languages", ru: "23–24 ноября: три языка", he: "23–24 בנובמבר: שלוש שפות" },
+          body: [
+            { en: "Hebrew arrived, the first language read right to left: every screen in three languages, both written courses translated, and the e-bike course's forty official questions taken in the Ministry's own Hebrew wording rather than translated, their answer keys checked against all forty. A course written only in English stays English inside the Hebrew app, left to right, lettered A to D.",
+              ru: "Пришёл иврит, первый язык, который читается справа налево: каждый экран на трёх языках, оба написанных курса переведены, а сорок официальных вопросов курса по электровелосипеду взяты в ивритской формулировке самого министерства, а не переведены, и их ключи сверены все сорок. Курс, написанный только по-английски, внутри ивритского приложения остаётся английским: слева направо, с буквами от A до D.", he: "הגיעה העברית, השפה הראשונה שנקראת מימין לשמאל: כל מסך בשלוש שפות, שני הקורסים הכתובים תורגמו, וארבעים השאלות הרשמיות של קורס האופניים החשמליים נלקחו בנוסח העברי של המשרד עצמו ולא תורגמו, ומפתחות התשובות נבדקו מול כל הארבעים. קורס שנכתב רק באנגלית נשאר באנגלית גם בתוך האפליקציה בעברית: משמאל לימין, עם האותיות A עד D." }
+          ],
+          more: [
+            { en: "And the last of the sky: the clouds, the sun and the moon got sounds of their own, darts a hit, and a hot-air balloon came to drift over the lobby, bursting into confetti and fireworks when tapped, followed now and then by a plane towing a banner, ☮ da plane, and a rocket.",
+              ru: "И последнее в небе: облака, солнце и луна получили свои звуки, дротики — попадание, а над лобби поплыл воздушный шар, который по тапу рассыпается конфетти и фейерверком; за ним иногда пролетают самолёт с баннером «☮ da plane» и ракета.", he: "והאחרונים בשמיים: העננים, השמש והירח קיבלו צלילים משלהם, חצי הקליעה — פגיעה, ומעל הלובי התחיל לשוט כדור פורח שמתפוצץ לקונפטי ולזיקוקים בנגיעה, ואחריו מדי פעם חולפים מטוס שגורר שלט, ☮ da plane, וטיל." }
+          ],
+          code: { en: "git fe1ea30 … today", ru: "git fe1ea30 … сегодня", he: "git fe1ea30 … היום" }
         }
       ]
     },
     {
       title: { en: "Set aside", ru: "На покое", he: "הונח בצד" },
+      scene: "museum-aside",
       exhibits: [
         {
           icon: "\u{1F6A6}", title: { en: "The first start screen", ru: "Первый стартовый экран", he: "מסך הפתיחה הראשון" },
@@ -549,6 +592,7 @@
     },
     {
       title: { en: "How to", ru: "Как пользоваться", he: "איך משתמשים" },
+      scene: "museum-howto",
       exhibits: [
         {
           icon: "\u{1F9ED}", title: { en: "Finding your way", ru: "Куда что ведёт", he: "איך מתמצאים" },
@@ -557,8 +601,29 @@
               ru: "Круги в лобби ведут в разные места: Библиотека — к курсам, Сад — к тому, что пора повторить сегодня, Карьера — к вашему рангу.", he: "העיגולים בלובי מובילים למקומות: הספרייה לקורסים, הגינה למה שצריך לחזור עליו היום, הקריירה לדרגה שלכם." },
             { en: "In a course, tap a chapter and the runner goes there and opens it. In the Garden, water a plant to review its topic.",
               ru: "В курсе нажмите на главу — человечек добежит туда и откроет её. В Саду полейте растение, чтобы повторить его тему.", he: "בקורס, געו בפרק והדמות רצה אליו ופותחת אותו. בגינה, השקו צמח כדי לחזור על הנושא שלו." },
-            { en: "Poke the sky: clouds rain, birds dodge arrows, and the wheel in the lobby takes darts.",
-              ru: "Потыкайте в небо: облака проливаются дождём, птицы уворачиваются от стрел, а колесо в лобби принимает дротики.", he: "געו בשמיים: עננים ממטירים, ציפורים מתחמקות מחצים, והגלגל בלובי מקבל חיצי דארטס." }
+            { en: "Poke the sky: clouds rain, birds dodge arrows, the wheel in the lobby takes darts, and the hot-air balloon that drifts by now and then bursts into fireworks.",
+              ru: "Потыкайте в небо: облака проливаются дождём, птицы уворачиваются от стрел, колесо в лобби принимает дротики, а воздушный шар, который иногда проплывает мимо, рассыпается фейерверком.", he: "געו בשמיים: עננים מורידים גשם, ציפורים מתחמקות מחצים, הגלגל בלובי סופג חצי קליעה, והכדור הפורח שחולף מדי פעם מתפוצץ לזיקוקים." }
+          ]
+        },
+        {
+          icon: "\u{2728}", title: { en: "Small joys", ru: "Маленькие радости", he: "שמחות קטנות" },
+          body: [
+            { en: "Things in Knell that are there for the fun of it:",
+              ru: "То, что в Knell есть просто для удовольствия:", he: "דברים ב־Knell שקיימים רק בשביל הכיף:" },
+            { list: [
+              { en: "Peel the rank sticker: seven seconds of real rubbing.",
+              ru: "Отклейте наклейку с рангом: семь секунд честного трения.", he: "קלפו את מדבקת הדרגה: שבע שניות של שפשוף אמיתי." },
+              { en: "Sign the enrolment contract with the mouse. Nothing checks it.",
+              ru: "Подпишите договор о зачислении мышкой. Его никто не проверяет.", he: "חתמו על חוזה ההרשמה בעכבר. אף אחד לא בודק אותו." },
+              { en: "On the start screen, send the runner to ring the bell the app is named after, and take the letter from the mailbox.",
+              ru: "На стартовом экране отправьте человечка звонить в колокол, в честь которого названо приложение, и достаньте письмо из почтового ящика.", he: "במסך הפתיחה שלחו את הרץ לצלצל בפעמון שעל שמו נקראת האפליקציה, וקחו את המכתב מתיבת הדואר." },
+              { en: "Shoot arrows at the eagles; some dodge. Throw darts at the lobby's wheel.",
+              ru: "Стреляйте в орлов: некоторые уворачиваются. Бросайте дротики в колесо лобби.", he: "ירו חצים בנשרים; חלקם מתחמקים. זרקו חצי קליעה על הגלגל בלובי." },
+              { en: "Wait for the hot-air balloon, then tap it. Look out for da plane ☮.",
+              ru: "Дождитесь воздушного шара и тапните его. Высматривайте da plane ☮.", he: "חכו לכדור הפורח ואז געו בו. חפשו את da plane ☮." },
+              { en: "Switch day and night: the scenes' lamps follow, and their windows can keep the stars by day.",
+              ru: "Переключайте день и ночь: фонари в сценах следуют за небом, а окна могут и днём показывать звёзды.", he: "החליפו בין יום ללילה: הפנסים בסצנות הולכים אחרי השמיים, והחלונות יכולים להשאיר כוכבים גם ביום." }
+            ] }
           ]
         },
         {
@@ -568,6 +633,19 @@
               ru: "Письмо тому, кто откроет Knell, сейчас или через годы. Оно же лежит в почтовом ящике у входа в сад на стартовом экране.", he: "מכתב למי שיפתח את Knell, עכשיו או בעוד שנים. הוא גם בתיבת הדואר בשער הגינה במסך הפתיחה." }
           ],
           action: { label: { en: "Read it", ru: "Прочитать", he: "לקרוא" }, run: () => Dojo.openLetter && Dojo.openLetter() }
+        },
+        // Asked 2026-11-24: «Оставь в музее обратная связь … (почту) и
+        // инстаграм isk1zz». The author's own choice to publish both.
+        {
+          icon: "\u{1F4E8}", title: { en: "Feedback", ru: "Обратная связь", he: "משוב" },
+          body: [
+            { en: "Found a bug, have an idea, or want to say what you think of Knell? Write to its author, by email or on Instagram.",
+              ru: "Нашли ошибку, есть идея или хотите сказать, что думаете о Knell? Напишите автору — на почту или в Instagram.", he: "מצאתם באג, יש לכם רעיון, או שאתם רוצים לומר מה אתם חושבים על Knell? כתבו למחבר, במייל או באינסטגרם." }
+          ],
+          links: [
+            { href: "mailto:" + MAIL, text: MAIL },
+            { href: "https://www.instagram.com/isk1zz/", text: "Instagram @isk1zz" }
+          ]
         }
       ]
     }
@@ -690,6 +768,18 @@
       b.addEventListener("click", x.action.run);
       body.appendChild(b);
     }
+    if (x.links) {
+      // Addresses read left to right in every language, Hebrew included.
+      const row = el("p", "museum-links");
+      x.links.forEach(l => {
+        const a = el("a", "btn-ghost museum-link", l.text);
+        a.href = l.href;
+        a.dir = "ltr";
+        if (/^https?:/.test(l.href)) { a.target = "_blank"; a.rel = "noopener"; }
+        row.appendChild(a);
+      });
+      body.appendChild(row);
+    }
     if (x.scene) {
       // Drawn the first time the card opens, not before: a scene costs
       // something, and most visitors will not open this one.
@@ -710,12 +800,61 @@
       running.forEach(s => s && s.destroy && s.destroy());
       running = [];
       body.replaceChildren(el("p", "museum-intro", R(INTRO)));
+      // Each hall opens with a small scene of its own (scenes/museum.js),
+      // a pin for each of its cards, in the cards' order. The runner
+      // starts at the way in; when he reaches an exhibit, it answers in
+      // the scene and with a sound, and its card opens and comes into view.
       HALLS.forEach(h => {
         body.appendChild(el("h3", "museum-hall", R(h.title)));
-        h.exhibits.forEach(x => body.appendChild(exhibitCard(x)));
+        const cards = h.exhibits.map(exhibitCard);
+        if (h.scene && Dojo.Scenes && Dojo.Scenes.has(h.scene)) {
+          const host = el("div", "museum-hall-scene");
+          body.appendChild(host);
+          // Sounds as on the start screen (2026-11-24, «я не слышу звуков
+          // как в прескрине»): a pin's own note on the tap, softer notes
+          // for the pins he runs past, and the exhibit's voice on arrival.
+          running.push(Dojo.Scenes.render(host, h.scene, {
+            lang: I18N.lang(),
+            start: -1,
+            onPick: ({ n }) => { if (Dojo.sfx && Dojo.sfx.stage) Dojo.sfx.stage(note(n)); },
+            onPass: ({ n }) => { if (Dojo.sfx && Dojo.sfx.stage) Dojo.sfx.stage(note(n), true); },
+            onChapter: ({ index, n, act }) => {
+              arrivalSound(act, n);
+              const card = cards[index];
+              if (!card) return;
+              card.open = true;
+              setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "nearest" }), act === "bell" ? 700 : 300);
+            }
+          }));
+        }
+        cards.forEach(c => body.appendChild(c));
       });
     }
     showScreen("museum");
+  }
+
+  // A pin's note: the start screen's six-note pentatonic scale, round
+  // again from the seventh pin, so any order of taps sounds right.
+  const note = n => ((n - 1) % 6) + 1;
+  // What each exhibit sounds like when the runner reaches it
+  // (core/sfx.js, act): the act names come from scenes/museum.js.
+  const ACT_SOUND = {
+    idea: "flip", books: "page", board: "chalk", garden: "grow", cards: "flip", quotes: "page",
+    trophy: "fanfare", scenes: "chime",
+    code: "type", db: "sync", forum: "chat", demo: "chime", made: "beep", data: "grow",
+    time: "flip", dojo: "kiai", coins: "coins", door: "knock", constant: "chalk", portfolio: "chime", langs: "spin",
+    rider: "bike", arcade: "arcade", way: "spin"
+  };
+  function arrivalSound(act, n) {
+    const s = Dojo.sfx;
+    if (!s) return;
+    if (act === "bell" && s.bell) s.bell();
+    else if (act === "rain" && s.sky) s.sky("drizzle");
+    else if (act === "joy" && s.sky) s.sky("balloon");
+    else if (act === "letter" && s.mailbox) s.mailbox();
+    else if (act === "post" && s.letter) s.letter();
+    else if (ACT_SOUND[act] && s.act) s.act(ACT_SOUND[act]);
+    else if (s.stage) s.stage(note(n), true);
   }
 
   // The lobby tile's subtitle, the same seam every branch uses.

@@ -1,6 +1,52 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
 
+## 2026-11-24 — the museum's halls get scenes; feedback; what went into it
+
+- [x] **A small scene over each hall** («как на счет визуальных сцен в
+      музей?», then «сцена скучная», then «Мини-сцена в каждом зале»):
+      five recipes in `scenes/museum.js`, a pin for each card in the
+      card's order: a study garden (How it works), a workshop (Behind the
+      scenes), a road through time, its nine stops in order left to right
+      (History), a storeroom (Set aside) and the garden gate (How to). The
+      runner goes to the exhibit, the exhibit answers, and its card opens
+      below. After «я не слышу звуков как в прескрине и еффектиков…
+      объектов много и они маленькие»: sounds as on the start screen (a
+      note per pin on the tap, softer notes for pins passed, and each
+      exhibit's own voice on arrival: pages, chalk, coins, a knock, a
+      fanfare, beeps, an arcade arpeggio, a bicycle bell); sparks and the
+      card's icon rising from the exhibit; each piece moving its own way
+      (the hourglass turns over, the Garden's stages grow one after
+      another, the cloud rains, the door rattles, the cup shines, the
+      balloon rises, the signpost spins); and the scenes zoomed in, with
+      fewer, bigger pieces. The engine learned easels, flashcards, a
+      podium, an hourglass, coins, a raincloud, a sleeping door, a
+      signpost, a hot-air balloon, a postbox and a rope, a crop of its
+      frame, and pin names on hover when pins are folded to numbers.
+- [x] **Feedback** («Оставь в музее обратная связь в моей памятке
+      (почту) и инстаграм isk1zz»): a Feedback card in the How-to hall
+      and a P.S. under the letter, with the author's email and Instagram.
+- [x] **What went into it, reworded** («12 600 уроков, 5 600 стилей
+      ????»): the line counts read as counts of lessons and styles; now
+      each number follows the name of what it measures, every figure was
+      measured again, and the hours chart runs to 24 November.
+- [x] **Da plane has one wing** («da plane has 4 крыла»): it was drawn
+      from above; now it is seen from the side, the way it flies.
+- [x] **The translations checked** («апд стек проверь переводы»): every
+      interface key has English, Russian and Hebrew with the same
+      placeholders (501 keys; the one flagged, "in a day", is Hebrew
+      without the number on purpose); no translation is a copy of the
+      English; the Hebrew and Russian lines were read through, and the
+      Hebrew of the courses, scenes and museum was scanned for English
+      left behind (what remains is Latin terms, file names and
+      bibliography). Three Hebrew phrasings in the museum were reworded.
+      The 19 titles of the English-only Intro to CS course stay English
+      on purpose. The Russian says «блок» for both a unit and a chunk, as
+      it did before; left as it was.
+- [ ] Staged in UPDATESTACK.md: the Garden as a scene?; the Knell tower
+      piercing the cloud.
+
+
 ## 2026-11-22 to 11-24 — Hebrew, the achievements, the sky's sounds; the stack closed
 
 - [x] **Full Hebrew** («i want full hebrew localization»): `he` in `LANGS`

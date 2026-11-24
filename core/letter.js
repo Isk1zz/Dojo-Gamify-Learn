@@ -43,8 +43,13 @@
     // No link to the source repository: its author does not plan to carry
     // it on, so the letter does not point there (2026-11-22).
     sign: { en: "Illia “isk1zz” Polianskyi", ru: "Illia «isk1zz» Polianskyi", he: "Illia “isk1zz” Polianskyi" },
+    // Asked 2026-11-24: the author's email and Instagram, in the museum
+    // and here, for whoever wants to answer. The address is put together
+    // from two halves so a script combing the source does not find it.
+    ps: { en: "P.S. If you want to write back:", ru: "P.S. Если захотите ответить:", he: "נ.ב. אם תרצה לענות לי:" },
     close: { en: "Close", ru: "Закрыть", he: "סגירה" }
   };
+  const MAIL = ["reveralrise", "gmail.com"].join("@");
   const t = key => {
     const lang = (typeof I18N !== "undefined" && I18N.lang && I18N.lang()) || "en";
     return L[key][lang] || L[key].en;
@@ -75,6 +80,16 @@
     add("p", "letter-p", t("who"));
     add("p", "letter-p", t(Dojo.DEMO ? "demo" : "real"));
     add("p", "letter-sign", "— " + t("sign"));
+    const ps = add("p", "letter-ps", t("ps") + " ");
+    [["mailto:" + MAIL, MAIL], ["https://www.instagram.com/isk1zz/", "Instagram @isk1zz"]].forEach(([href, text], i) => {
+      if (i) ps.appendChild(document.createTextNode(" · "));
+      const a = document.createElement("a");
+      a.href = href;
+      a.textContent = text;
+      a.dir = "ltr";
+      if (href.startsWith("http")) { a.target = "_blank"; a.rel = "noopener"; }
+      ps.appendChild(a);
+    });
     const ok = add("button", "btn-primary letter-close", t("close"));
     ok.addEventListener("click", closeLetter);
     box.addEventListener("click", e => { if (e.target === box) closeLetter(); });
