@@ -49,7 +49,17 @@
       (garden/garden.js); a drop pin on each plant that is due (up to
       eight): tap it and the runner goes there and that topic's review
       starts. The list below it stays for exact names and numbers.
-- [ ] Staged in UPDATESTACK.md: the Knell tower piercing the cloud.
+- [x] **Ground mist on the start screen**: a light mist lies on the
+      garden's grass and drifts slowly («оставь легкий туман по земле»):
+      long, thin, cool streaks that fade at both ends, after soft pale
+      blobs read as lamplight («выглядит как размытый свет»).
+      The Knell tower piercing a cloud was tried twice, in the garden and
+      in the lobby, and taken out both times («хреновая башня»).
+- [x] **The museum polished again** («полирни еще раз музей»): the intro
+      says how to use the scenes; the Garden and Scenes cards tell of the
+      Garden screen's scene; the boards' writing
+      fits them; one lamp fewer on the road through time; the dojo reads
+      as a building.
 
 
 ## 2026-11-22 to 11-24 — Hebrew, the achievements, the sky's sounds; the stack closed

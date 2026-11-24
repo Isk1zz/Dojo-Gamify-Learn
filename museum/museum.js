@@ -42,8 +42,8 @@
   const showScreen = Dojo.showScreen;
 
   const INTRO = {
-    en: "How Knell works, and what it has built and set aside. Tap a card to open it; “Read more” inside goes deeper.",
-    ru: "Как устроен Knell и что в нём построено и отложено. Нажмите на карточку, чтобы открыть; «Подробнее» внутри — глубже.", he: "איך Knell עובד, מה נבנה בו ומה הונח בצד. געו בכרטיס כדי לפתוח אותו; \"לקריאה נוספת\" שבתוכו מעמיק יותר."
+    en: "How Knell works, and what it has built and set aside. Over each hall is a small scene: tap a numbered pin and the runner goes to that exhibit and opens its card. Or tap a card itself; “Read more” inside goes deeper.",
+    ru: "Как устроен Knell и что в нём построено и отложено. Над каждым залом — маленькая сцена: нажмите на метку с номером, и человечек добежит до экспоната и откроет его карточку. Или нажмите на саму карточку; «Подробнее» внутри — глубже.", he: "איך Knell עובד, מה נבנה בו ומה הונח בצד. מעל כל אולם יש סצנה קטנה: געו בסיכה עם מספר, והדמות תרוץ אל המוצג ותפתח את הכרטיס שלו. או געו בכרטיס עצמו; \"לקריאה נוספת\" שבתוכו מעמיק יותר."
   };
   const MORE = { en: "Read more", ru: "Подробнее", he: "לקריאה נוספת" };
   const CLOSE = { en: "Close", ru: "Закрыть", he: "סגירה" };
@@ -155,6 +155,8 @@
           more: [
             { en: "The stages, by review interval:",
               ru: "Стадии по промежутку до повторения:", he: "השלבים, לפי מרווח החזרה:" },
+            { en: "Since 24 November the Garden screen draws it: a bed for each course, each plant at its stage, and a drop over every plant that needs water. Tap the drop, and the runner goes there and its review begins.",
+              ru: "С 24 ноября экран Сада рисует его: по грядке на курс, каждое растение в своей стадии, а над каждым, которое пора полить, — капля. Нажмите на каплю, и человечек дойдёт до растения, и начнётся его повторение.", he: "מאז 24 בנובמבר מסך הגינה מצייר אותה: ערוגה לכל קורס, כל צמח בשלב שלו, וטיפה מעל כל צמח שצריך השקיה. געו בטיפה, והדמות תלך אליו והחזרה שלו תתחיל." },
             { list: [
               { en: "🌑 Fallow — not started", ru: "🌑 Пар — тема не начата", he: "🌑 בור — לא התחיל" },
               { en: "🌰 Seed — started, exam not passed yet", ru: "🌰 Семя — начата, экзамен ещё не сдан", he: "🌰 זרע — התחיל, המבחן עוד לא עבר" },
@@ -235,8 +237,8 @@
         {
           icon: "\u{1F5FA}️", title: { en: "Scenes", ru: "Сцены", he: "סצנות" },
           body: [
-            { en: "Some courses are drawn as places: the e-bike course is a junction, Intro to CS a computer lab, Philosophy the Roman Forum at night, and the start screen a garden. Each hall of this museum has a small scene of its own, a pin for each card. Pick a chapter and a small figure walks there along the paths, then opens it.",
-              ru: "Некоторые курсы нарисованы как места: курс по электровелосипеду — перекрёсток, Intro to CS — компьютерный класс, философия — ночной Римский форум, а стартовый экран — сад. У каждого зала этого музея своя маленькая сцена, с меткой на каждую карточку. Выберите главу, и человечек дойдёт до неё по дорожкам и откроет её.", he: "חלק מהקורסים מצוירים כמקומות: קורס האופניים החשמליים הוא צומת, Intro to CS מעבדת מחשבים, הפילוסופיה הפורום הרומי בלילה, ומסך הפתיחה גינה. לכל אולם במוזיאון הזה יש סצנה קטנה משלו, עם סיכה לכל כרטיס. בוחרים פרק, ודמות קטנה הולכת אליו בשבילים ופותחת אותו." },
+            { en: "Some courses are drawn as places: the e-bike course is a junction, Intro to CS a computer lab, Philosophy the Roman Forum at night, the start screen a garden in a light ground mist, and the Garden screen your own garden, a drop on each plant that is due. Each hall of this museum has a small scene of its own, a pin for each card. Pick a chapter and a small figure walks there along the paths, then opens it.",
+              ru: "Некоторые курсы нарисованы как места: курс по электровелосипеду — перекрёсток, Intro to CS — компьютерный класс, философия — ночной Римский форум, стартовый экран — сад в лёгком тумане, а экран Сада — ваш собственный сад, с каплей над каждым растением, которое пора полить. У каждого зала этого музея своя маленькая сцена, с меткой на каждую карточку. Выберите главу, и человечек дойдёт до неё по дорожкам и откроет её.", he: "חלק מהקורסים מצוירים כמקומות: קורס האופניים החשמליים הוא צומת, Intro to CS מעבדת מחשבים, הפילוסופיה הפורום הרומי בלילה, מסך הפתיחה גינה בערפל קל על הקרקע, ומסך הגינה הוא הגינה שלכם, עם טיפה מעל כל צמח שצריך השקיה. לכל אולם במוזיאון הזה יש סצנה קטנה משלו, עם סיכה לכל כרטיס. בוחרים פרק, ודמות קטנה הולכת אליו בשבילים ופותחת אותו." },
             { en: "Every scene is drawn by one engine from a recipe, which is plain data: what stands where, and in what colours. A new scene is a new recipe. When it needs a new kind of thing, the engine learns it once, for every scene.",
               ru: "Все сцены рисует один движок по рецепту — это просто данные: что где стоит и каких цветов. Новая сцена — это новый рецепт. Если ей нужна новая вещь, движок учится рисовать её один раз, для всех сцен сразу.", he: "כל סצנה מצוירת על ידי מנוע אחד לפי מתכון, שהוא נתונים פשוטים: מה עומד איפה, ובאילו צבעים. סצנה חדשה היא מתכון חדש. כשהיא צריכה סוג חדש של דבר, המנוע לומד אותו פעם אחת, לכל הסצנות." }
           ],
@@ -383,14 +385,14 @@
             { en: "Knell took about a month of full-time work, by day and by night: from 10 August to 3 September, and again from 19 to 24 November. The dates in this hall are when work reached the repository; reading, thinking and testing went on around them.",
               ru: "На Knell ушёл примерно месяц работы с утра до ночи: с 10 августа по 3 сентября и ещё раз с 19 по 24 ноября. Даты в этом зале — это когда работа попадала в репозиторий; чтение, обдумывание и проверки шли вокруг них.", he: "העבודה על Knell נמשכה כחודש במשרה מלאה, ביום ובלילה: מ־10 באוגוסט עד 3 בספטמבר, ושוב מ־19 עד 24 בנובמבר. התאריכים באולם הזה הם הרגעים שבהם העבודה הגיעה למאגר; קריאה, חשיבה ובדיקות נמשכו סביבם." },
             { list: [
-              { en: "219 commits as of 24 November. 207 of them came between 10 August and 3 September, on 14 days; one on 13 October; and eleven in November, fewer but larger: the demo, the scenes, this museum, Hebrew.",
-                ru: "219 коммитов на 24 ноября. Из них 207 — с 10 августа по 3 сентября, за 14 дней; один — 13 октября; одиннадцать — в ноябре: реже, но крупнее (демо, сцены, этот музей, иврит).", he: "219 קומיטים נכון ל־24 בנובמבר. 207 מהם נעשו בין 10 באוגוסט ל־3 בספטמבר, ב־14 ימים; אחד ב־13 באוקטובר; ואחד־עשר בנובמבר, מעטים אבל גדולים יותר: הדמו, הסצנות, המוזיאון הזה, העברית." },
+              { en: "221 commits as of 24 November. 207 of them came between 10 August and 3 September, on 14 days; one on 13 October; and thirteen in November, fewer but larger: the demo, the scenes, this museum, Hebrew.",
+                ru: "221 коммит на 24 ноября. Из них 207 — с 10 августа по 3 сентября, за 14 дней; один — 13 октября; тринадцать — в ноябре: реже, но крупнее (демо, сцены, этот музей, иврит).", he: "221 קומיטים נכון ל־24 בנובמבר. 207 מהם נעשו בין 10 באוגוסט ל־3 בספטמבר, ב־14 ימים; אחד ב־13 באוקטובר; ושלושה־עשר בנובמבר, מעטים אבל גדולים יותר: הדמו, הסצנות, המוזיאון הזה, העברית." },
               { en: "The busiest day was 13 August: 43 commits, from 03:27 to 23:57.",
                 ru: "Самый плотный день — 13 августа: 43 коммита, с 03:27 до 23:57.", he: "היום העמוס ביותר היה 13 באוגוסט: 43 קומיטים, מ־03:27 עד 23:57." },
               { en: "The repository did not start empty: its first upload, on 10 August, already held 13,514 lines, the twelve stages of work that the app's own changelog records.",
                 ru: "Репозиторий начался не с нуля: первая загрузка, 10 августа, уже содержала 13 514 строк — двенадцать этапов работы, которые записаны в журнале изменений самого приложения.", he: "המאגר לא התחיל ריק: ההעלאה הראשונה, ב־10 באוגוסט, כבר הכילה 13,514 שורות — שנים־עשר שלבי העבודה שמתועדים ביומן השינויים של האפליקציה עצמה." },
-              { en: "About 58,000 lines in all today (measured 24 November). By kind: code 22,700 · courses (lessons and questions) 13,000 · styles (CSS) 5,600 · database 4,600 · documentation 9,700 · research notes 2,800.",
-                ru: "Всего сейчас около 58 000 строк (замер 24 ноября). Из них: код — 22 700, курсы (уроки и вопросы) — 13 000, оформление (CSS) — 5 600, база данных — 4 600, документация — 9 700, заметки исследований — 2 800.", he: "כ־58,000 שורות בסך הכול היום (נמדד ב־24 בנובמבר). לפי סוג: קוד — 22,700, קורסים (שיעורים ושאלות) — 13,000, עיצוב (CSS) — 5,600, מסד נתונים — 4,600, תיעוד — 9,700, רשימות מחקר — 2,800." }
+              { en: "About 58,700 lines in all today (measured 24 November). By kind: code 22,800 · courses (lessons and questions) 13,000 · styles (CSS) 5,600 · database 4,600 · documentation 9,900 · research notes 2,800.",
+                ru: "Всего сейчас около 58 700 строк (замер 24 ноября). Из них: код — 22 800, курсы (уроки и вопросы) — 13 000, оформление (CSS) — 5 600, база данных — 4 600, документация — 9 900, заметки исследований — 2 800.", he: "כ־58,700 שורות בסך הכול היום (נמדד ב־24 בנובמבר). לפי סוג: קוד — 22,800, קורסים (שיעורים ושאלות) — 13,000, עיצוב (CSS) — 5,600, מסד נתונים — 4,600, תיעוד — 9,900, רשימות מחקר — 2,800." }
             ] }
           ],
           images: [

@@ -29,6 +29,7 @@ Dojo.Scenes.register("knell-garden", {
   spriteScale: 1.2,
 
   palette: {
+    mist: "#8fa1bb",
     grass: "#27503a", topsoil: "#3a3324", soil: "#4a3828",
     path: "#7d776b", gravel: "#5f594f",
     rim: "#59606d", water: "#1c3a55",
@@ -47,6 +48,7 @@ Dojo.Scenes.register("knell-garden", {
   // no stars, the lamps out, and no fireflies.
   day: {
     palette: {
+      mist: "#f2f5f9",
       grass: "#5a9e4e", topsoil: "#7a5a3a", soil: "#8a6845",
       path: "#cfc6b0", gravel: "#a59c87",
       rim: "#aab0b8", water: "#4fa3d6",
@@ -93,6 +95,14 @@ Dojo.Scenes.register("knell-garden", {
   ],
 
   objects: [
+    // Light mist lying on the ground (2026-11-24, «оставь легкий туман по
+    // земле»): over the pond, on the lawns, along the path. Each sits just
+    // past its spot in depth, so what stands right behind it stands in it.
+    { kind: "mist", at: [2.9, 9.3], w: 95, depth: 12.8 },
+    { kind: "mist", at: [5.6, 7.4], w: 80, depth: 13.6, delay: -6 },
+    { kind: "mist", at: [8.3, 9.9], w: 75, depth: 18.8, delay: -11 },
+    { kind: "mist", at: [8.6, 5.6], w: 70, depth: 14.8, delay: -3 },
+    { kind: "mist", at: [2.3, 5.6], w: 60, depth: 8.5, delay: -8 },
     // ---- The tower, piece by piece ----
     // Depths are set by hand so the bell hangs between its posts and
     // under its roof: body, back post, side posts, bell, roof. There is

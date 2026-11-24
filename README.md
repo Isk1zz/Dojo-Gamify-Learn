@@ -44,7 +44,7 @@ Transport's published question bank) and *Philosophy: Cicero* (3 topics).
 
 ## Engineering
 
-- **No framework, no build step, no npm dependencies.** About 21,600 lines
+- **No framework, no build step, no npm dependencies.** About 21,700 lines
   of plain JavaScript, 13,000 of course content and 5,600 of CSS (measured
   2026-11-24). The only
   third-party code is `supabase-js`, the backend's client; the fonts come

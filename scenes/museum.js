@@ -64,7 +64,7 @@
       { kind: "box", x0: 2.8, y0: 0.5, x1: 3.9, y1: 1.1, h: 0.42, wall: "desk", windows: false },
       { kind: "books", at: [3.35, 0.8], z: 0.42, depth: 4.2, actor: "books" },
       // 3. How remembering works: the review intervals, as on a board.
-      { kind: "board", at: [5.4, 0.8], lines: ["1 → 6 → 15", "× 2.5"], w: 40, actor: "board" },
+      { kind: "board", at: [5.4, 0.8], lines: ["1 → 6 → 15", "× 2.5"], w: 48, actor: "board" },
       // 4. The Garden: every stage on one bed, from sprout to tree in
       // bloom. On top of the bed, so each sorts after it by hand.
       { kind: "box", x0: 7.85, y0: 0.9, x1: 8.75, y1: 5.1, h: 0.14, wall: "soil", windows: false },
@@ -203,7 +203,7 @@
     frame: { x: 100, y: 60, w: 800, h: 600 },
     palette: {
       ground: "#33402f", groundEdge: "#3b4a36", road: "#6c717d", roadEdge: "#5d626d", mark: "#e9e4d8",
-      dojo: "#8a3b2e", dojoRoof: "#2b2f38", stone: "#7d828c", marble: "#dcd6cc", bell: "#c99a3e",
+      dojo: "#b5543f", dojoRoof: "#3b2f2a", stone: "#7d828c", marble: "#dcd6cc", bell: "#c99a3e",
       roof: "#36506a", soil: "#4a3828", leaf: "#2f7a4c", trunk: "#5a3f2c", accent: PINS, runner: "#7b6cff",
       light: "#ffe2a0", window: "#9fd3ff", haze: "#f2c14e", skyline: "#141a27"
     },
@@ -243,15 +243,14 @@
       // this door, and the door is asleep now.
       { kind: "door", at: [X[5], 0.85], sleep: true, actor: "door" },
       // 7. 13 October, one constant: the measured interval, before and after.
-      { kind: "board", at: [X[6], 0.8], lines: ["238 → 153"], w: 38, h: 14, actor: "constant" },
+      { kind: "board", at: [X[6], 0.8], lines: ["238 → 153"], w: 46, h: 14, actor: "constant" },
       // 8. 19–22 November, a portfolio piece: a picture in a gilt frame.
       { kind: "board", at: [X[7], 0.85], art: "picture", w: 30, actor: "portfolio" },
       // 9. 23–24 November, three languages: a signpost in three alphabets.
       { kind: "signpost", at: [X[8], 0.8], arms: [["Aa", "#5b8def"], ["Яя", "#e86a5c"], ["אב", "#2fa35a"]], actor: "langs" },
-      // In front of the road: two lamps, set where they stand between
-      // two stops on the screen rather than in front of one, and trees.
+      // In front of the road: a lamp, set where it stands between two
+      // stops on the screen rather than in front of one, and trees.
       { kind: "lamp", at: [5.12, 2.75] },
-      { kind: "lamp", at: [11.32, 2.75] },
       { kind: "tree", at: [0.6, 2.7], size: 0.55 },
       { kind: "tree", at: [14.0, 2.6], size: 0.5 }
     ],

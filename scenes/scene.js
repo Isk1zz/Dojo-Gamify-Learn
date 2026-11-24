@@ -109,6 +109,11 @@
     grad("linearGradient", "beam", { x1: 0, y1: 0, x2: 1, y2: 0 }, [["0%", "#fff6d0", 0.5], ["100%", "#fff6d0", 0]]);
     grad("linearGradient", "haze", { x1: 0, y1: 0, x2: 0, y2: 1 }, [["0%", col("haze"), 0], ["100%", col("haze"), 0.16]]);
     grad("linearGradient", "ground", { x1: 0, y1: 0, x2: 0, y2: 1 }, [["0%", col("skyline"), 0.95], ["100%", col("skyline"), 0]]);
+    // Ground mist (the `mist` sprite): even along its length and fading
+    // only at the two ends, so a streak reads as fog lying on the ground
+    // and not as the glow of a lamp, which is bright in the middle.
+    const mc = col("mist") === "mist" ? "#9aabc4" : col("mist");
+    grad("linearGradient", "mist", { x1: 0, y1: 0, x2: 1, y2: 0 }, [["0%", mc, 0], ["28%", mc, 1], ["72%", mc, 1], ["100%", mc, 0]]);
 
     // The far layer dissolves at the left and right edges. Inside the app
     // the scene sits on the app's own sky, and a skyline ending in a hard
@@ -1138,6 +1143,26 @@
       el("path", { d: "M-3.8 -23 V-5", stroke: "#fff", "stroke-opacity": 0.22, "stroke-width": 1.2 }, g);
       el("rect", { x: -2.4, y: -24.4, width: 4.8, height: 3.6, rx: 0.4, fill: "#f4f1ea", transform: "rotate(-6 0 -22)" }, g);
     },
+    // Ground mist (the start screen's garden, 2026-11-24: «оставь легкий
+    // туман по земле»). The first version, soft pale blobs denser in the
+    // middle, read as lamplight on the grass («выглядит как размытый
+    // свет»). Fog is drawn instead as three long, thin, cool streaks lying
+    // low, each even along its length and fading at both ends (the "mist"
+    // gradient), each drifting at its own pace. A recipe sets its depth
+    // just past its spot, so the feet of what stands there are in it.
+    // `w` lengthens it.
+    mist(g, o, ctx) {
+      const w = o.w || 60;
+      [[1, 0, 8, 0.52, 17], [0.7, -6, 6, 0.4, 23], [0.82, 5, 5, 0.34, 13]].forEach(([k, dy, h, a, dur], n) => {
+        const L = r1(w * k), x0 = r1((n - 1) * w * 0.2);
+        const s = el("path", {
+          d: `M${r1(x0 - L)} ${dy} Q${x0} ${dy - h} ${r1(x0 + L)} ${dy} Q${x0} ${dy + h} ${r1(x0 - L)} ${dy} Z`,
+          fill: `url(#${ctx.uid}mist)`, "fill-opacity": a, class: "ks-mist"
+        }, g);
+        s.style.animationDuration = dur + "s";
+        s.style.animationDelay = ((o.delay || 0) - n * 4) + "s";
+      });
+    },
     // Museum stanchions with a rope slung between them, `len` units long
     // along x, or along y with `dir: "y"`.
     rope(g, o, ctx) {
@@ -1400,8 +1425,10 @@
       ".ks-zzz{opacity:0;animation:ks-zzz 2.4s ease-in-out infinite}" +
       "@keyframes ks-zzz{0%{opacity:0;transform:translate(0,2px)}30%{opacity:1}100%{opacity:0;transform:translate(3px,-5px)}}" +
       ".ks-sand{animation:ks-sand .5s linear infinite}" +
+      ".ks-mist{animation:ks-mist 14s ease-in-out infinite alternate}" +
+      "@keyframes ks-mist{from{transform:translateX(-14px)}to{transform:translateX(14px)}}" +
       "@keyframes ks-sand{to{stroke-dashoffset:-2.6}}" +
-      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake,.ks-blink,.ks-act,.ks-perch,.ks-bob,.ks-steam,.ks-flicker,.ks-float,.ks-zzz,.ks-sand,.ks-rain.ks-act line{animation:none}.ks-zzz{opacity:.8}}";
+      "@media (prefers-reduced-motion:reduce){.ks-pulse{animation:none;opacity:0}.ks-shake,.ks-blink,.ks-act,.ks-perch,.ks-bob,.ks-steam,.ks-flicker,.ks-float,.ks-zzz,.ks-sand,.ks-mist,.ks-rain.ks-act line{animation:none}.ks-zzz{opacity:.8}}";
     document.head.appendChild(st);
   }
 
