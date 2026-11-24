@@ -29,6 +29,8 @@
       longer cut off at the screen edge; the start page and Career no
       longer scroll sideways on a phone; the profile no longer opens empty
       after a visit to Career.
+- [x] **English courses in the Hebrew app read as one piece:** an English-only course (Intro to CS) is marked "In English" on its card in Russian and Hebrew, and its lessons, exams and flashcards are English throughout in the Hebrew app, left to right, lettered A–D (from a screenshot of Hebrew letters on English options).
+- [x] **The sky's last three:** a rainbow hot-air balloon drifts over the lobby every minute or two; tapped, its basket vanishes, confetti pours out and three or four fireworks go up, each with a whistle, a bang and a crackle, and the envelope floats away. A plane towing a "☮ da plane" banner crosses every two to four minutes, a rocket with flame and smoke every three to six. None of it is drawn under reduced motion.
 - [x] **The stack closed:** what needed the server moved to
       docs/archive/UPDATESTACK-frozen.md.
 

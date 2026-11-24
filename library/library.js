@@ -263,6 +263,7 @@
           <span>·</span>
           <span>${I18N.t("lib.pctDone", { n: pct })}</span>
           ${!c.available ? `<span class="topic-badge ahead-badge">${I18N.t("lib.comingSoon")}</span>` : ""}
+          ${c.available && notInReadersLanguage(c) ? `<span class="topic-badge lang-badge">${I18N.t("lib.inEnglish")}</span>` : ""}
           ${c.available && locked ? `<span class="topic-badge ahead-badge">🪙 ${coursePrice(c)}</span>` : ""}
         </div>
         <div class="course-progress"><div class="course-progress-fill" style="width:${pct}%"></div></div>
@@ -291,6 +292,15 @@
     });
 
     showScreen("course-select");
+  }
+
+  // A course written only in English (Intro to CS) is marked on its card in
+  // the Russian and Hebrew apps, so nobody opens it expecting their own
+  // language. Judged by the script of the title the reader would see.
+  function notInReadersLanguage(c) {
+    const lang = I18N.lang();
+    const script = lang === "he" ? /[֐-׿]/ : lang === "ru" ? /[Ѐ-ӿ]/ : null;
+    return !!script && !script.test(c.title || "");
   }
 
   // ---- Course contract ----
@@ -1312,11 +1322,25 @@
   // stops and question marks stay at the end of the line. Decided by the
   // text itself: a course that gains Hebrew turns right to left on its own.
   const HEBREW = /[\u0590-\u05FF]/;
+  let contentLtr = false;
   function setContentDir(el, sample) {
     if (!el) return;
-    if (I18N.isRtl() && sample && !HEBREW.test(sample)) el.dir = "ltr";
+    contentLtr = I18N.isRtl() && !!sample && !HEBREW.test(sample);
+    if (I18N.setContentLang) I18N.setContentLang(contentLtr ? "en" : null);
+    if (contentLtr) el.dir = "ltr";
     else el.removeAttribute("dir");
+    // The whole screen, top bar included, follows: "← Topics" on the left.
+    const screen = el.closest(".screen");
+    if (screen) {
+      if (contentLtr) screen.dir = "ltr"; else screen.removeAttribute("dir");
+      I18N.applyStatic(screen);
+    }
   }
+  // Answer letters match the material: an English question in the Hebrew
+  // app is lettered A–D, not alef to dalet (2026-11-24, from a screenshot
+  // of Intro to CS with Hebrew letters on English options).
+  const contentLetter = i => (contentLtr ? "ABCDEF"[i] : I18N.letter(i));
+  const contentLetters = () => (contentLtr ? [..."ABCDEF"] : I18N.letters());
 
   function renderChunk() {
     const topic = getTopic();
@@ -1362,7 +1386,7 @@
         <div class="quiz-options" id="predict-options">
           ${p.options.map((o, i) => `
             <button class="quiz-option${state.predictAnswer === i ? " selected" : ""}" data-idx="${i}">
-              <span class="qo-letter">${I18N.letter(i)}</span><span class="qo-text">${o}</span>
+              <span class="qo-letter">${contentLetter(i)}</span><span class="qo-text">${o}</span>
             </button>`).join("")}
         </div>
         ${answered ? `<div class="predict-after">${p.reveal || I18N.t("lib.holdThought")}</div>` : ""}
@@ -1526,7 +1550,7 @@
     // The shuffled copy, never chunk.quiz — same discipline as the exam
     // grading against state.examQuestions.
     const q = quizView(chunk);
-    const letters = I18N.letters();
+    const letters = contentLetters();
     const topic = getTopic();
 
     const optionsHtml = q.options.map((opt, i) => {
@@ -1742,7 +1766,7 @@
     const q = state.examQuestions[idx];
     const body = document.getElementById("exam-body");
     setContentDir(body, q.question);
-    const letters = I18N.letters();
+    const letters = contentLetters();
 
     document.getElementById("exam-score-display").textContent = `${idx + 1}/${total}`;
 

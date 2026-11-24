@@ -1555,6 +1555,113 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .fx-dart-body { animation: fx-dart-out 0.4s 2.7s forwards; }
 }
+/* ---- The balloon (shop/decor.js) ----
+   Drifts across in a minute, bobbing; tapped, the basket lets go, the
+   envelope floats up and away, confetti falls and fireworks open. */
+.fx-balloon {
+  position: absolute; left: 0; width: 64px; pointer-events: none;
+  animation: fx-balloon-drift 62s linear forwards;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+}
+.fx-balloon .bal-bob { animation: fx-balloon-bob 4.5s ease-in-out infinite alternate; }
+.fx-balloon .bal-svg { display: block; width: 100%; height: auto; }
+.fx-balloon .bal-basket { transform-box: fill-box; transform-origin: 50% 0; transition: opacity 0.35s ease, transform 0.35s ease; }
+.fx-balloon.popped .bal-basket { opacity: 0; transform: scale(0.2); }
+.fx-balloon.popped .bal-bob { animation: fx-balloon-away 3.2s ease-in forwards; }
+@keyframes fx-balloon-drift { from { transform: translateX(var(--from)); } to { transform: translateX(var(--to)); } }
+@keyframes fx-balloon-bob { from { transform: translateY(-6px) rotate(-2deg); } to { transform: translateY(6px) rotate(2deg); } }
+@keyframes fx-balloon-away {
+  from { transform: translateY(0) rotate(0); opacity: 1; }
+  to   { transform: translateY(-60vh) rotate(8deg); opacity: 0; }
+}
+
+/* ---- The plane and the rocket (shop/decor.js) ---- */
+.fx-plane {
+  /* Its own reading order, so the banner says "☮ da plane" in Hebrew too. */
+  direction: ltr;
+  position: absolute; left: 0; pointer-events: none;
+  animation: fx-plane-ltr 30s linear forwards;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+}
+.fx-plane.rtl { animation-name: fx-plane-rtl; }
+.fx-plane .pl-bob { display: flex; align-items: center; animation: fx-balloon-bob 3s ease-in-out infinite alternate; }
+.fx-plane .pl-svg { width: 64px; height: auto; display: block; }
+.fx-plane .pl-rope { width: 26px; height: 1px; background: rgba(255, 255, 255, 0.55); }
+.fx-plane .pl-banner {
+  white-space: nowrap; font: 800 12px/1 var(--font); letter-spacing: 0.04em;
+  padding: 5px 10px 5px 8px; border-radius: 3px 10px 10px 3px;
+  color: #2b1d4a; background: linear-gradient(90deg, #ffd166, #ff9f1c 50%, #ff4d6d);
+  animation: fx-banner-wave 1.2s ease-in-out infinite alternate; transform-origin: 100% 50%;
+}
+.fx-plane .pl-peace { font-size: 14px; }
+/* Flying right to left: flip the plane and the order, not the words. */
+.fx-plane.rtl .pl-bob { flex-direction: row-reverse; }
+.fx-plane.rtl .pl-svg { transform: scaleX(-1); }
+.fx-plane.rtl .pl-banner { border-radius: 10px 3px 3px 10px; transform-origin: 0 50%; }
+@keyframes fx-plane-ltr { from { transform: translateX(-260px); } to { transform: translateX(calc(100vw + 20px)); } }
+@keyframes fx-plane-rtl { from { transform: translateX(calc(100vw + 20px)); } to { transform: translateX(-260px); } }
+@keyframes fx-banner-wave { from { transform: skewY(-3deg); } to { transform: skewY(3deg); } }
+
+.fx-rocket {
+  position: absolute; top: 100vh; pointer-events: none;
+  animation: fx-rocket-ltr 6.5s cubic-bezier(0.45, 0, 0.7, 1) forwards;
+}
+.fx-rocket.rtl { animation-name: fx-rocket-rtl; }
+.fx-rocket .rk-body { transform: rotate(28deg); }
+.fx-rocket.rtl .rk-body { transform: rotate(-28deg); }
+.fx-rocket .rk-svg { width: 18px; height: auto; display: block; filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.6)); }
+.fx-rocket .rk-flame { transform-box: fill-box; transform-origin: 50% 0; animation: fx-rk-flame 0.12s ease-in-out infinite alternate; }
+@keyframes fx-rocket-ltr { from { transform: translate(0, 0); } to { transform: translate(60vw, -125vh); } }
+@keyframes fx-rocket-rtl { from { transform: translate(50vw, 0); } to { transform: translate(-10vw, -125vh); } }
+@keyframes fx-rk-flame { from { transform: scaleY(0.8); fill: #ffd166; } to { transform: scaleY(1.25); fill: #ff9f1c; } }
+.fx-rk-puff {
+  position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%;
+  background: rgba(230, 235, 242, 0.55);
+  animation: fx-rk-puff 1.6s ease-out forwards;
+}
+@keyframes fx-rk-puff { from { transform: scale(0.6); opacity: 0.8; } to { transform: scale(3.2); opacity: 0; } }
+
+.fx-confetti { position: absolute; width: 0; height: 0; pointer-events: none; }
+.fx-confetti .cf {
+  position: absolute; left: -4px; top: -3px; width: 8px; height: 5px; border-radius: 1px;
+  background: var(--c); opacity: 0;
+  animation: fx-confetti var(--dur) cubic-bezier(0.25, 0.6, 0.4, 1) var(--delay) forwards;
+}
+.fx-confetti .cf.round { width: 6px; height: 6px; border-radius: 50%; }
+@keyframes fx-confetti {
+  0%   { opacity: 1; transform: translate(0, 0) rotate(0); }
+  18%  { opacity: 1; transform: translate(calc(var(--dx) * 0.4), calc(var(--up) * -1)) rotate(calc(var(--rot) * 0.2)); }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--fall)) rotate(var(--rot)); }
+}
+
+.fx-fw-rise {
+  position: absolute; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 6px 2px var(--c), 0 6px 10px 0 var(--c);
+  animation: fx-fw-rise 0.5s ease-out forwards;
+}
+@keyframes fx-fw-rise {
+  from { transform: translate(0, 0); opacity: 1; }
+  to   { transform: translate(var(--dx), var(--dy)); opacity: 0.9; }
+}
+.fx-fw { position: absolute; width: 0; height: 0; pointer-events: none; }
+.fx-fw .fw-flash {
+  position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, var(--c) 35%, transparent 70%);
+  animation: fx-fw-flash 0.45s ease-out forwards;
+}
+.fx-fw .fw-spark {
+  position: absolute; left: -2.5px; top: -2.5px; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--c); box-shadow: 0 0 6px 1px var(--c);
+  animation: fx-fw-spark 1.6s cubic-bezier(0.15, 0.7, 0.3, 1) forwards;
+}
+@keyframes fx-fw-flash { from { transform: scale(0.3); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+@keyframes fx-fw-spark {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  55%  { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), calc(var(--dy) + 45px)) scale(0.4); opacity: 0; }
+}
+
 /* The hit: a ring punched out from the tip, and splinters flung off it. */
 .fx-dart-hit { position: absolute; width: 0; height: 0; pointer-events: none; }
 .fx-dart-ring {
@@ -1942,6 +2049,15 @@ html[dir="rtl"] #charge-bar :is(#rank-label, #hud-nickname, #charge-value) { uni
 /* :where() keeps this as weak as plain .arrow, so a layout that hides
    the arrows (the Star lobby) still hides them. */
 :where(html[dir="rtl"]) .arrow { display: inline-block; transform: scaleX(-1); }
+/* Inside English material (#lesson-body[dir=ltr], see library.js's
+   setContentDir) forward is to the right again, and every paragraph takes
+   its direction from its own words: the app's Hebrew prompt reads right to
+   left on the right, the English question left to right. */
+:where(html[dir="rtl"]) [dir="ltr"] .arrow { transform: none; }
+html[dir="rtl"] [dir="ltr"] .btn-primary:hover .arrow { transform: translateX(4px); }
+html[dir="rtl"] :is(#lesson-body, #exam-body, #flashcard-body)[dir="ltr"] :is(p, li, h2, h3, .quiz-question, .chunk-text, .predict-after, .quiz-feedback) {
+  unicode-bidi: plaintext; text-align: start;
+}
 html[dir="rtl"] .btn-primary:hover .arrow { transform: scaleX(-1) translateX(4px); }
 html[dir="rtl"] .onb-arrow { transform: scaleX(-1); }
 html[dir="rtl"] .onb-arrow:hover { transform: scaleX(-1) scale(1.08); }

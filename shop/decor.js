@@ -671,6 +671,8 @@
       // cloud would otherwise swallow every attempt to hit one. None of
       // them through something drawn on top (coversSky).
       if (!coversSky(e.target)) {
+        const balloon = balloonAt(e.clientX, e.clientY);
+        if (balloon) { popBalloon(balloon); return; }
         const bird = eagleAt(e.clientX, e.clientY);
         if (bird) { pokeEagle(bird); return; }
         const sun = sunAt(e.clientX, e.clientY);
@@ -722,7 +724,7 @@
       if (!onControl && !root.dataset.study) {
         // The wheel is outside the coversSky test: its own ring and the
         // dartboard behind it are drawn, and they are what takes the dart.
-        const sky = !coversSky(aimOver) && (eagleAt(aimX, aimY) || sunAt(aimX, aimY) ||
+        const sky = !coversSky(aimOver) && (balloonAt(aimX, aimY) || eagleAt(aimX, aimY) || sunAt(aimX, aimY) ||
                     moonAt(aimX, aimY) || cloudAt(aimX, aimY));
         const target = sky || (Dojo.wheelAt && Dojo.wheelAt(aimX, aimY));
         mode = target ? "lock" : inLobby() ? "scope" : "";
@@ -827,11 +829,190 @@
     setTimeout(() => { skySound("dart"); dartHitAt(tx, ty); }, 300);
   }
 
+  // ---- The balloon ----
+  // Asked 2026-11-24 («a baloon that you can tap and cabin disappears and
+  // from it sulte and firewoks fall (sfx vfx) i want it colorful and
+  // nice»). Now and then a hot-air balloon drifts across the lobby, high
+  // up and slow. Tapped, its basket lets go and vanishes, confetti pours
+  // out of where it was, and fireworks go up around it; the envelope,
+  // lighter by a basket, floats off upwards. It comes back a while later.
+  // Lobby only, and never under reduced motion: it is a decoration.
+  const FW_COLOURS = ["#ff4d6d", "#ffd166", "#06d6a0", "#4cc9f0", "#b388ff", "#ff9f1c", "#f72585", "#7bf1a8"];
+  const BALLOON_SVG =
+    '<svg viewBox="0 0 80 112" class="bal-svg">' +
+    '<defs><clipPath id="bal-env"><path d="M40 4C18 4 6 22 6 40c0 18 14 30 24 44h20c10-14 24-26 24-44C74 22 62 4 40 4z"/></clipPath></defs>' +
+    '<g class="bal-env" clip-path="url(#bal-env)">' +
+      '<rect x="0" y="0" width="12" height="90" fill="#ff4d6d"/><rect x="12" y="0" width="12" height="90" fill="#ffd166"/>' +
+      '<rect x="24" y="0" width="12" height="90" fill="#06d6a0"/><rect x="36" y="0" width="10" height="90" fill="#4cc9f0"/>' +
+      '<rect x="46" y="0" width="12" height="90" fill="#b388ff"/><rect x="58" y="0" width="12" height="90" fill="#ff9f1c"/>' +
+      '<rect x="70" y="0" width="12" height="90" fill="#f72585"/>' +
+      '<ellipse cx="28" cy="26" rx="9" ry="16" fill="#fff" opacity="0.22"/>' +
+    '</g>' +
+    '<path d="M30 84h20l-3 6H33z" fill="#c9773a"/>' +
+    '<g class="bal-basket">' +
+      '<path d="M32 90L34 98M48 90L46 98" stroke="#8a6a4a" stroke-width="1"/>' +
+      '<rect x="32" y="98" width="16" height="11" rx="2" fill="#a0683a"/>' +
+      '<path d="M32 101h16M32 104h16" stroke="#7a4e2a" stroke-width="0.8"/>' +
+    '</g></svg>';
+
+  let balloonEl = null;
+  function lobbyShown() {
+    const l = document.getElementById("lobby");
+    return !!(l && l.classList.contains("active")) && !document.hidden;
+  }
+  function launchBalloon() {
+    if (balloonEl || reduceMotion() || !lobbyShown()) return;
+    const b = document.createElement("div");
+    b.className = "fx-balloon";
+    b.style.top = `${8 + Math.random() * 18}vh`;
+    const ltr = Math.random() < 0.5;
+    b.style.setProperty("--from", ltr ? "-120px" : "calc(100vw + 40px)");
+    b.style.setProperty("--to", ltr ? "calc(100vw + 40px)" : "-120px");
+    b.innerHTML = `<div class="bal-bob">${BALLOON_SVG}</div>`;
+    fxLayer().appendChild(b);
+    balloonEl = b;
+    b.addEventListener("animationend", e => {
+      if (e.target === b) { b.remove(); if (balloonEl === b) balloonEl = null; }
+    });
+  }
+  function scheduleBalloon(ms) {
+    setTimeout(() => { launchBalloon(); scheduleBalloon(60000 + Math.random() * 60000); }, ms);
+  }
+  function balloonAt(x, y) {
+    if (!balloonEl || balloonEl.classList.contains("popped")) return null;
+    const r = balloonEl.querySelector(".bal-svg").getBoundingClientRect();
+    return (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) ? balloonEl : null;
+  }
+  function popBalloon(b) {
+    const basket = b.querySelector(".bal-basket").getBoundingClientRect();
+    const bx = basket.left + basket.width / 2, by = basket.top + basket.height / 2;
+    b.classList.add("popped");
+    skySound("balloon");
+    // Gone once it has floated off, so the next one can come.
+    setTimeout(() => { b.remove(); if (balloonEl === b) balloonEl = null; }, 3300);
+    // Confetti out of where the basket was.
+    const conf = document.createElement("div");
+    conf.className = "fx-confetti";
+    conf.style.left = `${bx}px`;
+    conf.style.top = `${by}px`;
+    let html = "";
+    for (let i = 0; i < 70; i++) {
+      const c = FW_COLOURS[i % FW_COLOURS.length];
+      const dx = (Math.random() * 2 - 1) * 180;
+      const up = 30 + Math.random() * 70;
+      const fall = window.innerHeight * (0.5 + Math.random() * 0.4);
+      const rot = (Math.random() * 2 - 1) * 900;
+      const dur = 2.4 + Math.random() * 1.6;
+      const shape = i % 3 === 0 ? "round" : "";
+      html += `<span class="cf ${shape}" style="--c:${c};--dx:${dx.toFixed(0)}px;--up:${up.toFixed(0)}px;--fall:${fall.toFixed(0)}px;--rot:${rot.toFixed(0)}deg;--dur:${dur.toFixed(2)}s;--delay:${(Math.random() * 0.25).toFixed(2)}s"></span>`;
+    }
+    conf.innerHTML = html;
+    spawn(conf, 4400);
+    // Fireworks around it, one after another.
+    const n = 3 + Math.floor(Math.random() * 2);
+    for (let k = 0; k < n; k++) {
+      setTimeout(() => {
+        const tx = Math.max(40, Math.min(window.innerWidth - 40, bx + (Math.random() * 2 - 1) * 220));
+        const ty = Math.max(40, by - 40 - Math.random() * 140);
+        firework(bx + (Math.random() * 2 - 1) * 30, by + 10, tx, ty, FW_COLOURS[(k * 3 + 1) % FW_COLOURS.length]);
+      }, 250 + k * 520);
+    }
+  }
+  function firework(x0, y0, x1, y1, colour) {
+    skySound("fwUp");
+    const rise = document.createElement("div");
+    rise.className = "fx-fw-rise";
+    rise.style.left = `${x0}px`;
+    rise.style.top = `${y0}px`;
+    rise.style.setProperty("--dx", `${x1 - x0}px`);
+    rise.style.setProperty("--dy", `${y1 - y0}px`);
+    rise.style.setProperty("--c", colour);
+    spawn(rise, 520);
+    setTimeout(() => {
+      skySound("fwBang");
+      const burst = document.createElement("div");
+      burst.className = "fx-fw";
+      burst.style.left = `${x1}px`;
+      burst.style.top = `${y1}px`;
+      const second = FW_COLOURS[(FW_COLOURS.indexOf(colour) + 3) % FW_COLOURS.length];
+      let h = '<span class="fw-flash" style="--c:' + colour + '"></span>';
+      const sparks = 30;
+      for (let i = 0; i < sparks; i++) {
+        const a = (i / sparks) * Math.PI * 2 + Math.random() * 0.2;
+        const d = 55 + Math.random() * 45;
+        const c = i % 2 ? colour : second;
+        h += `<span class="fw-spark" style="--c:${c};--dx:${(Math.cos(a) * d).toFixed(0)}px;--dy:${(Math.sin(a) * d).toFixed(0)}px"></span>`;
+      }
+      burst.innerHTML = h;
+      spawn(burst, 1700);
+    }, 480);
+  }
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initClouds);
   } else {
     initClouds();
   }
+  // First pass a little after the app opens, then every one to two minutes.
+  scheduleBalloon(20000 + Math.random() * 20000);
 
-  Object.assign(Dojo, { BG_DECORS, SCENES, decorFace, pokeMoon, pokeSun, dartAt });
+  // ---- A plane and a rocket ----
+  // Asked 2026-11-24: «add a plane and a rocket (less frequent than the
+  // birds obv) to a plane add a peace sign plane name "da plane"». Both
+  // cross the lobby now and then, rarer than the eagles (which never stop):
+  // the plane every two to four minutes, towing a banner with a peace sign
+  // and its name; the rocket every three to six, with flame and smoke.
+  // Nothing happens on a tap yet; that was not asked.
+  const PLANE_SVG =
+    '<svg viewBox="0 0 64 24" class="pl-svg">' +
+    '<path d="M4 12c0-2 2-3 5-3h34l8-6h4l-4 6h7c3 0 4 1.5 4 3s-1 3-4 3h-7l4 6h-4l-8-6H9c-3 0-5-1-5-3z" fill="#e9eef5"/>' +
+    '<path d="M22 9l-6-7h5l9 7zM22 15l-6 7h5l9-7z" fill="#c9d3e0"/>' +
+    '<path d="M50 9h8c1.5 0 2.5 1 2.5 3" stroke="#4cc9f0" stroke-width="1.6" fill="none"/>' +
+    '<circle cx="14" cy="12" r="1.2" fill="#4cc9f0"/><circle cx="19" cy="12" r="1.2" fill="#4cc9f0"/><circle cx="24" cy="12" r="1.2" fill="#4cc9f0"/>' +
+    '</svg>';
+  const ROCKET_SVG =
+    '<svg viewBox="0 0 20 52" class="rk-svg">' +
+    '<path d="M10 1c5 6 7 13 7 22v13H3V23C3 14 5 7 10 1z" fill="#eef1f6"/>' +
+    '<path d="M10 1c3 4 5 8 6 12H4c1-4 3-8 6-12z" fill="#ff4d6d"/>' +
+    '<circle cx="10" cy="20" r="3.2" fill="#4cc9f0" stroke="#9aa4b2" stroke-width="1"/>' +
+    '<path d="M3 28l-3 9h3zM17 28l3 9h-3z" fill="#ff4d6d"/>' +
+    '<path class="rk-flame" d="M5 36c0 6 2 11 5 15 3-4 5-9 5-15z" fill="#ffd166"/>' +
+    '</svg>';
+
+  let flyerBusy = false;
+  function flyBy(kind) {
+    if (flyerBusy || reduceMotion() || !lobbyShown()) return;
+    flyerBusy = true;
+    const el = document.createElement("div");
+    const ltr = Math.random() < 0.5;
+    if (kind === "plane") {
+      el.className = "fx-plane" + (ltr ? "" : " rtl");
+      el.style.top = `${5 + Math.random() * 12}vh`;
+      el.innerHTML = `<div class="pl-bob"><span class="pl-banner"><span class="pl-peace">☮</span> da plane</span><span class="pl-rope"></span>${PLANE_SVG}</div>`;
+    } else {
+      el.className = "fx-rocket" + (ltr ? "" : " rtl");
+      el.style.left = `${10 + Math.random() * 30}vw`;
+      el.innerHTML = `<div class="rk-body">${ROCKET_SVG}</div>`;
+      const smoke = setInterval(() => {
+        if (!el.isConnected) { clearInterval(smoke); return; }
+        const r = el.querySelector(".rk-svg").getBoundingClientRect();
+        const puff = document.createElement("div");
+        puff.className = "fx-rk-puff";
+        puff.style.left = `${r.left + r.width / 2}px`;
+        puff.style.top = `${r.bottom - 4}px`;
+        spawn(puff, 1600);
+      }, 90);
+    }
+    fxLayer().appendChild(el);
+    el.addEventListener("animationend", e => {
+      if (e.target === el) { el.remove(); flyerBusy = false; }
+    });
+  }
+  function scheduleFlyer(kind, min, spread) {
+    setTimeout(() => { flyBy(kind); scheduleFlyer(kind, min, spread); }, min + Math.random() * spread);
+  }
+  scheduleFlyer("plane", 120000, 120000);
+  scheduleFlyer("rocket", 180000, 180000);
+
+  Object.assign(Dojo, { BG_DECORS, SCENES, decorFace, pokeMoon, pokeSun, dartAt, launchBalloon, flyBy });
 })();

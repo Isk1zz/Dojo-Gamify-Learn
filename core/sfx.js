@@ -83,6 +83,27 @@
     src.stop(t0 + duration + 0.02);
   }
 
+  // A tone that slides from one pitch to another: a firework's whistle.
+  function glide(f1, f2, { delay = 0, duration = 0.5, type = "sine", gain = 0.03 } = {}) {
+    if (muted) return;
+    const audio = getCtx();
+    if (!audio) return;
+    if (audio.state === "suspended") audio.resume();
+    const t0 = audio.currentTime + delay;
+    const osc = audio.createOscillator();
+    const g = audio.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(f1, t0);
+    osc.frequency.exponentialRampToValueAtTime(f2, t0 + duration);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(gain, t0 + 0.03);
+    g.gain.linearRampToValueAtTime(gain * 0.6, t0 + duration * 0.8);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+    osc.connect(g).connect(audio.destination);
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.02);
+  }
+
   // ---- The actual sound set ----
   // The interface itself is kept to four: any more and it stops reading
   // as "interface feedback" and starts reading as a game. Volumes are
@@ -189,6 +210,23 @@
         // lands 0.3s later) a woody thunk with a click on top and the twang
         // of the shaft quivering, in time with the dart's own wobble.
         case "dartThrow": swish({ duration: 0.28, gain: 0.026, freq: 1400 }); break;
+        // The balloon (shop/decor.js): the basket letting go with a pop and
+        // a bright little fanfare, then each firework's whistle up, its
+        // bang, and the crackle of the sparks.
+        case "balloon":
+          swish({ duration: 0.08, gain: 0.05, freq: 900 });
+          tone(140, { duration: 0.15, gain: 0.04, type: "sine" });
+          [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) =>
+            tone(f, { delay: 0.1 + i * 0.07, duration: 0.3, gain: 0.022, type: "triangle" }));
+          break;
+        case "fwUp": glide(380, 1500, { duration: 0.5, gain: 0.014, type: "sine" }); break;
+        case "fwBang":
+          swish({ duration: 0.5, gain: 0.05, freq: 160 });
+          tone(70, { duration: 0.45, gain: 0.04, type: "sine" });
+          for (let i = 0; i < 9; i++) {
+            swish({ delay: 0.12 + Math.random() * 0.7, duration: 0.025, gain: 0.02, freq: 4000 + Math.random() * 3000 });
+          }
+          break;
         case "dart":
           tone(160, { duration: 0.07, gain: 0.05, type: "square" });
           swish({ duration: 0.04, gain: 0.04, freq: 3500 });

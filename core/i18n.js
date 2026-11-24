@@ -638,6 +638,7 @@ const I18N = (() => {
     "stats.examsPassed":    { en: "Exams Passed",        ru: "Экзаменов сдано", he: "מבחנים שעברתם" },
 
     // Library chrome
+    "lib.inEnglish":        { en: "In English", ru: "На английском", he: "באנגלית" },
     "lib.comingSoon":       { en: "Placeholder",         ru: "Муляж", he: "לתצוגה בלבד" },
     "lib.courseComplete":   { en: "Course complete",     ru: "Курс пройден", he: "הקורס הושלם" },
     "lib.dueTitle":         { en: "Due for review",      ru: "Пора повторить", he: "הגיע זמן לחזור" },
@@ -974,10 +975,15 @@ const I18N = (() => {
   // dodge the problem ("без ответа: 3" rather than "3 вопроса").
   // An unknown placeholder is left standing rather than blanked — same
   // reasoning as a missing key returning the key.
+  // While a lesson, exam or flashcard deck of an English-only course is on
+  // screen in the Hebrew app, its own words follow the material, not the
+  // app ("убери иврит с курса", 2026-11-24): library.js sets this, and
+  // core.js's showScreen clears it on the way out of those screens.
+  let contentLang = null;
   function t(key, vars) {
     const s = STRINGS[key];
     if (!s) { console.warn(`[I18N] no string for "${key}"`); return key; }
-    const out = s[lang] || s[FALLBACK] || key;
+    const out = s[contentLang || lang] || s[FALLBACK] || key;
     if (!vars) return out;
     return out.replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
   }
@@ -1046,6 +1052,7 @@ const I18N = (() => {
     // you'd be switching TO, in that language — "Русский", not "Russian".
     nativeName: l => ({ en: "English", ru: "Русский", he: "עברית" })[l] || l,
     isRtl: () => RTL.includes(lang),
+    setContentLang: l => { contentLang = LANGS.includes(l) ? l : null; },
     // Answer options are lettered in the reader's alphabet: A-F, or
     // alef to vav in Hebrew. letter(i) for one, letters() for the set.
     letter: i => (RTL.includes(lang) ? "אבגדהו" : "ABCDEF")[i],

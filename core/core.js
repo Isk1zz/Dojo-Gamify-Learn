@@ -172,6 +172,9 @@ const Bus = (() => {
   function showScreen(id) {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
+    // An English course's lesson speaks English (core/i18n.js); every other
+    // screen is back in the app's language.
+    if (!["lesson", "exam", "flashcards"].includes(id) && typeof I18N !== "undefined" && I18N.setContentLang) I18N.setContentLang(null);
     if (STUDY_SCREENS.has(id)) document.documentElement.dataset.study = "1";
     else delete document.documentElement.dataset.study;
     window.scrollTo(0, 0);
