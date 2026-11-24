@@ -48,12 +48,12 @@
   // default a new profile starts on, and a default nobody owns would
   // mean a lobby that can't render itself. Everything else is bought.
   const LAYOUTS = I18N.resolve([
-    { id: "classic",  slot: "lobby", name: { en: "Classic", ru: "Классика" },       price: 0, icon: "📋",
-      desc: { en: "The original stacked list.", ru: "Исходный список стопкой." } },
-    { id: "cards",    slot: "lobby", name: { en: "Cards", ru: "Карточки" },         price: 0, icon: "🗃️",
-      desc: { en: "Same tiles, softer card treatment.", ru: "Те же плитки, мягче оформление." } },
-    { id: "hexagram", slot: "links", name: { en: "Star of David", ru: "Звезда Давида" }, price: 0, icon: "✡️",
-      desc: { en: "Wires the Star's six tiles into two triangles.", ru: "Связывает шесть плиток звезды в два треугольника." } }
+    { id: "classic",  slot: "lobby", name: { en: "Classic", ru: "Классика", he: "קלאסי" },       price: 0, icon: "📋",
+      desc: { en: "The original stacked list.", ru: "Исходный список стопкой.", he: "הרשימה המקורית, פריט מתחת לפריט." } },
+    { id: "cards",    slot: "lobby", name: { en: "Cards", ru: "Карточки", he: "כרטיסים" },         price: 0, icon: "🗃️",
+      desc: { en: "Same tiles, softer card treatment.", ru: "Те же плитки, мягче оформление.", he: "אותם אריחים, בעיצוב כרטיסים רך יותר." } },
+    { id: "hexagram", slot: "links", name: { en: "Star of David", ru: "Звезда Давида", he: "מגן דוד" }, price: 0, icon: "✡️",
+      desc: { en: "Wires the Star's six tiles into two triangles.", ru: "Связывает шесть плиток звезды в два треугольника.", he: "מחבר את ששת האריחים של הכוכב לשני משולשים." } }
   ]);
   const layoutKey = id => `layout_${id}`;
   function layoutPrice(id) {
@@ -112,8 +112,8 @@
 
   // Cosmetics are still owned/equipped in Custom; they just aren't sold.
   const CATS = I18N.resolve([
-    { id: "packs",    group: "tokens",  icon: "\u{1FA99}", label: { en: "Token packs", ru: "Наборы токенов" } },
-    { id: "patron",   group: "support", icon: "\u{1F49C}", label: { en: "Support Knell", ru: "Поддержать Knell" } }
+    { id: "packs",    group: "tokens",  icon: "\u{1FA99}", label: { en: "Token packs", ru: "Наборы токенов", he: "חבילות אסימונים" } },
+    { id: "patron",   group: "support", icon: "\u{1F49C}", label: { en: "Support Knell", ru: "Поддержать Knell", he: "לתמוך ב־Knell" } }
   ]);
 
   function navHtml() {
@@ -126,8 +126,8 @@
           </button>`).join("")}
       </div>`;
     // No Money group: nothing is priced in `$` any more.
-    return group("tokens", `\u{1FA99} Tokens · ${DB.getTokens()}`)
-         + group("support", `\u{1F49C} Support`);
+    return group("tokens", `\u{1FA99} ${I18N.t("store.tokens")} · ${DB.getTokens()}`)
+         + group("support", `\u{1F49C} ${I18N.t("store.support")}`);
   }
 
   function paneHtml() {

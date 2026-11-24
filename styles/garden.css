@@ -65,7 +65,7 @@
   font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
   color: var(--text-muted); margin: 1.1rem 0 0.5rem;
 }
-.gx-rules { margin: 0 0 0.7rem; padding-left: 1.1rem; }
+.gx-rules { margin: 0 0 0.7rem; padding-inline-start: 1.1rem; }
 .gx-rules li {
   font-size: 0.85rem; line-height: 1.5;
   color: var(--text-dim); margin-bottom: 0.3rem;
@@ -83,7 +83,7 @@
 .gx-nm { font-weight: 600; color: var(--text); white-space: nowrap; }
 .gx-hn { color: var(--text-muted); font-size: 0.75rem; }
 .gx-wt {
-  width: 2.5rem; text-align: right;
+  width: 2.5rem; text-align: end;
   font-family: var(--mono); color: var(--accent-light);
 }
 .gx-you {
@@ -114,7 +114,7 @@
   border-bottom-color: var(--accent);
 }
 .gc-due {
-  position: absolute; top: 4px; right: 5px; font-size: 0.7rem;
+  position: absolute; top: 4px; inset-inline-end: 5px; font-size: 0.7rem;
   animation: float 2.4s ease-in-out infinite;
 }
 
@@ -127,7 +127,7 @@
 .gc-head {
   display: flex; align-items: center; gap: 0.7rem; width: 100%;
   padding: 0.9rem 1.1rem; cursor: pointer; font: inherit; color: var(--text);
-  background: none; border: none; text-align: left;
+  background: none; border: none; text-align: start;
   transition: background 0.15s ease;
 }
 .gc-head:hover { background: var(--bg-card-hover); }
@@ -139,7 +139,7 @@
 .gc-icon { font-size: 1.15rem; }
 .gc-title { font-weight: 700; font-size: 0.95rem; }
 .gc-stat {
-  margin-left: auto; font-family: var(--mono);
+  margin-inline-start: auto; font-family: var(--mono);
   font-size: 0.75rem; color: var(--text-dim);
 }
 .gc-duecount {

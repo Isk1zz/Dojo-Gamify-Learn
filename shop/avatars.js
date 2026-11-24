@@ -14,14 +14,14 @@
 
 (() => {
   const AVATARS = I18N.resolve([
-    { id: "owl",     icon: "\u{1F989}", name: { en: "Owl", ru: "Сова" } },
-    { id: "fox",     icon: "\u{1F98A}", name: { en: "Fox", ru: "Лиса" } },
-    { id: "wolf",    icon: "\u{1F43A}", name: { en: "Wolf", ru: "Волк" } },
-    { id: "brain",   icon: "\u{1F9E0}", name: { en: "Brain", ru: "Мозг" } },
-    { id: "robot",   icon: "\u{1F916}", name: { en: "Robot", ru: "Робот" } },
-    { id: "dragon",  icon: "\u{1F409}", name: { en: "Dragon", ru: "Дракон" } },
-    { id: "unicorn", icon: "\u{1F984}", name: { en: "Unicorn", ru: "Единорог" } },
-    { id: "alien",   icon: "\u{1F47D}", name: { en: "Alien", ru: "Пришелец" } }
+    { id: "owl",     icon: "\u{1F989}", name: { en: "Owl", ru: "Сова", he: "ינשוף" } },
+    { id: "fox",     icon: "\u{1F98A}", name: { en: "Fox", ru: "Лиса", he: "שועל" } },
+    { id: "wolf",    icon: "\u{1F43A}", name: { en: "Wolf", ru: "Волк", he: "זאב" } },
+    { id: "brain",   icon: "\u{1F9E0}", name: { en: "Brain", ru: "Мозг", he: "מוח" } },
+    { id: "robot",   icon: "\u{1F916}", name: { en: "Robot", ru: "Робот", he: "רובוט" } },
+    { id: "dragon",  icon: "\u{1F409}", name: { en: "Dragon", ru: "Дракон", he: "דרקון" } },
+    { id: "unicorn", icon: "\u{1F984}", name: { en: "Unicorn", ru: "Единорог", he: "חד־קרן" } },
+    { id: "alien",   icon: "\u{1F47D}", name: { en: "Alien", ru: "Пришелец", he: "חייזר" } }
   ]);
 
   function avatarIcon(id) {

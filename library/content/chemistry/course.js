@@ -24,9 +24,9 @@
 
 Content.course({
   id: "chemistry",
-  title: { en: "Chemistry", ru: "Химия" },
+  title: { en: "Chemistry", ru: "Химия", he: "כימיה" },
   track: "science",
-  subtitle: { en: "Atoms, bonding, reactions and equilibrium", ru: "Атомы, связи, реакции и равновесие" },
+  subtitle: { en: "Atoms, bonding, reactions and equilibrium", ru: "Атомы, связи, реакции и равновесие", he: "אטומים, קשרים, תגובות ושיווי משקל" },
   icon: "\u{2697}\u{FE0F}",
   available: false,
   units: []

@@ -24,7 +24,7 @@
 // 30, blossom 60). If those change, the pins here change with them.
 // ================================================
 Dojo.Scenes.register("knell-garden", {
-  title: { en: "A garden at night, with a bell tower", ru: "Ночной сад с колокольней" },
+  title: { en: "A garden at night, with a bell tower", ru: "Ночной сад с колокольней", he: "גינה בלילה, עם מגדל פעמון" },
   seed: 11,
   spriteScale: 1.2,
 
@@ -172,26 +172,26 @@ Dojo.Scenes.register("knell-garden", {
   // Short labels, the Garden's own stage names and symbols. `icon`, the
   // label and `say` make the note the start screen pins to a tapped pin.
   pins: [
-    { n: 1, at: [10.6, 9.4], z1: 2.0, stand: "s1", icon: "\u{1F331}", label: { en: "Sprout", ru: "Росток" },
+    { n: 1, at: [10.6, 9.4], z1: 2.0, stand: "s1", icon: "\u{1F331}", label: { en: "Sprout", ru: "Росток", he: "נבט" },
       say: { en: "A topic you have just passed. Its first review is tomorrow.",
-             ru: "Тема, которую вы только что сдали. Первое повторение — завтра." } },
-    { n: 2, at: [8.3, 8.7], z1: 2.5, stand: "s2", icon: "\u{1F33F}", label: { en: "Seedling", ru: "Саженец" },
+             ru: "Тема, которую вы только что сдали. Первое повторение — завтра.", he: "נושא שעברתם זה עתה. החזרה הראשונה שלו מחר." } },
+    { n: 2, at: [8.3, 8.7], z1: 2.5, stand: "s2", icon: "\u{1F33F}", label: { en: "Seedling", ru: "Саженец", he: "שתיל" },
       say: { en: "Still remembered after a week. Each review you get right moves the next one further away.",
-             ru: "Помнится уже неделю. Каждое верное повторение отодвигает следующее дальше." } },
-    { n: 3, at: [7.7, 6.3], z1: 3.0, stand: "s3", icon: "\u{1F33E}", label: { en: "Growing", ru: "Рост" },
+             ru: "Помнится уже неделю. Каждое верное повторение отодвигает следующее дальше.", he: "עדיין זכור אחרי שבוע. כל חזרה שמצליחים בה מרחיקה את הבאה." } },
+    { n: 3, at: [7.7, 6.3], z1: 3.0, stand: "s3", icon: "\u{1F33E}", label: { en: "Growing", ru: "Рост", he: "צומח" },
       say: { en: "Three weeks and still there. Its reviews are weeks apart now.",
-             ru: "Три недели — и всё ещё помнится. Между повторениями теперь недели." } },
-    { n: 4, at: [5.1, 5.9], z1: 3.3, stand: "s4", icon: "\u{1F333}", label: { en: "Tree", ru: "Дерево" },
+             ru: "Три недели — и всё ещё помнится. Между повторениями теперь недели.", he: "שלושה שבועות והוא עדיין שם. בין החזרות שלו יש עכשיו שבועות." } },
+    { n: 4, at: [5.1, 5.9], z1: 3.3, stand: "s4", icon: "\u{1F333}", label: { en: "Tree", ru: "Дерево", he: "עץ" },
       say: { en: "Remembered for a month. A topic this sturdy comes up rarely.",
-             ru: "Помнится месяц. Такую крепкую тему повторяют редко." } },
-    { n: 5, at: [5.5, 2.9], z1: 3.9, stand: "s5", icon: "\u{1F338}", label: { en: "Blossom", ru: "Цветение" },
+             ru: "Помнится месяц. Такую крепкую тему повторяют редко.", he: "זכור כבר חודש. נושא יציב כזה עולה לחזרה רק לעיתים רחוקות." } },
+    { n: 5, at: [5.5, 2.9], z1: 3.9, stand: "s5", icon: "\u{1F338}", label: { en: "Blossom", ru: "Цветение", he: "פריחה" },
       say: { en: "Two months and longer. Even a plant in bloom shrinks if its review is left more than a week overdue.",
-             ru: "Два месяца и дольше. Но и цветущее растение уменьшается, если повторение просрочено больше чем на неделю." } },
-    { n: 6, at: [1.8, 1.8], z0: 6.37, z1: 6.85, stand: "door", act: "bell", icon: "\u{1F514}", label: { en: "The bell", ru: "Колокол" },
-      say: { en: "A knell is the toll of a bell.", ru: "Knell — по-английски «звон колокола»." } },
+             ru: "Два месяца и дольше. Но и цветущее растение уменьшается, если повторение просрочено больше чем на неделю.", he: "חודשיים ויותר. גם צמח בפריחה מתכווץ אם החזרה שלו מתעכבת יותר משבוע." } },
+    { n: 6, at: [1.8, 1.8], z0: 6.37, z1: 6.85, stand: "door", act: "bell", icon: "\u{1F514}", label: { en: "The bell", ru: "Колокол", he: "הפעמון" },
+      say: { en: "A knell is the toll of a bell.", ru: "Knell — по-английски «звон колокола».", he: "Knell באנגלית הוא צלצול של פעמון." } },
     // Not a stage: a letter for whoever opens this, now or years from now
     // (asked 2026-11-22). The start screen opens it when he gets there.
-    { n: "✉", at: [11.5, 11.4], z1: 1.6, stand: "gate", act: "letter", label: { en: "A letter", ru: "Письмо" } }
+    { n: "✉", at: [11.5, 11.4], z1: 1.6, stand: "gate", act: "letter", label: { en: "A letter", ru: "Письмо", he: "מכתב" } }
   ],
 
   // The path's centre line: the gate, a node at every turn, the door.

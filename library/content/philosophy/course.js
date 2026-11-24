@@ -37,8 +37,8 @@
   const units = [
     {
       id: 41,
-      title: { ru: "Рим", en: "Rome" },
-      subtitle: { ru: "Цицерон", en: "Cicero" },
+      title: { ru: "Рим", en: "Rome", he: "רומא" },
+      subtitle: { ru: "Цицерон", en: "Cicero", he: "קיקרו" },
       icon: "\u{1F3DB}️",
       modules: mod("MODULE_PHIL_ROME", rome, "data_m1.js")
     }
@@ -46,8 +46,8 @@
 
   Content.course({
     id: "philosophy",
-    title: { ru: "Философия", en: "Philosophy" },
-    subtitle: { ru: "Люди, их мысль и то, что с ними стало", en: "The thinkers, their thought, and what became of them" },
+    title: { ru: "Философия", en: "Philosophy", he: "פילוסופיה" },
+    subtitle: { ru: "Цицерон: человек, его мысль и что с ним стало", en: "Cicero: the man, his thought, and what became of him", he: "קיקרו: האיש, המחשבה שלו, ומה עלה בגורלו" },
     icon: "\u{1F3F5}️",
     track: "humanities",
     available: true,
@@ -94,7 +94,7 @@
       <span class="ca-for"><strong>Who it is for:</strong> anyone more interested in
         <em>whether a philosophy survived contact with the life of the person who
         wrote it</em> than in what the philosopher said. No preparation needed —
-        no Latin, no Roman history.</span>`
+        no Latin, no Roman history.</span>`, he: "<p><strong>זו לא סקירה של \"הוגים גדולים\".</strong> זה אדם אחד, שמתבוננים בו מקרוב מספיק כדי שחייו ורעיונותיו יתחילו להסביר זה את זה.</p><p>קיקרו מתאים לכך כמעט יותר מכל אחד אחר: שרדו ממנו יותר כתבים מאשר מכמעט כל דמות עתיקה אחרת, כולל <em>מכתבים פרטיים</em> שלא הראה לאיש. אנחנו יודעים לא רק מה טען בפומבי, אלא גם איך התנהג כשחשב שאיש אינו רואה. שני הדברים האלה לא תמיד מתיישבים — והפער ביניהם הוא מה שהקורס הזה בנוי עליו.</p><p>תשעה פרקים, מסודרים לא לפי הכרונולוגיה אלא לפי הסלמה: קודם המוות, אחר כך איך הגיע אליו, אחר כך מה הצליח ליצור, ורק בסוף מה טען בפועל. עד הפרק האחרון ברור שהפילוסופיה שלו לא הייתה קישוט על ביוגרפיה, אלא כלי שהשתמש בו — ופעם אחת, לבסוף, בחן אותו על עצמו.</p><p><strong>כל טענה מגובה במקור.</strong> שתי מהדורות אמיתיות מתחת לכל פרק, עם מספרי עמודים וסעיפים: רוסון, פון אלברכט, זרצקי, ולצידם הטקסטים העתיקים עצמם. היכן שהמקורות חלוקים או שותקים, הקורס אומר זאת במקום לבחור בקריאה הנוחה.</p><span class=\"ca-for\"><strong>למי זה מתאים:</strong> לכל מי שמתעניין יותר <em>בשאלה אם פילוסופיה שרדה את המפגש עם חייו של מי שכתב אותה</em> מאשר במה שהפילוסוף אמר. לא צריך הכנה — לא לטינית, לא היסטוריה רומית.</span>"
     },
 
     units

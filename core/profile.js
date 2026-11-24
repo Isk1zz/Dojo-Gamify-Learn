@@ -85,7 +85,7 @@
       if (info) {
         starEl.textContent = info.star;
         starEl.className = `profile-patron-star tier-${info.tier}`;
-        starEl.title = `${info.label} — thank you for supporting the Dojo`;
+        starEl.title = I18N.t("profile.patronThanks", { tier: info.label });
         starEl.style.display = "";
       } else {
         starEl.style.display = "none";

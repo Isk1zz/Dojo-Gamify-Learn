@@ -13,7 +13,7 @@
 // larger than life, the way a diorama is, so that a sign can be read.
 // ================================================
 Dojo.Scenes.register("bike-a3", {
-  title: { en: "A junction at night", ru: "Перекрёсток ночью" },
+  title: { en: "A junction at night", ru: "Перекрёсток ночью", he: "צומת בלילה" },
   seed: 31,
   spriteScale: 1.2,
 
@@ -140,13 +140,13 @@ Dojo.Scenes.register("bike-a3", {
   // not always the pin's own spot: the junction's pin is in the middle of
   // the road, and in this course nobody stands in the middle of the road.
   pins: [
-    { n: 1, at: [1.6, 1.5], z0: 2.6, z1: 3.75, stand: "law", topic: "bike-law", label: { en: "Law & status", ru: "Закон и статус" } },
-    { n: 2, at: [1.7, 9.05], z1: 2.3, stand: "who", topic: "bike-rider", label: { en: "Who may ride", ru: "Кто может ездить" } },
-    { n: 3, at: [6.0, 9.05], z1: 2.0, stand: "where", topic: "bike-where", label: { en: "Where to ride", ru: "Где ездить" } },
-    { n: 4, at: [6.0, 6.0], z1: 3.0, stand: "junction", topic: "bike-traffic", label: { en: "Junctions", ru: "Перекрёстки" } },
-    { n: 5, at: [10.6, 5.25], z1: 2.4, stand: "speed", topic: "bike-control", label: { en: "Speed & brakes", ru: "Скорость и тормоза" } },
-    { n: 6, at: [9.15, 3.0], z1: 3.2, stand: "lights", topic: "bike-hazards", label: { en: "Lights & gear", ru: "Свет и экипировка" } },
-    { n: 7, at: [2.4, 3.7], z1: 3.0, stand: "signs", topic: "bike-signs", label: { en: "Your signs", ru: "Ваши знаки" } }
+    { n: 1, at: [1.6, 1.5], z0: 2.6, z1: 3.75, stand: "law", topic: "bike-law", label: { en: "Law & status", ru: "Закон и статус", he: "החוק והמעמד" } },
+    { n: 2, at: [1.7, 9.05], z1: 2.3, stand: "who", topic: "bike-rider", label: { en: "Who may ride", ru: "Кто может ездить", he: "מי רשאי לרכוב" } },
+    { n: 3, at: [6.0, 9.05], z1: 2.0, stand: "where", topic: "bike-where", label: { en: "Where to ride", ru: "Где ездить", he: "איפה רוכבים" } },
+    { n: 4, at: [6.0, 6.0], z1: 3.0, stand: "junction", topic: "bike-traffic", label: { en: "Junctions", ru: "Перекрёстки", he: "צמתים" } },
+    { n: 5, at: [10.6, 5.25], z1: 2.4, stand: "speed", topic: "bike-control", label: { en: "Speed & brakes", ru: "Скорость и тормоза", he: "מהירות ובלמים" } },
+    { n: 6, at: [9.15, 3.0], z1: 3.2, stand: "lights", topic: "bike-hazards", label: { en: "Lights & gear", ru: "Свет и экипировка", he: "תאורה וציוד" } },
+    { n: 7, at: [2.4, 3.7], z1: 3.0, stand: "signs", topic: "bike-signs", label: { en: "Your signs", ru: "Ваши знаки", he: "התמרורים שלכם" } }
   ],
 
   // Where the runner may go: the centre lines of the sidewalks, and the

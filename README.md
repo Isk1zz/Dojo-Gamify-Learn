@@ -36,7 +36,7 @@ AI assistance (Claude).
   review interval. A hundred topics passed once is a field of sprouts.
 - **Course scenes.** A course drawn as an isometric diorama where every
   chapter stands where it happens.
-- **English and Russian** throughout the interface.
+- **English, Russian and Hebrew** throughout the interface, Hebrew right to left.
 
 Three courses have lessons: *Intro to Computer Science* (48 topics),
 *A3 Theory — Electric Bicycle* (7 topics, built on the Israeli Ministry of

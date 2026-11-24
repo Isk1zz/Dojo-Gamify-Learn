@@ -70,7 +70,7 @@
 .badge-icon { font-size: 1.4rem; }
 .badge-name { font-size: 0.68rem; font-weight: 600; line-height: 1.25; }
 .badge-pin-dot {
-  position: absolute; top: 6px; right: 6px; width: 6px; height: 6px;
+  position: absolute; top: 6px; inset-inline-end: 6px; width: 6px; height: 6px;
   border-radius: 50%; background: var(--accent);
 }
 
@@ -96,7 +96,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-right: 0.5rem;
+  margin-inline-end: 0.5rem;
 }
 
 .stats-topic-score {
@@ -147,7 +147,7 @@
 .module-title { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.3px; }
 
 .module-progress {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-muted);
@@ -246,7 +246,7 @@
 /* Flashcards entry point on a list-view topic card — top-right corner,
    independent click target from the card itself (stopPropagation). */
 .topic-cards-btn {
-  position: absolute; top: 0.7rem; right: 0.7rem; z-index: 2;
+  position: absolute; top: 0.7rem; inset-inline-end: 0.7rem; z-index: 2;
   width: 30px; height: 30px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   background: var(--bg-surface); border: 1px solid var(--border);
@@ -272,7 +272,7 @@
   letter-spacing: 0.2px;
 }
 .roadmap-module-count {
-  font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-left: 0.4rem;
+  font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-inline-start: 0.4rem;
 }
 
 .roadmap-node { position: absolute; width: 0; height: 0; z-index: 2; }
@@ -463,7 +463,7 @@
 
 .analogy-box {
   background: var(--bg-card); border: 1px solid var(--border-accent);
-  border-left: 3px solid var(--accent); border-radius: var(--radius-sm);
+  border-inline-start: 3px solid var(--accent); border-radius: var(--radius-sm);
   padding: 1.25rem; margin-bottom: 1.5rem;
 }
 .analogy-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent-light); margin-bottom: 0.5rem; }
@@ -471,7 +471,7 @@
 
 .example-box {
   background: var(--bg-card); border: 1px solid rgba(245,158,11,0.2);
-  border-left: 3px solid var(--yellow); border-radius: var(--radius-sm);
+  border-inline-start: 3px solid var(--yellow); border-radius: var(--radius-sm);
   padding: 1.25rem; margin-bottom: 1.5rem;
 }
 .example-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--yellow); margin-bottom: 0.75rem; }
@@ -537,7 +537,7 @@
   padding: 0.85rem 1rem; background: var(--bg-card);
   border: 1px solid var(--border); border-radius: var(--radius-sm);
   cursor: pointer; transition: all 0.25s ease;
-  font: inherit; font-size: 0.9rem; color: var(--text-dim); text-align: left;
+  font: inherit; font-size: 0.9rem; color: var(--text-dim); text-align: start;
 }
 .quiz-option:hover { background: var(--bg-card-hover); border-color: var(--border-accent); color: var(--text); }
 .quiz-option.selected { border-color: var(--accent); background: rgba(99,102,241,0.08); color: var(--text); }
@@ -705,13 +705,13 @@
 .sources-box {
   margin: 1.5rem 0 1.75rem;
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-left: 3px solid var(--border-accent);
+  border-inline-start: 3px solid var(--border-accent);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.025);
   overflow: hidden;
   transition: border-color 0.15s ease;
 }
-.sources-box:hover { border-left-color: var(--accent); }
+.sources-box:hover { border-inline-start-color: var(--accent); }
 .sources-label {
   cursor: pointer;
   display: flex; align-items: center; gap: 0.45rem;
@@ -747,7 +747,7 @@
   max-height: 85vh;
   overflow-y: auto;
 }
-#course-buy-modal .course-about { text-align: left; }
+#course-buy-modal .course-about { text-align: start; }
 
 /* ---- Course scene (scenes/scene.js, renderCourseScene) ----
    Above everything else on the course screen, and on the same z-layer
@@ -810,7 +810,7 @@
   background: linear-gradient(160deg, rgba(167,139,250,0.09), rgba(255,255,255,0.015));
 }
 .wisdom-mark {
-  position: absolute; top: -0.35rem; left: 1.15rem;
+  position: absolute; top: -0.35rem; inset-inline-start: 1.15rem;
   font-size: 4.5rem; line-height: 1;
   color: rgba(167,139,250,0.28); font-family: Georgia, serif;
   pointer-events: none;
@@ -832,7 +832,7 @@
 }
 .due-header { display: flex; align-items: center; gap: 0.55rem; font-weight: 700; }
 .due-count {
-  margin-left: auto; padding: 0.1rem 0.6rem;
+  margin-inline-start: auto; padding: 0.1rem 0.6rem;
   border-radius: 999px; background: rgba(56,189,248,0.2);
   font-size: 0.8rem;
 }
@@ -919,7 +919,7 @@
   margin-bottom: 0.45rem; padding: 0.7rem 0.95rem;
   border: 1px solid rgba(255,255,255,0.09); border-radius: 12px;
   background: rgba(255,255,255,0.025);
-  color: inherit; font: inherit; text-align: left; cursor: pointer;
+  color: inherit; font: inherit; text-align: start; cursor: pointer;
   transition: background 0.15s ease;
 }
 .weak-row:hover { background: rgba(255,255,255,0.06); }
@@ -1033,7 +1033,7 @@
    selection (no chip active) = no filter, matches picker.confidenceFilter's
    own "empty = show everything" default in library.js. */
 .deck-confidence-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem; }
-.deck-confidence-filter-label { font-size: 0.78rem; color: var(--text-muted); margin-right: 0.2rem; }
+.deck-confidence-filter-label { font-size: 0.78rem; color: var(--text-muted); margin-inline-end: 0.2rem; }
 .deck-conf-chip {
   padding: 0.4rem 0.85rem; border-radius: 999px; cursor: pointer;
   border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted);
@@ -1071,7 +1071,7 @@
   display: flex; align-items: center; gap: 0.6rem; width: 100%;
   padding: 0.55rem 0.75rem; border-radius: var(--radius-sm); cursor: pointer;
   border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-muted);
-  font: inherit; font-size: 0.82rem; text-align: left;
+  font: inherit; font-size: 0.82rem; text-align: start;
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
   opacity: 0.6;
 }
@@ -1111,7 +1111,7 @@
 }
 .contract-seal { font-size: 2.5rem; margin-bottom: 0.5rem; }
 .contract-subtitle { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1.25rem; font-weight: 600; }
-.contract-body { text-align: left; font-size: 0.85rem; line-height: 1.6; color: var(--text-dim); margin-bottom: 1.25rem; }
+.contract-body { text-align: start; font-size: 0.85rem; line-height: 1.6; color: var(--text-dim); margin-bottom: 1.25rem; }
 .contract-body > p { margin-bottom: 0.5rem; }
 .contract-terms { margin: 0 0 0.75rem 1.1rem; }
 .contract-terms li { margin-bottom: 0.3rem; }
@@ -1183,7 +1183,7 @@
 .sim-intro { max-width: 46rem; margin: 0 auto; text-align: center; padding: 1.5rem 0 2rem; }
 .sim-intro-icon { font-size: 2.6rem; margin-bottom: 0.6rem; }
 .sim-intro-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.9rem; }
-.sim-intro-body { color: var(--text-dim); line-height: 1.65; margin-bottom: 1rem; text-align: left; }
+.sim-intro-body { color: var(--text-dim); line-height: 1.65; margin-bottom: 1rem; text-align: start; }
 .sim-intro-note { color: var(--text-muted); font-size: 0.85rem; line-height: 1.55; margin-bottom: 1.4rem; }
 .sim-begin { min-width: 14rem; }
 

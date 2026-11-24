@@ -84,14 +84,28 @@
   // in addXp, the one place every XP grant already funnels through) —
   // `xpBonus` here is just the matching display label, kept in sync by
   // hand since it's copy, not logic.
-  const PATRON_TIERS = [
-    { tier: 1, id: "supporter", label: "Supporter", range: "$5–$10/mo", star: "⭐",
-      xpBonus: "+50% XP", desc: "A small thank-you star next to your name, and +50% XP on everything you earn." },
-    { tier: 2, id: "patron", label: "Patron", range: "$15–$20/mo", star: "⭐",
-      xpBonus: "+75% XP", desc: "A brighter star — you're covering more than just your own seat — and +75% XP." },
-    { tier: 3, id: "contributor", label: "Contributor", range: "$25+/mo", star: "🎖️",
-      xpBonus: "×2 XP", desc: "The top tier — named as a Contributor, not just another star colour — and double XP." }
-  ];
+  // Words in the reader's language, resolved once here so profile.js
+  // and the Shop both get plain strings.
+  const PATRON_TIERS = I18N.resolve([
+    { tier: 1, id: "supporter", label: { en: "Supporter", ru: "Сторонник", he: "תומך" },
+      range: { en: "$5–$10/mo", ru: "$5–$10 в месяц", he: "\u2066$5–$10\u2069 לחודש" }, star: "⭐",
+      xpBonus: "+50% XP",
+      desc: { en: "A small thank-you star next to your name, and +50% XP on everything you earn.",
+              ru: "Маленькая звёздочка-спасибо рядом с именем и +50% XP ко всему, что вы зарабатываете.",
+              he: "כוכב תודה קטן ליד השם שלכם, ותוספת של 50% ל־XP על כל מה שאתם מרוויחים." } },
+    { tier: 2, id: "patron", label: { en: "Patron", ru: "Меценат", he: "פטרון" },
+      range: { en: "$15–$20/mo", ru: "$15–$20 в месяц", he: "\u2066$15–$20\u2069 לחודש" }, star: "⭐",
+      xpBonus: "+75% XP",
+      desc: { en: "A brighter star — you're covering more than just your own seat — and +75% XP.",
+              ru: "Звезда поярче — вы оплачиваете больше, чем своё место, — и +75% XP.",
+              he: "כוכב בהיר יותר — אתם מכסים יותר מהמקום שלכם בלבד — ותוספת של 75% ל־XP." } },
+    { tier: 3, id: "contributor", label: { en: "Contributor", ru: "Вкладчик", he: "תורם" },
+      range: { en: "$25+/mo", ru: "от $25 в месяц", he: "\u2066$25+\u2069 לחודש" }, star: "🎖️",
+      xpBonus: "×2 XP",
+      desc: { en: "The top tier — named as a Contributor, not just another star colour — and double XP.",
+              ru: "Высший уровень — с титулом «Вкладчик», а не просто другим цветом звезды, — и двойной XP.",
+              he: "הרמה העליונה — עם התואר \"תורם\", ולא רק עוד צבע של כוכב — ו־XP כפול." } }
+  ]);
 
   // Each tier makes courses genuinely cheaper — the "your contribution
   // keeps content cheap" line has to be true of something, or it's just
@@ -211,8 +225,8 @@
   function tokenPacksPane() {
     return `
       <div class="settings-section">
-        <div class="stats-section-title">🪙 Token packs</div>
-        <p class="settings-hint">Buying is a DEMO — packs credit instantly, no real payment happens yet.</p>
+        <div class="stats-section-title">🪙 ${I18N.t("tok.packs")}</div>
+        <p class="settings-hint">${I18N.t("tok.demoNote")}</p>
         <div class="shop-grid">
           ${TOKEN_PACKS.map(pack => {
             const bonus = bonusPct(pack);
@@ -223,9 +237,9 @@
                   ${bonus > 0 ? `<span class="pack-bonus-badge">+${bonus}%</span>` : ""}
                 </div>
                 <div class="shop-card-body">
-                  <div class="shop-name">${pack.tokens} Tokens</div>
-                  <div class="shop-tagline">${bonus > 0 ? `${bonus}% more per $ than the smallest pack` : "Demo purchase — no real payment"}</div>
-                  <button class="shop-btn buy" data-pack="${pack.id}">${pack.priceLabel} (demo)</button>
+                  <div class="shop-name">${I18N.tn("hud.tokensN", pack.tokens)}</div>
+                  <div class="shop-tagline">${bonus > 0 ? I18N.t("tok.bonus", { n: bonus }) : I18N.t("tok.demoBuy")}</div>
+                  <button class="shop-btn buy" data-pack="${pack.id}">${pack.priceLabel} (${I18N.t("tok.demo")})</button>
                 </div>
               </div>`;
           }).join("")}
@@ -237,15 +251,9 @@
     const cur = DB.getPatronTier ? DB.getPatronTier() : 0;
     return `
       <div class="settings-section">
-        <div class="stats-section-title">💜 Support the Dojo</div>
-        <p class="settings-hint">
-          Not a subscription and not a paywall — closer to a whip-round. The Dojo is priced to be
-          genuinely affordable, and supporters are what keeps it that way for people who can't pay.
-          <strong>Every tier makes courses permanently cheaper for you too</strong> — −10% / −20% / −30%
-          off every course price, applied wherever it's shown and charged. Plus a star by your name
-          and an XP boost. No real billing yet; a tier can only go up.
-        </p>
-        ${cur ? `<p class="settings-hint"><strong>Your discount: −${Math.round(courseDiscount() * 100)}% on every course.</strong></p>` : ""}
+        <div class="stats-section-title">💜 ${I18N.t("tok.supportTitle")}</div>
+        <p class="settings-hint">${I18N.t("tok.supportBody")}</p>
+        ${cur ? `<p class="settings-hint"><strong>${I18N.t("tok.yourDiscount", { n: Math.round(courseDiscount() * 100) })}</strong></p>` : ""}
         <div class="shop-grid">
           ${PATRON_TIERS.map(t => {
             const owned = cur >= t.tier;
@@ -254,12 +262,12 @@
                 <div class="shop-card-preview game-preview">
                   <span class="gp-icon profile-patron-star tier-${t.tier}">${t.star}</span>
                   <span class="pack-bonus-badge">${t.xpBonus}</span>
-                  <span class="pack-bonus-badge discount-badge">−${Math.round((PATRON_COURSE_DISCOUNT[t.tier] || 0) * 100)}% courses</span>
+                  <span class="pack-bonus-badge discount-badge">${I18N.t("tok.coursesOff", { n: Math.round((PATRON_COURSE_DISCOUNT[t.tier] || 0) * 100) })}</span>
                 </div>
                 <div class="shop-card-body">
                   <div class="shop-name">${t.label}</div>
                   <div class="shop-tagline">${t.range} — ${t.desc}</div>
-                  <button class="shop-btn buy" data-tier="${t.tier}" ${owned ? "disabled" : ""}>${owned ? "Current tier" : "Choose (demo)"}</button>
+                  <button class="shop-btn buy" data-tier="${t.tier}" ${owned ? "disabled" : ""}>${I18N.t(owned ? "tok.current" : "tok.choose")}</button>
                 </div>
               </div>`;
           }).join("")}

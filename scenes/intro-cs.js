@@ -22,7 +22,7 @@
   }
 
   Dojo.Scenes.register("intro-cs", {
-    title: { en: "A computer lab at night", ru: "Компьютерный класс ночью" },
+    title: { en: "A computer lab at night", ru: "Компьютерный класс ночью", he: "מעבדת מחשבים בלילה" },
     seed: 7,
     spriteScale: 1.2,
 
@@ -94,14 +94,14 @@
     ],
 
     pins: [
-      { n: 1, unit: 1, at: [0.6, 3.1], z1: 4.6, stand: "f", label: { en: "Fundamentals", ru: "Основы" } },
-      { n: 2, unit: 2, at: [1.8, 0.6], z1: 4.8, stand: "n", label: { en: "Number systems", ru: "Системы счисления" } },
-      { n: 3, unit: 3, at: [6.2, 5.6], z0: 0.75, z1: 2.0, stand: "l", label: { en: "Logic gates", ru: "Логика" } },
-      { n: 4, unit: 4, at: [6.8, 0.6], z1: 5.4, stand: "o", label: { en: "Operating systems", ru: "Операционные системы" } },
-      { n: 5, unit: 5, at: [10.9, 5.6], z1: 1.8, stand: "d", label: { en: "Databases", ru: "Базы данных" } },
-      { n: 6, unit: 6, at: [10.8, 1.2], z0: 3.2, z1: 6.1, stand: "r", label: { en: "Networks & security", ru: "Сети и безопасность" } },
-      { n: 7, unit: 7, at: [2.6, 9.65], z0: 0.85, z1: 2.1, stand: "p", label: { en: "Programming", ru: "Программирование" } },
-      { n: 8, unit: 8, at: [1.4, 5.9], z1: 5.5, stand: "e", label: { en: "Emerging tech", ru: "Новые технологии" } }
+      { n: 1, unit: 1, at: [0.6, 3.1], z1: 4.6, stand: "f", label: { en: "Fundamentals", ru: "Основы", he: "יסודות" } },
+      { n: 2, unit: 2, at: [1.8, 0.6], z1: 4.8, stand: "n", label: { en: "Number systems", ru: "Системы счисления", he: "שיטות ספירה" } },
+      { n: 3, unit: 3, at: [6.2, 5.6], z0: 0.75, z1: 2.0, stand: "l", label: { en: "Logic gates", ru: "Логика", he: "שערים לוגיים" } },
+      { n: 4, unit: 4, at: [6.8, 0.6], z1: 5.4, stand: "o", label: { en: "Operating systems", ru: "Операционные системы", he: "מערכות הפעלה" } },
+      { n: 5, unit: 5, at: [10.9, 5.6], z1: 1.8, stand: "d", label: { en: "Databases", ru: "Базы данных", he: "מסדי נתונים" } },
+      { n: 6, unit: 6, at: [10.8, 1.2], z0: 3.2, z1: 6.1, stand: "r", label: { en: "Networks & security", ru: "Сети и безопасность", he: "רשתות ואבטחה" } },
+      { n: 7, unit: 7, at: [2.6, 9.65], z0: 0.85, z1: 2.1, stand: "p", label: { en: "Programming", ru: "Программирование", he: "תכנות" } },
+      { n: 8, unit: 8, at: [1.4, 5.9], z1: 5.5, stand: "e", label: { en: "Emerging tech", ru: "Новые технологии", he: "טכנולוגיות חדשות" } }
     ],
 
     // The walkway's four corners and a stop beside each thing in the room.

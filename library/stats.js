@@ -23,7 +23,10 @@
   function showStatsModal() {
     const modal = document.getElementById("stats-modal");
     modal.style.display = "flex";
-    renderStats();
+    // Named explicitly: Career renders the same stats into its own box and
+    // that box stays the default host, so after a visit there the profile
+    // opened empty (found 2026-11-24).
+    renderStats(document.getElementById("stats-body"));
   }
 
   function hideStatsModal() {
@@ -41,26 +44,44 @@
   // not hand out participation trophies. Every check reads data that
   // already exists (DB.getStats/getStreak/getXp via Dojo.Ranks) — no new
   // fields, no new writes, this file stays read-only.
+  // The three course badges measure one course at a time, the best one:
+  // "Course Complete" means a course finished, the same thing the course's
+  // Token reward pays for. They used to count every topic of every course
+  // together, so finishing a course earned nothing (changed 2026-11-24).
+  // A course whose topics are not loaded yet (Intro to CS loads on demand)
+  // is skipped rather than counted as zero.
+  function bestCoursePct() {
+    const done = DB.getCompletedTopics();
+    let best = 0;
+    (typeof COURSES !== "undefined" ? COURSES : []).forEach(c => {
+      const topics = (c.units || []).flatMap(id => (UNIT_TOPICS[id] || []));
+      if (!topics.length) return;
+      const n = topics.filter(t => done.has(t.id)).length;
+      best = Math.max(best, Math.round((n / topics.length) * 100));
+    });
+    return best;
+  }
+
   const BADGES = I18N.resolve([
-    { id: "first-topic", icon: "\u{1F331}", name: { en: "First Steps", ru: "Первые шаги" }, desc: { en: "Master your first topic", ru: "Освоить первую тему" },
+    { id: "first-topic", icon: "\u{1F331}", name: { en: "First Steps", ru: "Первые шаги", he: "צעדים ראשונים" }, desc: { en: "Master your first topic", ru: "Освоить первую тему", he: "לשלוט בנושא הראשון" },
       earned: (s) => s.topicsCompleted >= 1 },
-    { id: "quarter", icon: "\u{1F4D8}", name: { en: "Quarter Course", ru: "Четверть курса" }, desc: { en: "Reach 25% course completion", ru: "Пройти 25% курса" },
-      earned: (s) => s.completionPct >= 25 },
-    { id: "halfway", icon: "\u{1F4D6}", name: { en: "Halfway There", ru: "Половина пути" }, desc: { en: "Reach 50% course completion", ru: "Пройти 50% курса" },
-      earned: (s) => s.completionPct >= 50 },
-    { id: "complete", icon: "\u{1F393}", name: { en: "Course Complete", ru: "Курс пройден" }, desc: { en: "Reach 100% course completion", ru: "Пройти курс полностью" },
-      earned: (s) => s.completionPct >= 100 },
-    { id: "perfect-exam", icon: "\u{1F4AF}", name: { en: "Perfect Exam", ru: "Идеальный экзамен" }, desc: { en: "Score 100% on a mastery exam", ru: "Сдать экзамен на 100%" },
+    { id: "quarter", icon: "\u{1F4D8}", name: { en: "Quarter Course", ru: "Четверть курса", he: "רבע קורס" }, desc: { en: "Reach 25% in any one course", ru: "Пройти 25% любого курса", he: "להשלים 25% מקורס כלשהו" },
+      earned: () => bestCoursePct() >= 25 },
+    { id: "halfway", icon: "\u{1F4D6}", name: { en: "Halfway There", ru: "Половина пути", he: "באמצע הדרך" }, desc: { en: "Reach 50% in any one course", ru: "Пройти половину любого курса", he: "להשלים חצי מקורס כלשהו" },
+      earned: () => bestCoursePct() >= 50 },
+    { id: "complete", icon: "\u{1F393}", name: { en: "Course Complete", ru: "Курс пройден", he: "קורס הושלם" }, desc: { en: "Finish a whole course", ru: "Пройти курс полностью", he: "להשלים קורס במלואו" },
+      earned: () => bestCoursePct() >= 100 },
+    { id: "perfect-exam", icon: "\u{1F4AF}", name: { en: "Perfect Exam", ru: "Идеальный экзамен", he: "מבחן מושלם" }, desc: { en: "Score 100% on a mastery exam", ru: "Сдать экзамен на 100%", he: "לקבל 100% במבחן שליטה" },
       earned: (s) => Object.values(s.topicStats || {}).some(t => t.bestScore >= 100) },
-    { id: "clean-record", icon: "\u{1F3C6}", name: { en: "Clean Record", ru: "Без осечек" }, desc: { en: "Pass 5+ exams with zero fails", ru: "Сдать 5+ экзаменов без провалов" },
+    { id: "clean-record", icon: "\u{1F3C6}", name: { en: "Clean Record", ru: "Без осечек", he: "גיליון נקי" }, desc: { en: "Pass 5+ exams with zero fails", ru: "Сдать 5+ экзаменов без провалов", he: "לעבור 5 מבחנים ומעלה בלי אף כישלון" },
       earned: (s) => s.examsTaken >= 5 && s.examsPassed === s.examsTaken },
-    { id: "sharp-shooter", icon: "\u{1F3AF}", name: { en: "Sharp Shooter", ru: "Меткий стрелок" }, desc: { en: "90%+ accuracy over 50+ questions", ru: "Точность 90%+ на 50+ вопросах" },
+    { id: "sharp-shooter", icon: "\u{1F3AF}", name: { en: "Sharp Shooter", ru: "Меткий стрелок", he: "צלף" }, desc: { en: "90%+ accuracy over 50+ questions", ru: "Точность 90%+ на 50+ вопросах", he: "דיוק של 90% ומעלה ב־50 שאלות ומעלה" },
       earned: (s) => s.miniQuizTotal >= 50 && s.miniQuizAccuracy >= 90 },
-    { id: "week-streak", icon: "\u{1F525}", name: { en: "Week Streak", ru: "Неделя подряд" }, desc: { en: "Hold a 7-day streak", ru: "Продержать серию 7 дней" },
+    { id: "week-streak", icon: "\u{1F525}", name: { en: "Week Streak", ru: "Неделя подряд", he: "רצף של שבוע" }, desc: { en: "Hold a 7-day streak", ru: "Продержать серию 7 дней", he: "להחזיק רצף של 7 ימים" },
       earned: (_s, streak) => !!streak && streak.count >= 7 },
-    { id: "month-streak", icon: "\u{1F525}\u{1F525}", name: { en: "Month Streak", ru: "Месяц подряд" }, desc: { en: "Hold a 30-day streak", ru: "Продержать серию 30 дней" },
+    { id: "month-streak", icon: "\u{1F525}\u{1F525}", name: { en: "Month Streak", ru: "Месяц подряд", he: "רצף של חודש" }, desc: { en: "Hold a 30-day streak", ru: "Продержать серию 30 дней", he: "להחזיק רצף של 30 יום" },
       earned: (_s, streak) => !!streak && streak.count >= 30 },
-    { id: "lab-manager", icon: "\u{1F97C}", name: { en: "Lab Manager+", ru: "Заведующий и выше" }, desc: { en: "Reach rank 8 (Lab Manager) or higher", ru: "Дойти до 8-го ранга или выше" },
+    { id: "lab-manager", icon: "\u{1F97C}", name: { en: "Lab Manager+", ru: "Заведующий и выше", he: "מנהל מעבדה ומעלה" }, desc: { en: "Reach rank 8 (Lab Manager) or higher", ru: "Дойти до 8-го ранга или выше", he: "להגיע לדרגה 8 (מנהל מעבדה) ומעלה" },
       earned: (_s, _streak, xp) => Dojo.Ranks ? Dojo.Ranks.rankFor(xp).n >= 8 : false }
   ]);
 
@@ -74,7 +95,7 @@
       return `
         <button type="button" class="badge-chip${earned ? " earned" : ""}${isPinned ? " pinned" : ""}"
                 ${earned ? `data-badge="${b.id}"` : "disabled"}
-                title="${b.desc}${earned ? " — tap to " + (isPinned ? "unpin" : "pin to your name") : ""}">
+                title="${b.desc}${earned ? " — " + I18N.t(isPinned ? "stats.tapUnpin" : "stats.tapPin") : ""}">
           <span class="badge-icon">${earned ? b.icon : "\u{1F512}"}</span>
           <span class="badge-name">${b.name}</span>
           ${isPinned ? `<span class="badge-pin-dot" aria-hidden="true"></span>` : ""}
@@ -84,8 +105,7 @@
     return `
       <div class="settings-section">
         <div class="stats-section-title">\u{1F3C5} ${I18N.t("stats.badges", { n: earnedCount, total: BADGES.length })}</div>
-        <p class="settings-hint">Earned from real progress — nothing here is handed out for just opening the app.
-          Tap an earned badge to pin it next to your name (up to 3).</p>
+        <p class="settings-hint">${I18N.t("stats.badgeNote")}</p>
         <div class="badge-grid">${chips}</div>
       </div>`;
   }
@@ -125,7 +145,7 @@
       let scoreHtml;
       if (ts && ts.bestScore > 0) {
         const cls = ts.bestScore >= 80 ? "pass" : "fail";
-        scoreHtml = `<span class="stats-topic-score ${cls}">${ts.bestScore}% (${ts.attempts} attempt${ts.attempts !== 1 ? "s" : ""})</span>`;
+        scoreHtml = `<span class="stats-topic-score ${cls}">${ts.bestScore}% (${I18N.tn("stats.attempts", ts.attempts)})</span>`;
       } else {
         scoreHtml = `<span class="stats-topic-score none">—</span>`;
       }
@@ -159,7 +179,7 @@
           <div class="stats-topic-list">${b.topics.map(topicRowHtml).join("")}</div>`;
       });
       if (unrated.length) {
-        html += `<div class="stats-bucket-title">◌ Not yet reviewed (${unrated.length})</div>
+        html += `<div class="stats-bucket-title">◌ ${I18N.t("stats.notReviewed")} (${unrated.length})</div>
           <div class="stats-topic-list">${unrated.map(topicRowHtml).join("")}</div>`;
       }
       return html;
@@ -196,10 +216,10 @@
 
     const topicRowsHtml = `
       <div class="stats-course-menu">
-        ${menuItem("all", "📚 All courses", courses.flatMap(topicsOf))}
+        ${menuItem("all", "📚 " + I18N.t("stats.allCourses"), courses.flatMap(topicsOf))}
         ${courses.map(c => menuItem(c.id, `${c.icon} ${c.title}`, topicsOf(c))).join("")}
       </div>
-      <div class="stats-course-summary">${doneShown}/${shown.length} topics mastered · ${pctShown}%</div>
+      <div class="stats-course-summary">${I18N.t("stats.summary", { done: doneShown, total: shown.length, pct: pctShown })}</div>
       ${bucketise(shown)}`;
 
     // "What should I study now?" is the only question a learner
@@ -229,7 +249,7 @@
     // How much is waiting, so the review queue isn't invisible.
     const dueCount = DB.getDueTopicIds().length;
     const dueHtml = dueCount
-      ? `<div class="due-banner">🔁 ${dueCount} topic${dueCount === 1 ? "" : "s"} due for review</div>`
+      ? `<div class="due-banner">🔁 ${I18N.tn("stats.dueN", dueCount)}</div>`
       : "";
 
     body.innerHTML = `
@@ -320,9 +340,9 @@
       renderStats();
       renderUnitSelect();
       if (state.currentUnit) renderTopicMap();
-      alert("Data imported successfully!");
+      alert(I18N.t("stats.importOk"));
     } catch (err) {
-      alert("Import failed: " + err.message);
+      alert(I18N.t("stats.importFail", { msg: err.message }));
     }
     e.target.value = "";
   });

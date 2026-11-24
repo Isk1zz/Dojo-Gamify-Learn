@@ -2,7 +2,9 @@
    SHOP — premium themes, wallet panel, life goods
    Owned by shop/. Nothing outside shop/ styles these.
    ============================================ */
-.shop-body { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+/* width: auto margins in a flex column size the box to its content, and on a
+   phone the rank ladder pushed it past the screen (2026-11-24). */
+.shop-body { width: 100%; box-sizing: border-box; max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
 
 .shop-wallet {
   padding: 1.1rem 1.2rem; margin-bottom: 1.75rem;
@@ -39,7 +41,7 @@
    sale tag sits in most shop UIs. Only shown when > 0 (the smallest
    pack is the baseline it's measured against, so it never wears one). */
 .pack-bonus-badge {
-  position: absolute; top: 8px; right: 8px;
+  position: absolute; top: 8px; inset-inline-end: 8px;
   padding: 0.15rem 0.5rem; border-radius: 999px;
   background: var(--green); color: var(--bg-deep);
   font-family: var(--mono); font-size: 0.7rem; font-weight: 800;
@@ -224,7 +226,7 @@
   box-shadow: 0 0 8px rgba(251,191,36,0.25);
 }
 .rr-xp { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); }
-.rr-reward { font-size: 0.76rem; color: var(--text-dim); min-width: 140px; text-align: right; }
+.rr-reward { font-size: 0.76rem; color: var(--text-dim); min-width: 140px; text-align: end; }
 .rr-blank { color: var(--text-muted); opacity: 0.5; }
 
 /* The 4-column single-row grid (badge/name/xp/reward) never had a
@@ -242,8 +244,8 @@
   }
   .rr-badge { grid-column: 1; grid-row: 1; }
   .rr-name { grid-column: 2; grid-row: 1; }
-  .rr-xp { grid-column: 2; grid-row: 2; text-align: left; }
-  .rr-reward { grid-column: 2; grid-row: 3; min-width: 0; text-align: left; font-size: 0.7rem; }
+  .rr-xp { grid-column: 2; grid-row: 2; text-align: start; }
+  .rr-reward { grid-column: 2; grid-row: 3; min-width: 0; text-align: start; font-size: 0.7rem; }
 }
 
 .shop-card.locked .shop-card-preview { filter: grayscale(0.7) brightness(0.6); }
@@ -272,7 +274,7 @@
   display: flex; align-items: center; justify-content: space-between; gap: 0.4rem;
   padding: 0.4rem 0.55rem; border-radius: var(--radius-xs);
   border: 1px solid transparent; background: transparent;
-  color: var(--text-dim); font: inherit; font-size: 0.8rem; cursor: pointer; text-align: left;
+  color: var(--text-dim); font: inherit; font-size: 0.8rem; cursor: pointer; text-align: start;
 }
 .inv-leaf:hover { background: var(--bg-card-hover); color: var(--text); }
 .inv-leaf.active { background: var(--accent-glow); border-color: var(--border-accent); color: var(--text); }
@@ -308,8 +310,8 @@
 }
 .inv-tile.vacant .inv-tile-art { filter: grayscale(1); }
 .inv-tile-name { line-height: 1.2; overflow: hidden; text-overflow: ellipsis; width: 100%; white-space: nowrap; }
-.inv-tile-on { position: absolute; top: 4px; right: 6px; color: var(--accent); font-weight: 700; }
-.inv-tile-lock { position: absolute; top: 4px; right: 5px; font-size: 0.65rem; color: var(--green); font-weight: 700; }
+.inv-tile-on { position: absolute; top: 4px; inset-inline-end: 6px; color: var(--accent); font-weight: 700; }
+.inv-tile-lock { position: absolute; top: 4px; inset-inline-end: 5px; font-size: 0.65rem; color: var(--green); font-weight: 700; }
 
 /* Drop target for drag-to-equip. Click still equips — drag is an
    addition, not a replacement, because it doesn't exist on touch. */
@@ -364,7 +366,7 @@ html[data-theme-mode="light"] .inv-tile.vacant { background: var(--bg-card-hover
 
 /* Bottom-right, sticky, so it stays in view while you scroll the grid. */
 .inv-preview {
-  position: sticky; bottom: 1rem; margin-left: auto; width: 150px;
+  position: sticky; bottom: 1rem; margin-inline-start: auto; width: 150px;
   padding: 0.6rem; border: 1px solid var(--border-accent); border-radius: var(--radius);
   background: var(--bg-card); box-shadow: 0 8px 24px rgba(0,0,0,0.35);
   grid-column: 2; justify-self: end;
@@ -421,7 +423,7 @@ html[data-theme-mode="light"] .inv-tile.vacant { background: var(--bg-card-hover
   padding: 0.45rem 0.55rem; border-radius: var(--radius-xs);
   border: 1px solid transparent; background: transparent;
   color: var(--text-dim); font: inherit; font-size: 0.82rem;
-  cursor: pointer; text-align: left;
+  cursor: pointer; text-align: start;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .store-nav-btn:hover { background: var(--bg-card-hover); color: var(--text); }

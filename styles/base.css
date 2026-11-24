@@ -37,7 +37,10 @@
   /* Set by core/theme.js's applyBgStripe — an independent, rank-gated
      overlay layered under --bg-image, decoupled from theme choice. */
   --bg-stripe-image: none;
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Heebo carries Hebrew, which Inter does not have. It comes after Inter,
+     so Latin and Cyrillic stay in Inter, and its files are only fetched
+     when a page actually shows Hebrew letters. */
+  --font: 'Inter', 'Heebo', -apple-system, BlinkMacSystemFont, sans-serif;
   --mono: 'JetBrains Mono', monospace;
   --radius: 16px;
   --radius-sm: 10px;
@@ -122,12 +125,12 @@ body {
    on purpose: paper is paper on every theme. */
 .letter-card {
   max-width: 460px; max-height: 85vh; overflow-y: auto;
-  text-align: left; padding: 1.8rem 1.9rem 1.5rem;
+  text-align: start; padding: 1.8rem 1.9rem 1.5rem;
   background: #f6f0e1; color: #2a2620; border-color: #d9cfb6;
   font-family: Georgia, "Times New Roman", serif;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
 }
-.letter-date { text-align: right; font-size: 0.8rem; color: #7a705e; margin: 0 0 1rem; }
+.letter-date { text-align: end; font-size: 0.8rem; color: #7a705e; margin: 0 0 1rem; }
 .letter-hello { font-size: 1.05rem; margin: 0 0 0.8rem; }
 .letter-p { font-size: 0.92rem; line-height: 1.6; margin: 0 0 0.8rem; }
 .letter-sign { font-style: italic; margin: 1rem 0 1.2rem; }
@@ -135,7 +138,7 @@ body {
 
 .modal-card-wide {
   max-width: 520px;
-  text-align: left;
+  text-align: start;
   max-height: 85vh;
   overflow-y: auto;
 }
@@ -143,7 +146,7 @@ body {
 .modal-close {
   position: absolute;
   top: 1rem;
-  right: 1rem;
+  inset-inline-end: 1rem;
   width: 32px;
   height: 32px;
   display: flex;
@@ -188,14 +191,14 @@ body {
    still gets a modal that fits on a phone. */
 .warning-list {
   max-height: 34vh; overflow-y: auto;
-  margin-bottom: 1.4rem; text-align: left;
+  margin-bottom: 1.4rem; text-align: start;
   display: flex; flex-direction: column; gap: 0.6rem;
 }
 .warning-item {
   padding: 0.7rem 0.85rem;
   background: var(--red-glow);
   border: 1px solid rgba(239, 68, 68, 0.35);
-  border-left: 3px solid var(--red);
+  border-inline-start: 3px solid var(--red);
   border-radius: var(--radius-sm);
 }
 .warning-item-msg {
@@ -394,7 +397,7 @@ body {
   font-family: var(--font);
   font-size: 0.82rem;
   color: var(--text-dim);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -501,10 +504,15 @@ body {
 .landing-scene {
   position: relative;
   z-index: 1;
-  width: min(580px, 94vw);
+  width: min(580px, 94vw, 100%);
   margin: 0.6rem auto 0;
 }
 .landing-scene:empty { display: none; }
+/* On a phone the 2rem side padding plus a 94vw scene was wider than the
+   screen and the start page scrolled sideways (2026-11-24). */
+@media (max-width: 480px) {
+  .landing-content { min-width: 0; max-width: 100%; box-sizing: border-box; padding: 2rem 0.75rem; }
+}
 .landing-scene-caption {
   margin: -0.6rem 0 1.1rem;
   font-size: 0.8rem;
@@ -519,7 +527,7 @@ body {
   transform: translate(-50%, -100%);
   padding: 0.6rem 0.75rem 0.65rem; border-radius: 6px;
   background: #f6f0e1; color: #2a2620; border: 1px solid #d9cfb6;
-  font-family: Georgia, "Times New Roman", serif; text-align: left;
+  font-family: Georgia, "Times New Roman", serif; text-align: start;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
   cursor: pointer; animation: scene-note-in 0.22s ease-out;
 }
@@ -733,49 +741,62 @@ body {
 .hud-nickname:not(:empty)::before { content: "\00b7"; margin-right: 0.35rem; }
 
 /* The foil sticker over the rank line, for newcomers (core/peel.js).
-   It shines and lifts a corner now and then to say it can be peeled.
-   Peeling takes seven seconds of work: --peel (0 to 1) is how much has
-   come away, clipped off from the right, with a lifted edge (the curl)
-   at the line where it is coming up and the rank showing behind. */
+   Holographic, with a white die-cut edge, a glare that sweeps across, a
+   slight tilt and one corner already lifting to show its paper back, so
+   it reads as a sticker to peel and not a grey label (2026-11-23,
+   «sticker to peel off doesnt look good»). Peeling takes seven seconds of
+   work: --peel (0 to 1) is how much has come away, clipped off from the
+   right, with the curl (the paper back) at the line where it is lifting. */
 .rank-peel {
   position: absolute; z-index: 2; box-sizing: border-box;
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 0.6rem; border-radius: 6px; cursor: grab; touch-action: none;
+  display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+  padding: 0 0.9rem; border-radius: 8px; cursor: grab; touch-action: none;
   user-select: none; -webkit-user-select: none;
-  background: linear-gradient(115deg, #d4d9e1 0%, #f8f9fb 22%, #b7bec9 40%, #eef0f3 58%, #a8afba 80%, #e2e5ea 100%);
-  background-size: 220% 100%;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.55);
-  color: #3a3f48; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap;
-  transform-origin: 0 50%;
-  animation: rank-peel-shine 3.4s linear infinite, rank-peel-hint 5s ease-in-out infinite;
+  background:
+    linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.85) 50%, transparent 62%) no-repeat,
+    linear-gradient(120deg, #cfd8ff 0%, #f6c9ff 20%, #c4f1ff 40%, #fff3c4 60%, #d4c6ff 80%, #ffd0e6 100%);
+  background-size: 250% 100%, 100% 100%;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92), 0 4px 10px rgba(0, 0, 0, 0.45);
+  color: #2f3350; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: rotate(-1.2deg); transform-origin: 0 50%;
+  animation: rank-peel-glare 4s ease-in-out infinite, rank-peel-hint 6s ease-in-out infinite;
   transition: transform 0.25s ease;
 }
+.rank-peel::before { content: "\2726"; font-size: 0.72rem; color: #6b5cff; text-shadow: none; }
+/* The lifted corner: the sticker's paper back folded over, with a shadow. */
 .rank-peel::after {
-  content: ""; position: absolute; top: 0; right: 0; width: 11px; height: 11px;
-  border-top-right-radius: 6px;
-  background: linear-gradient(225deg, rgba(var(--bg-deep-rgb), 0.9) 48%, #c7ccd4 50%, #eef0f3 100%);
-  box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.25);
+  content: ""; position: absolute; top: -1px; right: -1px; width: 15px; height: 15px;
+  border-top-right-radius: 8px;
+  background: linear-gradient(225deg, rgba(var(--bg-deep-rgb), 0.95) 47%, #fbf8f1 50%, #e3ddd0 100%);
+  box-shadow: -2px 2px 3px rgba(0, 0, 0, 0.3);
 }
-.rank-peel:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.rank-peel { clip-path: inset(0 calc(var(--peel, 0) * 100%) 0 0); }
+.rank-peel:hover { transform: rotate(-1.2deg) translateY(-1px); }
+.rank-peel:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* Negative insets keep the white edge and the shadow; the right inset is
+   the peel line. */
+.rank-peel { clip-path: inset(-6px calc(var(--peel, 0) * 100% - 6px) -10px -6px); }
 .rank-peel-curl {
-  display: none; position: absolute; top: 0; bottom: 0; width: 12px;
+  display: none; position: absolute; top: 0; bottom: 0; width: 14px;
   right: calc(var(--peel, 0) * 100%);
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.28), #f6f7f9 45%, #c3c9d2);
-  border-radius: 3px 0 0 3px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.3), #fbf8f1 40%, #ddd7cb);
+  border-radius: 4px 0 0 4px; box-shadow: -2px 0 4px rgba(0, 0, 0, 0.25);
 }
-.rank-peel.started { animation: rank-peel-shine 3.4s linear infinite; }
+.rank-peel.started { animation: rank-peel-glare 4s ease-in-out infinite; }
 .rank-peel.started::after { display: none; }
 .rank-peel.started .rank-peel-curl { display: block; }
-.rank-peel.peeling { animation: rank-peel-shine 3.4s linear infinite; transition: none; cursor: grabbing; }
+.rank-peel.peeling { transition: none; cursor: grabbing; }
 .rank-peel.gone { animation: rank-peel-off 0.45s ease-in forwards; pointer-events: none; }
-@keyframes rank-peel-shine { from { background-position: 0% 0; } to { background-position: 220% 0; } }
+@keyframes rank-peel-glare {
+  0%, 50% { background-position: 150% 0, 0 0; }
+  100% { background-position: -50% 0, 0 0; }
+}
 @keyframes rank-peel-hint {
-  0%, 84%, 100% { transform: none; }
-  90% { transform: perspective(320px) rotateY(-14deg); }
+  0%, 84%, 100% { transform: rotate(-1.2deg); }
+  90% { transform: rotate(-1.2deg) perspective(320px) rotateY(-16deg); }
 }
 @keyframes rank-peel-off {
-  to { transform: perspective(320px) rotateY(-115deg) translateY(-18px); opacity: 0; }
+  to { transform: rotate(-1.2deg) perspective(320px) rotateY(-115deg) translateY(-18px); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .rank-peel, .rank-peel.peeling { animation: none; }
@@ -786,9 +807,9 @@ body {
    drawn from the learner's own numbers over a title and a line or two,
    slid through by the buttons, a swipe or the arrow keys. The steps fill
    from the left as you go. */
-.rank-guide-card { max-width: 380px; padding: 0; overflow: hidden; text-align: left; }
+.rank-guide-card { max-width: 380px; padding: 0; overflow: hidden; text-align: start; }
 .rg-close {
-  position: absolute; top: 0.55rem; right: 0.6rem; z-index: 2;
+  position: absolute; top: 0.55rem; inset-inline-end: 0.6rem; z-index: 2;
   width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
   background: rgba(0, 0, 0, 0.28); color: var(--text); font-size: 1.15rem; line-height: 1;
 }
@@ -841,7 +862,7 @@ body {
 .rg-ladder { gap: 4px; }
 .rg-rung {
   display: flex; align-items: center; gap: 0.5rem; width: 230px; box-sizing: border-box;
-  padding: 0.25rem 0.6rem; border-radius: 8px; font-size: 0.82rem; text-align: left;
+  padding: 0.25rem 0.6rem; border-radius: 8px; font-size: 0.82rem; text-align: start;
   border: 1px solid var(--border); background: var(--bg-card);
 }
 .rg-rung.ahead { opacity: 0.6; border-style: dashed; }
@@ -939,7 +960,7 @@ body {
 .streak-popover strong { color: var(--text); }
 
 .streak-toast-layer {
-  position: fixed; top: 2.5rem; right: 0.7rem; z-index: 71;
+  position: fixed; top: 2.5rem; inset-inline-end: 0.7rem; z-index: 71;
   display: flex; flex-direction: column; gap: 0.4rem; pointer-events: none;
 }
 .streak-toast {
@@ -964,12 +985,12 @@ body {
   padding: 0.7rem 0.85rem; border-radius: var(--radius-sm);
   border-color: rgba(239, 68, 68, 0.55);
   background: var(--bg-surface);
-  font-weight: 500; line-height: 1.4; text-align: left;
+  font-weight: 500; line-height: 1.4; text-align: start;
   white-space: normal;
 }
 .streak-toast.save-failed strong { color: #fca5a5; font-weight: 700; }
 .save-failed-x {
-  margin-left: auto; flex: none; padding: 0 0.15rem;
+  margin-inline-start: auto; flex: none; padding: 0 0.15rem;
   background: none; border: none; cursor: pointer;
   color: var(--text-muted); font: inherit; font-size: 0.85rem; line-height: 1;
 }
@@ -1169,7 +1190,10 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
   100% { opacity: 0.3; transform: scale(1); }
 }
 
-/* The heat itself — a warm wave pushing outward past the disc. */
+/* The heat itself — a warm wave pushing outward past the disc. It used to
+   grow to 2.6x, and the sun sits near the right edge of a layer that clips:
+   the right half was cut off, so the glow looked one-sided (asked
+   2026-09-02, fixed 2026-11-24). 1.35x stays inside the 2.5rem margin. */
 .fx-heat {
   position: absolute; border-radius: 50%; pointer-events: none;
   background: radial-gradient(circle, rgba(255,138,43,0.5) 0%, rgba(255,190,80,0.28) 45%, transparent 70%);
@@ -1178,7 +1202,7 @@ html[data-bg-decor~="clouds"][data-sky="day"] .decor-clouds.cloud-day { display:
 @keyframes fx-heat {
   0%   { opacity: 0;    transform: scale(0.45); }
   22%  { opacity: 0.95; }
-  100% { opacity: 0;    transform: scale(2.6); }
+  100% { opacity: 0;    transform: scale(1.35); }
 }
 
 /* ---- Stars ----
@@ -1531,6 +1555,28 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .fx-dart-body { animation: fx-dart-out 0.4s 2.7s forwards; }
 }
+/* The hit: a ring punched out from the tip, and splinters flung off it. */
+.fx-dart-hit { position: absolute; width: 0; height: 0; pointer-events: none; }
+.fx-dart-ring {
+  position: absolute; left: -9px; top: -9px; width: 18px; height: 18px;
+  border-radius: 50%; border: 2px solid var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  animation: fx-dart-ring 0.5s ease-out forwards;
+}
+.fx-dart-chip {
+  position: absolute; left: -1.5px; top: -1.5px; width: 3px; height: 3px;
+  border-radius: 1px; background: #e8d9b5;
+  transform: rotate(var(--a)) translateX(0);
+  animation: fx-dart-chip 0.55s ease-out forwards;
+}
+@keyframes fx-dart-ring {
+  from { opacity: 0.95; transform: scale(0.3); }
+  to   { opacity: 0;    transform: scale(2.4); }
+}
+@keyframes fx-dart-chip {
+  from { opacity: 1; transform: rotate(var(--a)) translateX(2px); }
+  to   { opacity: 0; transform: rotate(var(--a)) translateX(var(--d)) translateY(6px); }
+}
 
 /* ---- Struck, but still flying ----
    The arrow rides inside the ghost, so it inherits the flight transform
@@ -1794,7 +1840,7 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 .post-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
 .post-av { font-size: 1.05rem; }
 .post-who { font-weight: 600; font-size: 0.9rem; }
-.post-when { margin-left: auto; font-size: 0.72rem; color: var(--text-muted); }
+.post-when { margin-inline-start: auto; font-size: 0.72rem; color: var(--text-muted); }
 
 .post-body {
   font-size: 0.92rem; line-height: 1.55; color: var(--text);
@@ -1813,7 +1859,7 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 .ps-num { font-family: var(--mono); font-weight: 700; color: var(--text); }
 
 .post-give {
-  margin-left: auto; font: inherit; font-size: 0.8rem; font-weight: 600;
+  margin-inline-start: auto; font: inherit; font-size: 0.8rem; font-weight: 600;
   padding: 0.35rem 0.8rem; border-radius: var(--radius-xs); cursor: pointer;
   background: var(--accent-glow); color: var(--accent-light);
   border: 1px solid var(--border-accent);
@@ -1831,9 +1877,9 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 .post-give.done { opacity: 1; color: var(--text-dim); border-style: dashed; }
 
 .post-thread {
-  margin-left: auto; font-size: 0.78rem; padding: 0.3rem 0.6rem;
+  margin-inline-start: auto; font-size: 0.78rem; padding: 0.3rem 0.6rem;
 }
-.post-thread + .post-give { margin-left: 0; }
+.post-thread + .post-give { margin-inline-start: 0; }
 
 /* Writing. The box is plain on purpose — a forum that decorates the
    compose field is telling you the writing matters less than the UI. */
@@ -1852,15 +1898,15 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 /* The remaining count sits BESIDE the button, not under the box, so it
    is read before the click rather than after. */
 .compose-left { font-size: 0.78rem; color: var(--text-muted); }
-.compose-foot .btn-primary { margin-left: auto; font-size: 0.85rem; padding: 0.4rem 1rem; }
+.compose-foot .btn-primary { margin-inline-start: auto; font-size: 0.85rem; padding: 0.4rem 1rem; }
 .compose.spent .compose-left { color: var(--text-dim); }
 
 /* A thread is inset under its post, so it reads as belonging to it
    rather than as more feed. */
 .thread {
-  margin-top: 0.8rem; padding-top: 0.7rem; padding-left: 0.9rem;
+  margin-top: 0.8rem; padding-top: 0.7rem; padding-inline-start: 0.9rem;
   border-top: 1px solid var(--border);
-  border-left: 2px solid var(--border-accent);
+  border-inline-start: 2px solid var(--border-accent);
   display: flex; flex-direction: column; gap: 0.7rem;
 }
 .reply .post-head { margin-bottom: 0.3rem; }
@@ -1878,9 +1924,38 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 
 @media (max-width: 26rem) {
   .forum-figures { grid-template-columns: 1fr; }
-  .fig { display: flex; align-items: baseline; justify-content: space-between; text-align: left; }
+  .fig { display: flex; align-items: baseline; justify-content: space-between; text-align: start; }
   .fig-label { margin-bottom: 0; }
 }
+
+/* Right-to-left (Hebrew). The top bar keeps its left-to-right order, rank
+   on the left and streak and wallet on the right, as in every other
+   language: in mirror image the rank line read as broken (2026-11-23,
+   «rank alignment broke, move it left»). The words inside still run in
+   their own direction. */
+html[dir="rtl"] #charge-bar,
+html[dir="rtl"] .vitals-strip { direction: ltr; }
+html[dir="rtl"] #charge-bar :is(#rank-label, #hud-nickname, #charge-value) { unicode-bidi: isolate; }
+/* Forward is to the left in Hebrew: the "→" on buttons and lobby tiles,
+   the onboarding's ‹ › and a closed fold's ▸ all turn round. The hover
+   nudge goes the same way as the arrow. */
+/* :where() keeps this as weak as plain .arrow, so a layout that hides
+   the arrows (the Star lobby) still hides them. */
+:where(html[dir="rtl"]) .arrow { display: inline-block; transform: scaleX(-1); }
+html[dir="rtl"] .btn-primary:hover .arrow { transform: scaleX(-1) translateX(4px); }
+html[dir="rtl"] .onb-arrow { transform: scaleX(-1); }
+html[dir="rtl"] .onb-arrow:hover { transform: scaleX(-1) scale(1.08); }
+html[dir="rtl"] .onb-arrow:active { transform: scaleX(-1) scale(0.94); }
+html[dir="rtl"] .gc-caret { transform: scaleX(-1); }
+html[dir="rtl"] .garden-course.open .gc-caret,
+html[dir="rtl"] .garden-explain.open .gc-caret { transform: rotate(90deg); }
+/* Course titles and labels take their direction from their own words, so
+   an English title ("What Are Computer Networks?") keeps its question mark
+   at the end inside the Hebrew app, and a Hebrew one still reads right to
+   left. */
+html[dir="rtl"] :is(.topic-title, .topic-desc, .roadmap-label, .gc-label, .plot-title, .gw-list,
+  .deck-topic-title, .dcc-title, .deck-unit-pill, .stats-topic-name, .weak-name,
+  .flashcard-topic, #lobby-resume-sub, #topic-map-unit-label) { unicode-bidi: plaintext; }
 
 /* Museum (museum/museum.js), in the demo where the Forum's tile was.
    Halls of exhibits. An exhibit is a card that opens on a tap, so the
@@ -1902,10 +1977,13 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 }
 .museum-summary::-webkit-details-marker { display: none; }
 .museum-summary::after {
-  content: "\203A"; margin-left: auto; color: var(--text-muted);
+  content: "\203A"; margin-inline-start: auto; color: var(--text-muted);
   transition: transform 0.2s ease;
 }
 .museum-exhibit[open] .museum-summary::after { transform: rotate(90deg); }
+/* In Hebrew the chevron points the other way, and still turns down to open. */
+html[dir="rtl"] .museum-summary::after { content: "\2039"; }
+html[dir="rtl"] .museum-exhibit[open] .museum-summary::after { transform: rotate(-90deg); }
 .museum-icon { font-size: 1.4rem; line-height: 1; }
 .museum-title { font-size: 1rem; font-weight: 600; }
 .museum-body { padding: 0 1rem 0.9rem; }
@@ -1924,9 +2002,9 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 .museum-more-summary::after { content: "\25BE"; font-size: 0.75rem; transition: transform 0.2s ease; }
 .museum-more[open] > .museum-more-summary { margin-bottom: 0.5rem; }
 .museum-more[open] > .museum-more-summary::after { transform: rotate(180deg); }
-.museum-more[open] { border-left: 2px solid var(--border-accent); padding-left: 0.8rem; }
+.museum-more[open] { border-inline-start: 2px solid var(--border-accent); padding-inline-start: 0.8rem; }
 .museum-list {
-  margin: 0 0 0.6rem; padding-left: 1.1rem;
+  margin: 0 0 0.6rem; padding-inline-start: 1.1rem;
   font-size: 0.9rem; line-height: 1.55; color: var(--text-muted);
 }
 .museum-list li { margin: 0.15rem 0; }
@@ -1960,7 +2038,7 @@ html[data-bg-scene="village"] .scene-village { display: block; }
 }
 .museum-zoom-caption { margin: 0; max-width: 60ch; text-align: center; font-size: 0.9rem; line-height: 1.45; color: #e6e9f0; }
 .museum-zoom-close {
-  position: absolute; top: 0.8rem; right: 0.8rem; width: 2.75rem; height: 2.75rem;
+  position: absolute; top: 0.8rem; inset-inline-end: 0.8rem; width: 2.75rem; height: 2.75rem;
   border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 1.6rem; line-height: 1; cursor: pointer;
 }
@@ -2057,7 +2135,7 @@ html[data-bg-scene="village"] .scene-village { display: block; }
    mid-exam over a network blip, which is the opposite of the point —
    sync failing must never stop studying. */
 .sync-notice {
-  position: fixed; left: 1rem; bottom: 1rem; z-index: 60;
+  position: fixed; inset-inline-start: 1rem; bottom: 1rem; z-index: 60;
   max-width: 280px; padding: 0.6rem 0.8rem; border-radius: 8px;
   background: var(--bg-card); border: 1px solid var(--border-accent);
   color: var(--text-dim); font-size: 0.76rem; line-height: 1.5;
@@ -2072,7 +2150,7 @@ html[data-bg-scene="village"] .scene-village { display: block; }
    centred modals: this is a form, and a centred form is harder to scan
    down. The card keeps the modal chrome so it still reads as the same
    family. */
-.auth-card { max-width: 400px; text-align: left; }
+.auth-card { max-width: 400px; text-align: start; }
 .auth-card .modal-icon,
 .auth-card .modal-title { text-align: center; }
 
@@ -2228,7 +2306,7 @@ body.hide-hints .lobby-hint { display: none; }
 .lobby-actions { display: flex; flex-direction: column; gap: 0.7rem; }
 .lobby-tile {
   display: flex; align-items: center; gap: 1rem; width: 100%;
-  padding: 1.05rem 1.2rem; cursor: pointer; text-align: left;
+  padding: 1.05rem 1.2rem; cursor: pointer; text-align: start;
   border: 1px solid var(--border); border-radius: var(--radius);
   background: var(--bg-card); color: var(--text); font: inherit;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
@@ -2580,7 +2658,7 @@ body.hide-hints .lobby-hint { display: none; }
   transition: opacity 0.28s ease, visibility 0s linear 0s;
 }
 #brand-watermark > span {
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Inter", "Heebo", system-ui, sans-serif;
   font-weight: 900;
   font-size: clamp(5rem, 26vw, 22rem);
   letter-spacing: -0.04em;

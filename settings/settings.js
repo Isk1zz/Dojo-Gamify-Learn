@@ -223,7 +223,7 @@
         renderCharge();
         updateProfileBadge();
         showLobby();
-      }).catch(() => alert("Could not read that file."));
+      }).catch(() => alert(I18N.t("set.readFail")));
     });
 
     showScreen("settings");

@@ -170,7 +170,7 @@
           // announcing Tokens that did not arrive is exactly the kind of
           // fiction this work exists to remove.
           if (Dojo.celebrateReward) {
-            Dojo.celebrateReward(`${course.title} complete`, { type: "tokens", amount: r.tokens });
+            Dojo.celebrateReward(I18N.t("lib.courseDone", { title: course.title }), { type: "tokens", amount: r.tokens });
           }
         });
       }
@@ -250,18 +250,18 @@
       // reason on hover, same treatment as the roadmap's ahead/yellow
       // explanation below.
       card.className = `topic-card course-card${c.available && !locked ? "" : " ahead restricted"}`;
-      if (!c.available) card.setAttribute("data-explain", "Not open yet — this course is still being built.");
-      else if (locked) card.setAttribute("data-explain", `Costs 🪙 ${coursePrice(c)} — click to view & buy.`);
+      if (!c.available) card.setAttribute("data-explain", I18N.t("lib.notOpen"));
+      else if (locked) card.setAttribute("data-explain", I18N.t("lib.costs", { n: coursePrice(c) }));
       card.innerHTML = `
         <div class="topic-num">${c.icon}</div>
         <div class="topic-title">${c.title}</div>
         <div class="topic-desc">${c.subtitle}</div>
         <div class="topic-meta">
-          <span>${unitCount} units</span>
+          <span>${I18N.tn("lib.units", unitCount)}</span>
           <span>·</span>
-          <span>${topicCount} topics</span>
+          <span>${I18N.tn("lib.topics", topicCount)}</span>
           <span>·</span>
-          <span>${pct}% complete</span>
+          <span>${I18N.t("lib.pctDone", { n: pct })}</span>
           ${!c.available ? `<span class="topic-badge ahead-badge">${I18N.t("lib.comingSoon")}</span>` : ""}
           ${c.available && locked ? `<span class="topic-badge ahead-badge">🪙 ${coursePrice(c)}</span>` : ""}
         </div>
@@ -631,7 +631,7 @@
     const deckBtn = document.createElement("button");
     deckBtn.className = "deck-builder-entry";
     deckBtn.type = "button";
-    deckBtn.innerHTML = `\u{1F5C2}️ Build a Custom Deck`;
+    deckBtn.innerHTML = `\u{1F5C2}️ ${I18N.t("lib.buildDeck")}`;
     deckBtn.addEventListener("click", openDeckBuilder);
     body.appendChild(deckBtn);
 
@@ -661,15 +661,15 @@
       const allDone = unitsToShow.every(u => UNIT_TOPICS[u.id].every(t => completedTopics.has(t.id)));
       const fq = DB.getFinalQuiz();
       const sub = !allDone
-        ? "Locked — finish every unit first"
+        ? I18N.t("lib.fqLocked")
         : fq.attempts
-          ? `Best: ${fq.bestScore}%${fq.completedAt ? " · passed" : ""}`
-          : "All units complete — ready when you are";
+          ? I18N.t("lib.fqBest", { n: fq.bestScore }) + (fq.completedAt ? " · " + I18N.t("lib.fqPassed") : "")
+          : I18N.t("lib.fqReady");
       const quizBtn = document.createElement("button");
       quizBtn.className = `deck-builder-entry${allDone ? "" : " locked"}`;
       quizBtn.type = "button";
       if (!allDone) quizBtn.disabled = true;
-      quizBtn.innerHTML = `${allDone ? "\u{1F393}" : "\u{1F512}"} Final Quiz <span class="deck-builder-entry-sub">${sub}</span>`;
+      quizBtn.innerHTML = `${allDone ? "\u{1F393}" : "\u{1F512}"} ${I18N.t("lib.finalQuiz")} <span class="deck-builder-entry-sub">${sub}</span>`;
       if (allDone) quizBtn.addEventListener("click", startFinalQuiz);
       body.appendChild(quizBtn);
     };
@@ -703,17 +703,17 @@
 
       const card = document.createElement("div");
       card.className = `topic-card${isAhead ? " ahead" : ""}`;
-      if (isAhead) card.setAttribute("data-explain", `Locked — finish “${unitsToShow[i - 1].title}” first.`);
+      if (isAhead) card.setAttribute("data-explain", I18N.t("lib.lockedAfter", { title: unitsToShow[i - 1].title }));
       card.innerHTML = `
         <div class="topic-num">${isAhead ? "\u{1F512}" : u.icon}</div>
         <div class="topic-title">${u.title} — ${u.subtitle}</div>
-        <div class="topic-desc">${topics.length} topics across ${u.modules.length} module${u.modules.length !== 1 ? "s" : ""}.</div>
+        <div class="topic-desc">${I18N.t(u.modules.length === 1 ? "lib.unitDesc1" : "lib.unitDesc", { n: topics.length, m: u.modules.length })}</div>
         <div class="topic-meta">
-          <span>${done}/${topics.length} mastered</span>
+          <span>${I18N.t("lib.doneOf", { done, total: topics.length })}</span>
           <span>·</span>
-          <span>${pct}% complete</span>
-          ${pct === 100 ? '<span class="topic-badge mastered">✓ Mastered</span>' : ""}
-          ${isAhead ? '<span class="topic-badge ahead-badge">\u{1F512} Locked</span>' : ""}
+          <span>${I18N.t("lib.pctDone", { n: pct })}</span>
+          ${pct === 100 ? `<span class="topic-badge mastered">✓ ${I18N.t("lib.badgeMastered")}</span>` : ""}
+          ${isAhead ? `<span class="topic-badge ahead-badge">\u{1F512} ${I18N.t("lib.badgeLocked")}</span>` : ""}
           ${rewardBadge}
         </div>
       `;
@@ -793,7 +793,7 @@
       const isAhead = !prereqDone && !isCompleted;
       // Locked — see PROJECT.md §5's "No hard locks" reversal note.
       const explain = isAhead
-        ? `Locked — finish “${unitsToShow[i - 1].title}” first.`
+        ? I18N.t("lib.lockedAfter", { title: unitsToShow[i - 1].title })
         : "";
 
       // Milestone reward chip — the "career track" styling: a small
@@ -813,7 +813,7 @@
       node.style.top = `${y}px`;
       node.innerHTML = `
         <div class="roadmap-cluster-ring"></div>
-        <button class="roadmap-bubble" title="${u.title}"${explain ? ` data-explain="${explain}"` : ""}>
+        <button class="roadmap-bubble" title="${u.title}"${explain ? ` data-explain="${explain.replace(/"/g, "&quot;")}"` : ""}>
           <span class="roadmap-bubble-inner">${isCompleted ? "✓" : isAhead ? "\u{1F512}" : u.icon}</span>
         </button>
         ${rewardChip}
@@ -833,7 +833,7 @@
         const dot = document.createElement("button");
         dot.className = `roadmap-chunk-dot${completedTopics.has(topics[t].id) ? " done" : ""}${isAhead ? " locked" : ""}`;
         dot.style.transform = `translate(-50%, -50%) translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
-        dot.title = isAhead ? `${topics[t].title} — locked` : topics[t].title;
+        dot.title = isAhead ? I18N.t("lib.titleLocked", { title: topics[t].title }) : topics[t].title;
         if (!isAhead) {
           dot.addEventListener("click", e => {
             e.stopPropagation();
@@ -857,7 +857,7 @@
       chestNode.style.left = `${chestPoint.x}%`;
       chestNode.style.top = `${chestPoint.y}px`;
       chestNode.innerHTML = `
-        <div class="roadmap-chest${claimed ? " claimed" : ""}" title="${course.title} complete">
+        <div class="roadmap-chest${claimed ? " claimed" : ""}" title="${I18N.t("lib.courseDone", { title: course.title })}">
           <span>\u{1F3C6}</span>
           <span class="roadmap-chest-amount">\u{1FA99}${COURSE_TOKEN_REWARD}</span>
         </div>
@@ -998,20 +998,20 @@
 
         const card = document.createElement("div");
         card.className = `topic-card${isCompleted ? " completed" : ""}${isCurrent ? " current" : ""}${isDue ? " due" : ""}${isAhead ? " ahead" : ""}`;
-        if (isAhead) card.setAttribute("data-explain", `Locked — finish “${state.currentTopics[flatIdx - 1].title}” first.`);
+        if (isAhead) card.setAttribute("data-explain", I18N.t("lib.lockedAfter", { title: state.currentTopics[flatIdx - 1].title }));
         card.innerHTML = `
-          ${isAhead ? "" : `<button class="topic-cards-btn" title="Flashcards for this topic">\u{1F5C2}\u{FE0F}</button>`}
+          ${isAhead ? "" : `<button class="topic-cards-btn" title="${I18N.t("lib.topicCards")}">\u{1F5C2}\u{FE0F}</button>`}
           <div class="topic-num">${isCompleted ? "✓" : isAhead ? "\u{1F512}" : flatIdx + 1}</div>
           <div class="topic-title">${topic.icon} ${topic.title}</div>
           <div class="topic-desc">${topic.desc}</div>
           <div class="topic-meta">
-            <span>${topic.chunks.length} chunks</span>
+            <span>${I18N.tn("lib.chunks", topic.chunks.length)}</span>
             <span>·</span>
-            <span>${topic.examQuestions.length}-q exam</span>
-            ${isDue ? '<span class="topic-badge due-badge">🔁 Due now</span>'
-              : isCompleted ? `<span class="topic-badge mastered">✓ Review in ${dueIn}d</span>` : ""}
-            ${isRecommended ? '<span class="topic-badge recommended">→ Recommended next</span>' : ""}
-            ${isAhead ? '<span class="topic-badge ahead-badge">\u{1F512} Locked</span>' : ""}
+            <span>${I18N.t("lib.examQ", { n: topic.examQuestions.length })}</span>
+            ${isDue ? `<span class="topic-badge due-badge">🔁 ${I18N.t("lib.dueNow")}</span>`
+              : isCompleted ? `<span class="topic-badge mastered">✓ ${I18N.tn("lib.reviewIn", dueIn)}</span>` : ""}
+            ${isRecommended ? `<span class="topic-badge recommended">${I18N.t("lib.recommended")}</span>` : ""}
+            ${isAhead ? `<span class="topic-badge ahead-badge">\u{1F512} ${I18N.t("lib.badgeLocked")}</span>` : ""}
           </div>
         `;
 
@@ -1114,7 +1114,7 @@
       // exists now. The reason is still shown on hover; it's just a
       // reason for the lock now; it used to excuse the ABSENCE of one.
       const explain = isAhead
-        ? `Locked — finish “${topics[i - 1].title}” first.`
+        ? I18N.t("lib.lockedAfter", { title: topics[i - 1].title })
         : "";
 
       const node = document.createElement("div");
@@ -1123,10 +1123,10 @@
       node.style.top = `${y}px`;
       node.innerHTML = `
         <div class="roadmap-cluster-ring"></div>
-        <button class="roadmap-bubble" title="${topic.title}"${explain ? ` data-explain="${explain}"` : ""}>
+        <button class="roadmap-bubble" title="${topic.title}"${explain ? ` data-explain="${explain.replace(/"/g, "&quot;")}"` : ""}>
           <span class="roadmap-bubble-inner">${isCompleted ? "✓" : isAhead ? "\u{1F512}" : topic.icon}</span>
         </button>
-        ${isAhead ? "" : `<button class="roadmap-cards-btn" title="Flashcards for this topic">\u{1F5C2}\u{FE0F}</button>`}
+        ${isAhead ? "" : `<button class="roadmap-cards-btn" title="${I18N.t("lib.topicCards")}">\u{1F5C2}\u{FE0F}</button>`}
         <div class="roadmap-label">${topic.title}</div>
       `;
 
@@ -1147,7 +1147,9 @@
         const dot = document.createElement("button");
         dot.className = `roadmap-chunk-dot${done.has(c) ? " done" : ""}${chunkLocked ? " locked" : ""}`;
         dot.style.transform = `translate(-50%, -50%) translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
-        dot.title = chunkLocked ? `Chunk ${c + 1} — locked` : `Chunk ${c + 1}`;
+        dot.title = chunkLocked
+          ? I18N.t("lib.titleLocked", { title: I18N.t("lib.chunkN", { n: c + 1 }) })
+          : I18N.t("lib.chunkN", { n: c + 1 });
         if (!chunkLocked) {
           dot.addEventListener("click", e => { e.stopPropagation(); startTopic(i, c); });
         }
@@ -1305,10 +1307,22 @@
     return (state.quizViewFor === key && state.quizView) ? state.quizView : chunk.quiz;
   }
 
+  // Material with no Hebrew in it (Intro to CS is English in every
+  // language) reads left to right inside the Hebrew app, so its full
+  // stops and question marks stay at the end of the line. Decided by the
+  // text itself: a course that gains Hebrew turns right to left on its own.
+  const HEBREW = /[\u0590-\u05FF]/;
+  function setContentDir(el, sample) {
+    if (!el) return;
+    if (I18N.isRtl() && sample && !HEBREW.test(sample)) el.dir = "ltr";
+    else el.removeAttribute("dir");
+  }
+
   function renderChunk() {
     const topic = getTopic();
     const chunk = topic.chunks[state.currentChunk];
     const body = document.getElementById("lesson-body");
+    setContentDir(body, chunk.title);
 
     // Progress counts real phases, so a chunk with predict/recall shows
     // an honest bar instead of one that jumps.
@@ -1348,10 +1362,10 @@
         <div class="quiz-options" id="predict-options">
           ${p.options.map((o, i) => `
             <button class="quiz-option${state.predictAnswer === i ? " selected" : ""}" data-idx="${i}">
-              <span class="qo-letter">${"ABCD"[i]}</span><span class="qo-text">${o}</span>
+              <span class="qo-letter">${I18N.letter(i)}</span><span class="qo-text">${o}</span>
             </button>`).join("")}
         </div>
-        ${answered ? `<div class="predict-after">${p.reveal || "Hold that thought \u2014 read on and see."}</div>` : ""}
+        ${answered ? `<div class="predict-after">${p.reveal || I18N.t("lib.holdThought")}</div>` : ""}
         <div class="chunk-actions">
           <button id="btn-next-phase" class="btn-primary" ${answered ? "" : "disabled"}>
             ${I18N.t("next.predict")} <span class="arrow">\u2192</span>
@@ -1512,7 +1526,7 @@
     // The shuffled copy, never chunk.quiz — same discipline as the exam
     // grading against state.examQuestions.
     const q = quizView(chunk);
-    const letters = ["A", "B", "C", "D", "E", "F"];
+    const letters = I18N.letters();
     const topic = getTopic();
 
     const optionsHtml = q.options.map((opt, i) => {
@@ -1700,7 +1714,7 @@
   // `state.finalQuizActive` is what actually diverts the result flow;
   // see showExamResults' first line.
   const FINAL_QUIZ_TOPIC = {
-    id: "final-quiz", title: "Final Quiz", icon: "\u{1F393}", chunks: [],
+    id: "final-quiz", title: I18N.t("lib.finalQuiz"), icon: "\u{1F393}", chunks: [],
     examQuestions: (typeof FINAL_QUIZ_QUESTIONS !== "undefined" ? FINAL_QUIZ_QUESTIONS : [])
   };
 
@@ -1727,7 +1741,8 @@
     const idx = state.examIndex;
     const q = state.examQuestions[idx];
     const body = document.getElementById("exam-body");
-    const letters = ["A", "B", "C", "D", "E", "F"];
+    setContentDir(body, q.question);
+    const letters = I18N.letters();
 
     document.getElementById("exam-score-display").textContent = `${idx + 1}/${total}`;
 
@@ -1802,6 +1817,19 @@
     if (finishBtn) finishBtn.addEventListener("click", () => showExamResults());
   }
 
+  // "in 3 days" in the reader's language. English and Hebrew have one
+  // form for 1 and one for the rest; Russian has three (1, 2-4, 5+), and
+  // 21 is "день" again. Handled here, not in the {var} templater.
+  function inDays(n) {
+    let key = "exam.timingDaysMany";
+    if (I18N.lang() === "ru") {
+      const d = n % 10, h = n % 100;
+      if (d === 1 && h !== 11) key = "exam.timingDays";
+      else if (d >= 2 && d <= 4 && !(h >= 12 && h <= 14)) key = "exam.timingDaysFew";
+    } else if (n === 1) key = "exam.timingDays";
+    return I18N.t(key, { n });
+  }
+
   function showExamResults() {
     // The Final Quiz gets its own result path entirely — see
     // startFinalQuiz's comment on why it can't safely fall through the
@@ -1852,12 +1880,7 @@
     document.getElementById("result-icon").textContent = passed ? "🎉" : (state.examMustRedoTopic ? "🔁" : "📚");
     document.getElementById("result-title").textContent = passed ? I18N.t("exam.mastered") : I18N.t("exam.notYet");
     document.getElementById("btn-retry").textContent = state.examMustRedoTopic ? I18N.t("exam.redoTopic") : I18N.t("exam.retry");
-    // "1 day" vs "N days" is handled in JS, not the {var} templater --
-    // Russian needs three plural forms (1 / 2-4 / 5+), English only two.
-    const dayKey = nextIn === 1 ? "exam.timingDays"
-      : (nextIn % 10 >= 2 && nextIn % 10 <= 4 && !(nextIn % 100 >= 12 && nextIn % 100 <= 14)) ? "exam.timingDaysFew"
-      : "exam.timingDaysMany";
-    const timing = I18N.t(dayKey, { n: nextIn });
+    const timing = inDays(nextIn);
     document.getElementById("result-desc").textContent = passed
       ? I18N.t("exam.descPassed", { correct, total, title: topic.title, timing })
       : state.examMustRedoTopic
@@ -1893,7 +1916,7 @@
       Dojo.Earn.claim(Dojo.Earn.id.topic(topic.id), pct).then(r => {
         if (!bonusEl || !r || r.status !== "paid" || !r.xp) { renderCharge(); return; }
         showChargeGain(r.xp, scoreCard, before);
-        bonusEl.innerHTML = `<span class="charge-award">\u26A1 +${r.xp} XP <span class="ca-mult">(&times;${(r.mult || mult).toFixed(2)} for ${pct}%)</span></span>`;
+        bonusEl.innerHTML = `<span class="charge-award">\u26A1 +${r.xp} XP <span class="ca-mult">${I18N.t("lib.multFor", { mult: (r.mult || mult).toFixed(2), pct })}</span></span>`;
       });
     }
 
@@ -1962,13 +1985,13 @@
     const elapsedMs = Date.now() - (state.finalQuizStartedAt || Date.now());
     const tooFast = elapsedMs < total * 4000;
 
-    document.getElementById("btn-to-topics").textContent = "Back to Library";
+    document.getElementById("btn-to-topics").textContent = I18N.t("lib.backToLibrary");
     document.getElementById("result-icon").textContent = passed ? "\u{1F393}" : "\u{1F4DA}";
-    document.getElementById("result-title").textContent = passed ? "Final Quiz Passed!" : "Not Quite Yet";
-    document.getElementById("btn-retry").textContent = "Retry Final Quiz";
+    document.getElementById("result-title").textContent = I18N.t(passed ? "lib.fqPassedTitle" : "exam.notYet");
+    document.getElementById("btn-retry").textContent = I18N.t("lib.fqRetry");
     document.getElementById("result-desc").textContent = passed
-      ? `You scored ${correct}/${total} across all 8 units — that's a genuine cumulative pass, not just one topic.`
-      : `You scored ${correct}/${total}. 80% passes. Nothing here is graded against you — retry whenever you're ready.`;
+      ? I18N.t("lib.fqDescPass", { correct, total })
+      : I18N.t("lib.fqDescFail", { correct, total });
     const scoreEl = document.getElementById("result-score");
     scoreEl.textContent = `${pct}%`;
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
@@ -1993,15 +2016,15 @@
         // giving 0, same "no hard locks, but be honest about limits"
         // shape as everywhere else in this app.
         bonusEl.innerHTML = `<span class="charge-award full">${tooFast
-          ? "No XP this time — that finished too fast for a genuine read."
-          : "No XP this time — today's Final Quiz XP cap is used up."}</span>`;
+          ? I18N.t("lib.noXpFast")
+          : I18N.t("lib.noXpCap")}</span>`;
       } else if (Dojo.Earn) {
         bonusEl.innerHTML = "";
         const before = DB.getXp();
         Dojo.Earn.claim(FINAL_QUIZ_ITEM, pct).then(r => {
           if (!r || r.status !== "paid" || !r.xp) { renderCharge(); return; }
           showChargeGain(r.xp, scoreEl, before);
-          bonusEl.innerHTML = `<span class="charge-award">⚡ +${r.xp} XP <span class="ca-mult">(&times;${(r.mult || mult).toFixed(2)} for ${pct}%)</span></span>`;
+          bonusEl.innerHTML = `<span class="charge-award">⚡ +${r.xp} XP <span class="ca-mult">${I18N.t("lib.multFor", { mult: (r.mult || mult).toFixed(2), pct })}</span></span>`;
         });
 
         // One-time completion bonus, on top of the scaled per-attempt
@@ -2013,7 +2036,7 @@
           Dojo.Earn.claim(FINAL_QUIZ_FIRST_ITEM).then(r => {
             if (!r || r.status !== "paid" || !r.xp) return;
             showChargeGain(r.xp, scoreEl, DB.getXp() - r.xp);
-            bonusEl.innerHTML += `<br><span class="charge-award">\u{1F393} +${r.xp} XP <span class="ca-mult">first Final Quiz pass</span></span>`;
+            bonusEl.innerHTML += `<br><span class="charge-award">\u{1F393} +${r.xp} XP <span class="ca-mult">${I18N.t("lib.fqFirst")}</span></span>`;
           });
         }
       }
@@ -2098,7 +2121,7 @@
     state.currentCourse = course.id;
     state.deckBuilderFromLobby = true;
     const backBtn = document.getElementById("btn-back-deckbuilder");
-    if (backBtn) backBtn.textContent = "← Lobby";
+    if (backBtn) backBtn.textContent = I18N.t("ui.back.lobby");
 
     // A priced, unowned course used to fall straight through into the
     // deck builder anyway — openFlashcardsHub always grabbed COURSES[0]
@@ -2113,8 +2136,8 @@
         body.innerHTML = `
           <div class="deck-builder-intro" style="text-align:center; padding: 3rem 1rem;">
             <div style="font-size:2.4rem; margin-bottom:0.75rem;">${course.icon}</div>
-            <p style="margin-bottom:1rem;">Flashcards are built from ${course.title}'s content — unlock the course to start reviewing.</p>
-            <button id="flashcards-void-buy" class="btn-primary">View & buy — 🪙 ${coursePrice(course)}</button>
+            <p style="margin-bottom:1rem;">${I18N.t("lib.cardsLocked", { title: course.title })}</p>
+            <button id="flashcards-void-buy" class="btn-primary">${I18N.t("lib.viewBuy", { n: coursePrice(course) })}</button>
           </div>`;
         const buyBtn = document.getElementById("flashcards-void-buy");
         if (buyBtn) buyBtn.addEventListener("click", () => showCourseBuyModal(course, openFlashcardsHub));
@@ -2150,15 +2173,15 @@
 
     const intro = document.createElement("p");
     intro.className = "deck-builder-intro";
-    intro.textContent = "Pick units and chunks to build a review deck. Weakest cards come up first.";
+    intro.textContent = I18N.t("deck.intro");
     body.appendChild(intro);
 
     if (!picker.mode) picker.mode = "quiz";
     const modeToggle = document.createElement("div");
     modeToggle.className = "topic-view-toggle";
     modeToggle.innerHTML = `
-      <button class="tvt-btn${picker.mode === "quiz" ? " active" : ""}" data-mode="quiz">❓ Quiz cards</button>
-      <button class="tvt-btn${picker.mode === "glossary" ? " active" : ""}" data-mode="glossary">\u{1F4D6} Definitions</button>`;
+      <button class="tvt-btn${picker.mode === "quiz" ? " active" : ""}" data-mode="quiz">❓ ${I18N.t("deck.modeQuiz")}</button>
+      <button class="tvt-btn${picker.mode === "glossary" ? " active" : ""}" data-mode="glossary">\u{1F4D6} ${I18N.t("deck.modeDefs")}</button>`;
     modeToggle.querySelectorAll(".tvt-btn").forEach(b => {
       b.addEventListener("click", () => {
         picker.mode = b.getAttribute("data-mode");
@@ -2169,7 +2192,7 @@
     if (picker.mode === "glossary") {
       const note = document.createElement("p");
       note.className = "deck-builder-intro";
-      note.textContent = "Term on the front, a short definition on the back — no options, no explanation. Minimalistic, for quick recall drilling.";
+      note.textContent = I18N.t("deck.defsNote");
       body.appendChild(note);
     }
 
@@ -2184,7 +2207,7 @@
     const filterRow = document.createElement("div");
     filterRow.className = "deck-confidence-filter";
     filterRow.innerHTML = `
-      <span class="deck-confidence-filter-label">Filter by confidence:</span>
+      <span class="deck-confidence-filter-label">${I18N.t("deck.filterConf")}</span>
       ${CONFIDENCE.map(c => `
         <button type="button" class="deck-conf-chip conf-${c.id}${picker.confidenceFilter.has(c.level) ? " active" : ""}" data-level="${c.level}">
           ${c.icon} ${c.label}
@@ -2223,7 +2246,7 @@
       pill.textContent = locked ? `\u{1F512} ${u.title}` : `${u.icon} ${u.title}`;
       if (locked) {
         pill.disabled = true;
-        pill.title = "Locked — finish the previous unit first.";
+        pill.title = I18N.t("deck.unitLocked");
       } else {
         pill.addEventListener("click", () => {
           if (picker.unitIds.has(uid)) picker.unitIds.delete(uid); else picker.unitIds.add(uid);
@@ -2268,7 +2291,7 @@
           lockedSection.innerHTML = `
             <div class="deck-topic-header">
               <span class="deck-topic-title">\u{1F512} ${t.title}</span>
-              <span class="deck-topic-count">Locked</span>
+              <span class="deck-topic-count">${I18N.t("lib.badgeLocked")}</span>
             </div>`;
           list.appendChild(lockedSection);
           return;
@@ -2283,7 +2306,7 @@
         header.innerHTML = `
           <span class="deck-topic-title">${t.title}</span>
           <span class="deck-topic-count">${selectedInTopic}/${sourceChunks}</span>
-          <button class="deck-topic-toggle-all" type="button">${selectedInTopic === sourceChunks ? "Clear" : "All"}</button>
+          <button class="deck-topic-toggle-all" type="button">${I18N.t(selectedInTopic === sourceChunks ? "deck.clear" : "deck.all")}</button>
         `;
         header.querySelector(".deck-topic-toggle-all").addEventListener("click", () => {
           const allSelected = selectedInTopic === sourceChunks;
@@ -2313,7 +2336,7 @@
           chip.innerHTML = `
             <span class="dcc-dot"></span>
             <span class="dcc-title">${c.title}</span>
-            ${mode === "glossary" ? `<span class="dcc-new-badge">${c.glossary.length} term${c.glossary.length === 1 ? "" : "s"}</span>` : !isDone ? '<span class="dcc-new-badge">new</span>' : ""}
+            ${mode === "glossary" ? `<span class="dcc-new-badge">${I18N.tn("deck.terms", c.glossary.length)}</span>` : !isDone ? `<span class="dcc-new-badge">${I18N.t("deck.new")}</span>` : ""}
           `;
           chip.addEventListener("click", () => {
             if (picker.chunks.has(key)) picker.chunks.delete(key); else picker.chunks.add(key);
@@ -2331,14 +2354,14 @@
       const empty = document.createElement("p");
       empty.className = "deck-builder-intro";
       empty.textContent = mode === "glossary"
-        ? "No definitions written for the selected units yet."
-        : "No quiz-backed chunks in the selected units.";
+        ? I18N.t("deck.noDefs")
+        : I18N.t("deck.noQuiz");
       body.appendChild(empty);
     }
 
     const footer = document.createElement("div");
     footer.className = "deck-builder-footer";
-    footer.innerHTML = `<button id="btn-start-custom-deck" class="btn-primary"${totalSelected === 0 ? " disabled" : ""}>Start Review (${totalSelected} card${totalSelected === 1 ? "" : "s"})</button>`;
+    footer.innerHTML = `<button id="btn-start-custom-deck" class="btn-primary"${totalSelected === 0 ? " disabled" : ""}>${I18N.tn("deck.start", totalSelected)}</button>`;
     body.appendChild(footer);
 
     const startBtn = document.getElementById("btn-start-custom-deck");
@@ -2421,7 +2444,7 @@
     state.flashConfidence = {};
     state.flashCardShownAt = Date.now();
     const title = document.getElementById("flashcard-title");
-    if (title) title.textContent = mode === "glossary" ? "\u{1F4D6} Definitions" : "\u{1F5C2}️ Custom Deck";
+    if (title) title.textContent = mode === "glossary" ? "\u{1F4D6} " + I18N.t("deck.modeDefs") : "\u{1F5C2}️ " + I18N.t("ui.screen.deck");
     renderFlashcard();
     showScreen("flashcards");
   }
@@ -2504,7 +2527,7 @@
     state.flashConfidence = {};
     state.flashCardShownAt = Date.now();
     const title = document.getElementById("flashcard-title");
-    if (title) title.textContent = "\u{1F4A7} Review";
+    if (title) title.textContent = "\u{1F4A7} " + I18N.t("ui.screen.review");
     renderFlashcard();
     showScreen("flashcards");
   }
@@ -2534,6 +2557,7 @@
     const card = deck[state.flashIndex];
     if (counter) counter.textContent = `${state.flashIndex + 1}/${deck.length}`;
     state.flashFlipped = false;
+    setContentDir(body, card.q);
 
     body.innerHTML = `
       <div class="flashcard-topic">${card.topicTitle}</div>
@@ -2681,7 +2705,7 @@
     if (state.flashCustom) return finishCustomDeck();
     const topic = state.flashTopic;
     state.lastReviewMode = "flashcards";
-    document.getElementById("btn-to-topics").textContent = "Back to Topics";
+    document.getElementById("btn-to-topics").textContent = I18N.t("btn.backToTopics");
     const total = state.flashResults.length;
     const known = state.flashResults.filter(Boolean).length;
     const pct = total ? Math.round((known / total) * 100) : 0;
@@ -2702,17 +2726,16 @@
     const nextIn = DB.daysUntilDue(topic.id);
 
     document.getElementById("result-icon").textContent = passed ? "💧" : "🌱";
-    document.getElementById("result-title").textContent = passed ? "Watered!" : "Still Thirsty";
-    document.getElementById("btn-retry").textContent = "Review Again";
+    document.getElementById("result-title").textContent = I18N.t(passed ? "fc.watered" : "fc.thirsty");
+    document.getElementById("btn-retry").textContent = I18N.t("fc.again");
     // Don't assert HOW the interval moved (reset vs. still advanced but
     // slower) — the 80% shown here is a display threshold, not the SM-2
     // quality<3 lapse threshold underneath, so pct 50-79% still nudges
     // the interval forward even though it reads as "failed" on screen.
     // nextIn is always the true outcome; only claim the number.
-    document.getElementById("result-desc").textContent = (passed
-      ? `You knew ${known}/${total} on "${topic.title}". Back for review in ${nextIn} day${nextIn === 1 ? "" : "s"} — that's when it does the most good.`
-      : `You knew ${known}/${total} — below the 80% that keeps it growing. "${topic.title}" comes back for review in ${nextIn} day${nextIn === 1 ? "" : "s"}.`)
-      + (rushed ? ` ${rushed} card${rushed === 1 ? "" : "s"} answered too fast to count toward XP.` : "");
+    document.getElementById("result-desc").textContent =
+      I18N.t(passed ? "fc.descPass" : "fc.descFail", { known, total, title: topic.title, timing: inDays(nextIn) })
+      + (rushed ? " " + I18N.tn("fc.rushed", rushed) : "");
     const scoreEl = document.getElementById("result-score");
     scoreEl.textContent = `${pct}%`;
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
@@ -2761,7 +2784,7 @@
   // a custom deck reviews chunks, it doesn't complete topics.
   function finishCustomDeck() {
     state.lastReviewMode = "custom-flashcards";
-    document.getElementById("btn-to-topics").textContent = "Back to Deck Builder";
+    document.getElementById("btn-to-topics").textContent = I18N.t("fc.backToDeck");
     const deck = state.flashDeck;
     const total = state.flashResults.length;
     const known = state.flashResults.filter(Boolean).length;
@@ -2778,10 +2801,10 @@
     Bus.emit("review:finished", { custom: true, known, total, passed });
 
     document.getElementById("result-icon").textContent = passed ? "\u{1F5C2}️" : "\u{1F4DD}";
-    document.getElementById("result-title").textContent = passed ? "Deck Cleared!" : "Good Rep";
-    document.getElementById("btn-retry").textContent = "Review Again";
-    document.getElementById("result-desc").textContent = `You knew ${known}/${total} on this custom deck.`
-      + (rushed ? ` ${rushed} card${rushed === 1 ? "" : "s"} answered too fast to count toward XP.` : "");
+    document.getElementById("result-title").textContent = I18N.t(passed ? "fc.deckCleared" : "fc.goodRep");
+    document.getElementById("btn-retry").textContent = I18N.t("fc.again");
+    document.getElementById("result-desc").textContent = I18N.t("fc.deckDesc", { known, total })
+      + (rushed ? " " + I18N.tn("fc.rushed", rushed) : "");
     const scoreEl = document.getElementById("result-score");
     scoreEl.textContent = `${pct}%`;
     scoreEl.className = `result-score ${passed ? "pass" : "fail"}`;
@@ -2843,7 +2866,7 @@
   on("btn-back-deckbuilder", () => {
     if (state.deckBuilderFromLobby) {
       state.deckBuilderFromLobby = false;
-      document.getElementById("btn-back-deckbuilder").textContent = "← Unit";
+      document.getElementById("btn-back-deckbuilder").textContent = I18N.t("ui.back.unit");
       Dojo.showLobby();
     } else {
       showScreen("unit-select"); renderUnitSelect();

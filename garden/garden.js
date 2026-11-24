@@ -49,13 +49,13 @@
   // nothing. That lands on 1/1/2/2/3 across the five mastered stages,
   // which is the split that was decided for the forum.
   const GROWTH = I18N.resolve([
-    { min: -1, icon: "\u{1F311}", name: { en: "Fallow", ru: "Пар" },   hint: { en: "Not started", ru: "Не начата" },                 weight: 0 },
-    { min: 0,  icon: "\u{1F330}", name: { en: "Seed", ru: "Семя" },     hint: { en: "Attempted, not yet mastered", ru: "Начата, не освоена" }, weight: 0 },
-    { min: 1,  icon: "\u{1F331}", name: { en: "Sprout", ru: "Росток" },   hint: { en: "Mastered, held under a week", ru: "Освоена, держится меньше недели" }, weight: 1 },
-    { min: 7,  icon: "\u{1F33F}", name: { en: "Seedling", ru: "Саженец" }, hint: { en: "Held a week", ru: "Держится неделю" },                 weight: 1 },
-    { min: 21, icon: "\u{1F33E}", name: { en: "Growing", ru: "Рост" },  hint: { en: "Held three weeks", ru: "Держится три недели" },            weight: 2 },
-    { min: 30, icon: "\u{1F333}", name: { en: "Tree", ru: "Дерево" },     hint: { en: "Held a month", ru: "Держится месяц" },                weight: 2 },
-    { min: 60, icon: "\u{1F338}", name: { en: "Blossom", ru: "Цветение" },  hint: { en: "Held two months", ru: "Держится два месяца" },             weight: 3 }
+    { min: -1, icon: "\u{1F311}", name: { en: "Fallow", ru: "Пар", he: "בור" },   hint: { en: "Not started", ru: "Не начата", he: "לא התחיל" },                 weight: 0 },
+    { min: 0,  icon: "\u{1F330}", name: { en: "Seed", ru: "Семя", he: "זרע" },     hint: { en: "Attempted, not yet mastered", ru: "Начата, не освоена", he: "התחיל, עוד לא נלמד" }, weight: 0 },
+    { min: 1,  icon: "\u{1F331}", name: { en: "Sprout", ru: "Росток", he: "נבט" },   hint: { en: "Mastered, held under a week", ru: "Освоена, держится меньше недели", he: "נלמד, מחזיק פחות משבוע" }, weight: 1 },
+    { min: 7,  icon: "\u{1F33F}", name: { en: "Seedling", ru: "Саженец", he: "שתיל" }, hint: { en: "Held a week", ru: "Держится неделю", he: "מחזיק שבוע" },                 weight: 1 },
+    { min: 21, icon: "\u{1F33E}", name: { en: "Growing", ru: "Рост", he: "צומח" },  hint: { en: "Held three weeks", ru: "Держится три недели", he: "מחזיק שלושה שבועות" },            weight: 2 },
+    { min: 30, icon: "\u{1F333}", name: { en: "Tree", ru: "Дерево", he: "עץ" },     hint: { en: "Held a month", ru: "Держится месяц", he: "מחזיק חודש" },                weight: 2 },
+    { min: 60, icon: "\u{1F338}", name: { en: "Blossom", ru: "Цветение", he: "פריחה" },  hint: { en: "Held two months", ru: "Держится два месяца", he: "מחזיק חודשיים" },             weight: 3 }
   ]);
   function growthFor(topicId) {
     const completed = DB.getCompletedTopics();
@@ -226,8 +226,8 @@
     water.className = `garden-water${dueTopics.length ? " due" : ""}`;
     water.innerHTML = dueTopics.length
       ? `<div class="gw-left">
-           <div class="gd-title">\u{1F6BF} ${dueTopics.length} plant${dueTopics.length === 1 ? "" : "s"} need${dueTopics.length === 1 ? "s" : ""} watering</div>
-           <div class="gw-list">${dueTopics.slice(0, 4).map(t => `${t.icon} ${t.title}`).join(" \u00b7 ")}${dueTopics.length > 4 ? ` \u00b7 +${dueTopics.length - 4} more` : ""}</div>
+           <div class="gd-title">\u{1F6BF} ${I18N.tn("garden.needWater", dueTopics.length)}</div>
+           <div class="gw-list">${dueTopics.slice(0, 4).map(t => `${t.icon} ${t.title}`).join(" \u00b7 ")}${dueTopics.length > 4 ? ` \u00b7 ${I18N.t("garden.more", { n: dueTopics.length - 4 })}` : ""}</div>
          </div>
          <button id="btn-garden-review" class="btn-primary">${I18N.t("garden.waterFirst")} <span class="arrow">\u2192</span></button>`
       : `<div class="gw-left">
@@ -263,7 +263,7 @@
           <span class="gc-caret">\u25B8</span>
           <span class="gc-icon">${c.icon || "\u{1F4DA}"}</span>
           <span class="gc-title">${c.title}</span>
-          <span class="gc-stat">${planted}/${topics.length} planted</span>
+          <span class="gc-stat">${I18N.t("garden.plantedOf", { n: planted, of: topics.length })}</span>
           ${dueHere ? `<span class="gc-duecount">\u{1F4A7} ${dueHere}</span>` : ""}
         </button>`;
 
@@ -390,7 +390,7 @@
       const isDue = due.includes(t.id);
       const cell = document.createElement("div");
       cell.className = `garden-cell${g === GROWTH[0] ? " fallow" : ""}${isDue ? " due" : ""}`;
-      cell.setAttribute("title", `${t.title} \u2014 ${g.name}: ${g.hint}${isDue ? " \u2014 due for review" : ""}`);
+      cell.setAttribute("title", `${t.title} \u2014 ${g.name}: ${g.hint}${isDue ? " \u2014 " + I18N.t("garden.dueLower") : ""}`);
       cell.innerHTML = `
         ${isDue ? `<span class="gc-due" title="${I18N.t("garden.due")}">\u{1F4A7}</span>` : ""}
         <span class="gc-plant">${g.icon}</span>

@@ -16,34 +16,34 @@
 
 (() => {
   const L = {
-    title: { en: "A letter", ru: "Письмо" },
-    date: { en: "November 2026", ru: "Ноябрь 2026" },
+    title: { en: "A letter", ru: "Письмо", he: "מכתב" },
+    date: { en: "November 2026", ru: "Ноябрь 2026", he: "נובמבר 2026" },
     // The author's own words (2026-11-22), tidied but not rewritten. The
     // second paragraph says what the author's part was, in concrete
     // terms, as asked ("add some reassuring words that im not nobody"):
     // decisions the author made and the rest of the app is built on, and
     // nothing claimed that was not done.
-    hello: { en: "Hello, adventurer.", ru: "Привет, путник." },
+    hello: { en: "Hello, adventurer.", ru: "Привет, путник.", he: "שלום, הרפתקן." },
     what: {
       en: "I hear you have come a long way before stumbling upon Knell. In short, it is a study app, built to keep you engaged from the first lesson to the last. The Garden is its heart: every topic you pass becomes a plant, and it grows each time you come back to it, so that nothing you learned is left to fade.",
-      ru: "Говорят, вы проделали долгий путь, прежде чем наткнуться на Knell. Если коротко, это приложение для учёбы, устроенное так, чтобы держать интерес от первого урока до последнего. Его сердце — Сад: каждая сданная тема становится растением и растёт всякий раз, когда вы к ней возвращаетесь, чтобы ничто выученное не забылось."
+      ru: "Говорят, вы проделали долгий путь, прежде чем наткнуться на Knell. Если коротко, это приложение для учёбы, устроенное так, чтобы держать интерес от первого урока до последнего. Его сердце — Сад: каждая сданная тема становится растением и растёт всякий раз, когда вы к ней возвращаетесь, чтобы ничто выученное не забылось.", he: "שמעתי שעברת דרך ארוכה לפני שנתקלת ב־Knell. בקצרה, זו אפליקציה ללימוד, שנבנתה כדי שהלמידה תמשוך אותך מהשיעור הראשון ועד האחרון. הגינה היא הלב שלה: כל נושא שעוברים הופך לצמח, והוא גדל בכל פעם שחוזרים אליו, כך ששום דבר שלמדת לא נשאר לדעוך."
     },
     who: {
       en: "I designed Knell and lived inside it, in my head, for a month of full-time work. Every screen, every rule and every trade-off was my call: what a lesson is, when an exam lets a topic into review, how the garden grows and withers, and what the server must never trust a browser with. The code was written with Claude, under my direction. I tested it as it grew, and nothing went in without my say.",
-      ru: "Я придумал Knell и месяц жил им с утра до ночи. Каждый экран, каждое правило и каждый компромисс — моё решение: что такое урок, когда экзамен пускает тему в повторение, как сад растёт и вянет и чего сервер никогда не доверит браузеру. Код написан с Claude под моим руководством. Я проверял его по ходу, и ничего не попало в приложение без моего решения."
+      ru: "Я придумал Knell и месяц жил им с утра до ночи. Каждый экран, каждое правило и каждый компромисс — моё решение: что такое урок, когда экзамен пускает тему в повторение, как сад растёт и вянет и чего сервер никогда не доверит браузеру. Код написан с Claude под моим руководством. Я проверял его по ходу, и ничего не попало в приложение без моего решения.", he: "תכננתי את Knell וחייתי בתוכו, בראש שלי, חודש של עבודה במשרה מלאה. כל מסך, כל כלל וכל פשרה היו ההחלטה שלי: מה זה שיעור, מתי מבחן מכניס נושא לחזרות, איך הגינה גדלה ונובלת, ובמה השרת לעולם לא יסמוך על הדפדפן. הקוד נכתב עם Claude, בהנחיה שלי. בדקתי אותו בזמן שגדל, ושום דבר לא נכנס בלי אישור שלי."
     },
     demo: {
       en: "You are in the demo. There is no server behind it to keep accounts or rankings, so the Forum stands in the museum and your progress stays in this browser. The Museum, in the lobby, explains how the rest was meant to work.",
-      ru: "Вы в демо. За ним нет сервера, который хранил бы аккаунты и рейтинги, поэтому форум стоит в музее, а прогресс хранится только в этом браузере. Как было задумано остальное, рассказывает Музей в лобби."
+      ru: "Вы в демо. За ним нет сервера, который хранил бы аккаунты и рейтинги, поэтому форум стоит в музее, а прогресс хранится только в этом браузере. Как было задумано остальное, рассказывает Музей в лобби.", he: "זה הדמו. אין מאחוריו שרת שישמור חשבונות או דירוגים, ולכן הפורום עומד במוזיאון וההתקדמות שלך נשארת בדפדפן הזה. המוזיאון, שבלובי, מסביר איך כל השאר היה אמור לעבוד."
     },
     real: {
       en: "This is the real app. Its server has been switched off since 2026, so signing in no longer works. The demo opens without an account: isk1zz.github.io/knell_demo",
-      ru: "Это настоящее приложение. Его сервер выключен с 2026 года, поэтому войти уже не получится. Демо открывается без аккаунта: isk1zz.github.io/knell_demo"
+      ru: "Это настоящее приложение. Его сервер выключен с 2026 года, поэтому войти уже не получится. Демо открывается без аккаунта: isk1zz.github.io/knell_demo", he: "זו האפליקציה האמיתית. השרת שלה כבוי מאז 2026, ולכן כבר אי אפשר להיכנס לחשבון. הדמו נפתח בלי חשבון: isk1zz.github.io/knell_demo"
     },
     // No link to the source repository: its author does not plan to carry
     // it on, so the letter does not point there (2026-11-22).
-    sign: { en: "Illia “isk1zz” Polianskyi", ru: "Illia «isk1zz» Polianskyi" },
-    close: { en: "Close", ru: "Закрыть" }
+    sign: { en: "Illia “isk1zz” Polianskyi", ru: "Illia «isk1zz» Polianskyi", he: "Illia “isk1zz” Polianskyi" },
+    close: { en: "Close", ru: "Закрыть", he: "סגירה" }
   };
   const t = key => {
     const lang = (typeof I18N !== "undefined" && I18N.lang && I18N.lang()) || "en";

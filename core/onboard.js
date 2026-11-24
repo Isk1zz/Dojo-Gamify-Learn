@@ -63,15 +63,15 @@
   // decision rather than a layout choice plus a follow-up.
   const LOOK_CHOICES = () => I18N.resolve([
     { id: "star:spokes",    layout: "star",    links: "spokes",
-      name: { en: "Star — spokes",        ru: "Звезда — лучи" } },
+      name: { en: "Star — spokes",        ru: "Звезда — лучи", he: "כוכב — חישורים" } },
     { id: "star:hexagram",  layout: "star",    links: "hexagram",
-      name: { en: "Star — Star of David", ru: "Звезда — Звезда Давида" } },
+      name: { en: "Star — Star of David", ru: "Звезда — Звезда Давида", he: "כוכב — מגן דוד" } },
     { id: "star:pentagram", layout: "star",    links: "pentagram",
-      name: { en: "Star — pentagram",     ru: "Звезда — пентаграмма" } },
+      name: { en: "Star — pentagram",     ru: "Звезда — пентаграмма", he: "כוכב — מחומש" } },
     { id: "cards",          layout: "cards",
-      name: { en: "Cards",                ru: "Карточки" } },
+      name: { en: "Cards",                ru: "Карточки", he: "כרטיסים" } },
     { id: "classic",        layout: "classic",
-      name: { en: "Classic",              ru: "Классика" } }
+      name: { en: "Classic",              ru: "Классика", he: "קלאסי" } }
   ]);
 
   // ---- Steps ---------------------------------------------------------

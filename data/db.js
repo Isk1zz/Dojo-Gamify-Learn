@@ -1586,11 +1586,11 @@ const DB = (() => {
           if (!incoming || typeof incoming !== "object" ||
               !incoming.profiles || typeof incoming.profiles !== "object" ||
               Array.isArray(incoming.profiles)) {
-            reject(new Error("Invalid database file — no profiles found."));
+            reject(new Error(I18N.t("db.badFile")));
             return;
           }
           if (!Object.keys(incoming.profiles).length) {
-            reject(new Error("That backup contains no profiles."));
+            reject(new Error(I18N.t("db.noProfiles")));
             return;
           }
           // A file from a NEWER build can hold fields this version has no
@@ -1599,7 +1599,7 @@ const DB = (() => {
           // refusing is the honest outcome.
           const v = Number(incoming.version);
           if (Number.isFinite(v) && v > DB_VERSION) {
-            reject(new Error(`That backup is from a newer version (v${v}); this build understands up to v${DB_VERSION}.`));
+            reject(new Error(I18N.t("db.newer", { v, max: DB_VERSION })));
             return;
           }
           // Anything without a usable version is treated as oldest-known
@@ -1614,7 +1614,7 @@ const DB = (() => {
           reject(err);
         }
       };
-      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.onerror = () => reject(new Error(I18N.t("db.readFail")));
       reader.readAsText(file);
     });
   }

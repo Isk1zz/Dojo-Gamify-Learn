@@ -51,8 +51,8 @@
     warnings.forEach(w => list.appendChild(itemNode(w)));
     if (desc) {
       desc.textContent = warnings.length === 1
-        ? "You have received a warning from a moderator."
-        : `You have received ${warnings.length} warnings from a moderator.`;
+        ? I18N.t("ui.warn.desc")
+        : I18N.t("ui.warn.descN", { n: warnings.length });
     }
 
     modal.style.display = "flex";

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Knell</title>
   <meta name="description" content="Knell — a chunk-based study app with spaced review, mastery exams and a garden that wilts when you stop. Computer science and Israeli A3 electric-bicycle theory, in English and Russian." />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <!-- One stylesheet per branch. base.css is the design system and the
        screens core owns; the rest are droppable with their folder. -->
   <!-- Installable app. Everything here is additive: with none of it the
@@ -249,7 +249,7 @@
          it used to also repeat as an abbreviation next to it, which read
          as a duplicate ("GEN General"). See core/hud.js. -->
     <div id="charge-bar" class="charge-bar" style="display:none;">
-      <button id="rank-chip" class="rank-chip" type="button" aria-label="Show rank progress">
+      <button id="rank-chip" class="rank-chip" type="button" aria-label="Show rank progress" data-i18n-aria="hud.rankAria">
         <span id="rank-insignia" class="rank-insignia"></span>
         <span id="rank-label" class="rank-name"></span>
         <span id="hud-nickname" class="hud-nickname"></span>
@@ -266,7 +266,7 @@
            renewed streak (first activity of a real day) pops
            #streak-toast briefly. See core/hud.js. -->
       <button id="streak-chip" class="streak-chip" type="button"
-              aria-label="Show streak detail" style="display:none;">
+              aria-label="Show streak detail" data-i18n-aria="hud.streakAria" style="display:none;">
         <span class="streak-icon">&#128293;</span>
         <span id="streak-count" class="streak-count"></span>
       </button>
@@ -303,13 +303,16 @@
         <div class="modal-icon">🌐</div>
         <h2 class="modal-title">Choose your language</h2>
         <p class="modal-desc" lang="ru">Выберите язык</p>
+        <p class="modal-desc" lang="he" dir="rtl">בחרו שפה</p>
         <div class="lang-gate-row">
           <button class="btn-primary lang-gate-btn" data-lang="en" lang="en">English</button>
           <button class="btn-primary lang-gate-btn" data-lang="ru" lang="ru">Русский</button>
+          <button class="btn-primary lang-gate-btn" data-lang="he" lang="he" dir="rtl">עברית</button>
         </div>
         <p class="modal-desc lang-gate-hint">
           <span lang="en">You can change this any time in Settings.</span><br>
-          <span lang="ru">Это можно поменять в любой момент в настройках.</span>
+          <span lang="ru">Это можно поменять в любой момент в настройках.</span><br>
+          <span lang="he" dir="rtl">אפשר לשנות זאת בכל עת בהגדרות.</span>
         </p>
       </div>
     </div>
@@ -343,13 +346,13 @@
           <div class="onb-later" data-i18n="onb.changeLater">Change any of this later in Custom</div>
         </div>
         <div class="onb-picker">
-          <button id="onb-prev" class="onb-arrow" type="button" aria-label="Previous">&#8249;</button>
+          <button id="onb-prev" class="onb-arrow" type="button" aria-label="Previous" data-i18n-aria="ui.prev">&#8249;</button>
           <div class="onb-valuewrap">
             <div class="onb-value" id="onb-value"></div>
             <div class="onb-dots" id="onb-dots"></div>
             <div class="onb-count" id="onb-count"></div>
           </div>
-          <button id="onb-next-item" class="onb-arrow" type="button" aria-label="Next">&#8250;</button>
+          <button id="onb-next-item" class="onb-arrow" type="button" aria-label="Next" data-i18n-aria="next.default">&#8250;</button>
         </div>
         <div class="onb-right">
           <button id="onb-skip" class="btn-ghost onb-skip" data-i18n="onb.skip">Skip</button>
@@ -529,7 +532,7 @@
              without scrolling; the scene is the "look inside", not a
              gate in front of the way in. -->
         <button id="btn-start" class="btn-primary" data-i18n="ui.landing.begin">Begin Training</button>
-        <p class="landing-hint" id="landing-hint" data-i18n="ui.landing.hint">Free account — your progress follows you to any device</p>
+        <p class="landing-hint" id="landing-hint" data-i18n="ui.landing.hint">Accounts are closed: the server was switched off in 2026. The demo opens without one: isk1zz.github.io/knell_demo</p>
         <!-- The Knell garden (scenes/knell-garden.js), drawn by
              scenes/scene.js from boot.js. Playable here: tap a plant and
              the runner goes to it, tap the bell and he rings it. Left
@@ -568,16 +571,16 @@
         <div class="lobby-dials" id="lobby-dials">
           <div class="lobby-rotate-control" id="lobby-rotate-control">
             <span class="lobby-rotate-icon" aria-hidden="true">&#127744;</span>
-            <input type="range" id="lobby-rotate-slider" class="lobby-rotate-slider" min="-60" max="60" value="0" step="1" aria-label="Spin the star layout" />
+            <input type="range" id="lobby-rotate-slider" class="lobby-rotate-slider" min="-60" max="60" value="0" step="1" aria-label="Spin the star layout" data-i18n-aria="lobby.spinAria" />
           </div>
           <!-- Mirrored across the Y axis from the wind dial: it sits at
                the opposite end of the row AND its icon/slider order is
                reversed, so the pair reads as one reflected control
                rather than two dials that happen to be on one line. -->
           <div class="lobby-spark-control" id="lobby-spark-control">
-            <button type="button" class="lobby-spark-btn" id="lobby-spark-minus" aria-label="Fewer sparks">&minus;</button>
+            <button type="button" class="lobby-spark-btn" id="lobby-spark-minus" aria-label="Fewer sparks" data-i18n-aria="lobby.fewerSparks">&minus;</button>
             <span class="lobby-spark-count" id="lobby-spark-count" aria-live="polite">1</span>
-            <button type="button" class="lobby-spark-btn" id="lobby-spark-plus" aria-label="More sparks">+</button>
+            <button type="button" class="lobby-spark-btn" id="lobby-spark-plus" aria-label="More sparks" data-i18n-aria="lobby.moreSparks">+</button>
             <span class="lobby-rotate-icon" aria-hidden="true">&#10024;</span>
           </div>
         </div>
@@ -591,7 +594,7 @@
         <p class="lobby-hint" id="lobby-hint" data-i18n="lobby.hint">Circles take you somewhere. Poke the sky: some of it answers.</p>
         <div class="lobby-actions" id="lobby-actions">
           <svg class="lobby-star-lines" id="lobby-star-lines" aria-hidden="true"></svg>
-          <button id="btn-lobby-hub-flashcards" class="lobby-hub" type="button" aria-label="Flashcards"><span>&#128209;</span></button>
+          <button id="btn-lobby-hub-flashcards" class="lobby-hub" type="button" aria-label="Flashcards" data-i18n-aria="ui.tile.flashcards"><span>&#128209;</span></button>
           <button id="btn-lobby-courses" class="lobby-tile primary">
             <span class="lt-icon">&#128218;</span>
             <span class="lt-body">
@@ -768,7 +771,7 @@
       <div class="topbar">
         <div style="display:flex;align-items:center;gap:0.75rem;">
           <button id="btn-back-units" class="btn-ghost" data-i18n="ui.back.unitList">← Units</button>
-          <h2 class="topbar-title" id="topic-map-unit-label">Unit</h2>
+          <h2 class="topbar-title" id="topic-map-unit-label" data-i18n="lib.unit">Unit</h2>
         </div>
         <div class="topbar-right">
           <div class="progress-ring-wrap">
@@ -822,7 +825,7 @@
         <div id="result-charge"></div>
         <div id="result-wisdom"></div>
         <div class="result-btns">
-          <button id="btn-retry" class="btn-primary">Retry Exam</button>
+          <button id="btn-retry" class="btn-primary" data-i18n="exam.retry">Retry Exam</button>
           <button id="btn-to-topics" class="btn-ghost" data-i18n="btn.backToTopics">Back to Topics</button>
         </div>
       </div>
@@ -844,7 +847,7 @@
     <section id="store" class="screen">
       <div class="topbar">
         <button id="btn-back-store" class="btn-ghost" data-i18n="ui.back.lobby">&larr; Lobby</button>
-        <h2 class="topbar-title">The <span class="accent" data-i18n="ui.screen.shop">Shop</span></h2>
+        <h2 class="topbar-title" data-i18n-html="ui.title.shop">The <span class="accent">Shop</span></h2>
       </div>
       <div class="topic-map-body" id="store-body"></div>
     </section>
@@ -853,7 +856,7 @@
     <section id="inventory" class="screen">
       <div class="topbar">
         <button id="btn-back-inventory" class="btn-ghost" data-i18n="ui.back.lobby">&larr; Lobby</button>
-        <h2 class="topbar-title">Your <span class="accent" data-i18n="ui.screen.custom">Custom</span></h2>
+        <h2 class="topbar-title" data-i18n-html="ui.title.custom">Your <span class="accent">Custom</span></h2>
       </div>
       <div class="topic-map-body" id="inventory-body"></div>
     </section>

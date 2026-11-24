@@ -57,19 +57,17 @@
           <span class="rank-badge tier-${R.rankTier(prog.cur.n)}">${prog.cur.abbr}</span>
           <span>
             <span class="rank-name">${prog.cur.name}</span>
-            <span class="sw-meta">${xp} XP total${prog.next
-              ? ` \u00b7 ${prog.toGo} to ${prog.next.name}` : " \u00b7 top of the ladder"}</span>
+            <span class="sw-meta">${I18N.t("career.total", { xp })} \u00b7 ${prog.next
+              ? I18N.t("career.toGo", { n: prog.toGo, next: prog.next.name }) : I18N.t("career.top")}</span>
           </span>
         </div>
         <div class="v-track wide" style="margin-top:0.7rem;"><span class="v-fill" style="width:${prog.pct}%"></span></div>
         <p class="settings-hint" style="margin:0.6rem 0 0;">
-          XP comes from finishing chunks and passing exams, and is never spent.
-          Rewards arrive when you reach the rank \u2014 there is nothing to buy. Themes
-          and background stripes are equipped from Custom once they're unlocked.
+          ${I18N.t("career.hint")}
         </p>
       </div>
       <div class="settings-section">
-        <div class="stats-section-title">\u{1F396} Ranks</div>
+        <div class="stats-section-title">\u{1F396} ${I18N.t("career.ranks")}</div>
         <div class="rank-ladder" id="rank-ladder"></div>
       </div>
       <div id="shop-stats"></div>`;
@@ -95,7 +93,7 @@
       const rewardLabel = [
         theme ? `\u{1F3A8} ${theme}` : null,
         stripe ? `\u{1F9F5} ${stripe}` : null,
-        tokens ? `\u{1FA99} ${tokens} Tokens` : null
+        tokens ? `\u{1FA99} ${I18N.tn("hud.tokensN", tokens)}` : null
       ].filter(Boolean).join(" \u00b7 ");
 
       const row = document.createElement("div");

@@ -1,5 +1,37 @@
 # BACKLOG.md — everything flagged 2026-08-12, not yet all done
 
+
+## 2026-11-22 to 11-24 — Hebrew, the achievements, the sky's sounds; the stack closed
+
+- [x] **Full Hebrew** («i want full hebrew localization»): `he` in `LANGS`
+      with `dir="rtl"`, the gate, Settings and the Heebo font; every
+      interface bag and key in three languages (500 keys), including the
+      English that had been written straight into the code of the screens
+      behind the lobby tiles, which was English in Russian too; a
+      right-to-left style pass (logical sides, forward arrows turn round,
+      English material such as Intro to CS reads left to right); both
+      courses translated, the A3 course's 40 official questions in the
+      Ministry's own Hebrew from gov.il, keys checked against all 40; the
+      scene labels; and a pass over every screen at phone width.
+- [x] **The achievements work together** («check if achivements work
+      together»): the three course badges counted every topic of every
+      course, so finishing a course earned nothing; they now measure the
+      best single course, the same thing the course reward pays for.
+- [x] **The sky's sounds** («sfx and vfx»): every poke at the sky made the
+      button click; rain, thunder, the rainbow, the fairy, the bow, the
+      darts, the sun and the moon now each have their own synthesized
+      sound, and with "reduce motion" set the effects are not drawn.
+- [x] **Small things on the way:** the demo student is Sunshine (was
+      Alex); the museum's old screenshots were retaken with the name
+      isk1zz; the unwritten courses say "Placeholder" / «Муляж» instead of
+      "Coming soon"; the philosophy card names Cicero; the real app's
+      start page no longer promises a free account; the sun's glow is no
+      longer cut off at the screen edge; the start page and Career no
+      longer scroll sideways on a phone; the profile no longer opens empty
+      after a visit to Career.
+- [x] **The stack closed:** what needed the server moved to
+      docs/archive/UPDATESTACK-frozen.md.
+
 ## Batch 52 — Hexagram flag colours are now a Settings choice
 
 - [x] **Added "Star of David colours" to Settings**: Combined (Ukraine

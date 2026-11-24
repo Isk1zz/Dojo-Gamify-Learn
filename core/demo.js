@@ -54,7 +54,7 @@ Dojo.DEMO = false;   // tools/make-demo.js sets this to true in the demo copy
 
   const T = {
     banner: { en: "Demo: progress is saved only in this browser.",
-              ru: "Демо: прогресс сохраняется только в этом браузере." }
+              ru: "Демо: прогресс сохраняется только в этом браузере.", he: "דמו: ההתקדמות נשמרת רק בדפדפן הזה." }
   };
   const t = key => {
     const lang = (typeof I18N !== "undefined" && I18N.lang && I18N.lang()) || "en";
@@ -88,7 +88,7 @@ Dojo.DEMO = false;   // tools/make-demo.js sets this to true in the demo copy
       ["cf-systems-classification",    1, 1, 2.5,   0,  80]    // due today
     ];
     const p = {
-      name: "Alex",
+      name: "Sunshine",
       completedTopics: [],
       completedChunks: {},
       reviews: {},

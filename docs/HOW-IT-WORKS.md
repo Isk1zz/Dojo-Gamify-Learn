@@ -12,7 +12,7 @@ answers five questions in a paragraph each. [ARCHITECTURE.md](ARCHITECTURE.md)
 is for someone about to change the code. This one is the walk-through between
 them.
 
-The demo carries the same walk-through in English and Russian: in its museum
+The demo carries the same walk-through in English, Russian and Hebrew: in its museum
 (the lobby tile where the Forum's was), every card that explains something has
 a "Read more".
 
@@ -61,8 +61,8 @@ explanation, an analogy, a worked example and a question.
 
 Courses are data, not code. Each one is a folder in `library/content/` with a
 manifest (`course.js`: its units, their order, the exam's terms) and modules
-(`data_m*.js`: the topics and their chunks). Text that exists in two languages
-is written as a small `{ en, ru }` bag right where it is used.
+(`data_m*.js`: the topics and their chunks). Text that exists in more than one language
+is written as a small `{ en, ru, he }` bag right where it is used.
 
 A written standard says what a chunk must carry
 ([CONTENT-MODEL.md](../library/content/CONTENT-MODEL.md)), and a script checks
@@ -114,7 +114,8 @@ asked again before the topic's exam.
 to pass. One retry; fail twice and the topic is walked again. Passing is the
 only way a topic enters the review schedule, which is why this gate matters.
 "Continue where you left off" takes you back to the exact chunk you stopped
-at.
+at. A passed exam, and a finished review, end with a short quote that names
+its source: 58 of them by 32 authors, 49 traced to a specific work.
 
 *Where:* `library/library.js` (`phasesFor`, the quiz, the exam).
 *More, in Russian, with the research behind each technique:*
@@ -273,8 +274,9 @@ roofs, columns and togas for the forum) that every later recipe can use.
 - **Storage.** One JSON document in `localStorage`. It carries a schema
   version and is migrated forward when it loads, so an old save always opens
   in a new build. [DATA.md](../data/DATA.md).
-- **Two languages.** Course text is resolved once per page load; the interface
-  has about 350 keyed strings. The language belongs to the device, and
+- **Three languages,** English, Russian and Hebrew, the last right to left.
+  Course text is resolved once per page load; the interface has about 500
+  keyed strings. The language belongs to the device, and
   switching it reloads the page: a reload is cheap, and it makes a
   half-switched screen impossible.
 - **Sound** is synthesised in the browser, with no audio files, and honours the
@@ -320,7 +322,7 @@ Supabase address and key, drops the Supabase client and the Forum, renames the
 old service worker's cache so each app clears only its own, and then searches
 the copy for any production identifier before it finishes.
 
-With the flag on, nobody signs in. A first visit loads a sample student, Alex:
+With the flag on, nobody signs in. A first visit loads a sample student, Sunshine:
 Lab Intern and most of the way to the next rank, a nine-day streak, a topic
 half done, a plant at every stage. The demo keeps its storage apart from the
 real app's, and a banner says progress stays in this browser. The Forum's tile

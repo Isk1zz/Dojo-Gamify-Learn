@@ -69,17 +69,17 @@
         // Awarded themes are earned, never sold — show the rank instead
         // of a price so the two routes can't be confused.
         price: awarded ? 0 : (t.price || 0),
-        req: !unlocked && awarded && rank ? `Rank ${rank.n}` : null,
+        req: !unlocked && awarded && rank ? I18N.t("inv.rankN", { n: rank.n }) : null,
         preview: true
       };
     };
     out.push({
-      key: "theme", group: "theme", icon: "🎨", title: { en: "Colour themes", ru: "Цветовые темы" }, previewKind: "theme",
+      key: "theme", group: "theme", icon: "🎨", title: { en: "Colour themes", ru: "Цветовые темы", he: "ערכות צבעים" }, previewKind: "theme",
       items: (Dojo.THEMES || []).map(t => themeItem(t, false)),
       equip: id => { if (themeOwned(id)) (Dojo.equipTheme || (i => { DB.setTheme(i); Dojo.applyTheme(i); }))(id); }
     });
     out.push({
-      key: "awarded", group: "theme", icon: "✨", title: { en: "Awarded themes", ru: "Наградные темы" }, previewKind: "theme",
+      key: "awarded", group: "theme", icon: "✨", title: { en: "Awarded themes", ru: "Наградные темы", he: "ערכות שהוענקו" }, previewKind: "theme",
       items: (Dojo.PREMIUM_THEMES || []).map(t => themeItem(t, true)),
       equip: id => { if (Dojo.themeUnlocked && Dojo.themeUnlocked(id)) (Dojo.equipTheme || (i => { DB.setTheme(i); Dojo.applyTheme(i); }))(id); }
     });
@@ -89,8 +89,8 @@
     const stripes = (Dojo.BG_STRIPES || [])
       .filter(s => Dojo.bgStripeUnlocked && Dojo.bgStripeUnlocked(s.id));
     out.push({
-      key: "stripe", group: "style", icon: "\u{1F9F5}", title: { en: "Background stripes", ru: "Фоновые узоры" },
-      items: [{ id: "none", name: "None", swatch: null, equipped: stripeNow === "none" }]
+      key: "stripe", group: "style", icon: "\u{1F9F5}", title: { en: "Background stripes", ru: "Фоновые узоры", he: "פסי רקע" },
+      items: [{ id: "none", name: { en: "None", ru: "Нет", he: "בלי" }, swatch: null, equipped: stripeNow === "none" }]
         .concat(stripes.map(s => ({
           id: s.id, name: s.name, swatch: `background-image:${s.css}`, equipped: s.id === stripeNow
         }))),
@@ -106,8 +106,8 @@
     const ownsL = id => !Dojo.ownsLayout || Dojo.ownsLayout(id);
     const styleNow = DB.getLobbyStyle();
     out.push({
-      key: "lobby", group: "layout", icon: "\u{1F9E9}", title: { en: "Lobby style", ru: "Стиль лобби" }, previewKind: "lobby",
-      items: [["classic", "Classic"], ["cards", "Cards"], ["star", "Star"]]
+      key: "lobby", group: "layout", icon: "\u{1F9E9}", title: { en: "Lobby style", ru: "Стиль лобби", he: "סגנון הלובי" }, previewKind: "lobby",
+      items: [["classic", { en: "Classic", ru: "Классика", he: "קלאסי" }], ["cards", { en: "Cards", ru: "Карточки", he: "כרטיסים" }], ["star", { en: "Star", ru: "Звезда", he: "כוכב" }]]
         .map(([id, name]) => ({
           id, name, swatch: null,
           equipped: ownsL(id) && id === styleNow,
@@ -123,8 +123,8 @@
     if (styleNow === "star") {
       const linksNow = DB.getStarLinks ? DB.getStarLinks() : "spokes";
       out.push({
-        key: "links", group: "layout", icon: "\u{1F517}", title: { en: "Star links", ru: "Лучи звезды" }, previewKind: "links",
-        items: [["spokes", "Spokes"], ["hexagram", "Star of David"], ["pentagram", "Pentagram"]]
+        key: "links", group: "layout", icon: "\u{1F517}", title: { en: "Star links", ru: "Лучи звезды", he: "חיבורי הכוכב" }, previewKind: "links",
+        items: [["spokes", { en: "Spokes", ru: "Лучи", he: "חישורים" }], ["hexagram", { en: "Star of David", ru: "Звезда Давида", he: "מגן דוד" }], ["pentagram", { en: "Pentagram", ru: "Пентаграмма", he: "מחומש" }]]
           .map(([id, name]) => ({
             id, name, swatch: null,
             equipped: ownsL(id) && id === linksNow,
@@ -156,13 +156,13 @@
 
       if (linksNow === "hexagram") {
         out.push({
-          key: "flags", group: "style", icon: "\u{1F38C}", title: { en: "Star of David colours", ru: "Цвета звезды Давида" }, previewKind: "flags",
+          key: "flags", group: "style", icon: "\u{1F38C}", title: { en: "Star of David colours", ru: "Цвета звезды Давида", he: "צבעי מגן הדוד" }, previewKind: "flags",
           items: paletteItems(DB.getHexFlags ? DB.getHexFlags() : "combined"),
           equip: id => DB.setHexFlags(id)
         });
       } else {
         out.push({
-          key: "spokes", group: "style", icon: "\u{1F517}", title: { en: "Spoke colours", ru: "Цвета лучей" }, previewKind: "spokes",
+          key: "spokes", group: "style", icon: "\u{1F517}", title: { en: "Spoke colours", ru: "Цвета лучей", he: "צבעי החישורים" }, previewKind: "spokes",
           items: paletteItems(DB.getSpokeFlags ? DB.getSpokeFlags() : "combined"),
           equip: id => DB.setSpokeFlags(id)
         });
@@ -178,7 +178,7 @@
     if (table.length) {
       const equippedAvatar = DB.getAvatar ? DB.getAvatar() : null;
       out.push({
-        key: "avatar", group: "theme", icon: "\u{1F464}", title: { en: "Avatars", ru: "Аватары" },
+        key: "avatar", group: "theme", icon: "\u{1F464}", title: { en: "Avatars", ru: "Аватары", he: "אווטארים" },
         items: table.map(a => ({ id: a.id, name: a.name, glyph: a.icon, swatch: null,
                                  equipped: a.id === equippedAvatar })),
         equip: id => { DB.buyAvatar(id, 0); if (Dojo.updateProfileBadge) Dojo.updateProfileBadge(); }
@@ -191,7 +191,7 @@
     // means "currently toggled on," not "the one active choice."
     const activeDecors = DB.getBgDecors ? DB.getBgDecors() : [];
     out.push({
-      key: "decor", group: "style", icon: "\u{1F985}", title: { en: "Decorations", ru: "Украшения" }, previewKind: "decor", multi: true,
+      key: "decor", group: "style", icon: "\u{1F985}", title: { en: "Decorations", ru: "Украшения", he: "קישוטים" }, previewKind: "decor", multi: true,
       items: (Dojo.BG_DECORS || []).map(d => {
         // Moon reads as "Sun" on a light theme — see Dojo.decorFace.
         const face = Dojo.decorFace ? Dojo.decorFace(d) : d;
@@ -215,10 +215,10 @@
     // The vitals-strip button flips this same state.
     const skyNow = DB.getSky ? DB.getSky() : "night";
     out.push({
-      key: "sky", group: "style", icon: "\u{1F304}", title: { en: "Sky", ru: "Небо" },
+      key: "sky", group: "style", icon: "\u{1F304}", title: { en: "Sky", ru: "Небо", he: "שמיים" },
       items: [
-        { id: "night", name: "Night", glyph: "\u{1F319}", swatch: null, equipped: skyNow === "night" },
-        { id: "day",   name: "Day",   glyph: "☀\u{FE0F}", swatch: null, equipped: skyNow === "day" }
+        { id: "night", name: { en: "Night", ru: "Ночь", he: "לילה" }, glyph: "\u{1F319}", swatch: null, equipped: skyNow === "night" },
+        { id: "day",   name: { en: "Day", ru: "День", he: "יום" }, glyph: "☀\u{FE0F}", swatch: null, equipped: skyNow === "day" }
       ],
       equip: id => { if (Dojo.setSky) Dojo.setSky(id); }
     });
@@ -232,10 +232,10 @@
     if (Dojo.Scenes && Dojo.Scenes.windowView) {
       const winNow = Dojo.Scenes.windowView();
       out.push({
-        key: "sceneWindow", group: "style", icon: "\u{1FA9F}", title: { en: "Windows in scenes", ru: "Окна в сценах" },
+        key: "sceneWindow", group: "style", icon: "\u{1FA9F}", title: { en: "Windows in scenes", ru: "Окна в сценах", he: "חלונות בסצנות" },
         items: I18N.resolve([
-          { id: "sky",   name: { en: "Follow the sky", ru: "Как небо" },      glyph: "☀\u{FE0F}", swatch: null, equipped: winNow === "sky" },
-          { id: "stars", name: { en: "Always starry", ru: "Всегда звёзды" }, glyph: "✨",    swatch: null, equipped: winNow === "stars" }
+          { id: "sky",   name: { en: "Follow the sky", ru: "Как небо", he: "לפי השמיים" },      glyph: "☀\u{FE0F}", swatch: null, equipped: winNow === "sky" },
+          { id: "stars", name: { en: "Always starry", ru: "Всегда звёзды", he: "תמיד כוכבים" }, glyph: "✨",    swatch: null, equipped: winNow === "stars" }
         ]),
         equip: id => Dojo.Scenes.setWindowView(id)
       });
@@ -248,8 +248,8 @@
     const sceneNow = DB.getScene ? DB.getScene() : "none";
     const ownsSc = id => !Dojo.ownsScene || Dojo.ownsScene(id);
     out.push({
-      key: "scene", group: "style", icon: "\u{1F3DE}\u{FE0F}", title: { en: "Scenery", ru: "Пейзаж" }, previewKind: "scene",
-      items: [{ id: "none", name: "None", glyph: "\u{2715}", swatch: null, equipped: sceneNow === "none" }]
+      key: "scene", group: "style", icon: "\u{1F3DE}\u{FE0F}", title: { en: "Scenery", ru: "Пейзаж", he: "נוף" }, previewKind: "scene",
+      items: [{ id: "none", name: { en: "None", ru: "Нет", he: "בלי" }, glyph: "\u{2715}", swatch: null, equipped: sceneNow === "none" }]
         .concat((Dojo.SCENES || []).map(s => ({
           id: s.id, name: s.name, glyph: s.icon, swatch: null,
           equipped: ownsSc(s.id) && s.id === sceneNow,
@@ -271,11 +271,11 @@
   // dressed (style), and the app-wide palette (colour theme). Each
   // branch holds the slots tagged with its group above, so adding a
   // slot never means editing the tree.
-  const BRANCHES = [
-    { id: "layout", icon: "🧩", label: "Layout" },
-    { id: "style",  icon: "🎨", label: "Style" },
-    { id: "theme",  icon: "🌈", label: "Colour theme" }
-  ];
+  const BRANCHES = I18N.resolve([
+    { id: "layout", icon: "🧩", label: { en: "Layout", ru: "Раскладка", he: "פריסה" } },
+    { id: "style",  icon: "🎨", label: { en: "Style", ru: "Стиль", he: "סגנון" } },
+    { id: "theme",  icon: "🌈", label: { en: "Colour theme", ru: "Цветовая тема", he: "ערכת צבעים" } }
+  ]);
   let activeSlot = null;
 
   // ---- Preview of unowned things ----
@@ -382,7 +382,7 @@
     const grid = slot ? slot.items.map(it => `
       <button type="button" class="inv-tile${it.equipped ? " equipped" : ""}${it.locked ? " vacant" : ""}"
               data-id="${it.id}"${it.locked ? ' data-locked="1"' : ' draggable="true"'}
-              title="${it.locked ? (it.req ? `Locked — reach ${it.req}` : `Locked — ${it.price} in the Shop`) : it.name}">
+              title="${it.locked ? (it.req ? I18N.t("inv.lockedReach", { req: it.req }) : I18N.t("inv.lockedPrice", { n: it.price })) : it.name}">
         <span class="inv-tile-art"${it.swatch ? ` style="${it.swatch}"` : ""}>${it.glyph || ""}</span>
         <span class="inv-tile-name">${it.name}</span>
         ${it.equipped ? `<span class="inv-tile-on">✓</span>` : ""}
@@ -392,14 +392,14 @@
     body.innerHTML = `
       <div class="inv-layout">
         <nav class="inv-tree">
-          <div class="inv-owned-count">🎒 ${owned} unlocked</div>
+          <div class="inv-owned-count">🎒 ${I18N.t("inv.unlocked", { n: owned })}</div>
           ${tree}
           <button id="btn-inventory-preview" class="btn-ghost inv-shop-btn">\u25C0\u25B6 ${I18N.t("onb.reopen")}</button>
-          <button id="btn-inventory-shop" class="btn-ghost inv-shop-btn">🛒 Shop</button>
+          <button id="btn-inventory-shop" class="btn-ghost inv-shop-btn">🛒 ${I18N.t("inv.shop")}</button>
         </nav>
         <div class="inv-main">
           <div class="inv-dropzone${(slot && slot.multi ? equippedList.length : equipped) ? " filled" : ""}" id="inv-dropzone">
-            <div class="inv-dropzone-label">${slot ? slot.title : ""} — ${slot && slot.multi ? "on" : "equipped"}</div>
+            <div class="inv-dropzone-label">${slot ? slot.title : ""} — ${I18N.t(slot && slot.multi ? "inv.on" : "inv.equipped")}</div>
             <div class="inv-dropzone-slot${slot && slot.multi ? " multi" : ""}">
               ${slot && slot.multi
                 ? (equippedList.length
@@ -412,17 +412,17 @@
           </div>
           <div class="inv-tile-grid">${grid}</div>
         </div>
-        <aside class="inv-preview" aria-label="Live lobby preview">
+        <aside class="inv-preview" aria-label="${I18N.t("inv.previewAria")}">
           <div class="inv-preview-title">${I18N.t("inv.preview")}</div>
           <div class="inv-preview-art">${previewHtml()}</div>
           ${preview ? `
             <div class="inv-preview-banner">
-              <div class="inv-preview-banner-text">Previewing "${preview.name}" — not yours</div>
+              <div class="inv-preview-banner-text">${I18N.t("inv.previewing", { name: preview.name })}</div>
               <div class="inv-preview-banner-row">
                 ${preview.req
-                  ? `<span class="inv-preview-banner-hint">Reach ${preview.req}</span>`
-                  : `<button type="button" class="btn-ghost" id="inv-preview-buy">Buy — $${preview.price}</button>`}
-                <button type="button" class="btn-ghost" id="inv-preview-clear">✕ Restore</button>
+                  ? `<span class="inv-preview-banner-hint">${I18N.t("inv.reach", { req: preview.req })}</span>`
+                  : `<button type="button" class="btn-ghost" id="inv-preview-buy">${I18N.t("inv.buy", { n: preview.price })}</button>`}
+                <button type="button" class="btn-ghost" id="inv-preview-clear">✕ ${I18N.t("inv.restore")}</button>
               </div>
             </div>` : ""}
         </aside>

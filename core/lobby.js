@@ -73,7 +73,7 @@
       if (topic) {
         resumeBtn.style.display = "flex";
         document.getElementById("lobby-resume-sub").textContent =
-          `${topic.icon} ${topic.title} — chunk ${pos.chunkIdx + 1}`;
+          I18N.t("lobby.resumeSub", { icon: topic.icon, title: topic.title, n: pos.chunkIdx + 1 });
       } else {
         resumeBtn.style.display = "none";
       }
@@ -278,17 +278,17 @@
   // so a Russian Custom showed "Ukraine" and "Mixtape". Resolved here, so
   // every place that shows one still gets a plain string.
   const HEX_FLAG_LABELS = I18N.resolve({
-    sunset: { en: "Sunset", ru: "Закат" },
-    ocean: { en: "Ocean", ru: "Океан" },
-    aurora: { en: "Aurora", ru: "Северное сияние" },
-    neon: { en: "Neon", ru: "Неон" },
-    rosegold: { en: "Rose gold", ru: "Розовое золото" },
-    forest: { en: "Forest", ru: "Лес" },
-    twilight: { en: "Twilight (Sunset + Ocean)", ru: "Сумерки (Закат + Океан)" },
-    combined: { en: "Mixtape (Ukraine + Israel)", ru: "Микс (Украина + Израиль)" },
-    ukraine: { en: "Ukraine", ru: "Украина" },
-    israel: { en: "Israel", ru: "Израиль" },
-    usa: { en: "USA", ru: "США" }
+    sunset: { en: "Sunset", ru: "Закат", he: "שקיעה" },
+    ocean: { en: "Ocean", ru: "Океан", he: "אוקיינוס" },
+    aurora: { en: "Aurora", ru: "Северное сияние", he: "זוהר צפוני" },
+    neon: { en: "Neon", ru: "Неон", he: "ניאון" },
+    rosegold: { en: "Rose gold", ru: "Розовое золото", he: "זהב ורוד" },
+    forest: { en: "Forest", ru: "Лес", he: "יער" },
+    twilight: { en: "Twilight (Sunset + Ocean)", ru: "Сумерки (Закат + Океан)", he: "דמדומים (שקיעה + אוקיינוס)" },
+    combined: { en: "Mixtape (Ukraine + Israel)", ru: "Микс (Украина + Израиль)", he: "מיקסטייפ (אוקראינה + ישראל)" },
+    ukraine: { en: "Ukraine", ru: "Украина", he: "אוקראינה" },
+    israel: { en: "Israel", ru: "Израиль", he: "ישראל" },
+    usa: { en: "USA", ru: "США", he: "ארה״ב" }
   });
 
   // No drawn-chip helper here: every place that shows one of these
@@ -525,7 +525,7 @@
       if (hubBtn) {
         hubBtn.dataset.pentHub = canResume ? "resume" : "";
         hubBtn.innerHTML = canResume ? "<span>\u26A1</span>" : "<span>\u{1F4D1}</span>";
-        hubBtn.setAttribute("aria-label", canResume ? "Continue" : "Flashcards");
+        hubBtn.setAttribute("aria-label", I18N.t(canResume ? "lobby.resumeAria" : "ui.tile.flashcards"));
       }
       if (resumeTile) resumeTile.style.display = "none";
     } else {
@@ -541,7 +541,7 @@
       if (hubBtn && hubBtn.dataset.pentHub) {
         hubBtn.dataset.pentHub = "";
         hubBtn.innerHTML = "<span>\u{1F4D1}</span>";
-        hubBtn.setAttribute("aria-label", "Flashcards");
+        hubBtn.setAttribute("aria-label", I18N.t("ui.tile.flashcards"));
       }
     }
 

@@ -1,7 +1,7 @@
 # Knell demo — screenshots and a 60-second recording
 
 All four screenshots are in `docs/screenshots/`. They were taken from the demo
-build on its sample profile ("Alex"), at a 1200 × 800 window.
+build on its sample profile ("Sunshine"), at a 1200 × 800 window.
 
 ## The four screenshots
 

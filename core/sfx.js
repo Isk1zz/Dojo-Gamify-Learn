@@ -146,6 +146,59 @@
       }
     },
 
+    // The sky's answers when someone pokes it (shop/decor.js). Until
+    // 2026-11-24 every poke made the same button click; now each sounds
+    // like what it shows, still quiet, all synthesized like the rest.
+    sky(kind) {
+      switch (kind) {
+        case "drizzle": swish({ duration: 1.1, gain: 0.014, freq: 3200 }); break;
+        case "rain":    swish({ duration: 1.5, gain: 0.022, freq: 2600 }); break;
+        case "storm":   swish({ duration: 2.0, gain: 0.034, freq: 1900 }); break;
+        case "thunder":
+          tone(1900, { duration: 0.05, gain: 0.02, type: "square" });
+          swish({ delay: 0.12, duration: 1.4, gain: 0.05, freq: 110 });
+          tone(52, { delay: 0.12, duration: 1.1, gain: 0.04, type: "sine" });
+          break;
+        case "rainbow":
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, i) =>
+            tone(f, { delay: i * 0.09, duration: 0.4, gain: 0.024, type: "sine" }));
+          break;
+        case "fairy":
+          [1567.98, 2093.0, 2637.0, 3135.96].forEach((f, i) =>
+            tone(f, { delay: i * 0.06, duration: 0.2, gain: 0.014, type: "triangle" }));
+          break;
+        case "bounce":
+          tone(196, { duration: 0.12, gain: 0.04, type: "sine" });
+          tone(294, { delay: 0.09, duration: 0.12, gain: 0.03, type: "sine" });
+          break;
+        case "whoosh": swish({ duration: 0.5, gain: 0.03, freq: 700 }); break;
+        case "bow":
+          swish({ duration: 0.18, gain: 0.03, freq: 900 });
+          break;
+        case "hit":  tone(1320, { duration: 0.07, gain: 0.025, type: "triangle" }); break;
+        case "miss": tone(330, { duration: 0.1, gain: 0.02, type: "sine" }); break;
+        case "sun":
+          tone(392.0, { duration: 0.7, gain: 0.024, type: "sine" });
+          tone(587.33, { delay: 0.12, duration: 0.7, gain: 0.02, type: "sine" });
+          break;
+        case "moon":
+          tone(261.63, { duration: 0.9, gain: 0.024, type: "sine" });
+          tone(392.0, { delay: 0.18, duration: 0.9, gain: 0.016, type: "sine" });
+          break;
+        // A dart: the whoosh as it leaves the hand, then (from decor.js, as it
+        // lands 0.3s later) a woody thunk with a click on top and the twang
+        // of the shaft quivering, in time with the dart's own wobble.
+        case "dartThrow": swish({ duration: 0.28, gain: 0.026, freq: 1400 }); break;
+        case "dart":
+          tone(160, { duration: 0.07, gain: 0.05, type: "square" });
+          swish({ duration: 0.04, gain: 0.04, freq: 3500 });
+          tone(98, { delay: 0.01, duration: 0.12, gain: 0.04, type: "sine" });
+          [0.06, 0.16, 0.27].forEach((d, i) =>
+            tone(587.33, { delay: d, duration: 0.1, gain: 0.012 / (i + 1), type: "triangle" }));
+          break;
+      }
+    },
+
     // A right answer — two quick notes, rising.
     correct() {
       tone(660, { duration: 0.1, gain: 0.05, type: "sine" });

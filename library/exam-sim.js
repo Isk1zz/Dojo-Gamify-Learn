@@ -228,7 +228,7 @@
         <div class="quiz-options" id="sim-options">
           ${q.options.map((o, i) => `
             <button class="quiz-option${picked === i ? " selected" : ""}" data-idx="${i}">
-              <span class="qo-letter">${"ABCD"[i]}</span><span class="qo-text">${o}</span>
+              <span class="qo-letter">${I18N.letter(i)}</span><span class="qo-text">${o}</span>
             </button>`).join("")}
         </div>
         <div class="sim-actions">

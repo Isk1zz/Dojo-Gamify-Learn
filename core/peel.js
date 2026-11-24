@@ -25,25 +25,25 @@
   const T = v => (v && (v[lang()] || v.en)) || "";
 
   const S = {
-    sticker: { en: "Peel to see your rank", ru: "Отклейте — здесь ваш ранг" },
-    keepGoing: { en: "Keep peeling…", ru: "Отклеивайте дальше…" },
-    title: { en: "Your rank", ru: "Ваш ранг" },
-    back: { en: "Back", ru: "Назад" },
-    next: { en: "Next", ru: "Дальше" },
-    ladder: { en: "See the ladder", ru: "К лестнице" },
-    close: { en: "Close", ru: "Закрыть" },
-    step: { en: "{i} of {n}", ru: "{i} из {n}" },
-    rankOf: { en: "Rank {n} of {all}", ru: "Ранг {n} из {all}" },
-    xpOf: { en: "{into} of {span} XP", ru: "{into} из {span} опыта" },
-    toGo: { en: "{n} XP to {name}", ru: "До ранга «{name}» — {n} опыта" },
-    top: { en: "The top of the ladder", ru: "Вершина лестницы" },
-    nextRank: { en: "Next: {name}", ru: "Следующий ранг: {name}" },
-    theme: { en: "{name} theme", ru: "Тема «{name}»" },
-    pattern: { en: "{name} background", ru: "Узор фона «{name}»" },
-    tokens: { en: "{n} tokens", ru: "{n} жетонов" },
-    server: { en: "Paid by the server", ru: "Начисляет сервер" },
+    sticker: { en: "Peel to see your rank", ru: "Отклейте — здесь ваш ранг", he: "קלפו כדי לראות את הדרגה" },
+    keepGoing: { en: "Keep peeling…", ru: "Отклеивайте дальше…", he: "המשיכו לקלף…" },
+    title: { en: "Your rank", ru: "Ваш ранг", he: "הדרגה שלכם" },
+    back: { en: "Back", ru: "Назад", he: "חזרה" },
+    next: { en: "Next", ru: "Дальше", he: "הבא" },
+    ladder: { en: "See the ladder", ru: "К лестнице", he: "לסולם הדרגות" },
+    close: { en: "Close", ru: "Закрыть", he: "סגירה" },
+    step: { en: "{i} of {n}", ru: "{i} из {n}", he: "{i} מתוך {n}" },
+    rankOf: { en: "Rank {n} of {all}", ru: "Ранг {n} из {all}", he: "דרגה {n} מתוך {all}" },
+    xpOf: { en: "{into} of {span} XP", ru: "{into} из {span} опыта", he: "{into} מתוך {span} XP" },
+    toGo: { en: "{n} XP to {name}", ru: "До ранга «{name}» — {n} опыта", he: "עוד {n} XP עד {name}" },
+    top: { en: "The top of the ladder", ru: "Вершина лестницы", he: "ראש הסולם" },
+    nextRank: { en: "Next: {name}", ru: "Следующий ранг: {name}", he: "הבאה: {name}" },
+    theme: { en: "{name} theme", ru: "Тема «{name}»", he: "ערכת הנושא {name}" },
+    pattern: { en: "{name} background", ru: "Узор фона «{name}»", he: "רקע {name}" },
+    tokens: { en: "{n} tokens", ru: "{n} жетонов", he: "{n} אסימונים" },
+    server: { en: "Paid by the server", ru: "Начисляет сервер", he: "השרת משלם" },
     demo: { en: "This demo has no server, so the sample student's rank stays where it is.",
-            ru: "У этого демо нет сервера, поэтому ранг учебного профиля не меняется." }
+            ru: "У этого демо нет сервера, поэтому ранг учебного профиля не меняется.", he: "בדמו הזה אין שרת, ולכן הדרגה של התלמיד לדוגמה נשארת במקומה." }
   };
   const fill = (s, vars) => s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
   const num = n => Number(n).toLocaleString(lang() === "ru" ? "ru-RU" : "en-US");
@@ -76,9 +76,9 @@
   // first, all-text version was redone the same day). Built afresh every
   // time the guide opens, so the numbers are today's.
   const SLIDES = [
-    { title: { en: "This is your rank", ru: "Это ваш ранг" },
+    { title: { en: "This is your rank", ru: "Это ваш ранг", he: "זו הדרגה שלכם" },
       text: { en: "It shows how much you have studied. There are twenty, from Lab Intern to Nobel Laureate.",
-              ru: "Он показывает, сколько вы уже выучили. Всего рангов двадцать — от стажёра лаборатории до нобелевского лауреата." },
+              ru: "Он показывает, сколько вы уже выучили. Всего рангов двадцать — от стажёра лаборатории до нобелевского лауреата.", he: "היא מראה כמה כבר למדתם. יש עשרים דרגות, ממתמחה במעבדה ועד זוכה פרס נובל." },
       art: p => {
         const d = div("rg-rank"), ins = div("rg-insignia");
         ins.innerHTML = Dojo.Ranks.insigniaSvg(p.cur);
@@ -86,9 +86,9 @@
           div("rg-sub", fill(T(S.rankOf), { n: p.cur.n, all: Dojo.Ranks.RANKS.length })));
         return d;
       } },
-    { title: { en: "XP moves it up", ru: "Его поднимает опыт" },
+    { title: { en: "XP moves it up", ru: "Его поднимает опыт", he: "XP מעלה אותה" },
       text: { en: "Chunks, exams and reviews all earn XP. It is never spent, and each rank needs more than the last.",
-              ru: "Опыт (XP) дают части уроков, экзамены и повторения. Он никогда не тратится, а каждый следующий ранг требует больше." },
+              ru: "Опыт (XP) дают части уроков, экзамены и повторения. Он никогда не тратится, а каждый следующий ранг требует больше.", he: "חלקים, מבחנים וחזרות — כולם מזכים ב־XP. הוא לעולם לא מוצא, וכל דרגה דורשת יותר מהקודמת." },
       art: p => {
         const d = div("rg-xp");
         if (!p.next) { d.append(div("rg-big", "⭐"), div("rg-sub", T(S.top))); return d; }
@@ -99,9 +99,9 @@
           div("rg-sub", fill(T(S.toGo), { n: num(p.toGo), name: p.next.name })));
         return d;
       } },
-    { title: { en: "Every rank gives a reward", ru: "За каждый ранг — награда" },
+    { title: { en: "Every rank gives a reward", ru: "За каждый ранг — награда", he: "כל דרגה מביאה פרס" },
       text: { en: "A colour theme, a background pattern, or tokens that unlock courses.",
-              ru: "Цветовая тема, узор фона или жетоны, которыми открываются курсы." },
+              ru: "Цветовая тема, узор фона или жетоны, которыми открываются курсы.", he: "ערכת צבעים, דוגמת רקע או אסימונים שפותחים קורסים." },
       art: p => {
         const d = div("rg-reward"), w = reward(p.next || p.cur);
         d.appendChild(div("rg-sub", p.next ? fill(T(S.nextRank), { name: p.next.name }) : T(S.top)));
@@ -112,18 +112,18 @@
         }
         return d;
       } },
-    { title: { en: "The server keeps the score", ru: "Счёт ведёт сервер" },
+    { title: { en: "The server keeps the score", ru: "Счёт ведёт сервер", he: "השרת סופר את הניקוד" },
       text: { en: "Your browser reports what you finished. The server decides what it is worth, so XP cannot be typed in.",
-              ru: "Браузер сообщает, что вы прошли, а сколько это стоит, решает сервер. Поэтому опыт нельзя просто вписать." },
+              ru: "Браузер сообщает, что вы прошли, а сколько это стоит, решает сервер. Поэтому опыт нельзя просто вписать.", he: "הדפדפן מדווח מה סיימתם, והשרת מחליט כמה זה שווה — לכן אי אפשר פשוט להקליד XP." },
       demo: true,
       art: () => {
         const d = div("rg-lock");
         d.append(div("rg-big", "\u{1F512}"), div("rg-sub", T(S.server)));
         return d;
       } },
-    { title: { en: "Tap your rank any time", ru: "Нажмите на ранг в любой момент" },
+    { title: { en: "Tap your rank any time", ru: "Нажмите на ранг в любой момент", he: "געו בדרגה שלכם בכל רגע" },
       text: { en: "It shows how far the next one is. The whole ladder, with every reward, is under Career in the lobby.",
-              ru: "Он покажет, сколько осталось до следующего. Вся лестница со всеми наградами — в Карьере, в лобби." },
+              ru: "Он покажет, сколько осталось до следующего. Вся лестница со всеми наградами — в Карьере, в лобби.", he: "היא תראה כמה נשאר עד הבאה. כל הסולם, עם כל הפרסים, נמצא בקריירה שבלובי." },
       art: p => {
         const d = div("rg-ladder"), R = Dojo.Ranks.RANKS, k = R.indexOf(p.cur);
         [k + 2, k + 1, k, k - 1].filter(j => j >= 0 && j < R.length).forEach(j => {
@@ -183,7 +183,8 @@
       if (x0 == null) return;
       const dx = e.clientX - x0;
       x0 = null;
-      if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1));
+      // In Hebrew the cards run right to left, so a swipe to the right is "next".
+      if (Math.abs(dx) > 40) go(i + ((dx < 0) !== isRtl() ? 1 : -1));
     });
     document.body.appendChild(box);
   }
@@ -219,9 +220,12 @@
     });
   }
 
+  const isRtl = () => typeof I18N !== "undefined" && !!(I18N.isRtl && I18N.isRtl());
   function go(n) {
     i = Math.max(0, Math.min(SLIDES.length - 1, n));
-    box.querySelector(".rank-guide-track").style.transform = `translateX(${-100 * i}%)`;
+    // The track lays its cards out in reading order, so in Hebrew the next
+    // card sits to the left and the track moves right to bring it in.
+    box.querySelector(".rank-guide-track").style.transform = `translateX(${(isRtl() ? 100 : -100) * i}%)`;
     box.querySelectorAll(".rg-steps span").forEach((d, k) => d.classList.toggle("on", k <= i));
     const back = box.querySelector(".rank-guide-back"), next = box.querySelector(".rank-guide-next");
     back.textContent = T(S.back);
@@ -231,8 +235,8 @@
 
   function onKey(e) {
     if (e.key === "Escape") close();
-    else if (e.key === "ArrowRight") go(i + 1);
-    else if (e.key === "ArrowLeft") go(i - 1);
+    else if (e.key === "ArrowRight") go(i + (isRtl() ? -1 : 1));
+    else if (e.key === "ArrowLeft") go(i + (isRtl() ? 1 : -1));
   }
   function openRankGuide() {
     if (!box) build();

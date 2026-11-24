@@ -31,7 +31,7 @@
   }
 
   Dojo.Scenes.register("philosophy", {
-    title: { en: "The Roman Forum at night", ru: "Римский форум ночью" },
+    title: { en: "The Roman Forum at night", ru: "Римский форум ночью", he: "הפורום הרומי בלילה" },
     seed: 23,
     spriteScale: 1.2,
 
@@ -135,11 +135,11 @@
     // The topics' own titles. Each stands at its place in the forum.
     pins: [
       { n: 1, at: [5.6, 4.1], z0: 0.9, z1: 3.1, stand: "r", topic: "cicero-man",
-        label: { en: "The Man Killed for Words", ru: "Человек, которого убили за слова" } },
+        label: { en: "The Man Killed for Words", ru: "Человек, которого убили за слова", he: "האיש שנהרג בגלל מילים" } },
       { n: 2, at: [7.3, 3.2], z0: 0.75, z1: 2.4, stand: "t", topic: "cicero-work",
-        label: { en: "What He Left", ru: "Что он оставил" } },
+        label: { en: "What He Left", ru: "Что он оставил", he: "מה שהשאיר אחריו" } },
       { n: 3, at: [2.9, 1.6], z0: 4.7, z1: 5.3, stand: "c", topic: "cicero-thought",
-        label: { en: "What He Argued", ru: "Что он думал" } }
+        label: { en: "What He Argued", ru: "Что он думал", he: "מה שטען" } }
     ],
 
     // In along the Via Sacra, then round the Rostra to the Curia or to the

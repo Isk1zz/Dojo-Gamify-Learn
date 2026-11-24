@@ -1096,7 +1096,10 @@
     const st = document.createElement("style");
     st.id = "ks-style";
     st.textContent =
-      ".ks-scene{display:block;width:100%;height:auto;overflow:visible}" +
+      // A scene never mirrors: in a right-to-left page (Hebrew) its pin labels
+      // would grow leftward out of their boxes, over the numbers. The words in
+      // them still read in their own direction.
+      ".ks-scene{display:block;width:100%;height:auto;overflow:visible;direction:ltr}" +
       ".ks-pin{cursor:pointer;outline:none}" +
       ".ks-pin-inner{transition:transform .18s ease;transform-box:fill-box;transform-origin:50% 100%}" +
       ".ks-pin:hover .ks-pin-inner,.ks-pin:focus-visible .ks-pin-inner{transform:scale(1.08)}" +

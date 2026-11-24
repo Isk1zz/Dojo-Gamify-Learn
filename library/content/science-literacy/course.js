@@ -24,9 +24,9 @@
 
 Content.course({
   id: "science-literacy",
-  title: { en: "Science Literacy", ru: "Научная грамотность" },
+  title: { en: "Science Literacy", ru: "Научная грамотность", he: "אוריינות מדעית" },
   track: "science",
-  subtitle: { en: "How science actually works — evidence, data, reasoning", ru: "Как наука работает на самом деле: доказательства, данные, рассуждение" },
+  subtitle: { en: "How science actually works — evidence, data, reasoning", ru: "Как наука работает на самом деле: доказательства, данные, рассуждение", he: "איך מדע באמת עובד — ראיות, נתונים, היסק" },
   icon: "\u{1F9EA}",
   available: false,
   units: []

@@ -91,9 +91,9 @@
     if (pop.style.display === "block") { hideStreakPopover(); return; }
     const streak = DB.getStreak();
     if (!streak) return;
-    pop.innerHTML = `<strong>${streak.count}-day streak</strong><br>`
-      + `${streak.freezes} freeze${streak.freezes === 1 ? "" : "s"} left this week`
-      + `<br>Freezes cover a missed day automatically — up to ${streak.freezes} in a row before it resets.`;
+    pop.innerHTML = `<strong>${I18N.tn("hud.streakDays", streak.count)}</strong><br>`
+      + I18N.tn("hud.freezes", streak.freezes)
+      + `<br>${I18N.t("hud.freezeNote", { n: streak.freezes })}`;
     const r = chip.getBoundingClientRect();
     pop.style.display = "block";
     pop.style.top = `${r.bottom + 6}px`;
@@ -138,15 +138,15 @@
     // first draft (🏅) — which are indistinguishable at chip size.
     // Applause also says the right thing: this is credit you GIVE, not a
     // trophy you hold. ⭐ is XP and 🪙 is Tokens, so those were out too.
-    const moneyTip = "Reputation, earned in the Garden. Spent on other people's Forum posts — never on your own.";
-    const tokenTip = "Earned free from rank-ups, or bought in the Token Shop. Spent to unlock courses.";
+    const moneyTip = I18N.t("hud.moneyTip");
+    const tokenTip = I18N.t("hud.tokenTip");
     // Day/night toggle. Shows the state you'd switch TO, which is the
     // usual toggle idiom and the only thing that makes a single icon
     // unambiguous. It flips the SKY, which is its own setting and has
     // nothing to do with whether the theme is light or dark — see
     // data/db.js's getSky.
     const isDay = (DB.getSky ? DB.getSky() : "night") === "day";
-    const dnTip = isDay ? "Switch to night" : "Switch to day";
+    const dnTip = I18N.t(isDay ? "hud.toNight" : "hud.toDay");
     // Bell between the currencies and the day/night toggle, not at the
     // start of the strip: .vital-wallet owns margin-left:auto and pins
     // the group to the right, so a bell placed first would sit alone at
@@ -326,7 +326,7 @@
     if (!layer) return;
     const toast = document.createElement("div");
     toast.className = "streak-toast";
-    toast.innerHTML = `<span>\u{1F525}</span><span>${count}-day streak!</span>`;
+    toast.innerHTML = `<span>\u{1F525}</span><span>${I18N.tn("hud.streakToast", count)}</span>`;
     layer.appendChild(toast);
     requestAnimationFrame(() => toast.classList.add("in"));
     setTimeout(() => {
@@ -358,10 +358,8 @@
     toast.className = "streak-toast save-failed";
     toast.innerHTML =
       `<span>\u{26A0}\u{FE0F}</span>`
-      + `<span><strong>Progress isn't saving.</strong><br>`
-      + `Device storage is full or unavailable — recent work may be lost. `
-      + `Free up space, then reload.</span>`
-      + `<button class="save-failed-x" type="button" aria-label="Dismiss">✕</button>`;
+      + `<span><strong>${I18N.t("hud.saveFailTitle")}</strong><br>${I18N.t("hud.saveFailBody")}</span>`
+      + `<button class="save-failed-x" type="button" aria-label="${I18N.t("ui.dismiss")}">✕</button>`;
     layer.appendChild(toast);
     requestAnimationFrame(() => toast.classList.add("in"));
     toast.querySelector(".save-failed-x").addEventListener("click", () => {
@@ -381,7 +379,7 @@
     if (!layer) return;
     const icon = reward.type === "money" ? "\u{1F4B0}" : reward.type === "tokens" ? "\u{1FA99}" : "⭐";
     const amountText = reward.type === "money" ? `$${reward.amount}`
-      : reward.type === "tokens" ? `${reward.amount} Tokens` : `${reward.amount} XP`;
+      : reward.type === "tokens" ? I18N.tn("hud.tokensN", reward.amount) : `${reward.amount} XP`;
     const toast = document.createElement("div");
     toast.className = "streak-toast";
     toast.innerHTML = `<span>${icon}</span><span>${label}: +${amountText}</span>`;

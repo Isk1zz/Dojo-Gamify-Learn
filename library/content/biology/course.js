@@ -24,9 +24,9 @@
 
 Content.course({
   id: "biology",
-  title: { en: "Biology", ru: "Биология" },
+  title: { en: "Biology", ru: "Биология", he: "ביולוגיה" },
   track: "science",
-  subtitle: { en: "Cells, genetics, evolution and human systems", ru: "Клетки, генетика, эволюция и системы человека" },
+  subtitle: { en: "Cells, genetics, evolution and human systems", ru: "Клетки, генетика, эволюция и системы человека", he: "תאים, גנטיקה, אבולוציה ומערכות גוף האדם" },
   icon: "\u{1F9EC}",
   available: false,
   units: []

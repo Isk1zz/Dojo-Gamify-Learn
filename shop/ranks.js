@@ -74,26 +74,26 @@
 // ================================================
 
 const RANKS = I18N.resolve([
-  { n: 1,  xp: 0,      name: { en: "Lab Intern", ru: "Стажёр лаборатории" },               abbr: { en: "INT", ru: "СТЖ" },  reward: { bgStripe: "diagonal" } },
-  { n: 2,  xp: 1200,   name: { en: "Research Assistant I", ru: "Лаборант-исследователь I" },     abbr: { en: "RA1", ru: "ЛИ1" },  reward: { bgStripe: "crosshatch" } },
-  { n: 3,  xp: 3000,   name: { en: "Research Assistant II", ru: "Лаборант-исследователь II" },    abbr: { en: "RA2", ru: "ЛИ2" },  reward: { bgStripe: "herringbone" } },
-  { n: 4,  xp: 5200,   name: { en: "Lab Technician", ru: "Техник лаборатории" },           abbr: { en: "TCH", ru: "ТЕХ" },  reward: { theme: "sakura" } },
-  { n: 5,  xp: 7800,   name: { en: "Shift Supervisor", ru: "Начальник смены" },         abbr: { en: "SUP", ru: "НСМ" },  reward: { theme: "paper" } },
-  { n: 6,  xp: 10800,  name: { en: "Research Coordinator", ru: "Координатор исследований" },     abbr: { en: "CRD", ru: "КРД" },  reward: { tokens: 100 } },
-  { n: 7,  xp: 14200,  name: { en: "Senior Research Coordinator", ru: "Старший координатор исследований" }, abbr: { en: "SCR", ru: "СКР" }, reward: { theme: "sumi" } },
-  { n: 8,  xp: 18000,  name: { en: "Lab Manager", ru: "Заведующий лабораторией" },              abbr: { en: "MGR", ru: "ЗАВ" },  reward: { tokens: 50 } },
-  { n: 9,  xp: 22200,  name: { en: "Senior Lab Manager", ru: "Старший заведующий лабораторией" },       abbr: { en: "SLM", ru: "СЗЛ" },  reward: { bgStripe: "lattice" } },
-  { n: 10, xp: 26800,  name: { en: "Chief Technician", ru: "Главный техник" },         abbr: { en: "CHT", ru: "ГТХ" },  reward: { theme: "terminal" } },
-  { n: 11, xp: 31800,  name: { en: "Director of Operations", ru: "Директор по операциям" },   abbr: { en: "DOP", ru: "ДПО" },  reward: { bgStripe: "trellis" } },
-  { n: 12, xp: 37200,  name: { en: "Master Technician", ru: "Мастер-техник" },        abbr: { en: "MTC", ru: "МТХ" },  reward: { tokens: 75 } },
-  { n: 13, xp: 43000,  name: { en: "Principal Investigator", ru: "Руководитель исследования" },   abbr: { en: "PI", ru: "РИС" },   reward: { theme: "koi" } },
-  { n: 14, xp: 49400,  name: { en: "Postdoctoral Researcher", ru: "Научный сотрудник, постдок" },  abbr: { en: "PDR", ru: "НСП" },  reward: { bgStripe: "origami" } },
-  { n: 15, xp: 56400,  name: { en: "Project Lead", ru: "Руководитель проекта" },             abbr: { en: "PL", ru: "РПР" },   reward: { tokens: 200 } },
-  { n: 16, xp: 64000,  name: { en: "Lead Investigator", ru: "Ведущий исследователь" },        abbr: { en: "LI", ru: "ВИС" },   reward: { theme: "ronin" } },
-  { n: 17, xp: 72200,  name: { en: "Program Director", ru: "Директор программы" },         abbr: { en: "PD", ru: "ДПР" },   reward: { bgStripe: "sunburst" } },
-  { n: 18, xp: 81000,  name: { en: "Senior Program Director", ru: "Старший директор программы" },  abbr: { en: "SPD", ru: "СДП" },  reward: { tokens: 120 } },
-  { n: 19, xp: 90200,  name: { en: "Vice President of R&D", ru: "Вице-президент по разработке" },    abbr: { en: "VP", ru: "ВПР" },   reward: { theme: "fuji" } },
-  { n: 20, xp: 100000, name: { en: "Nobel Laureate", ru: "Нобелевский лауреат" },           abbr: { en: "NL", ru: "НЛ" },   reward: { theme: "kirigami" } }
+  { n: 1,  xp: 0,      name: { en: "Lab Intern", ru: "Стажёр лаборатории", he: "מתמחה במעבדה" },               abbr: { en: "INT", ru: "СТЖ", he: "מת״מ" },  reward: { bgStripe: "diagonal" } },
+  { n: 2,  xp: 1200,   name: { en: "Research Assistant I", ru: "Лаборант-исследователь I", he: "עוזר מחקר א׳" },     abbr: { en: "RA1", ru: "ЛИ1", he: "ע״מ1" },  reward: { bgStripe: "crosshatch" } },
+  { n: 3,  xp: 3000,   name: { en: "Research Assistant II", ru: "Лаборант-исследователь II", he: "עוזר מחקר ב׳" },    abbr: { en: "RA2", ru: "ЛИ2", he: "ע״מ2" },  reward: { bgStripe: "herringbone" } },
+  { n: 4,  xp: 5200,   name: { en: "Lab Technician", ru: "Техник лаборатории", he: "טכנאי מעבדה" },           abbr: { en: "TCH", ru: "ТЕХ", he: "ט״מ" },  reward: { theme: "sakura" } },
+  { n: 5,  xp: 7800,   name: { en: "Shift Supervisor", ru: "Начальник смены", he: "אחראי משמרת" },         abbr: { en: "SUP", ru: "НСМ", he: "אחמ״ש" },  reward: { theme: "paper" } },
+  { n: 6,  xp: 10800,  name: { en: "Research Coordinator", ru: "Координатор исследований", he: "רכז מחקר" },     abbr: { en: "CRD", ru: "КРД", he: "ר״מ" },  reward: { tokens: 100 } },
+  { n: 7,  xp: 14200,  name: { en: "Senior Research Coordinator", ru: "Старший координатор исследований", he: "רכז מחקר בכיר" }, abbr: { en: "SCR", ru: "СКР", he: "רמ״ב" }, reward: { theme: "sumi" } },
+  { n: 8,  xp: 18000,  name: { en: "Lab Manager", ru: "Заведующий лабораторией", he: "מנהל מעבדה" },              abbr: { en: "MGR", ru: "ЗАВ", he: "מנ״מ" },  reward: { tokens: 50 } },
+  { n: 9,  xp: 22200,  name: { en: "Senior Lab Manager", ru: "Старший заведующий лабораторией", he: "מנהל מעבדה בכיר" },       abbr: { en: "SLM", ru: "СЗЛ", he: "מנמ״ב" },  reward: { bgStripe: "lattice" } },
+  { n: 10, xp: 26800,  name: { en: "Chief Technician", ru: "Главный техник", he: "טכנאי ראשי" },         abbr: { en: "CHT", ru: "ГТХ", he: "ט״ר" },  reward: { theme: "terminal" } },
+  { n: 11, xp: 31800,  name: { en: "Director of Operations", ru: "Директор по операциям", he: "מנהל תפעול" },   abbr: { en: "DOP", ru: "ДПО", he: "מנ״ת" },  reward: { bgStripe: "trellis" } },
+  { n: 12, xp: 37200,  name: { en: "Master Technician", ru: "Мастер-техник", he: "טכנאי־אמן" },        abbr: { en: "MTC", ru: "МТХ", he: "ט״א" },  reward: { tokens: 75 } },
+  { n: 13, xp: 43000,  name: { en: "Principal Investigator", ru: "Руководитель исследования", he: "חוקר ראשי" },   abbr: { en: "PI", ru: "РИС", he: "ח״ר" },   reward: { theme: "koi" } },
+  { n: 14, xp: 49400,  name: { en: "Postdoctoral Researcher", ru: "Научный сотрудник, постдок", he: "חוקר בתר־דוקטורט" },  abbr: { en: "PDR", ru: "НСП", he: "בת״ד" },  reward: { bgStripe: "origami" } },
+  { n: 15, xp: 56400,  name: { en: "Project Lead", ru: "Руководитель проекта", he: "ראש פרויקט" },             abbr: { en: "PL", ru: "РПР", he: "ר״פ" },   reward: { tokens: 200 } },
+  { n: 16, xp: 64000,  name: { en: "Lead Investigator", ru: "Ведущий исследователь", he: "חוקר מוביל" },        abbr: { en: "LI", ru: "ВИС", he: "ח״מ" },   reward: { theme: "ronin" } },
+  { n: 17, xp: 72200,  name: { en: "Program Director", ru: "Директор программы", he: "מנהל תוכנית" },         abbr: { en: "PD", ru: "ДПР", he: "מ״ת" },   reward: { bgStripe: "sunburst" } },
+  { n: 18, xp: 81000,  name: { en: "Senior Program Director", ru: "Старший директор программы", he: "מנהל תוכנית בכיר" },  abbr: { en: "SPD", ru: "СДП", he: "מת״ב" },  reward: { tokens: 120 } },
+  { n: 19, xp: 90200,  name: { en: "Vice President of R&D", ru: "Вице-президент по разработке", he: "סמנכ״ל מחקר ופיתוח" },    abbr: { en: "VP", ru: "ВПР", he: "סמנכ״ל" },   reward: { theme: "fuji" } },
+  { n: 20, xp: 100000, name: { en: "Nobel Laureate", ru: "Нобелевский лауреат", he: "זוכה פרס נובל" },           abbr: { en: "NL", ru: "НЛ", he: "נובל" },   reward: { theme: "kirigami" } }
 ]);
 
 // Empty since the life-sim (the last thing that used a feature gate —
@@ -114,18 +114,23 @@ const FEATURES = {};
 // technician track (n1-12), then the specialist/leadership tiers,
 // capped with the medal at Nobel Laureate — not meant to be exact,
 // just a different, recognisable glyph per rung.
-const RANK_EMOJI = {
-  INT: "\u{1F393}", RA1: "\u{1F9EB}", RA2: "\u{1F9EA}", TCH: "\u{1F52C}",
-  SUP: "\u{1F4CB}", CRD: "\u{1F4CA}", SCR: "\u{1F4C8}", MGR: "\u{1F5C2}\u{FE0F}",
-  SLM: "\u{2697}\u{FE0F}", CHT: "\u{1F9F0}", DOP: "\u{1F9ED}", MTC: "\u{1F6E0}\u{FE0F}",
-  PI:  "\u{1F52D}", PDR: "\u{1F4DA}", PL:  "\u{1F4D0}", LI:  "\u{1F9EC}",
-  PD:  "\u{1F9E0}", SPD: "\u{1F4E1}", VP:  "\u{269B}\u{FE0F}", NL:  "\u{1F3C5}"
-};
+//
+// Keyed by rank NUMBER, in ladder order (the comment after each is the
+// English abbreviation). It was keyed by abbreviation, but the
+// abbreviation is translated (СТЖ, מת״מ), so outside English the lookup
+// found nothing and the HUD showed an empty frame.
+const RANK_EMOJI = [
+  "\u{1F393}" /* INT */, "\u{1F9EB}" /* RA1 */, "\u{1F9EA}" /* RA2 */, "\u{1F52C}" /* TCH */,
+  "\u{1F4CB}" /* SUP */, "\u{1F4CA}" /* CRD */, "\u{1F4C8}" /* SCR */, "\u{1F5C2}\u{FE0F}" /* MGR */,
+  "\u{2697}\u{FE0F}" /* SLM */, "\u{1F9F0}" /* CHT */, "\u{1F9ED}" /* DOP */, "\u{1F6E0}\u{FE0F}" /* MTC */,
+  "\u{1F52D}" /* PI */, "\u{1F4DA}" /* PDR */, "\u{1F4D0}" /* PL */, "\u{1F9EC}" /* LI */,
+  "\u{1F9E0}" /* PD */, "\u{1F4E1}" /* SPD */, "\u{269B}\u{FE0F}" /* VP */, "\u{1F3C5}" /* NL */
+];
 
 // Small badge-shaped SVG (rounded rect backdrop + this rank's emoji)
 // sized to sit inline in the HUD chip. `rank` is a RANKS entry.
 function insigniaSvg(rank) {
-  const emoji = RANK_EMOJI[rank.abbr] || "";
+  const emoji = RANK_EMOJI[rank.n - 1] || "";
   return `<svg class="rank-svg" viewBox="0 0 28 34" width="26" height="32" aria-hidden="true">`
     + `<rect x="1.5" y="1.5" width="25" height="31" rx="4" fill="var(--bg-card)" stroke="var(--border)"/>`
     + (emoji ? `<text x="14" y="18" text-anchor="middle" dominant-baseline="central" font-size="15">${emoji}</text>` : "")

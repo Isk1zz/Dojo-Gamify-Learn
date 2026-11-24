@@ -25,18 +25,18 @@
   // an upsell, so a fresh profile should open on it rather than on an
   // empty background with the good version behind a paywall.
   const BG_DECORS = [
-    { id: "usa_stars", name: "Stars", price: 0, icon: "⭐",
+    { id: "usa_stars", name: { en: "Stars", ru: "Звёзды", he: "כוכבים" }, price: 0, icon: "⭐",
       desc: "A drifting field of stars, top-left corner." },
-    { id: "usa_eagles", name: "Eagles", price: 0, icon: "🦅",
+    { id: "usa_eagles", name: { en: "Eagles", ru: "Орлы", he: "נשרים" }, price: 0, icon: "🦅",
       desc: "Two eagles crossing the lobby, wings beating." },
-    { id: "clouds", name: "Clouds", price: 0, icon: "☁️",
+    { id: "clouds", name: { en: "Clouds", ru: "Облака", he: "עננים" }, price: 0, icon: "☁️",
       desc: "Slow clouds at three depths — and you can poke them." },
-    { id: "moon", name: "Moon", price: 0, icon: "🌙",
+    { id: "moon", name: { en: "Moon", ru: "Луна", he: "ירח" }, price: 0, icon: "🌙",
       desc: "A cratered moon, top-right, with a soft halo.",
       // One decoration with two faces — see the data-theme-mode split in
       // styles/base.css. The LABEL has to follow the sky, or Custom says
       // "Moon" while a sun is plainly visible behind it.
-      lightName: "Sun", lightIcon: "☀️",
+      lightName: { en: "Sun", ru: "Солнце", he: "שמש" }, lightIcon: "☀️",
       lightDesc: "A sun, top-right, with a slow halo and turning rays." }
   ];
 
@@ -69,9 +69,9 @@
   // the CSS still targets it — re-listing them here is all it takes to
   // bring them back, once they're drawn to the same standard.
   const SCENES = [
-    { id: "jungle",  name: "Jungle",  price: 0,   icon: "🌴", desc: "Dense canopy and hanging vines." },
-    { id: "river",   name: "River",   price: 0, icon: "🏞️", desc: "Still water with a far bank." },
-    { id: "island",  name: "Island",  price: 0, icon: "🏝️", desc: "A lone palm on a sandbar." }
+    { id: "jungle",  name: { en: "Jungle", ru: "Джунгли", he: "ג'ונגל" },  price: 0,   icon: "🌴", desc: "Dense canopy and hanging vines." },
+    { id: "river",   name: { en: "River", ru: "Река", he: "נהר" },   price: 0, icon: "🏞️", desc: "Still water with a far bank." },
+    { id: "island",  name: { en: "Island", ru: "Остров", he: "אי" },  price: 0, icon: "🏝️", desc: "A lone palm on a sandbar." }
   ];
 
   // ================================================
@@ -129,7 +129,14 @@
   // animation (rain drops fall, the rainbow scales, props spin), so a
   // transform here would fight them. Nothing animates left/top, so
   // that channel is free.
+  // With "reduce motion" set in the system, the effects are not drawn at
+  // all: the sky still answers, by sound (core/sfx.js), and nothing flies
+  // across the screen (2026-11-24; this file never checked it before).
+  const reduceMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const skySound = kind => { if (Dojo.sfx && Dojo.sfx.sky) Dojo.sfx.sky(kind); };
+
   function spawn(node, ms, anchor) {
+    if (reduceMotion()) return node;
     fxLayer().appendChild(node);
     let raf = null;
     if (anchor) {
@@ -363,7 +370,8 @@
     const kind = rollShot();
 
     arrowTo(rect, kind);
-    if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click();
+    skySound("bow");
+    setTimeout(() => skySound(kind === "miss" ? "miss" : "hit"), 360);
 
     // Feathers wait for the arrow to actually arrive — bursting them at
     // click time gave away the outcome before the shot landed.
@@ -448,7 +456,7 @@
     el.dataset.busy = "1";
     el.classList.add("sun-spun");
     setTimeout(() => { el.classList.remove("sun-spun"); delete el.dataset.busy; }, 1500);
-    if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click();
+    skySound("sun");
 
     const rect = el.getBoundingClientRect();
     const heat = document.createElement("div");
@@ -498,7 +506,7 @@
     if (el.dataset.busy) return;
     el.dataset.busy = "1";
     setTimeout(() => delete el.dataset.busy, 1800);
-    if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click();
+    skySound("moon");
 
     const rect = el.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
@@ -589,21 +597,21 @@
     const rect = cloud.getBoundingClientRect();
     cloud.classList.add("cloud-poked");
     setTimeout(() => cloud.classList.remove("cloud-poked"), 600);
-    if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click();
 
     // Low clouds skip the weather table entirely — see isBottomCloud.
     if (isBottomCloud(cloud)) {
-      if (Math.random() < 0.5) bounceAt(rect, cloud); else flythroughAt(rect, cloud);
+      if (Math.random() < 0.5) { bounceAt(rect, cloud); skySound("bounce"); }
+      else { flythroughAt(rect, cloud); skySound("whoosh"); }
       return;
     }
 
     switch (rollOutcome()) {
-      case "drizzle":    rainAt(rect, 8,  "light", 2600, cloud); break;
-      case "rain-light": rainAt(rect, 22, "light", 3000, cloud); break;
-      case "rain-heavy": rainAt(rect, 55, "heavy", 3400, cloud); break;
-      case "lightning":  lightningAt(rect, cloud); break;
-      case "rainbow":    rainbowAt(rect, cloud); break;
-      case "fairy":      fairyFrom(cloud, rect); break;
+      case "drizzle":    rainAt(rect, 8,  "light", 2600, cloud); skySound("drizzle"); break;
+      case "rain-light": rainAt(rect, 22, "light", 3000, cloud); skySound("rain"); break;
+      case "rain-heavy": rainAt(rect, 55, "heavy", 3400, cloud); skySound("storm"); break;
+      case "lightning":  lightningAt(rect, cloud); skySound("thunder"); break;
+      case "rainbow":    rainbowAt(rect, cloud); skySound("rainbow"); break;
+      case "fairy":      fairyFrom(cloud, rect); skySound("fairy"); break;
     }
   }
 
@@ -775,6 +783,25 @@
        <path class="dt-flight" d="M5 31 L 9.6 45 L 5 41.5 L 0.4 45 Z" />
      </svg>`;
   const darts = [];
+  // The moment a dart lands (asked 2026-11-24, "add a vfx for darts"): a
+  // ring punched out from the tip and a few splinters flying off it, timed
+  // to the 0.3s the dart takes to arrive, so the hit is seen as well as
+  // heard. spawn() leaves it out under reduced motion, like every effect.
+  function dartHitAt(x, y) {
+    const hit = document.createElement("div");
+    hit.className = "fx-dart-hit";
+    hit.style.left = `${x}px`;
+    hit.style.top = `${y}px`;
+    let html = '<span class="fx-dart-ring"></span>';
+    for (let i = 0; i < 7; i++) {
+      const a = (i / 7) * 360 + Math.random() * 30;
+      const d = 14 + Math.random() * 14;
+      html += `<span class="fx-dart-chip" style="--a:${a.toFixed(0)}deg;--d:${d.toFixed(0)}px"></span>`;
+    }
+    hit.innerHTML = html;
+    spawn(hit, 700);
+  }
+
   function dartAt(x, y) {
     const tx = x + (Math.random() * 14 - 7);
     const ty = y + (Math.random() * 14 - 7);
@@ -788,6 +815,7 @@
     d.style.setProperty("--travel", `${Math.hypot(tx - sx, ty - sy)}px`);
     d.innerHTML = `<div class="fx-dart-body">${DART_SVG}</div>`;
     spawn(d, 3200);
+    skySound("dartThrow");
     darts.push(d);
     if (darts.length > 3) darts.shift().classList.add("pulled");
     const announce = () => Dojo.Bus && Dojo.Bus.emit("darts:changed", { count: darts.length });
@@ -796,7 +824,7 @@
       const i = darts.indexOf(d);
       if (i >= 0) { darts.splice(i, 1); announce(); }
     }, 3200);
-    setTimeout(() => { if (Dojo.sfx && Dojo.sfx.click) Dojo.sfx.click(); }, 300);
+    setTimeout(() => { skySound("dart"); dartHitAt(tx, ty); }, 300);
   }
 
   if (document.readyState === "loading") {

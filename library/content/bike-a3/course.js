@@ -43,11 +43,11 @@
     id: "bike-a3",
     // {en, ru} bags — resolved by I18N at registration, so everything
     // downstream still sees a plain string. See core/i18n.js.
-    title: { en: "A3 Theory — Electric Bicycle", ru: "Теория A3 — электровелосипед" },
+    title: { en: "A3 Theory — Electric Bicycle", ru: "Теория A3 — электровелосипед", he: "תאוריה A3 — אופניים חשמליים" },
     track: "other",
     subtitle: {
       en: "The Ministry of Transport's official question bank, Israel",
-      ru: "Официальный банк вопросов Министерства транспорта, Израиль"
+      ru: "Официальный банк вопросов Министерства транспорта, Израиль", he: "מאגר השאלות הרשמי של משרד התחבורה"
     },
     icon: "\u{1F6B2}",
     available: true,
@@ -96,7 +96,7 @@
         deliberately kept out, so the simulation stays a simulation.</p>
       <span class="ca-for"><strong>Who it is for:</strong> anyone sitting the A3,
         including without a driving licence. The course assumes no prior knowledge of
-        road traffic.</span>`
+        road traffic.</span>`, he: "<p><strong>הקורס הזה קיים בשביל תוצאה אחת: לעבור את מבחן התאוריה A3</strong> לאופניים חשמליים.</p><p>יש בו <strong>את כל 40 השאלות הרשמיות</strong> ממאגר משרד התחבורה, וכל אחת מופיעה פעם אחת בדיוק: 30 מפוזרות במבחני הנושאים, ו־10 משולבות בפרקים כשאלות של החלקים. הנוסח לקוח מהאתר של המשרד עצמו ולא תורגם — אם שאלה מנוסחת בצורה מסורבלת, היא מנוסחת כך גם במבחן.</p><p>אבל המאגר לבדו לא מספיק, והקורס לא מעמיד פנים שכן. המבחן אף פעם לא שואל על <strong>תמרורים</strong>, ואי אפשר לרכוב בלי להכיר אותם — לכן יש פרק נפרד על שנים־עשר תמרורים, שנבדקו מול ההודעה הרשמית על לוח התמרורים. והיכן שמאגר השאלות והחוק אינם מסכימים, הקורס הולך לפי החוק: כמה כללים כאן תוקנו מול המקור הראשוני — <em>תקנות התעבורה</em> — ולא מול הניסוח של המבחן.</p><p>יש <strong>מבחן תרגול</strong> בתנאים האמיתיים: 30 שאלות, 40 דקות, 26 למעבר. נכנסות אליו רק שאלות המשרד — פרק התמרורים נשאר בחוץ בכוונה, כדי שההדמיה תישאר הדמיה.</p><span class=\"ca-for\"><strong>למי זה מתאים:</strong> לכל מי שניגש למבחן A3, גם בלי רישיון נהיגה. הקורס לא מניח ידע קודם בתנועה בדרכים.</span>"
     },
     // The real test's terms, and the reason they live here rather than
     // in library/exam-sim.js: 30/40/26 is a fact about the Israeli A3
@@ -107,10 +107,10 @@
     units: [
       {
         id: 31,
-        title: { en: "Block A3", ru: "Блок A3" },
+        title: { en: "Block A3", ru: "Блок A3", he: "יחידה A3" },
         subtitle: {
           en: "Electric bicycles: the law, the road, staying alive",
-          ru: "Электровелосипед: закон, дорога, безопасность"
+          ru: "Электровелосипед: закон, дорога, безопасность", he: "אופניים חשמליים: החוק, הדרך, והישארות בחיים"
         },
         icon: "\u{1F6B2}",
         modules: [m1]
