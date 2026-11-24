@@ -2929,10 +2929,11 @@
     if (idx >= 0) startTopic(idx, pos.chunkIdx);
   }
 
-  function startNextDueReview() {
+  // `only` picks one due topic (the Garden scene's pin); none, the first due.
+  function startNextDueReview(only) {
     const due = DB.getDueTopicIds();
     if (!due.length) return false;
-    const topic = ALL_TOPICS.find(t => due.includes(t.id));
+    const topic = ALL_TOPICS.find(t => due.includes(t.id) && (!only || t.id === only));
     if (!topic) return false;
     const course = COURSES.find(c => c.units.includes(topic.unit));
     state.currentCourse = course ? course.id : null;

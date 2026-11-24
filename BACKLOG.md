@@ -43,8 +43,13 @@
       The 19 titles of the English-only Intro to CS course stay English
       on purpose. The Russian says «блок» for both a unit and a chunk, as
       it did before; left as it was.
-- [ ] Staged in UPDATESTACK.md: the Garden as a scene?; the Knell tower
-      piercing the cloud.
+- [x] **The Garden as a scene** («можно ли сад переделать в сцены» → «го»):
+      the Garden screen opens with a scene built from your own topics, a
+      bed per course with only what is planted, each plant at its stage
+      (garden/garden.js); a drop pin on each plant that is due (up to
+      eight): tap it and the runner goes there and that topic's review
+      starts. The list below it stays for exact names and numbers.
+- [ ] Staged in UPDATESTACK.md: the Knell tower piercing the cloud.
 
 
 ## 2026-11-22 to 11-24 — Hebrew, the achievements, the sky's sounds; the stack closed

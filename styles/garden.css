@@ -156,3 +156,5 @@
 .gc-inner > * { overflow: hidden; }
 .garden-course .garden-plot { padding: 0 1.1rem; }
 .garden-course.open .garden-plot { padding-bottom: 1rem; }
+
+.garden-scene { max-width: 640px; margin: 0.4rem auto 1rem; }

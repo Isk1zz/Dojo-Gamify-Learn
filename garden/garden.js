@@ -176,6 +176,83 @@
     return bits.join(" \u00b7 ");
   }
 
+  // ---- Your garden, as a scene (asked 2026-11-24, «можно ли сад
+  // переделать в сцены» → «го») ----
+  // A recipe built from the learner's own topics each time the screen
+  // opens: a bed per course, a plant per topic at the stage it has grown
+  // to (a fallow topic is bare soil), and a pin with a drop on each plant
+  // that is due: tap it and the runner goes to it and its review starts.
+  // The list below stays, for exact names and numbers. At most eight pins;
+  // the "Water the first" button covers the rest.
+  let gardenScene = null;
+  const SCENE_COLS = 6, CELL = 1.0;
+  function gardenRecipe(due) {
+    const surface = [], objects = [], pins = [], nodes = {}, edges = [];
+    const W = 0.5 + SCENE_COLS * CELL + 0.9;
+    let y = 0.7, prev = null;
+    COURSES.forEach((c, ci) => {
+      // Only what is planted: bare soil for 40 unstarted topics would
+      // shrink the plants to nothing.
+      const topics = (c.unitObjects || []).flatMap(u => UNIT_TOPICS[u.id] || []).filter(t => growthFor(t.id) !== GROWTH[0] || due.includes(t.id));
+      if (!topics.length) return;
+      const rows = Math.ceil(topics.length / SCENE_COLS), bedD = rows * CELL + 0.5;
+      surface.push({ kind: "rect", x0: 0.5, y0: y, x1: 0.5 + SCENE_COLS * CELL + 0.4, y1: y + bedD, fill: "soil" });
+      const aisle = y + bedD + 0.35;
+      surface.push({ kind: "rect", x0: 0.2, y0: aisle - 0.25, x1: W - 0.3, y1: aisle + 0.25, fill: "path" });
+      topics.forEach((t, i) => {
+        const col = i % SCENE_COLS, row = Math.floor(i / SCENE_COLS);
+        const x = 0.95 + col * CELL, py = y + 0.55 + row * CELL;
+        const idx = GROWTH.indexOf(growthFor(t.id));
+        const o = [null, { kind: "sprout", scale: 0.6 }, { kind: "sprout" }, { kind: "seedling" }, { kind: "stalks" },
+          { kind: "tree", size: 0.42 }, { kind: "tree", size: 0.46, blossom: true }][idx];
+        if (o) objects.push(Object.assign({ at: [Math.round(x * 100) / 100, Math.round(py * 100) / 100] }, o));
+        if (due.includes(t.id) && pins.length < 8) {
+          const stand = "a" + ci + "_" + col;
+          pins.push({ n: pins.length + 1, act: "water", icon: "\u{1F4A7}", topic: t.id, at: [x, py], z1: 1.5, stand, label: t.title });
+        }
+      });
+      nodes["m" + ci] = [0.3, aisle];
+      for (let col = 0; col < SCENE_COLS; col++) {
+        nodes["a" + ci + "_" + col] = [0.95 + col * CELL, aisle];
+        edges.push([col ? "a" + ci + "_" + (col - 1) : "m" + ci, "a" + ci + "_" + col]);
+      }
+      if (prev) edges.push([prev, "m" + ci]);
+      prev = "m" + ci;
+      y = aisle + 0.45;
+    });
+    return {
+      title: { en: "Your garden", ru: "Ваш сад", he: "הגינה שלכם" },
+      seed: 31, spriteScale: 1.3, compact: true,
+      palette: { grass: "#2f5a3e", grassEdge: "#35664a", soil: "#4a3828", path: "#7d6f57", leaf: "#2f7a4c", trunk: "#5a3f2c",
+        blossom: "#f4a8c6", accent: "#f2c14e", runner: "#7b6cff", light: "#ffe2a0", window: "#9fd3ff", haze: "#f2c14e", skyline: "#141a27" },
+      day: { palette: { grass: "#5a9e4e", grassEdge: "#4d8a43", soil: "#8a6845", path: "#d8c7a0", leaf: "#4caa55", trunk: "#7a5a3a" } },
+      block: { w: Math.ceil(W), d: Math.ceil(y + 0.2), top: 200, skin: 0.12,
+        strata: [{ t: 0.22, c: "#3b2c20" }, { t: 0.3, c: "#4f4a45", grain: true }] },
+      surface: [{ kind: "rect", x0: 0, y0: 0, x1: Math.ceil(W), y1: Math.ceil(y + 0.2), fill: "grass", edge: "grassEdge" }].concat(surface),
+      objects, pins,
+      walk: { start: "m0", nodes, edges },
+      backdrop: { kind: "none", stars: 30 }
+    };
+  }
+  function mountGardenScene(body, due) {
+    if (gardenScene) { gardenScene.destroy(); gardenScene = null; }
+    if (!Dojo.Scenes || !Dojo.Scenes.register) return;
+    const planted = ALL_TOPICS.some(t => growthFor(t.id) !== GROWTH[0]);
+    if (!planted) return;
+    Dojo.Scenes.register("my-garden", gardenRecipe(due));
+    const host = document.createElement("div");
+    host.className = "garden-scene";
+    body.appendChild(host);
+    gardenScene = Dojo.Scenes.render(host, "my-garden", {
+      lang: I18N.lang(), start: -1,
+      onPick: ({ n }) => { if (Dojo.sfx && Dojo.sfx.stage) Dojo.sfx.stage(((n - 1) % 6) + 1); },
+      onChapter: ({ topic }) => {
+        if (Dojo.sfx && Dojo.sfx.sky) Dojo.sfx.sky("drizzle");
+        if (topic) setTimeout(() => Dojo.startNextDueReview(topic), 700);
+      }
+    });
+  }
+
   function renderGarden() {
     const body = document.getElementById("garden-body");
     body.innerHTML = "";
@@ -221,6 +298,7 @@
         ${I18N.t("garden.note")}
       </p>`;
     body.appendChild(header);
+    mountGardenScene(body, due);
 
     const water = document.createElement("div");
     water.className = `garden-water${dueTopics.length ? " due" : ""}`;
