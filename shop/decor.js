@@ -107,6 +107,33 @@
   // user just summoned by clicking has to be visible over the cards or
   // the interaction reads as broken. Below core/hud.js's bolt layer
   // (z-index 70) so XP feedback still wins.
+  // The sky's fly-bys (the balloon, the plane, the rocket) live in a
+  // layer of their own BEHIND the app, like the clouds, not in #decor-fx:
+  // that one sits over everything, so on a phone the balloon drifted over
+  // the tiles and on across whatever screen came next (2026-11-25,
+  // «baloon is moving with screen above display on mobile»). Taps still
+  // reach the balloon: the sky hit-tests by rectangle (balloonAt), not by
+  // what is on top. Confetti and fireworks stay in #decor-fx, over
+  // everything, because they answer a tap.
+  function flyLayer() {
+    let el = document.getElementById("decor-fly");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "decor-fly";
+      el.setAttribute("aria-hidden", "true");
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+  // Leaving the lobby takes them out of the sky at once.
+  if (Dojo.Bus && Dojo.Bus.on) {
+    Dojo.Bus.on("screen:changed", ({ id } = {}) => {
+      if (id === "lobby") return;
+      const layer = document.getElementById("decor-fly");
+      if (layer) layer.replaceChildren();
+    });
+  }
+
   function fxLayer() {
     let el = document.getElementById("decor-fx");
     if (!el) {
@@ -861,6 +888,9 @@
     return !!(l && l.classList.contains("active")) && !document.hidden;
   }
   function launchBalloon() {
+    // A balloon taken out of the sky when the lobby was left is not the
+    // one in flight any more.
+    if (balloonEl && !balloonEl.isConnected) balloonEl = null;
     if (balloonEl || reduceMotion() || !lobbyShown()) return;
     const b = document.createElement("div");
     b.className = "fx-balloon";
@@ -869,7 +899,7 @@
     b.style.setProperty("--from", ltr ? "-120px" : "calc(100vw + 40px)");
     b.style.setProperty("--to", ltr ? "calc(100vw + 40px)" : "-120px");
     b.innerHTML = `<div class="bal-bob">${BALLOON_SVG}</div>`;
-    fxLayer().appendChild(b);
+    flyLayer().appendChild(b);
     balloonEl = b;
     b.addEventListener("animationend", e => {
       if (e.target === b) { b.remove(); if (balloonEl === b) balloonEl = null; }
@@ -1008,10 +1038,14 @@
         spawn(puff, 1600);
       }, 90);
     }
-    fxLayer().appendChild(el);
+    flyLayer().appendChild(el);
     el.addEventListener("animationend", e => {
       if (e.target === el) { el.remove(); flyerBusy = false; }
     });
+    // Taken out early when the lobby is left: free the slot then too.
+    new MutationObserver((_, obs) => {
+      if (!el.isConnected) { flyerBusy = false; obs.disconnect(); }
+    }).observe(flyLayer(), { childList: true });
   }
   function scheduleFlyer(kind, min, spread) {
     setTimeout(() => { flyBy(kind); scheduleFlyer(kind, min, spread); }, min + Math.random() * spread);

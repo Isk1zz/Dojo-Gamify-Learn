@@ -3,6 +3,11 @@
 
 ## 2026-11-24 — the museum's halls get scenes; feedback; what went into it
 
+- [x] **The balloon stays in the sky** (2026-11-25, «baloon is moving with
+      screen above display on mobile»): the balloon, the plane and the
+      rocket fly in a layer behind the app, like the clouds, instead of over
+      everything, and leave when the lobby does; a tap still pops the
+      balloon, and its confetti and fireworks still burst over the screen.
 - [x] **The star's line colours: neutral by default, offered when Star is
       chosen** («make default neutal and if chosen star add star spikes
       color offer»): a Neutral choice, the theme's own accent, first in the
